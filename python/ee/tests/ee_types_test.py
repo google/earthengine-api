@@ -3,10 +3,10 @@
 
 import datetime
 
+import unittest
 from ee import ee_list
 from ee import ee_number
 from ee import ee_types
-import unittest
 
 
 class EeTypesTest(unittest.TestCase):

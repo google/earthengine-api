@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
 """A set of utilities to work with EE types."""
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
 import datetime
-import numbers
 from typing import Any, Type
 
 from ee import computedobject
@@ -36,7 +34,7 @@ def classToName(a_class: Type[Any]) -> str:
   """
   if issubclass(a_class, computedobject.ComputedObject):
     return a_class.name()
-  elif issubclass(a_class, numbers.Number):
+  elif issubclass(a_class, (float, int)):
     return 'Number'
   elif issubclass(a_class, str):
     return 'String'
@@ -94,7 +92,7 @@ def isNumber(obj: Any) -> bool:
   Returns:
     Whether the object is a number or number variable.
   """
-  return (isinstance(obj, numbers.Number) or
+  return (isinstance(obj, (float, int)) or
           (isinstance(obj, computedobject.ComputedObject) and
            obj.name() == 'Number'))
 

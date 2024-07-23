@@ -1,0 +1,99 @@
+name: Publish to PyPi
+on:
+  release:
+    types: [published]
+  # Enables running this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11
+      - name: Authenticate with Google Cloud
+        uses: 'google-github-actions/auth@v2'
+        with:
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      - name: Install EE and dependencies
+        run: |
+          pip install ./python[tests]
+      - name: Smoke test
+        run: >
+          python -c 'import ee;
+          import json;
+          import os;
+          from google.auth import identity_pool;
+
+          scopes = [
+              "https://www.googleapis.com/auth/cloud-platform",
+              "https://www.googleapis.com/auth/earthengine",
+          ];
+          path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"];
+          info = json.load(open(path));
+          ee.Initialize(identity_pool.Credentials.from_info(info).with_scopes(scopes));
+
+          print(ee.Image("srtm90_v4").getInfo())'
+
+  build-artifacts:
+    needs: smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade build twine
+      - name: Build package
+        run: python -m build ./python
+      - name: Check built artifacts
+        run: |
+          python -m twine check ./python/dist/*
+      - uses: actions/upload-artifact@v2
+        with:
+          name: releases
+          path: ./python/dist
+
+  pypi-upload:
+    needs: build-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v3
+        name: Install Python
+        with:
+          python-version: 3.11
+      - uses: actions/download-artifact@v2
+        with:
+          name: releases
+          path: dist
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.8.13
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          verbose: true
+
+  check-pypi-package:
+    needs: pypi-upload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v3
+        name: Install Python
+        with:
+          python-version: 3.11
+      - name: Check uploaded package
+        run: |
+          sleep 3  # To account for PyPi publish delay.
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade earthengine-api
+          python -c "import ee; print(ee.__version__)"

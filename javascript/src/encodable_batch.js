@@ -45,6 +45,7 @@ ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
     // Int64s are encoded as strings.
     maxPixels: stringOrNull_(params['maxPixels']),
     requestId: stringOrNull_(params['id']),
+    priority: numberOrNull_(params['priority']),
   });
 
   const destination = ee.rpc_convert_batch.guessDestination_(params);
@@ -94,6 +95,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
     maxErrorMeters: numberOrNull_(params['maxErrorMeters']),
     requestId: stringOrNull_(params['id']),
     maxVertices: numberOrNull_(params['maxVertices']),
+    priority: numberOrNull_(params['priority']),
   });
 
   const destination = ee.rpc_convert_batch.guessDestination_(params);
@@ -144,6 +146,7 @@ ee.rpc_convert_batch.taskToExportVideoRequest = function(params) {
     videoOptions: ee.rpc_convert_batch.buildVideoOptions_(params),
     fileExportOptions: null,
     requestId: stringOrNull_(params['id']),
+    priority: numberOrNull_(params['priority']),
   });
 
   const destination = ee.rpc_convert_batch.guessDestination_(params);
@@ -172,6 +175,7 @@ ee.rpc_convert_batch.taskToExportMapRequest = function(params) {
         // Only Export to cloud storage is allow currently.
         params, ee.rpc_convert_batch.ExportDestination.GCS),
     requestId: stringOrNull_(params['id']),
+    priority: numberOrNull_(params['priority']),
   });
 };
 
@@ -196,6 +200,7 @@ ee.rpc_convert_batch.taskToExportVideoMapRequest = function(params) {
         params, ee.rpc_convert_batch.ExportDestination.GCS),
     requestId: stringOrNull_(params['id']),
     version: stringOrNull_(params['version']),
+    priority: numberOrNull_(params['priority']),
   });
 };
 
@@ -222,6 +227,7 @@ ee.rpc_convert_batch.taskToExportClassifierRequest = function(params) {
       earthEngineDestination:
           ee.rpc_convert_batch.buildEarthEngineDestination_(params)
     }),
+    priority: numberOrNull_(params['priority']),
   });
 };
 

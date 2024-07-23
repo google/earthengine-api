@@ -13,12 +13,12 @@ import cloudstorage as gcs
 import flask
 from flask import request
 from flask_wtf import csrf
-import requests
-
 from google.appengine.api import app_identity
 from google.appengine.api import urlfetch
 from google.auth import app_engine
 from google.cloud import storage
+import requests
+
 import ee
 import config
 

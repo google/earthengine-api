@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A TestCase that initializes the library with standard API methods."""
 
 import contextlib
@@ -8,9 +7,9 @@ from typing import Any, Dict, Iterable, Optional
 
 from googleapiclient import discovery
 
+import unittest
 import ee
 from ee import _cloud_api_utils
-import unittest
 
 
 # Cached algorithms list
@@ -45,16 +44,44 @@ class ApiTestCase(unittest.TestCase):
 
   def setUp(self):
     super().setUp()
+    # Store the state of ee.data before it is overwritten. We need to restore to
+    # this state in tearDown to prevent state leakage between tests.
+    self.old_get_algorithms = ee.data.getAlgorithms
+    self.old_compute_value = ee.data.computeValue
+    self.old_get_map_id = ee.data.getMapId
+    self.old_get_download_id = ee.data.getDownloadId
+    self.old_get_thumb_id = ee.data.getThumbId
+    self.old_get_table_download_id = ee.data.getTableDownloadId
+    # pylint: disable=protected-access
+    self.old_install_cloud_api_resource = ee.data._install_cloud_api_resource
+    self.old_cloud_api_resource = ee.data._cloud_api_resource
+    self.old_cloud_api_resource_raw = ee.data._cloud_api_resource_raw
+    self.old_initialized = ee.data._initialized
+    self.old_fetch_data_catalog_stac = ee.deprecation._FetchDataCatalogStac
+    # pylint: enable=protected-access
     self.InitializeApi()
 
-  def InitializeApi(self, should_mock: bool = True):
+  def tearDown(self):
+    super().tearDown()
+    ee.data.getAlgorithms = self.old_get_algorithms
+    ee.data.computeValue = self.old_compute_value
+    ee.data.getMapId = self.old_get_map_id
+    ee.data.getDownloadId = self.old_get_download_id
+    ee.data.getThumbId = self.old_get_thumb_id
+    ee.data.getTableDownloadId = self.old_get_table_download_id
+    # pylint: disable=protected-access
+    ee.data._install_cloud_api_resource = self.old_install_cloud_api_resource
+    ee.data._cloud_api_resource = self.old_cloud_api_resource
+    ee.data._cloud_api_resource_raw = self.old_cloud_api_resource_raw
+    ee.data._initialized = self.old_initialized
+    ee.deprecation._FetchDataCatalogStac = self.old_fetch_data_catalog_stac
+    # pylint: enable=protected-access
+
+  def InitializeApi(self):
     """Initializes the library with standard API methods.
 
     This is normally invoked during setUp(), but subclasses may invoke
     it manually instead if they prefer.
-
-    Args:
-      should_mock: Whether or not to mock the various functions.
     """
     self.last_download_call = None
     self.last_thumb_call = None
@@ -65,13 +92,14 @@ class ApiTestCase(unittest.TestCase):
 
     ee.data._install_cloud_api_resource = lambda: None  # pylint: disable=protected-access
     ee.data.getAlgorithms = GetAlgorithms
-    if should_mock:
-      ee.data.computeValue = lambda x: {'value': 'fakeValue'}
-      ee.data.getMapId = self._MockMapId
-      ee.data.getDownloadId = self._MockDownloadUrl
-      ee.data.getThumbId = self._MockThumbUrl
-      ee.data.getTableDownloadId = self._MockTableDownload
-      ee.Initialize(None, '')
+    ee.data.computeValue = lambda x: {'value': 'fakeValue'}
+    ee.data.getMapId = self._MockMapId
+    ee.data.getDownloadId = self._MockDownloadUrl
+    ee.data.getThumbId = self._MockThumbUrl
+    ee.data.getTableDownloadId = self._MockTableDownload
+    # pylint: disable-next=protected-access
+    ee.deprecation._FetchDataCatalogStac = self._MockFetchDataCatalogStac
+    ee.Initialize(None, '')
 
   # We are mocking the url here so the unit tests are happy.
   def _MockMapId(self, params: Dict[str, Any]) -> Dict[str, str]:
@@ -86,7 +114,7 @@ class ApiTestCase(unittest.TestCase):
       self,
       params: Dict[str, Any],
       # pylint: disable-next=invalid-name
-      thumbType: str = None,
+      thumbType: Optional[str] = None,
   ) -> Dict[str, str]:
     del thumbType  # Unused.
     # Hang on to the call arguments.
@@ -96,6 +124,9 @@ class ApiTestCase(unittest.TestCase):
   def _MockTableDownload(self, params: Dict[str, Any]) -> Dict[str, str]:
     self.last_table_call = {'url': '/table', 'data': params}
     return {'docid': '5', 'token': '6'}
+
+  def _MockFetchDataCatalogStac(self) -> Dict[str, Any]:
+    return {}
 
 
 def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> discovery.Resource:
@@ -114,15 +145,16 @@ def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> discovery.Resource:
   )
 
 
-@contextlib.contextmanager
+@contextlib.contextmanager  # pytype: disable=wrong-arg-types
 def UsingCloudApi(
     cloud_api_resource: Optional[Any] = None,
     cloud_api_resource_raw: Optional[Any] = None,
     mock_http: Optional[Any] = None,
-) -> Iterable[Any]:
+) -> Iterable[Any]:  # pytype: disable=wrong-arg-types
   """Returns a context manager under which the Cloud API is enabled."""
   old_cloud_api_resource = ee.data._cloud_api_resource  # pylint: disable=protected-access
   old_cloud_api_resource_raw = ee.data._cloud_api_resource_raw  # pylint: disable=protected-access
+  old_initialized = ee.data._initialized  # pylint: disable=protected-access
   try:
     if cloud_api_resource is None:
       cloud_api_resource = _GenerateCloudApiResource(mock_http, False)
@@ -130,10 +162,12 @@ def UsingCloudApi(
       cloud_api_resource_raw = _GenerateCloudApiResource(mock_http, True)
     ee.data._cloud_api_resource = cloud_api_resource  # pylint: disable=protected-access
     ee.data._cloud_api_resource_raw = cloud_api_resource_raw  # pylint: disable=protected-access
+    ee.data._initialized = True  # pylint: disable=protected-access
     yield
   finally:
     ee.data._cloud_api_resource = old_cloud_api_resource  # pylint: disable=protected-access
     ee.data._cloud_api_resource_raw = old_cloud_api_resource_raw  # pylint: disable=protected-access
+    ee.data._initialized = old_initialized  # pylint: disable=protected-access
 
 
 # A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.

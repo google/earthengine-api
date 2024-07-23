@@ -126,7 +126,7 @@ class GetMapData(webapp2.RequestHandler):
     )
 
     # Train a classifier using the aggregated data.
-    classifier = ee.Classifier.naiveBayes().train(
+    classifier = ee.Classifier.smileNaiveBayes().train(
         features=training,
         classProperty='label',
         inputProperties=landsat_composite.bandNames(),

@@ -114,13 +114,23 @@ ee.ImageCollection.reset = function() {
  * Get the URL of a tiled thumbnail for this ImageCollection.
  * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
  * optionally:
- *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
- *         dimensions of each thumbnail frame to render, in pixels. If only one
- *         number is passed, it is used as the maximum, and the other
- *         dimension is computed by proportional scaling.
- *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
- *         to render. By default, the whole image.
- *   - format (string) Encoding format. Only 'png' or 'jpg' are accepted.
+ *   <table>
+ *     <tr>
+ *       <td><code> dimensions </code> (a number or pair of numbers in
+ *         format WIDTHxHEIGHT) Maximum dimensions of each thumbnail frame to
+ *         render, in pixels. If only one number is passed, it is used as the
+ *         maximum, and the other dimension is computed by proportional
+ *         scaling.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> region </code> (E,S,W,N or GeoJSON) Geospatial region of
+ *         the image to render. By default, the whole image.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> format </code> (string) Encoding format. Only 'png'
+ *       or 'jpg' are accepted.</td>
+ *     </tr>
+ *   </table>
  * @param {function(string, string=)=} opt_callback An optional
  *     callback which handles the resulting URL string. If not supplied, the
  *     call is made synchronously.
@@ -141,14 +151,25 @@ ee.ImageCollection.prototype.getFilmstripThumbURL = function(params, opt_callbac
  * Get the URL of an animated thumbnail for this ImageCollection.
  * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
  * optionally:
- *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
- *         dimensions of the thumbnail to render, in pixels. If only one
- *         number is passed, it is used as the maximum, and the other
- *         dimension is computed by proportional scaling.
- *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
- *         to render. By default, the whole image.
- *   - format (string) Encoding format. Only 'gif' is accepted.
- *   - framesPerSecond (number) Animation speed.
+ *   <table>
+ *     <tr>
+ *       <td><code> dimensions </code> (a number or pair of numbers in format
+ *         WIDTHxHEIGHT) Maximum dimensions of the thumbnail to render, in
+ *         pixels. If only one number is passed, it is used as the maximum, and
+ *         the other dimension is computed by proportional scaling.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> region </code> (E,S,W,N or GeoJSON) Geospatial region of
+ *         the image to render. By default, the whole image.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> format </code> (string) Encoding format. Only 'gif'
+ *         is accepted.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> framesPerSecond </code> (number) Animation speed.</td>
+ *     </tr>
+ *   </table>
  * @param {function(string, string=)=} opt_callback An optional
  *     callback which handles the resulting URL string. If not supplied, the
  *     call is made synchronously.
@@ -255,30 +276,47 @@ ee.ImageCollection.prototype.getThumbURL_ = function(
 
 
 /**
- * An imperative function that returns a mapid via a synchronous AJAX call.
+ * An imperative function that returns a map ID via a synchronous AJAX call.
  *
- * This mosaics the collection to a single image and return a mapid suitable
+ * This mosaics the collection to a single image and return a map ID suitable
  * for building a Google Maps overlay.
  *
  * @param {?Object=} opt_visParams The visualization parameters.
  * @param {function(!Object, string=)=} opt_callback An async callback.
  *     If not supplied, the call is made synchronously.
- * @return {!ee.data.MapId|undefined} Returns a mapid and optional token, which
+ * @return {!ee.data.MapId|undefined} Returns a map ID and optional token, which
  *     may be passed to ee.data.getTileUrl or ui.Map.addLayer. Undefined if
  *     a callback was specified.
  * @export
  */
-ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
+ee.ImageCollection.prototype.getMapId = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extractFromFunction(
-      ee.ImageCollection.prototype.getMap, arguments);
+      ee.ImageCollection.prototype.getMapId, arguments);
   var mosaic = /** @type {!ee.Image} */(
       ee.ApiFunction._call('ImageCollection.mosaic', this));
   if (args['callback']) {
-    mosaic.getMap(args['visParams'], args['callback']);
+    mosaic.getMapId(args['visParams'], args['callback']);
   } else {
-    return mosaic.getMap(args['visParams']);
+    return mosaic.getMapId(args['visParams']);
   }
 };
+
+/**
+ * An imperative function that returns a map ID via a synchronous AJAX call.
+ *
+ * This mosaics the collection to a single image and return a map ID suitable
+ * for building a Google Maps overlay.
+ *
+ * @deprecated Use getMapId() instead.
+ * @param {?Object=} opt_visParams The visualization parameters.
+ * @param {function(!Object, string=)=} opt_callback An async callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {!ee.data.MapId|undefined} Returns a map ID and optional token, which
+ *     may be passed to ee.data.getTileUrl or ui.Map.addLayer. Undefined if
+ *     a callback was specified.
+ * @export
+ */
+ee.ImageCollection.prototype.getMap = ee.ImageCollection.prototype.getMapId;
 
 
 /**

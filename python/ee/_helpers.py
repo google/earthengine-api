@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
 """Convenience functions and code used by ee/__init__.py.
 
 These functions are in general re-exported from the "ee" module and should be
-referenced from there (e.g. "ee.profilePrinting").
+referenced from there (e.g., "ee.profilePrinting").
 """
 
 # Using lowercase function naming to match the JavaScript names.
@@ -123,8 +122,7 @@ def profilePrinting(destination: TextIO = sys.stderr) -> Iterator[None]:
         Defaults to sys.stderr.
 
   """
-  # TODO(user): Figure out why ee.Profile.getProfiles isn't generated and fix
-  # that.
+  # Profile.getProfiles is `hidden`, so call it explicitly.
   getProfiles = apifunction.ApiFunction.lookup('Profile.getProfiles')
 
   profile_ids = []

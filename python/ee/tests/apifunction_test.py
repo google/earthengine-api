@@ -3,9 +3,9 @@
 
 import types
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 
 class ApiFunctionTest(apitestcase.ApiTestCase):
@@ -65,6 +65,49 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     # pytype: disable=attribute-error
     self.assertNotEqual(Base.addBands, Child.addBands)
     # pytype: enable=attribute-error
+
+  def testEq(self):
+    a_signature = {'hello': 'world', 'args': []}
+    b_signature = {
+        'hello': 'world',
+        'args': [{'name': 'foo', 'type': 'number'}],
+    }
+
+    # Identical.
+    self.assertEqual(
+        ee.ApiFunction(name='test', signature=a_signature),
+        ee.ApiFunction(name='test', signature=a_signature),
+    )
+    # Different name.
+    self.assertNotEqual(
+        ee.ApiFunction(name='test-1', signature=a_signature),
+        ee.ApiFunction(name='test-2', signature=a_signature),
+    )
+    # Different signature.
+    self.assertNotEqual(
+        ee.ApiFunction(name='test', signature=a_signature),
+        ee.ApiFunction(name='test', signature=b_signature),
+    )
+    # Different type.
+    self.assertNotEqual(
+        ee.ApiFunction(name='test', signature=a_signature), a_signature
+    )
+
+  def testInitOptParams(self):
+    signature = {'hello': 'world', 'args': []}
+    self.assertEqual(
+        ee.ApiFunction(name='test', signature=signature),
+        ee.ApiFunction(name='test', opt_signature=signature),
+    )
+
+  def testImportApiOptParams(self):
+    args = dict(
+        target=ee.Dictionary, prefix='Dictionary', type_name='Dictionary'
+    )
+    ee.ApiFunction.importApi(**args, prepend='test1_')
+    self.assertTrue(hasattr(ee.Dictionary, 'test1_getNumber'))
+    ee.ApiFunction.importApi(**args, opt_prepend='test2_')
+    self.assertTrue(hasattr(ee.Dictionary, 'test2_getNumber'))
 
 
 if __name__ == '__main__':

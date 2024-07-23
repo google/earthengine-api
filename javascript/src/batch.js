@@ -33,6 +33,9 @@ Export.table = {};
 /** @const */
 Export.video = {};
 
+/** @const */
+Export.classifier = {};
+
 /**
  * ExportTask
  */
@@ -123,13 +126,14 @@ class ExportTask {
  * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_shardSize
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.image.toAsset = function(
     image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
-    opt_shardSize) {
+    opt_shardSize, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -154,6 +158,7 @@ Export.image.toAsset = function(
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_fileFormat
  * @param {?data.ImageExportFormatConfig=} opt_formatOptions
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
@@ -161,7 +166,7 @@ Export.image.toCloudStorage = function(
     image, opt_description, opt_bucket, opt_fileNamePrefix, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
     opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat,
-    opt_formatOptions) {
+    opt_formatOptions, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -186,6 +191,7 @@ Export.image.toCloudStorage = function(
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_fileFormat
  * @param {?data.ImageExportFormatConfig=} opt_formatOptions
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
@@ -193,7 +199,7 @@ Export.image.toDrive = function(
     image, opt_description, opt_folder, opt_fileNamePrefix, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
     opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat,
-    opt_formatOptions) {
+    opt_formatOptions, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toDrive, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -216,13 +222,14 @@ Export.image.toDrive = function(
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_mapsApiKey
  * @param {?Array<string>=} opt_bucketCorsUris
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.map.toCloudStorage = function(
     image, opt_description, opt_bucket, opt_fileFormat, opt_path,
     opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region,
-    opt_skipEmptyTiles, opt_mapsApiKey, opt_bucketCorsUris) {
+    opt_skipEmptyTiles, opt_mapsApiKey, opt_bucketCorsUris, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.map.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -239,12 +246,13 @@ Export.map.toCloudStorage = function(
  * @param {string=} opt_fileFormat
  * @param {string|!Array<string>=} opt_selectors
  * @param {number=} opt_maxVertices
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.table.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat,
-    opt_selectors, opt_maxVertices) {
+    opt_selectors, opt_maxVertices, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -261,12 +269,13 @@ Export.table.toCloudStorage = function(
  * @param {string=} opt_fileFormat
  * @param {string|!Array<string>=} opt_selectors
  * @param {number=} opt_maxVertices
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.table.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat,
-    opt_selectors, opt_maxVertices) {
+    opt_selectors, opt_maxVertices, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toDrive, arguments);
   clientConfig['type'] = ExportType.TABLE;
@@ -281,11 +290,12 @@ Export.table.toDrive = function(
  * @param {string=} opt_description
  * @param {string=} opt_assetId
  * @param {number=} opt_maxVertices
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.table.toAsset = function(
-    collection, opt_description, opt_assetId, opt_maxVertices) {
+    collection, opt_description, opt_assetId, opt_maxVertices, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -302,12 +312,14 @@ Export.table.toAsset = function(
  * @param {string=} opt_thinningStrategy
  * @param {string|!Array<string>=} opt_thinningRanking
  * @param {string|!Array<string>=} opt_zOrderRanking
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.table.toFeatureView = function(
     collection, opt_description, opt_assetId, opt_maxFeaturesPerTile,
-    opt_thinningStrategy, opt_thinningRanking, opt_zOrderRanking) {
+    opt_thinningStrategy, opt_thinningRanking, opt_zOrderRanking,
+    opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toFeatureView, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -324,12 +336,13 @@ Export.table.toFeatureView = function(
  * @param {boolean=} opt_append
  * @param {string|!Array<string>=} opt_selectors
  * @param {number=} opt_maxVertices
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.table.toBigQuery = function(
     collection, opt_description, opt_table, opt_overwrite, opt_append,
-    opt_selectors, opt_maxVertices) {
+    opt_selectors, opt_maxVertices, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toBigQuery, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -351,13 +364,14 @@ Export.table.toBigQuery = function(
  * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_maxFrames
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.video.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix,
     opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs,
-    opt_crsTransform, opt_maxPixels, opt_maxFrames) {
+    opt_crsTransform, opt_maxPixels, opt_maxFrames, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.video.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -379,19 +393,38 @@ Export.video.toCloudStorage = function(
  * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_maxFrames
+ * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
  */
 Export.video.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix,
     opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs,
-    opt_crsTransform, opt_maxPixels, opt_maxFrames) {
+    opt_crsTransform, opt_maxPixels, opt_maxFrames, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.video.toDrive, arguments);
   const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.DRIVE, ExportType.VIDEO);
   return ExportTask.create(serverConfig);
 };
+
+/**
+ * @param {!ComputedObject} classifier
+ * @param {string=} opt_description
+ * @param {string=} opt_assetId
+ * @param {number=} opt_priority
+ * @return {!ExportTask}
+ * @export
+ */
+Export.classifier.toAsset = function(
+    classifier, opt_description, opt_assetId, opt_priority) {
+  const clientConfig =
+      eeArguments.extractFromFunction(Export.classifier.toAsset, arguments);
+  const serverConfig = Export.convertToServerParams(
+      clientConfig, ExportDestination.ASSET, ExportType.CLASSIFIER);
+  return ExportTask.create(serverConfig);
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //                          Internal validation.                              //
@@ -735,7 +768,7 @@ Export.videoMap.prepareTaskConfig_ = function(taskConfig, destination) {
  * Adapts a ServerTaskConfig into a ClassifierTaskConfig normalizing any params
  * for a classifier task.
  *
- * @param {!ServerTaskConfig} taskConfig VideoMap export config to
+ * @param {!ServerTaskConfig} taskConfig Classifier export config to
  *     prepare.
  * @param {!data.ExportDestination} destination Export destination.
  * @return {!data.ClassifierTaskConfig}
@@ -945,7 +978,7 @@ Export.reconcileMapFormat = function(taskConfig) {
  * @return {!ServerTaskConfig}
  */
 Export.reconcileTableFormat = function(taskConfig) {
-  // Parse the image file format from the given task config.
+  // Parse the table file format from the given task config.
   let formatString = taskConfig['fileFormat'];
   // If not specified assume the format is CSV.
   if (formatString == null) {

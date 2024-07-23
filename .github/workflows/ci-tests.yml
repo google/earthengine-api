@@ -1,0 +1,41 @@
+# TODO(user): Fix or skip tests that fail on GitHub
+name: ci-tests
+on: [
+  push,
+  pull_request,
+  workflow_dispatch,  # Enables running this workflow manually from the Actions tab.
+]
+
+jobs:
+  build:
+    name: "Python ${{ matrix.python-version }} tests on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [
+            "3.8",
+            "3.9",
+            "3.10",
+            "3.11",
+            "3.12",
+        ]
+        include:
+          - os: macos-latest
+            python-version: "3.11"
+          - os: windows-latest
+            python-version: "3.11"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install EE and dependencies
+        run: |
+          pip install ./python[tests]
+      - name: Test
+        run: |
+          python -m unittest discover --pattern="*test.py" --start-directory python/ee/tests

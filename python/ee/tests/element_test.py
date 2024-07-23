@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Test for the ee.element module."""
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 
 class ElementTestCase(apitestcase.ApiTestCase):
@@ -43,6 +43,10 @@ class ElementTestCase(apitestcase.ApiTestCase):
       }, result.args)
     CheckMultiProperties(image.set(computed_arg))
     CheckMultiProperties(image.set({'properties': computed_arg}))
+
+  def testInitOptParams(self):
+    result = ee.Element(func=None, args=None, opt_varName='test').serialize()
+    self.assertIn('"0": {"argumentReference": "test"}', result)
 
 
 if __name__ == '__main__':

@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Test for the ee.__init__ file."""
 
-from ee import apitestcase
+from unittest import mock
+
+import google.auth
+from google.oauth2 import credentials
+
 import unittest
 import ee
+from ee import apitestcase
 
 
 class EETestCase(apitestcase.ApiTestCase):
@@ -28,9 +33,10 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertFalse(ee.Image._initialized)
 
     # Verify that ee.Initialize() sets the URL and initializes classes.
-    ee.Initialize(None, 'foo')
+    ee.Initialize(None, 'foo', project='my-project')
     self.assertTrue(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, 'foo/api')
+    self.assertEqual(ee.data._cloud_api_user_project, 'my-project')
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertTrue(ee.Image._initialized)
 
@@ -43,6 +49,7 @@ class EETestCase(apitestcase.ApiTestCase):
     ee.Reset()
     self.assertFalse(ee.data._initialized)
     self.assertIsNone(ee.data._api_base_url)
+    self.assertIsNone(ee.data._cloud_api_user_project)
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
 
@@ -146,6 +153,12 @@ class EETestCase(apitestcase.ApiTestCase):
                   'optional': True,
                   'description': '',
                   'name': 'normalize'
+              }, {
+                  'default': 1.0,
+                  'type': 'float',
+                  'optional': True,
+                  'description': '',
+                  'name': 'magnitude'
               }],
               'type': 'Algorithm',
               'description': ''
@@ -176,8 +189,8 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue(hasattr(ee.Kernel, 'circle'))
 
     # Try out the constructors.
-    kernel = ee.ApiFunction('Kernel.circle').call(1, 2)
-    self.assertEqual(kernel, ee.Kernel.circle(1, 2))
+    kernel = ee.ApiFunction('Kernel.circle').call(1, 'meters', True, 2)
+    self.assertEqual(kernel, ee.Kernel.circle(1, 'meters', True, 2))
 
     array = ee.ApiFunction('Array').call([1, 2])
     self.assertEqual(array, ee.Array([1, 2]))
@@ -286,6 +299,21 @@ class EETestCase(apitestcase.ApiTestCase):
     cast = ee.Bar(ee.Foo(1))
     self.assertIsInstance(cast, ee.Bar)
     self.assertEqual(ctor, cast.func)
+
+    # Tests for kwargs.
+    foo = ee.Foo(arg1='a', arg2='b')
+    self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
+    foo = ee.Foo('a', arg2='b')
+    self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
+    foo = ee.Foo(arg2='b', arg1='a')
+    self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
+
+    # We should get an error for an invalid kwarg.
+    with self.assertRaisesRegex(
+        ee.EEException,
+        "Unrecognized arguments {'arg_invalid'} to function: Foo",
+    ):
+      ee.Foo('a', arg_invalid='b')
 
     # We shouldn't be able to cast with more than 1 arg.
     with self.assertRaisesRegex(

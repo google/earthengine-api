@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Converters used in the table data fetching methods."""
 
 from typing import Any, Dict, Iterator, List, Optional, Type, Union

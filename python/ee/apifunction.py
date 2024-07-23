@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A class for representing built-in EE API Function.
 
 Earth Engine can dynamically produce a JSON array listing the
@@ -21,6 +20,7 @@ import keyword
 import re
 from typing import Any, Dict, Optional, Set, Type
 
+from ee import _utils
 from ee import computedobject
 from ee import data
 from ee import deprecation
@@ -40,19 +40,20 @@ class ApiFunction(function.Function):
   # a function so far using importApi().
   _bound_signatures: Set[str] = set()
 
-  def __init__(self, name: str, opt_signature: Optional[Dict[str, Any]] = None):
+  @_utils.accept_opt_prefix('opt_signature')
+  def __init__(self, name: str, signature: Optional[Dict[str, Any]] = None):
     """Creates a function defined by the EE API.
 
     Args:
       name: The name of the function.
-      opt_signature: The signature of the function. If unspecified,
-          looked up dynamically.
+      signature: The signature of the function. If unspecified, looked up
+        dynamically.
     """
-    if opt_signature is None:
-      opt_signature = ApiFunction.lookup(name).getSignature()
+    if signature is None:
+      signature = ApiFunction.lookup(name).getSignature()
 
     # The signature of this API function.
-    self._signature = copy.deepcopy(opt_signature)
+    self._signature = copy.deepcopy(signature)
     self._signature['name'] = name
 
   def __eq__(self, other: Any) -> bool:
@@ -174,26 +175,27 @@ class ApiFunction(function.Function):
     cls._bound_signatures = set()
 
   @classmethod
+  @_utils.accept_opt_prefix('opt_prepend')
   def importApi(
       cls,
       target: Any,
       prefix: str,
       type_name: str,
-      opt_prepend: Optional[str] = None,
+      prepend: Optional[str] = None,
   ) -> None:
     """Adds all API functions that begin with a given prefix to a target class.
 
     Args:
       target: The class to add to.
       prefix: The prefix to search for in the signatures.
-      type_name: The name of the object's type. Functions whose
-          first argument matches this type are bound as instance methods, and
-          those whose first argument doesn't match are bound as static methods.
-      opt_prepend: An optional string to prepend to the names of the
-          added functions.
+      type_name: The name of the object's type. Functions whose first argument
+        matches this type are bound as instance methods, and those whose first
+        argument doesn't match are bound as static methods.
+      prepend: An optional string to prepend to the names of the added
+        functions.
     """
     cls.initialize()
-    prepend = opt_prepend or ''
+    prepend = prepend or ''
     for name, api_func in cls._api.items():
       parts = name.split('.')
       if len(parts) == 2 and parts[0] == prefix:

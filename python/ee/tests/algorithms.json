@@ -188,7 +188,7 @@
     "arguments": [{
       "argumentName": "condition",
       "type": "Object",
-      "description": "The condition that determines which result is returned. If this is not a boolean, it is interpreted as a boolean by the following rules:\n  - Numbers that are equal to 0 or a NaN are false.\n  - Empty strings, lists and dictionaries are false.\n  - Null is false.\n  - Everything else is true.",
+      "description": "The condition that determines which result is returned. If this is not a boolean, it is interpreted as a boolean by the following rules:\n\u003cul\u003e  \u003cli\u003e Numbers that are equal to 0 or a NaN are false.\u003c/li\u003e  \u003cli\u003e Empty strings, lists and dictionaries are false.\u003c/li\u003e  \u003cli\u003e Null is false.\u003c/li\u003e  \u003cli\u003e Everything else is true.\u003c/li\u003e\u003c/ul\u003e",
       "optional": true,
       "defaultValue": null
     }, {
@@ -2203,7 +2203,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.naiveBayes",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "lambda",
@@ -2215,7 +2215,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.gmoLinearRegression",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "weight1",
@@ -2251,7 +2251,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.cart",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "crossvalidationFactor",
@@ -2317,7 +2317,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.gmoMaxEnt",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "weight1",
@@ -2353,7 +2353,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.ikpamir",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "numBins",
@@ -2377,7 +2377,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.continuousNaiveBayes",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "lambda",
@@ -2436,7 +2436,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.pegasosGaussian",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "rbfGamma",
@@ -2484,7 +2484,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.pegasosLinear",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "useExponentiated",
@@ -2532,7 +2532,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.pegasosPolynomial",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "polyDegree",
@@ -2997,7 +2997,7 @@
     "arguments": [{
       "argumentName": "metric",
       "type": "String",
-      "description": "The distance metric to use.  Options are:\n  \u0027euclidean\u0027 - euclidean distance from the unnormalized class mean.\n  \u0027cosine\u0027 - spectral angle from the unnormalized class mean.\n  \u0027mahalanobis\u0027 - Mahalanobis distance from the class mean.\n  \u0027manhattan\u0027 - Manhattan distance from the unnormalized class mean.",
+      "description": "The distance metric to use.  Options are:\n\u003cul\u003e  \u003cli\u003e \u0027euclidean\u0027 - euclidean distance from the unnormalized class mean.\u003c/li\u003e  \u003cli\u003e \u0027cosine\u0027 - spectral angle from the unnormalized class mean.\u003c/li\u003e  \u003cli\u003e \u0027mahalanobis\u0027 - Mahalanobis distance from the class mean.\u003c/li\u003e  \u003cli\u003e \u0027manhattan\u0027 - Manhattan distance from the unnormalized class mean.\u003c/li\u003e\u003c/ul\u003e",
       "optional": true,
       "defaultValue": "euclidean"
     }, {
@@ -3082,7 +3082,7 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The distance metric to use.  NOTE: KD_TREE (and AUTO for low dimensions) will not use the metric selected. Options are:\n  \u0027EUCLIDEAN\u0027 - euclidean distance.\n  \u0027MAHALANOBIS\u0027 - Mahalanobis distance.\n  \u0027MANHATTAN\u0027 - Manhattan distance.",
+      "description": "The distance metric to use.  NOTE: KD_TREE (and AUTO for low dimensions) will not use the metric selected. Options are:\n  \u0027EUCLIDEAN\u0027 - Euclidean distance.\n  \u0027MAHALANOBIS\u0027 - Mahalanobis distance.\n  \u0027MANHATTAN\u0027 - Manhattan distance.\n  \u0027BRAYCURTIS\u0027 - Bray-Curtis distance.",
       "optional": true,
       "defaultValue": "EUCLIDEAN"
     }]
@@ -3152,6 +3152,15 @@
       "defaultValue": null
     }]
   }, {
+    "name": "algorithms/Classifier.load",
+    "description": "Creates a Classifier.",
+    "returnType": "Classifier",
+    "arguments": [{
+      "argumentName": "id",
+      "type": "String",
+      "description": "The Classifier\u0027s Asset ID."
+    }]
+  }, {
     "name": "algorithms/Classifier.mode",
     "description": "Returns the classifier mode: `CLASSIFICATION`, `REGRESSION`, `PROBABILITY`, `MULTIPROBABILITY`, `RAW` or `RAW_REGRESSION`.",
     "returnType": "String",
@@ -3196,7 +3205,7 @@
     }, {
       "argumentName": "mode",
       "type": "String",
-      "description": "The output mode. One of:\n  - CLASSIFICATION (default): The output is the class number.\n  - REGRESSION: The output is the result of standard regression.\n  - PROBABILITY: The output is the probability that the classification is correct.\n  - MULTIPROBABILITY: The output is an array of probabilities that each class is correct ordered by classes seen.\n  - RAW: The output is an array of the internal representation of the classification process.  For example, the raw votes in multi-decision tree models.\n  - RAW_REGRESSION: The output is an array of the internal representation of the regression process. For example, the raw predictions of multiple regression trees.\nNot all classifiers support modes other than CLASSIFICATION."
+      "description": "The output mode. One of:\n\u003cul\u003e  \u003cli\u003e CLASSIFICATION (default): The output is the class number.\u003c/li\u003e  \u003cli\u003e REGRESSION: The output is the result of standard regression.\u003c/li\u003e  \u003cli\u003e PROBABILITY: The output is the probability that the classification     is correct.\u003c/li\u003e  \u003cli\u003e MULTIPROBABILITY: The output is an array of probabilities that each    class is correct ordered by classes seen.\u003c/li\u003e  \u003cli\u003e RAW: The output is an array of the internal representation of the    classification process. For example, the raw votes in multi-decision tree    models.\u003c/li\u003e  \u003cli\u003e RAW_REGRESSION: The output is an array of the internal representation of the    regression process. For example, the raw predictions of multiple regression    trees.\u003c/li\u003e\u003c/ul\u003eNot all classifiers support modes other than CLASSIFICATION."
     }]
   }, {
     "name": "algorithms/Classifier.train",
@@ -3589,6 +3598,33 @@
       "type": "Clusterer"
     }]
   }, {
+    "name": "algorithms/Geometry.fromS2CellId",
+    "description": "Constructs the Polygon corresponding to an S2 cell id.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "cellId",
+      "type": "Long",
+      "description": "The S2 cell id as 64 bit integer.  From Javascript, which does not support integers larger than 53 bits, use fromS2CellToken instead."
+    }]
+  }, {
+    "name": "algorithms/Geometry.s2Cell",
+    "description": "Constructs the Polygon corresponding to an S2 cell id.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "cellId",
+      "type": "Long",
+      "description": "The S2 cell id as 64 bit integer.  From Javascript, which does not support integers larger than 53 bits, use fromS2CellToken instead."
+    }]
+  }, {
+    "name": "algorithms/Geometry.fromS2CellToken",
+    "description": "Constructs the Polygon corresponding to an S2 cell id as a hex string.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "cellToken",
+      "type": "String",
+      "description": "The S2 cell id as a hex string.  Trailing zeros are required, e.g. the top level face containing Antarctica is 0xb000000000000000."
+    }]
+  }, {
     "name": "algorithms/Geometry.coveringGrid",
     "description": "Returns a collection of features that cover this geometry, where each feature is a rectangle in the grid defined by the given projection.",
     "returnType": "FeatureCollection",
@@ -3609,7 +3645,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.intersects",
-    "description": "Returns true iff the geometries intersect.",
+    "description": "Returns true if and only if the geometries intersect.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -3659,7 +3695,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.disjoint",
-    "description": "Returns true iff the geometries are disjoint.",
+    "description": "Returns true if and only if the geometries are disjoint.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -3705,7 +3741,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.contains",
-    "description": "Returns true iff one geometry contains the other.",
+    "description": "Returns true if and only if one geometry contains the other.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -3730,7 +3766,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.containedIn",
-    "description": "Returns true iff one geometry is contained in the other.",
+    "description": "Returns true if and only if one geometry is contained in the other.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -3755,7 +3791,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.withinDistance",
-    "description": "Returns true iff the geometries are within a specified distance.",
+    "description": "Returns true if and only if the geometries are within a specified distance.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4506,7 +4542,7 @@
     }]
   }, {
     "name": "algorithms/Feature.containedIn",
-    "description": "Returns true iff the geometry of one feature is contained in the geometry of another.",
+    "description": "Returns true if and only if the geometry of one feature is contained in the geometry of another.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4531,7 +4567,7 @@
     }]
   }, {
     "name": "algorithms/Feature.contains",
-    "description": "Returns true iff the geometry of one feature contains the geometry of another.",
+    "description": "Returns true if and only if the geometry of one feature contains the geometry of another.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4627,7 +4663,7 @@
     }]
   }, {
     "name": "algorithms/Feature.disjoint",
-    "description": "Returns true iff the feature geometries are disjoint.",
+    "description": "Returns true if and only if the feature geometries are disjoint.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4723,7 +4759,7 @@
     }]
   }, {
     "name": "algorithms/Feature.intersects",
-    "description": "Returns true iff the feature geometries intersect.",
+    "description": "Returns true if and only if the feature geometries intersect.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4934,7 +4970,7 @@
     }]
   }, {
     "name": "algorithms/Feature.withinDistance",
-    "description": "Returns true iff the geometries of two features are within a specified distance.",
+    "description": "Returns true if and only if the geometries of two features are within a specified distance.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -5814,7 +5850,7 @@
     }]
   }, {
     "name": "algorithms/Collection.randomColumn",
-    "description": "Adds a column of deterministic pseudorandom numbers to a collection.  The outputs are double-precision floating point numbers. When using the \u0027uniform\u0027 distribution (default), outputs are in the range of [0, 1). Using the \u0027normal\u0027 distribution, outputs have μ\u003d0, 𝛔\u003d1, but have no explicit limits.",
+    "description": "Adds a column of deterministic pseudorandom numbers to a collection.  The outputs are double-precision floating point numbers. When using the \u0027uniform\u0027 distribution (default), outputs are in the range of [0, 1). Using the \u0027normal\u0027 distribution, outputs have μ\u003d0, σ\u003d1, but have no explicit limits.",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "collection",
@@ -6065,7 +6101,7 @@
     }]
   }, {
     "name": "algorithms/FeatureCollection.randomPoints",
-    "description": "Generates points that are uniformly random on the sphere, and within the given region.",
+    "description": "Generates points that are uniformly random in the given geometry. If the geometry is two-dimensional (polygon or multi-polygon) then the returned points are uniformly distributed on the given region of the sphere. If the geometry is one-dimensional (linestrings), the returned points are interpolated uniformly along the geometry\u0027s edges. If the geometry has dimension zero (points), the returned points are sampled uniformly from the input points. If a multi-geometry of mixed dimension is given, points are sampled from the component geometries with the highest dimension.",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "region",
@@ -7877,7 +7913,7 @@
     }]
   }, {
     "name": "algorithms/Image.and",
-    "description": "Returns 1 iff both values are non-zero for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if both values are non-zero for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7890,7 +7926,7 @@
     }]
   }, {
     "name": "algorithms/Image.or",
-    "description": "Returns 1 iff either input value is non-zero for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if either input value is non-zero for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7903,7 +7939,7 @@
     }]
   }, {
     "name": "algorithms/Image.lt",
-    "description": "Returns 1 iff the first value is less than the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is less than the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7916,7 +7952,7 @@
     }]
   }, {
     "name": "algorithms/Image.lte",
-    "description": "Returns 1 iff the first value is less than or equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is less than or equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7929,7 +7965,7 @@
     }]
   }, {
     "name": "algorithms/Image.gt",
-    "description": "Returns 1 iff the first value is greater than the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is greater than the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7942,7 +7978,7 @@
     }]
   }, {
     "name": "algorithms/Image.gte",
-    "description": "Returns 1 iff the first value is greater than or equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is greater than or equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7955,7 +7991,7 @@
     }]
   }, {
     "name": "algorithms/Image.eq",
-    "description": "Returns 1 iff the first value is equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7968,7 +8004,7 @@
     }]
   }, {
     "name": "algorithms/Image.neq",
-    "description": "Returns 1 iff the first value is not equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is not equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -9398,7 +9434,7 @@
     }]
   }, {
     "name": "algorithms/Image.random",
-    "description": "Generates a random number at each pixel location.  When using the \u0027uniform\u0027 distribution, outputs are in the range of [0 to 1).  Using the \u0027normal\u0027 distribution, the outputs have μ\u003d0, 𝛔\u003d1, but no explicit limits.",
+    "description": "Generates a random number at each pixel location.  When using the \u0027uniform\u0027 distribution, outputs are in the range of [0 to 1).  Using the \u0027normal\u0027 distribution, the outputs have μ\u003d0, σ\u003d1, but no explicit limits.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "seed",
@@ -9973,7 +10009,7 @@
     }, {
       "argumentName": "scale",
       "type": "Float",
-      "description": "A nominal scale in meters of the projection to sample in.  If unspecified,the scale of the image\u0027s first band is used.",
+      "description": "A nominal scale in meters of the projection to sample in.  If unspecified, the scale of the image\u0027s first band is used.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -11035,7 +11071,7 @@
     }]
   }, {
     "name": "algorithms/reduce.and",
-    "description": "Reduces an image collection by setting each pixel to 1 iff all the non-masked values at that pixel are non-zero across the stack of all matching bands. Bands are matched by name.",
+    "description": "Reduces an image collection by setting each pixel to 1 if and only if all the non-masked values at that pixel are non-zero across the stack of all matching bands. Bands are matched by name.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -11044,7 +11080,7 @@
     }]
   }, {
     "name": "algorithms/reduce.or",
-    "description": "Reduces an image collection by setting each pixel to 1 iff any of the non-masked values at that pixel are non-zero across the stack of all matching bands. Bands are matched by name.",
+    "description": "Reduces an image collection by setting each pixel to 1 if and only if any of the non-masked values at that pixel are non-zero across the stack of all matching bands. Bands are matched by name.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -11164,7 +11200,7 @@
     }]
   }, {
     "name": "algorithms/List.get",
-    "description": "Returns the element at the specified position in list.  A negative index counts backwards from the end of the list.",
+    "description": "Returns the element at the specified position in list. A negative index counts backwards from the end of the list.",
     "returnType": "Object",
     "arguments": [{
       "argumentName": "list",
@@ -11175,7 +11211,7 @@
     }]
   }, {
     "name": "algorithms/List.getArray",
-    "description": "Returns the array at the specified position in list.  A negative index counts backwards from the end of the list. If the value is not a array, an error will occur.",
+    "description": "Returns the array at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a array, an error will occur.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "list",
@@ -11186,7 +11222,7 @@
     }]
   }, {
     "name": "algorithms/List.getGeometry",
-    "description": "Returns the geometry at the specified position in list.  A negative index counts backwards from the end of the list. If the value is not a geometry, an error will occur.",
+    "description": "Returns the geometry at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a geometry, an error will occur.",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "list",
@@ -11197,7 +11233,7 @@
     }]
   }, {
     "name": "algorithms/List.getNumber",
-    "description": "Returns the number at the specified position in list.  A negative index counts backwards from the end of the list. If the value is not a number, an error will occur.",
+    "description": "Returns the number at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a number, an error will occur.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "list",
@@ -11208,7 +11244,7 @@
     }]
   }, {
     "name": "algorithms/List.getString",
-    "description": "Returns the string at the specified position in list.  A negative index counts backwards from the end of the list. If the value is not a string, an error will occur.",
+    "description": "Returns the string at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a string, an error will occur.",
     "returnType": "String",
     "arguments": [{
       "argumentName": "list",
@@ -11219,7 +11255,7 @@
     }]
   }, {
     "name": "algorithms/List.indexOf",
-    "description": "Returns the position of the first occurrence of target in list, or -1 if list does not contain target.",
+    "description": "Returns the position of the first occurrence of element in list, or -1 if list does not contain element.",
     "returnType": "Integer",
     "arguments": [{
       "argumentName": "list",
@@ -11255,7 +11291,7 @@
     }]
   }, {
     "name": "algorithms/List.iterate",
-    "description": "Iterate an algorithm over a list.  The algorithm is expected to take two objects, the current list item, and the result from the previous iteration or the value of first for the first iteration.",
+    "description": "Iterate an algorithm over a list. The algorithm is expected to take two objects, the current list item, and the result from the previous iteration or the value of first for the first iteration.",
     "returnType": "Object",
     "arguments": [{
       "argumentName": "list",
@@ -11301,7 +11337,7 @@
     }]
   }, {
     "name": "algorithms/List.map",
-    "description": "Map an algorithm over a list.  The algorithm is expected to take an Object and return an Object.",
+    "description": "Map an algorithm over a list. The algorithm is expected to take an Object and return an Object.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11318,7 +11354,7 @@
     }]
   }, {
     "name": "algorithms/List.reduce",
-    "description": "Apply a reducer to a list.  If the reducer takes more than 1 input, then each element in the list is assumed to be a list of inputs.  If the reducer returns a single output, it is returned directly, otherwise returns a dictionary containing the named reducer outputs.",
+    "description": "Apply a reducer to a list. If the reducer takes more than 1 input, then each element in the list is assumed to be a list of inputs. If the reducer returns a single output, it is returned directly, otherwise returns a dictionary containing the named reducer outputs.",
     "returnType": "Object",
     "arguments": [{
       "argumentName": "list",
@@ -11362,7 +11398,7 @@
     }]
   }, {
     "name": "algorithms/List.replace",
-    "description": "Replaces the first occurrence of oldVal in list with newVal.",
+    "description": "Replaces the first occurrence of oldval in list with newval.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11376,7 +11412,7 @@
     }]
   }, {
     "name": "algorithms/List.replaceAll",
-    "description": "Replaces all occurrences of oldVal in list with newVal.",
+    "description": "Replaces all occurrences of oldval in list with newval.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11409,8 +11445,8 @@
     }]
   }, {
     "name": "algorithms/List.sequence",
-    "description": "Generate a sequence of numbers from start to end (inclusive) in increments of step, or in count equally-spaced increments.  If end is not specified it is computed from start + step * count, so at least one of end or count must be specified.",
-    "returnType": "List\u003cNumber\u003e",
+    "description": "Generate a sequence of numbers from start to end (inclusive) in increments of step, or in count equally-spaced increments. If end is not specified it is computed from start + step * count, so at least one of end or count must be specified.",
+    "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "start",
       "type": "Number"
@@ -11432,7 +11468,7 @@
     }]
   }, {
     "name": "algorithms/List.set",
-    "description": "Replaces the value at the specified position in list with element.  A negative index counts backwards from the end of the list.",
+    "description": "Replaces the value at the specified position in list with element. A negative index counts backwards from the end of the list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11446,7 +11482,7 @@
     }]
   }, {
     "name": "algorithms/List.shuffle",
-    "description": "Randomly permute the specified list.  Note that the permutation order will always be the same for any given seed, unless the value for seed is \u0027false\u0027.",
+    "description": "Randomly permute the specified list. Note that the permutation order will always be the same for any given seed, unless the value for seed is \u0027false\u0027.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11454,7 +11490,7 @@
     }, {
       "argumentName": "seed",
       "type": "Object",
-      "description": "A long integer to use as a seed for the randomization.  If the boolean value of \u0027false\u0027 is passed, then a completely random and unreproducible order will be generated.",
+      "description": "A long integer to use as a seed for the randomization. If the boolean value of \u0027false\u0027 is passed, then a completely random and unreproducible order will be generated.",
       "optional": true,
       "defaultValue": null
     }]
@@ -11468,7 +11504,7 @@
     }]
   }, {
     "name": "algorithms/List.slice",
-    "description": "Returns a portion of list between the start index, inclusive, and end index, exclusive.  Negative values for start or end count backwards from the end of the list.  Values greater than the size of the list are legal but are truncated to the size of list.",
+    "description": "Returns a portion of list between the start index, inclusive, and end index, exclusive. Negative values for start or end count backwards from the end of the list. Values greater than the size of the list are legal but are truncated to the size of list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11489,7 +11525,7 @@
     }]
   }, {
     "name": "algorithms/List.sort",
-    "description": "Sorts the list into ascending order.  If the \u0027keys\u0027 argument is provided, then it is sorted first, and the elements of \u0027list\u0027 are placed in the same order.",
+    "description": "Sorts the list into ascending order. If the \u0027keys\u0027 argument is provided, then it is sorted first, and the elements of \u0027list\u0027 are placed in the same order.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11498,13 +11534,13 @@
     }, {
       "argumentName": "keys",
       "type": "List\u003cObject\u003e",
-      "description": "Optional keys to sort by.  If \u0027keys\u0027 is provided, it must have the same length as \u0027list\u0027.",
+      "description": "Optional keys to sort by. If \u0027keys\u0027 is provided, it must have the same length as \u0027list\u0027.",
       "optional": true,
       "defaultValue": null
     }]
   }, {
     "name": "algorithms/List.splice",
-    "description": "Starting at the start index, removes count elements from list and insert the contents of other at that location.  If start is negative, it counts backwards from the end of the list.",
+    "description": "Starting at the start index, removes count elements from list and insert the contents of other at that location. If start is negative, it counts backwards from the end of the list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11523,7 +11559,7 @@
     }]
   }, {
     "name": "algorithms/List.swap",
-    "description": "Swaps the elements at the specified positions.  A negative position counts backwards from the end of the list.",
+    "description": "Swaps the elements at the specified positions. A negative position counts backwards from the end of the list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11545,7 +11581,7 @@
     }]
   }, {
     "name": "algorithms/List.zip",
-    "description": "Pairs the elements of two lists to create a list of two-element lists.  When the input lists are of different sizes, the final list has the same size as the shortest one.",
+    "description": "Pairs the elements of two lists to create a list of two-element lists. When the input lists are of different sizes, the final list has the same size as the shortest one.",
     "returnType": "List\u003cList\u003cObject\u003e\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11590,9 +11626,7 @@
       "type": "Dictionary\u003cObject\u003e"
     }, {
       "argumentName": "key",
-      "type": "String",
-      "optional": true,
-      "defaultValue": null
+      "type": "String"
     }]
   }, {
     "name": "algorithms/Dictionary.fromLists",
@@ -11825,7 +11859,7 @@
     }]
   }, {
     "name": "algorithms/String.compareTo",
-    "description": "Compares two strings lexicographically. Returns: the value 0 if the two strings are lexicographically equal; a value less than 0 if string1 is less than string2;  and a value greater than 0 if string1 is lexicographically greater than string2. ",
+    "description": "Compares two strings lexicographically. Returns: the value 0 if the two strings are lexicographically equal; -1 if string1 is less than string2; and 1 if string1 is lexicographically greater than string2.",
     "returnType": "Integer",
     "arguments": [{
       "argumentName": "string1",
@@ -12151,7 +12185,7 @@
     }]
   }, {
     "name": "algorithms/Number.and",
-    "description": "Returns 1 iff both values are non-zero.",
+    "description": "Returns 1 if and only if both values are non-zero.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12164,7 +12198,7 @@
     }]
   }, {
     "name": "algorithms/Number.or",
-    "description": "Returns 1 iff either input value is non-zero.",
+    "description": "Returns 1 if and only if either input value is non-zero.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12177,7 +12211,7 @@
     }]
   }, {
     "name": "algorithms/Number.lt",
-    "description": "Returns 1 iff the first value is less than the second.",
+    "description": "Returns 1 if and only if the first value is less than the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12190,7 +12224,7 @@
     }]
   }, {
     "name": "algorithms/Number.lte",
-    "description": "Returns 1 iff the first value is less than or equal to the second.",
+    "description": "Returns 1 if and only if the first value is less than or equal to the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12203,7 +12237,7 @@
     }]
   }, {
     "name": "algorithms/Number.gt",
-    "description": "Returns 1 iff the first value is greater than the second.",
+    "description": "Returns 1 if and only if the first value is greater than the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12216,7 +12250,7 @@
     }]
   }, {
     "name": "algorithms/Number.gte",
-    "description": "Returns 1 iff the first value is greater than or equal to the second.",
+    "description": "Returns 1 if and only if the first value is greater than or equal to the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12229,7 +12263,7 @@
     }]
   }, {
     "name": "algorithms/Number.eq",
-    "description": "Returns 1 iff the first value is equal to the second.",
+    "description": "Returns 1 if and only if the first value is equal to the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12242,7 +12276,7 @@
     }]
   }, {
     "name": "algorithms/Number.neq",
-    "description": "Returns 1 iff the first value is not equal to the second.",
+    "description": "Returns 1 if and only if the first value is not equal to the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12979,7 +13013,7 @@
     }, {
       "argumentName": "pattern",
       "type": "String",
-      "description": "A printf-style format string. For example, \u0027%.2f\u0027 produces numbers formatted like \u00273.14\u0027, and \u0027%05d\u0027 produces numbers formatted like \u002700042\u0027. The format string must satisfy the following criteria:\n1. Zero or more prefix characters.\n2. Exactly one \u0027%\u0027.\n3. Zero or more modifier characters in the set [#-+ 0,(.\\d].\n4. Exactly one conversion character in the set [sdoxXeEfgGaA].\n5. Zero or more suffix characters.\n \nFor more about format strings, see https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html",
+      "description": "A printf-style format string. For example, \u0027%.2f\u0027 produces numbers formatted like \u00273.14\u0027, and \u0027%05d\u0027 produces numbers formatted like \u002700042\u0027. The format string must satisfy the following criteria:\n\u003col\u003e  \u003cli\u003e Zero or more prefix characters.\u003c/li\u003e  \u003cli\u003e Exactly one \u0027%\u0027.\u003c/li\u003e  \u003cli\u003e Zero or more modifier characters in the set [#-+ 0,(.\\d].\u003c/li\u003e  \u003cli\u003e Exactly one conversion character in the set [sdoxXeEfgGaA].\u003c/li\u003e  \u003cli\u003e Zero or more suffix characters.\u003c/li\u003e\u003c/ol\u003eFor more about format strings, see https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html",
       "optional": true,
       "defaultValue": "%s"
     }]
@@ -14607,7 +14641,7 @@
     }]
   }, {
     "name": "algorithms/Array.and",
-    "description": "On an element-wise basis, returns 1 iff both values are non-zero.",
+    "description": "On an element-wise basis, returns 1 if and only if both values are non-zero.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14620,7 +14654,7 @@
     }]
   }, {
     "name": "algorithms/Array.or",
-    "description": "On an element-wise basis, returns 1 iff either input value is non-zero.",
+    "description": "On an element-wise basis, returns 1 if and only if either input value is non-zero.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14633,7 +14667,7 @@
     }]
   }, {
     "name": "algorithms/Array.lt",
-    "description": "On an element-wise basis, returns 1 iff the first value is less than the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is less than the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14646,7 +14680,7 @@
     }]
   }, {
     "name": "algorithms/Array.lte",
-    "description": "On an element-wise basis, returns 1 iff the first value is less than or equal to the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is less than or equal to the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14659,7 +14693,7 @@
     }]
   }, {
     "name": "algorithms/Array.gt",
-    "description": "On an element-wise basis, returns 1 iff the first value is greater than the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is greater than the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14672,7 +14706,7 @@
     }]
   }, {
     "name": "algorithms/Array.gte",
-    "description": "On an element-wise basis, returns 1 iff the first value is greater than or equal to the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is greater than or equal to the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14685,7 +14719,7 @@
     }]
   }, {
     "name": "algorithms/Array.eq",
-    "description": "On an element-wise basis, returns 1 iff the first value is equal to the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is equal to the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14698,7 +14732,7 @@
     }]
   }, {
     "name": "algorithms/Array.neq",
-    "description": "On an element-wise basis, returns 1 iff the first value is not equal to the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is not equal to the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -15280,6 +15314,12 @@
       "description": "The prediction payload size limit in bytes.  Defaults to 1.5MB (1500000 bytes)",
       "optional": true,
       "defaultValue": null
+    }, {
+      "argumentName": "payloadFormat",
+      "type": "String",
+      "description": "The payload format of entries in prediction requests and responses. One of: [\u0027SERIALIZED_TF_TENSORS, \u0027RAW_JSON\u0027, \u0027ND_ARRAYS\u0027]. Defaults to \u0027SERIALIZED_TF_TENSORS\u0027.",
+      "optional": true,
+      "defaultValue": null
     }]
   }, {
     "name": "algorithms/Model.predictImage",
@@ -15697,7 +15737,7 @@
     }]
   }, {
     "name": "algorithms/Reducer.kendallsCorrelation",
-    "description": "Creates a reducer that computes the Kendall\u0027s Tau-b rank correlation.  A positive tau value indicates an increasing trend; negative value indicates a decreasing trend. See https://commons.apache.org/proper/commons-math/javadocs/api-3.6/org/apache/commons/math3/stat/correlation/KendallsCorrelation.html for details.",
+    "description": "Creates a reducer that computes the Kendall\u0027s Tau-b rank correlation.  A positive tau value indicates an increasing trend; negative value indicates a decreasing trend. See https://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/org/apache/commons/math3/stat/correlation/KendallsCorrelation.html for details.",
     "returnType": "Reducer",
     "arguments": [{
       "argumentName": "numInputs",
@@ -16013,7 +16053,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Test.Clustering.InterTileRegionMerge",
-    "description": "Performs post-processing inter-tile region merging phase according to Berkeley image segmentation algorithm. Takes image that is a result of running tile-independent segmentation. Input image should have first band named \u0027clusters\u0027 containing segment labels. The other bands are spectral bands. Examines tile boundaries and merges adjacent segments across tiles if sufficient merging critieria is satisfied. Merging criteria is determined by user specified parameters indicating relative importance of spectral and shape properties.",
+    "description": "Performs post-processing inter-tile region merging phase according to Berkeley image segmentation algorithm. Takes image that is a result of running tile-independent segmentation. Input image should have first band named \u0027clusters\u0027 containing segment labels. The other bands are spectral bands. Examines tile boundaries and merges adjacent segments across tiles if sufficient merging criteria is satisfied. Merging criteria is determined by user specified parameters indicating relative importance of spectral and shape properties.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",

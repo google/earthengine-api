@@ -4,17 +4,17 @@
 import json
 from unittest import mock
 
+import unittest
 import ee
 from ee import apitestcase
 from ee import computedobject
-import unittest
 
 
 class ComputedObjectTest(apitestcase.ApiTestCase):
 
   def test_metaclass_call_self_casting(self):
     number = ee.Number(1)
-    # This excercises the self-cast case of ComputedObjectMetaclass.__call__.
+    # This exercises the self-cast case of ComputedObjectMetaclass.__call__.
     result = ee.Number(number)
     self.assertIs(result, number)
 
@@ -55,7 +55,7 @@ class ComputedObjectTest(apitestcase.ApiTestCase):
     self.assertNotEqual(hash(a), hash(b))
 
   def test_bad_init_with_both_func_and_var(self):
-    message = 'When "opt_varName" is specified, "func" and "args" must be null.'
+    message = 'When "varName" is specified, "func" and "args" must be null.'
     with self.assertRaisesRegex(ee.EEException, message):
       computedobject.ComputedObject(None, {'dummy': 'arg'}, 'variable name')
 
@@ -128,6 +128,20 @@ class ComputedObjectTest(apitestcase.ApiTestCase):
     result = ee.String._cast(number).getInfo()
     expect = ee.String('1').getInfo()
     self.assertEqual(expect, result)
+
+  def test_is_func_returning_same(self):
+    number = ee.Number(1)
+    self.assertFalse(number.is_func_returning_same(None))
+    self.assertFalse(number.is_func_returning_same(1))
+    self.assertFalse(number.is_func_returning_same(number))
+    number_computed_object_func = number.add(1)
+    self.assertTrue(number_computed_object_func)
+
+  def test_serialize_opt_params(self):
+    obj = ee.ComputedObject(func=None, args=None, varName='test')
+    self.assertIn('\n', obj.serialize(opt_pretty=True))
+    self.assertNotIn('\n', obj.serialize(opt_pretty=False))
+
 
 if __name__ == '__main__':
   unittest.main()

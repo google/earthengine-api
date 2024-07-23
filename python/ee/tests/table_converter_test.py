@@ -3,13 +3,13 @@
 
 from typing import Any, Dict, Optional, Type
 
+from absl.testing import parameterized
 import geopandas
 from geopandas import testing
 import pandas
 
-from ee import table_converter
 import unittest
-import parameterized
+from ee import table_converter
 
 
 class TableConverterTest(parameterized.TestCase):

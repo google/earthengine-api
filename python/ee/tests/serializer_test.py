@@ -5,10 +5,10 @@ import datetime
 import json
 from typing import Any, Callable, Dict, List, Union
 
+import unittest
 import ee
 from ee import apitestcase
 from ee import serializer
-import unittest
 
 
 def _max_depth(x: Union[Dict[str, Any], List[Any], str]) -> int:
@@ -279,6 +279,10 @@ class SerializerTest(apitestcase.ApiTestCase):
       x = ee.Dictionary({i: x})
     encoded = serializer.encode(x, for_cloud_api=True)
     self.assertLess(_max_depth(encoded), 60)
+
+  def testToJsonOptParams(self):
+    self.assertIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=True))
+    self.assertNotIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=False))
 
 
 if __name__ == '__main__':

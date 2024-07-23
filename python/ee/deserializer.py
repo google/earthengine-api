@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
 """A deserializer that decodes EE object trees from JSON DAGs."""
 
 import json
-import numbers
 
 from ee import apifunction
 from ee import computedobject
@@ -67,7 +65,7 @@ def _decodeValue(json_obj, named_values):  # pylint: disable=g-bad-name
   """
 
   # Check for primitive values.
-  if (json_obj is None or isinstance(json_obj, (bool, numbers.Number, str))):
+  if (json_obj is None or isinstance(json_obj, (bool, float, int, str))):
     return json_obj
 
   # Check for array values.
@@ -92,7 +90,7 @@ def _decodeValue(json_obj, named_values):  # pylint: disable=g-bad-name
     return customfunction.CustomFunction.variable(None, var_name)  # pylint: disable=protected-access
   elif type_name == 'Date':
     microseconds = json_obj['value']
-    if not isinstance(microseconds, numbers.Number):
+    if not isinstance(microseconds, (float, int)):
       raise ee_exception.EEException('Invalid date value: ' + microseconds)
     return ee_date.Date(microseconds / 1e3)
   elif type_name == 'Bytes':
@@ -106,8 +104,11 @@ def _decodeValue(json_obj, named_values):  # pylint: disable=g-bad-name
       func = apifunction.ApiFunction.lookup(json_obj['functionName'])
     else:
       func = _decodeValue(json_obj['function'], named_values)
-    args = dict((key, _decodeValue(value, named_values))
-                for (key, value) in json_obj['arguments'].items())
+    if 'arguments' in json_obj:
+      args = dict((key, _decodeValue(value, named_values))
+                  for (key, value) in json_obj['arguments'].items())
+    else:
+      args = {}
     return _invocation(func, args)
   elif type_name == 'Dictionary':
     return dict((key, _decodeValue(value, named_values))
@@ -137,9 +138,9 @@ def _invocation(func, args):
     return func.apply(args)
   elif isinstance(func, computedobject.ComputedObject):
     # We have to allow ComputedObjects for cases where invocations return a
-    # function, e.g. Image.parseExpression(). These need to get turned back into
-    # some kind of Function, for which we need a signature. Type information has
-    # been lost at this point, so we just use ComputedObject.
+    # function, e.g., Image.parseExpression(). These need to get turned back
+    # into some kind of Function, for which we need a signature. Type
+    # information has been lost at this point, so we just use ComputedObject.
     signature = {
         'name': '',
         'args': [{'name': name, 'type': 'ComputedObject', 'optional': False}
@@ -217,7 +218,10 @@ def decodeCloudApi(json_obj):  # pylint: disable=g-bad-name
       func = lookup(invoked['functionReference'], 'function')
     else:
       func = apifunction.ApiFunction.lookup(invoked['functionName'])
-    args = {key: decode_node(x) for key, x in invoked['arguments'].items()}
+    if 'arguments' in invoked:
+      args = {key: decode_node(x) for key, x in invoked['arguments'].items()}
+    else:
+      args = {}
     return _invocation(func, args)
 
   return lookup(json_obj['result'], 'result value')

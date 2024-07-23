@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Singleton for the library's communication with the Earth Engine API."""
 
 # Using lowercase function naming to match the JavaScript names.
@@ -12,14 +11,18 @@ import sys
 import threading
 from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union
 import uuid
+import warnings
 
+import google.auth
 # Rename to avoid redefined-outer-name warning.
 from google.oauth2 import credentials as credentials_lib
 import google_auth_httplib2
 import googleapiclient
 import httplib2
+import requests
 
 from ee import _cloud_api_utils
+from ee import _utils
 from ee import computedobject
 from ee import deprecation
 from ee import ee_exception
@@ -46,6 +49,9 @@ _cloud_api_base_url: Optional[str] = None
 # Google Cloud API key.  This may be set by ee.Initialize().
 _cloud_api_key: Optional[str] = None
 
+# A Requests session.  This is set by ee.Initialize()
+_requests_session: Optional[requests.Session] = None
+
 # A resource object for making Cloud API calls.
 _cloud_api_resource = None
 
@@ -59,7 +65,7 @@ _cloud_api_user_project: Optional[str] = None
 _cloud_api_client_version: Optional[str] = None
 
 # The http_transport to use.
-_http_transport: _cloud_api_utils.HttpTransportable = None
+_http_transport = None
 
 # Whether the module has been initialized.
 _initialized: bool = False
@@ -67,6 +73,9 @@ _initialized: bool = False
 # Sets the number of milliseconds to wait for a request before considering
 # it timed out. 0 means no limit.
 _deadline_ms: int = 0
+
+# Maximum number of times to retry a rate-limited request.
+_max_retries: int = 5
 
 # User agent to indicate which application is calling Earth Engine
 _user_agent: Optional[str] = None
@@ -111,9 +120,6 @@ _USER_AGENT_HEADER = 'user-agent'
 # Optional HTTP header returned to display initialization-time messages.
 _INIT_MESSAGE_HEADER = 'x-earth-engine-init-message'  # lowercase for httplib2
 
-# Maximum number of times to retry a rate-limited request.
-MAX_RETRIES = 5
-
 # Maximum time to wait before retrying a rate-limited request (in milliseconds).
 MAX_RETRY_WAIT = 120000
 
@@ -157,7 +163,7 @@ def initialize(
     cloud_api_base_url: Optional[str] = None,
     cloud_api_key: Optional[str] = None,
     project: Optional[str] = None,
-    http_transport: Optional[_cloud_api_utils.HttpTransportable] = None,
+    http_transport: Any = None,
 ) -> None:
   """Initializes the data module, setting credentials and base URLs.
 
@@ -178,6 +184,7 @@ def initialize(
     http_transport: The http transport to use
   """
   global _api_base_url, _tile_base_url, _credentials, _initialized
+  global _requests_session
   global _cloud_api_base_url
   global _cloud_api_key
   global _cloud_api_user_project, _http_transport
@@ -212,6 +219,9 @@ def initialize(
 
   _http_transport = http_transport
 
+  if _requests_session is None:
+    _requests_session = requests.Session()
+
   _install_cloud_api_resource()
 
   if project is not None:
@@ -223,39 +233,71 @@ def initialize(
   _initialized = True
 
 
+def is_initialized() -> bool:
+  return _initialized
+
+
 def get_persistent_credentials() -> credentials_lib.Credentials:
-  """Read persistent credentials from ~/.config/earthengine.
+  """Read persistent credentials from ~/.config/earthengine or ADC.
 
   Raises EEException with helpful explanation if credentials don't exist.
 
   Returns:
-    OAuth2Credentials built from persistently stored refresh_token
+    OAuth2Credentials built from persistently stored refresh_token, containing
+    the client project in the quota_project_id field, if available.
   """
+  credentials = None
+  args = {}
   try:
-    return credentials_lib.Credentials(
-        None, **oauth.get_credentials_arguments()
-    )
+    args = oauth.get_credentials_arguments()
   except IOError:
-    raise ee_exception.EEException(  # pylint: disable=raise-missing-from
-        'Please authorize access to your Earth Engine account by '
-        'running\n\nearthengine authenticate\n\n'
-        'in your command line, and then retry.'
-    )
+    pass
+
+  if args.get('refresh_token'):
+    credentials = credentials_lib.Credentials(None, **args)
+  else:
+    # If EE credentials aren't available, try application default credentials.
+    try:
+      with warnings.catch_warnings():
+        # _default.py gives incorrect advice here: gcloud config set project
+        # sets the default resource project but we need the quota project.
+        warnings.filterwarnings('ignore', '.*(No project ID|quota project).*')
+
+        credentials, unused_project_id = google.auth.default()
+    except google.auth.exceptions.DefaultCredentialsError:
+      pass
+
+  if credentials:
+    # earthengine set_project always overrides gcloud set-quota-project
+    project = args.get('quota_project_id') or oauth.get_appdefault_project()
+    if project and project != credentials.quota_project_id:
+      credentials = credentials.with_quota_project(project)
+    return credentials
+  raise ee_exception.EEException(  # pylint: disable=raise-missing-from
+      'Please authorize access to your Earth Engine account by '
+      'running\n\nearthengine authenticate\n\n'
+      'in your command line, or ee.Authenticate() in Python, and then retry.'
+  )
 
 
 def reset() -> None:
   """Resets the data module, clearing credentials and custom base URLs."""
   global _api_base_url, _tile_base_url, _credentials, _initialized
-  global _cloud_api_base_url
-  global _cloud_api_resource, _cloud_api_resource_raw
+  global _requests_session, _cloud_api_resource, _cloud_api_resource_raw
+  global _cloud_api_base_url, _cloud_api_user_project
   global _cloud_api_key, _http_transport
   _credentials = None
   _api_base_url = None
   _tile_base_url = None
+  if _requests_session is not None:
+    _requests_session.close()
+    _requests_session = None
   _cloud_api_base_url = None
   _cloud_api_key = None
   _cloud_api_resource = None
   _cloud_api_resource_raw = None
+  _cloud_api_user_project = None
+  _cloud_api_utils.set_cloud_api_user_project(DEFAULT_CLOUD_API_USER_PROJECT)
   _http_transport = None
   _initialized = False
 
@@ -273,24 +315,29 @@ def _install_cloud_api_resource() -> None:
   global _cloud_api_resource, _cloud_api_resource_raw
 
   timeout = (_deadline_ms / 1000.0) or None
+  assert _requests_session is not None
   _cloud_api_resource = _cloud_api_utils.build_cloud_resource(
       _cloud_api_base_url,
-      credentials=_credentials,
-      api_key=_cloud_api_key,
-      timeout=timeout,
-      headers_supplier=_make_request_headers,
-      response_inspector=_handle_profiling_response,
-      http_transport=_http_transport)
-
-  _cloud_api_resource_raw = _cloud_api_utils.build_cloud_resource(
-      _cloud_api_base_url,
+      _requests_session,
       credentials=_credentials,
       api_key=_cloud_api_key,
       timeout=timeout,
       headers_supplier=_make_request_headers,
       response_inspector=_handle_profiling_response,
       http_transport=_http_transport,
-      raw=True)
+  )
+
+  _cloud_api_resource_raw = _cloud_api_utils.build_cloud_resource(
+      _cloud_api_base_url,
+      _requests_session,
+      credentials=_credentials,
+      api_key=_cloud_api_key,
+      timeout=timeout,
+      headers_supplier=_make_request_headers,
+      response_inspector=_handle_profiling_response,
+      http_transport=_http_transport,
+      raw=True,
+  )
 
 
 def _get_cloud_projects() -> Any:
@@ -336,7 +383,7 @@ def _handle_profiling_response(response: httplib2.Response) -> None:
 
 
 def _execute_cloud_call(
-    call: googleapiclient.http.HttpRequest, num_retries: int = MAX_RETRIES
+    call: googleapiclient.http.HttpRequest, num_retries: Optional[int] = None
 ) -> Any:
   """Executes a Cloud API call and translates errors to EEExceptions.
 
@@ -351,6 +398,7 @@ def _execute_cloud_call(
   Raises:
     EEException if the call fails.
   """
+  num_retries = _max_retries if num_retries is None else num_retries
   try:
     return call.execute(num_retries=num_retries)
   except googleapiclient.errors.HttpError as e:
@@ -425,6 +473,20 @@ def setDeadline(milliseconds: float) -> None:
   _install_cloud_api_resource()
 
 
+def setMaxRetries(max_retries: int) -> None:
+  """Sets the maximum number of retries for API requests.
+
+  Args:
+    max_retries: The maximum number of retries for a request.
+  """
+  if max_retries < 0:
+    raise ValueError('max_retries must be non-negative')
+  if max_retries >= 100:
+    raise ValueError('Too many retries')
+  global _max_retries
+  _max_retries = max_retries
+
+
 @contextlib.contextmanager
 def profiling(hook: Any) -> Iterator[None]:
   # pylint: disable=g-doc-return-or-yield
@@ -464,7 +526,7 @@ def getInfo(asset_id: str) -> Optional[Any]:
         _get_cloud_projects()
         .assets()
         .get(name=name, prettyPrint=False)
-        .execute(num_retries=MAX_RETRIES)
+        .execute(num_retries=_max_retries)
     )
   except googleapiclient.errors.HttpError as e:
     if e.resp.status == 404:
@@ -509,14 +571,18 @@ def getList(params: Dict[str, Any]) -> Any:
   return result
 
 
-def listImages(params: Dict[str, Any]) -> Dict[str, Optional[List[int]]]:
+def listImages(
+    params: Union[str, Dict[str, Any]],
+) -> Dict[str, Optional[List[Any]]]:
   """Returns the images in an image collection or folder.
 
   Args:
-    params: An object containing request parameters with the following possible
+    params: Either a string representing the ID of the image collection to list,
+      or an object containing request parameters with the following possible
       values, all but 'parent` are optional:
       parent - (string) The ID of the image collection to list, required.
-      pageSize - (string) The number of results to return. Defaults to 1000.
+      pageSize - (string) The number of results to return. If not specified, all
+        results are returned.
       pageToken - (string) The token page of results to return.
       startTime - (ISO 8601 string): The minimum start time (inclusive).
       endTime - (ISO 8601 string): The maximum end time (exclusive).
@@ -544,14 +610,16 @@ def listImages(params: Dict[str, Any]) -> Dict[str, Optional[List[int]]]:
   return images
 
 
-def listAssets(params: Dict[str, Any]) -> Dict[str, List[Any]]:
+def listAssets(params: Union[str, Dict[str, Any]]) -> Dict[str, List[Any]]:
   """Returns the assets in a folder.
 
   Args:
-    params: An object containing request parameters with the following possible
-      values, all but 'parent` are optional:
+    params: Either a string representing the ID of the collection or folder to
+      list, or an object containing request parameters with the following
+      possible values, all but 'parent` are optional:
       parent - (string) The ID of the collection or folder to list, required.
-      pageSize - (string) The number of results to return. Defaults to 1000.
+      pageSize - (string) The number of results to return. If not specified, all
+        results are returned.
       pageToken - (string) The token page of results to return.
       filter - (string) An additional filter query to apply. Example query:
         '''properties.my_property>=1 AND properties.my_property<2 AND
@@ -599,7 +667,7 @@ def listBuckets(project: Optional[str] = None) -> Any:
   """Returns top-level assets and folders for the Cloud Project or user.
 
   Args:
-    project: Project to query, e.g. "projects/my-project". Defaults to current
+    project: Project to query, e.g., "projects/my-project". Defaults to current
       project. Use "projects/earthengine-legacy" for user home folders.
 
   Returns:
@@ -837,6 +905,7 @@ def getPixels(params: Dict[str, Any]) -> Any:
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
       converter.expected_data_format()
   )
+  _maybe_populate_workload_tag(params)
   data = _execute_cloud_call(
       _get_cloud_projects_raw()
       .assets()
@@ -936,7 +1005,8 @@ def computeFeatures(params: Dict[str, Any]) -> Any:
     A Pandas DataFrame, GeoPandas GeoDataFrame, or a dictionary containing:
     - "type": always "FeatureCollection" marking this object as a GeoJSON
           feature collection.
-    - "features": a list of GeoJSON features.
+    - "features": a list of GeoJSON features reprojected to EPSG:4326 with
+          planar edges.
     - "next_page_token": A token to retrieve the next page of results in a
           subsequent call to this function.
   """
@@ -1202,11 +1272,12 @@ def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
       possible values:
         image - The image to download.
         - name: a base name to use when constructing filenames. Only applicable
-            when format is "ZIPPED_GEO_TIFF" (default) or filePerBand is true.
-            Defaults to the image id (or "download" for computed images) when
-            format is "ZIPPED_GEO_TIFF" or filePerBand is true, otherwise a
-            random character string is generated. Band names are appended when
-            filePerBand is true.
+            when format is "ZIPPED_GEO_TIFF" (default),
+            "ZIPPED_GEO_TIFF_PER_BAND", or filePerBand is true. Defaults to the
+            image id (or "download" for computed images) when format is
+            "ZIPPED_GEO_TIFF", "ZIPPED_GEO_TIFF_PER_BAND", or filePerBand is
+            true, otherwise a random character string is generated. Band names
+            are appended when filePerBand is true.
         - bands: a description of the bands to download. Must be an array of
             band names or an array of dictionaries, each with the
             following keys:
@@ -1231,10 +1302,13 @@ def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
             and crs_transform are specified.
         - filePerBand: whether to produce a separate GeoTIFF per band (boolean).
             Defaults to true. If false, a single GeoTIFF is produced and all
-            band-level transformations will be ignored.
+            band-level transformations will be ignored. Note that this is
+            ignored if the format is "ZIPPED_GEO_TIFF" or
+            "ZIPPED_GEO_TIFF_PER_BAND".
         - format: the download format. One of:
-            "ZIPPED_GEO_TIFF" (GeoTIFF file(s) wrapped in a zip file, default),
-            "GEO_TIFF" (GeoTIFF file), "NPY" (NumPy binary format).
+            "ZIPPED_GEO_TIFF" (GeoTIFF file wrapped in a zip file, default),
+            "ZIPPED_GEO_TIFF_PER_BAND" (Multiple GeoTIFF files wrapped in a
+            zip file), "GEO_TIFF" (GeoTIFF file), "NPY" (NumPy binary format).
             If "GEO_TIFF" or "NPY", filePerBand and all band-level
             transformations will be ignored. Loading a NumPy output results in
             a structured array.
@@ -1250,7 +1324,7 @@ def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
   if 'id' in params:
     raise ee_exception.EEException('Image ID string is not supported. '
                                    'Construct an image with the ID '
-                                   '(e.g. ee.Image(id)) and use '
+                                   '(e.g., ee.Image(id)) and use '
                                    'ee.Image.getDownloadURL instead.')
   if 'image' not in params:
     raise ee_exception.EEException('Missing image parameter.')
@@ -1420,11 +1494,12 @@ def getAlgorithms() -> Any:
   return _cloud_api_utils.convert_algorithms(_execute_cloud_call(call))
 
 
+@_utils.accept_opt_prefix('opt_path', 'opt_force', 'opt_properties')
 def createAsset(
     value: Dict[str, Any],
-    opt_path: Optional[str] = None,
-    opt_properties: Optional[Dict[str, Any]] = None,
-) -> Any:
+    path: Optional[str] = None,
+    properties: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
   """Creates an asset from a JSON value.
 
   To create an empty image collection or folder, pass in a "value" object
@@ -1433,8 +1508,8 @@ def createAsset(
 
   Args:
     value: An object describing the asset to create.
-    opt_path: An optional desired ID, including full path.
-    opt_properties: The keys and values of the properties to set on the created
+    path: An optional desired ID, including full path.
+    properties: The keys and values of the properties to set on the created
       asset.
 
   Returns:
@@ -1444,12 +1519,13 @@ def createAsset(
     raise ee_exception.EEException('Asset cannot be specified as string.')
   asset = value.copy()
   if 'name' not in asset:
-    if not opt_path:
+    if not path:
       raise ee_exception.EEException(
-          'Either asset name or opt_path must be specified.')
-    asset['name'] = _cloud_api_utils.convert_asset_id_to_asset_name(opt_path)
-  if 'properties' not in asset and opt_properties:
-    asset['properties'] = opt_properties
+          'Either asset name or path must be specified.'
+      )
+    asset['name'] = _cloud_api_utils.convert_asset_id_to_asset_name(path)
+  if 'properties' not in asset and properties:
+    asset['properties'] = properties
   # Make sure title and description are loaded in as properties.
   move_to_properties = ['title', 'description']
   for prop in move_to_properties:
@@ -1477,6 +1553,20 @@ def createAsset(
           prettyPrint=False,
       )
   )
+
+
+def createFolder(path: str) -> Dict[str, Any]:
+  """Creates an asset folder.
+
+  Returns a description of the newly created folder.
+
+  Args:
+    path: The path to the folder to create.
+
+  Returns:
+    A description of the newly created folder.
+  """
+  return createAsset({'type': 'FOLDER'}, path)
 
 
 def copyAsset(
@@ -1607,7 +1697,7 @@ def getTaskStatus(taskId: Union[List[str], str]) -> List[Any]:
           _get_cloud_projects()
           .operations()
           .get(name=_cloud_api_utils.convert_task_id_to_operation_name(one_id))
-          .execute(num_retries=MAX_RETRIES)
+          .execute(num_retries=_max_retries)
       )
       result.append(_cloud_api_utils.convert_operation_to_task(operation))
     except googleapiclient.errors.HttpError as e:
@@ -1753,6 +1843,33 @@ def exportMap(request_id: str, params: Dict[str, Any]) -> Any:
   )
 
 
+def exportClassifier(request_id: str, params: Dict[str, Any]) -> Any:
+  """Starts a classifier export task.
+
+  This is a low-level method. The higher-level ee.batch.Export.classifier
+  object is generally preferred for initiating classifier exports.
+
+  Args:
+    request_id (string): A unique ID for the task, from newTaskId. If you are
+      using the cloud API, this does not need to be from newTaskId, (though
+      that's a good idea, as it's a good source of unique strings). It can also
+      be empty, but in that case the request is more likely to fail as it cannot
+      be safely retried.
+    params: The object that describes the export task. If you are using the
+      cloud API, this should be an ExportClassifierRequest. However, the
+      "expression" parameter can be the actual Classifier to be exported, not
+      its serialized form.
+
+  Returns:
+    A dict with information about the created task.
+    If you are using the cloud API, this will be an Operation.
+  """
+  params = params.copy()
+  return _prepare_and_run_export(
+      request_id, params, _get_cloud_projects().classifier().export
+  )
+
+
 def _prepare_and_run_export(
     request_id: str, params: Dict[str, Any], export_endpoint: Any
 ) -> Any:
@@ -1783,7 +1900,7 @@ def _prepare_and_run_export(
   if isinstance(params['expression'], encodable.Encodable):
     params['expression'] = serializer.encode(
         params['expression'], for_cloud_api=True)
-  num_retries = MAX_RETRIES if request_id else 0
+  num_retries = _max_retries if request_id else 0
   return _execute_cloud_call(
       export_endpoint(project=_get_projects_path(), body=params),
       num_retries=num_retries)
@@ -1811,7 +1928,7 @@ def startIngestion(
                   {'uris': ['bar.tif', 'bar.prj']},
               ]}]
             Where path values correspond to source files' Google Cloud Storage
-            object names, e.g. 'gs://bucketname/filename.tif'
+            object names, e.g., 'gs://bucketname/filename.tif'
           bands (array) An optional list of band names formatted like:
             [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
         In general, this is a dict representation of an ImageManifest.
@@ -1830,9 +1947,10 @@ def startIngestion(
       'overwrite':
           allow_overwrite
   }
+
   # It's only safe to retry the request if there's a unique ID to make it
   # idempotent.
-  num_retries = MAX_RETRIES if request_id else 0
+  num_retries = _max_retries if request_id else 0
   operation = _execute_cloud_call(
       _get_cloud_projects()
       .image()
@@ -1884,7 +2002,7 @@ def startTableIngestion(
   }
   # It's only safe to retry the request if there's a unique ID to make it
   # idempotent.
-  num_retries = MAX_RETRIES if request_id else 0
+  num_retries = _max_retries if request_id else 0
   operation = _execute_cloud_call(
       _get_cloud_projects()
       .table()
@@ -2004,8 +2122,7 @@ def setAssetAcl(assetId: str, aclUpdate: Union[str, Dict[str, Any]]) -> None:
 
   Args:
     assetId: The ID of the asset to set the ACL on.
-    aclUpdate: The updated ACL for the asset. Must be formatted like the
-        value returned by getAssetAcl but without "owners".
+    aclUpdate: The updated ACL.
   """
   # The ACL may be a string by the time it gets to us. Sigh.
   if isinstance(aclUpdate, str):
@@ -2031,7 +2148,7 @@ def setIamPolicy(asset_id: str, policy: Any) -> None:
       .setIamPolicy(resource=name, body={'policy': policy}, prettyPrint=False)
   )
 
-
+@deprecation.Deprecated('Use ee.data.updateAsset().')
 def setAssetProperties(assetId: str, properties: Dict[str, Any]) -> None:
   """Sets metadata properties of the asset with the given ID.
 
@@ -2084,7 +2201,7 @@ def createAssetHome(requestedId: str) -> None:
   requested ID is unavailable.
 
   Args:
-    requestedId: The requested ID of the home folder (e.g. "users/joe").
+    requestedId: The requested ID of the home folder (e.g., "users/joe").
   """
   # This is just a special case of folder creation.
   createAsset({
@@ -2238,16 +2355,17 @@ def setDefaultWorkloadTag(tag: Optional[Union[int, str]]) -> None:
   _workloadTag.set(tag)
 
 
-def resetWorkloadTag(opt_resetDefault: bool = False) -> None:
+@_utils.accept_opt_prefix('opt_resetDefault')
+def resetWorkloadTag(resetDefault: bool = False) -> None:
   """Sets the default tag for which to reset back to.
 
-  If opt_resetDefault parameter is set to true, the default will be set to empty
+  If resetDefault parameter is set to true, the default will be set to empty
   before resetting. Defaults to False.
 
   Args:
-    opt_resetDefault: Whether to reset the default back to empty.
+    resetDefault: Whether to reset the default back to empty.
   """
-  if opt_resetDefault:
+  if resetDefault:
     _workloadTag.setDefault('')
   _workloadTag.reset()
 
@@ -2293,7 +2411,7 @@ class _WorkloadTag:
     if not re.fullmatch(r'([a-z0-9]|[a-z0-9][-_a-z0-9]{0,61}[a-z0-9])', tag):
       validationMessage = (
           'Tags must be 1-63 characters, '
-          'beginning and ending with an lowercase alphanumeric character '
+          'beginning and ending with a lowercase alphanumeric character '
           '([a-z0-9]) with dashes (-), underscores (_), '
           'and lowercase alphanumerics between.')
       raise ValueError(f'Invalid tag, "{tag}". {validationMessage}')

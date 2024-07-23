@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Count features example.
 
 Count Panoramio photos near SF that mention bridges.

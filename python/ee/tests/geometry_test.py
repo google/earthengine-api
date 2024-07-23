@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Test for the ee.geometry module."""
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 
 class GeometryTest(apitestcase.ApiTestCase):
@@ -459,7 +459,7 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     Args:
       nesting: The expected coordinate nesting level.
-      ctor: The geometry constructor function, e.g. ee.Geometry.MultiPoint.
+      ctor: The geometry constructor function, e.g., ee.Geometry.MultiPoint.
       *coords: The coordinates of the geometry.
     """
     # The constructor already does a validity check.
@@ -476,7 +476,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     and verifies that the given error message is thrown.
 
     Args:
-      ctor: The geometry constructor function, e.g. ee.Geometry.MultiPoint.
+      ctor: The geometry constructor function, e.g., ee.Geometry.MultiPoint.
       msg: The expected error message in the thrown exception.
       *coords: The coordinates of the geometry.
     """
@@ -494,6 +494,17 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertEqual(a, c)
     self.assertNotEqual(b, c)
     self.assertNotEqual(hash(a), hash(b))
+
+  def testInitOptParams(self):
+    result = ee.Geometry(
+        geo_json={'type': 'Polygon', 'coordinates': [[[-2, 1]]]},
+        opt_proj='abc',
+        opt_geodesic=True,
+        opt_evenOdd=True,
+    ).serialize()
+    self.assertIn('"crs": {"constantValue": "abc"}', result)
+    self.assertIn('"geodesic": {"constantValue": true}', result)
+    self.assertIn('"evenOdd": {"constantValue": true}', result)
 
 
 if __name__ == '__main__':

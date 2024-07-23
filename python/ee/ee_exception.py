@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A simple exception for the EE library."""
 
 

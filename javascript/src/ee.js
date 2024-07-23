@@ -249,7 +249,7 @@ ee.call = function(func, var_args) {
   }
   // Extract var_args.
   const args = Array.prototype.slice.call(arguments, 1);
-  // Call func.call with the extracted agrs.
+  // Call func.call with the extracted args.
   return ee.Function.prototype.call.apply(func, args);
 };
 
@@ -378,8 +378,7 @@ ee.promote_ = function(arg, klass) {
       return new ee.Image(/** @type {Object} */ (arg));
     case 'Feature':
       if (arg instanceof ee.Collection) {
-        // TODO(user): Decide whether we want to leave this in. It can be
-        //              quite dangerous on large collections.
+        // This can be quite dangerous on large collections.
         return ee.ApiFunction._call(
             'Feature', ee.ApiFunction._call('Collection.geometry', arg));
       } else {

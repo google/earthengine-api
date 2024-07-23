@@ -1,38 +1,60 @@
 #!/usr/bin/env python3
 """Test for the ee.batch module."""
+
 from typing import Any, Optional
 import unittest
 from unittest import mock
 
+import unittest
 import ee
 from ee import apitestcase
 from ee import batch
 from ee import data
-import unittest
 
-TASK_STATUS_1 = {
-    'description': 'FirstTestTask',
-    'id': 'TEST1',
-    'source_url': 'http://example.org/',
-    'state': 'RUNNING',
-    'task_type': 'EXPORT_IMAGE',
-    'creation_timestamp_ms': 7,
-    'start_timestamp_ms': 13,
-    'update_timestamp_ms': 42,
+RUNNING_OPERATION = {
+    'metadata': {
+        'createTime': '1970-01-01T00:00:00.00Z',
+        'startTime': '1970-01-01T00:00:01.00Z',
+        'updateTime': '1970-01-01T00:01:00.00Z',
+        'description': 'FirstTestTask',
+        'state': 'RUNNING',
+        'type': 'EXPORT_IMAGE',
+        'destinationUris': ['https://test.com'],
+        'attempt': 42,
+        'priority': 100,
+    },
+    'done': False,
+    'name': 'projects/test-project/operations/TEST1',
 }
-TASK_STATUS_2 = {
-    'description': 'SecondTestTask',
-    'id': 'TEST2',
-    'state': 'FAILED',
-    'task_type': 'EXPORT_FEATURES',
-    'creation_timestamp_ms': 17,
-    'start_timestamp_ms': 113,
-    'update_timestamp_ms': 142,
-    'error_message': 'Explosions.',
+SUCCEEDED_OPERATION = {
+    'metadata': {
+        'createTime': '1970-01-01T00:00:00.00Z',
+        'startTime': '1970-01-01T00:00:01.00Z',
+        'updateTime': '1970-01-01T00:01:00.00Z',
+        'description': 'Ingest image: "an/image"',
+        'state': 'SUCCEEDED',
+        'type': 'EXPORT_IMAGE',
+        'destinationUris': ['https://test.com'],
+        'attempt': 42,
+        'priority': 100,
+    },
+    'done': False,
+    'name': 'projects/test-project/operations/TEST2',
+}
+UNKNOWN_OPERATION = {
+    'metadata': {
+        'state': 'UNKNOWN',
+    },
+    'done': True,
+    'name': 'projects/test-project/operations/TEST2',
 }
 
 
 class TaskTest(unittest.TestCase):
+
+  def setUp(self):
+    super().setUp()
+    data.setCloudApiUserProject('test-project')
 
   def testStartWithoutConfig(self):
     task = batch.Task('an id', 'a task type', 'a state')
@@ -49,29 +71,56 @@ class TaskTest(unittest.TestCase):
       task.start()
 
   def testStatusWithId(self):
-    task = batch.Task('an id', 'a task type', 'a state')
-    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_1]):
+    task = batch.Task('test_1', 'a task type', 'a state')
+    with mock.patch.object(
+        data, 'getOperation', return_value=RUNNING_OPERATION
+    ) as m:
       self.assertEqual('RUNNING', task.status()['state'])
+      self.assertEqual(
+          m.call_args.args[0], 'projects/test-project/operations/test_1'
+      )
+
+  def testStatusWithName(self):
+    task = batch.Task(
+        None,
+        'a task type',
+        'a state',
+        name='projects/test-project/operations/test_1',
+    )
+    with mock.patch.object(
+        data, 'getOperation', return_value=RUNNING_OPERATION
+    ) as m:
+      self.assertEqual('RUNNING', task.status()['state'])
+      self.assertEqual(
+          m.call_args.args[0], 'projects/test-project/operations/test_1'
+      )
 
   def testStatusWithIdStateUnknown(self):
     task = batch.Task('an id', 'a task type', 'a state')
     with mock.patch.object(
-        data, 'getTaskStatus', return_value=[{'state': 'UNKNOWN'}]
-    ):
-      self.assertEqual({'state': 'UNSUBMITTED'}, task.status())
+        data, 'getOperation', return_value=UNKNOWN_OPERATION
+    ) as m:
+      self.assertEqual('UNSUBMITTED', task.status()['state'])
+      self.assertEqual(
+          m.call_args.args[0], 'projects/test-project/operations/an id'
+      )
 
-  def testStatusWithoutId(self):
+  def testStatusWithoutIdOrName(self):
     task = batch.Task(None, 'a task type', 'a state')
-    self.assertEqual({'state': 'UNSUBMITTED'}, task.status())
+    self.assertEqual('UNSUBMITTED', task.status()['state'])
 
   def testActive(self):
     task = batch.Task('an id', 'a task type', 'a state')
-    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_1]):
+    with mock.patch.object(
+        data, 'getOperation', return_value=RUNNING_OPERATION
+    ):
       self.assertTrue(task.active())
 
   def testNotActive(self):
     task = batch.Task('an id', 'a task type', 'a state')
-    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_2]):
+    with mock.patch.object(
+        data, 'getOperation', return_value=SUCCEEDED_OPERATION
+    ):
       self.assertFalse(task.active())
 
   def testReprWithoutConfig(self):
@@ -125,17 +174,10 @@ class ExportTest(unittest.TestCase):
     with self.assertRaises(AssertionError):
       batch.Export.video.__init__('something')
 
-  def testExportVideoMapCannotInit(self):
-    with self.assertRaises(AssertionError):
-      batch.Export.videoMap.__init__('something')
-
-  def testExportClassifierCannotInit(self):
-    with self.assertRaises(AssertionError):
-      batch.Export.classifier.__init__('something')
-
 
 class BatchTestCase(apitestcase.ApiTestCase):
   """A test case for batch functionality."""
+
   start_call_params: Optional[Any]
   update_call_params: Optional[Any]
 
@@ -162,33 +204,35 @@ class BatchTestCase(apitestcase.ApiTestCase):
 
   def testTaskCancelCloudApi(self):
     mock_cloud_api_resource = mock.MagicMock()
-    mock_cloud_api_resource.projects().operations().list(
-    ).execute.return_value = {
+    mock_cloud_api_resource.projects().operations().list().execute.return_value = {
         'operations': [{
             'name': 'projects/earthengine-legacy/operations/TEST1',
             'metadata': {},
         }]
     }
-    mock_cloud_api_resource.projects().operations(
-    ).list_next.return_value = None
+    mock_cloud_api_resource.projects().operations().list_next.return_value = (
+        None
+    )
     with apitestcase.UsingCloudApi(cloud_api_resource=mock_cloud_api_resource):
       task = ee.batch.Task.list()[0]
       task.cancel()
-      cancel_args = mock_cloud_api_resource.projects().operations(
-      ).cancel.call_args
+      cancel_args = (
+          mock_cloud_api_resource.projects().operations().cancel.call_args
+      )
       self.assertEqual(
-          cancel_args[1]['name'],
-          'projects/earthengine-legacy/operations/TEST1')
+          cancel_args[1]['name'], 'projects/earthengine-legacy/operations/TEST1'
+      )
 
   def testExportImageTrivialRegionCloudApi(self):
     """Verifies the task created by Export.image() with a trivial region."""
     with apitestcase.UsingCloudApi():
       region = [0, 0, 1, 0, 1, 1]
       task = ee.batch.Export.image.toAsset(
-          ee.Image(42), assetId='users/foo/bar', region=region, scale=1000)
+          ee.Image(42), assetId='users/foo/bar', region=region, scale=1000
+      )
       expected_expression = ee.Image(42).clipToBoundsAndScale(
-          geometry=ee.Geometry.LineString(region),
-          scale=1000)
+          geometry=ee.Geometry.LineString(region), scale=1000
+      )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
@@ -198,13 +242,15 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'expression': expected_expression,
               'assetExportOptions': {
                   'earthEngineDestination': {
-                      'name':
-                          'projects/earthengine-legacy/assets/users/foo/bar',
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
                   }
               },
               'description': 'myExportImageTask',
           },
-          task.config)
+          task.config,
+      )
 
   def testExportImageCloudApi(self):
     """Verifies the task created by Export.image()."""
@@ -221,10 +267,11 @@ class BatchTestCase(apitestcase.ApiTestCase):
           formatOptions={'noData': 1},
       )
       task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
-      expected_expression = ee.Image(1).reproject(
-          'foo', crsTransform=[
-              9.0, 8.0, 7.0, 6.0, 5.0, 4.0
-          ]).clip(region)
+      expected_expression = (
+          ee.Image(1)
+          .reproject('foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0])
+          .clip(region)
+      )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
@@ -248,6 +295,19 @@ class BatchTestCase(apitestcase.ApiTestCase):
           task.config,
       )
 
+  def testExportImageCloudApiInvalidSkipEmptyTiles(self):
+    """Verifies errors are thrown when incorrectly specifying skipEmptyTiles."""
+    with apitestcase.UsingCloudApi():
+      with self.assertRaisesRegex(
+          ValueError, 'skipEmptyTiles is only supported for GeoTIFF'
+      ):
+        ee.batch.Export.image.toDrive(
+            ee.Image(1),
+            'TestDescription',
+            fileFormat='TFRecord',
+            skipEmptyTiles=True,
+        )
+
   def testExportImageWithTfRecordCloudApi(self):
     """Verifies the task created by Export.image()."""
     with apitestcase.UsingCloudApi():
@@ -267,48 +327,45 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'tensorDepths': {'b1': 1, 'b2': 2},
               'sequenceData': True,
               'collapseBands': True,
-              'maskedThreshold': .5,
+              'maskedThreshold': 0.5,
           },
       )
       task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
-      expected_expression = ee.Image(1).reproject(
-          'foo', crsTransform=[
-              9.0, 8.0, 7.0, 6.0, 5.0, 4.0
-          ]).clip(region)
+      expected_expression = (
+          ee.Image(1)
+          .reproject('foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0])
+          .clip(region)
+      )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
-      self.assertEqual({
-          'expression': expected_expression,
-          'description': 'TestDescription',
-          'fileExportOptions': {
-              'fileFormat': 'TF_RECORD_IMAGE',
-              'driveDestination': {
-                  'filenamePrefix': 'TestDescription'
-              },
-              'tfRecordOptions': {
-                  'tileDimensions': {
-                      'width': 256,
-                      'height': 256
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'TestDescription',
+              'fileExportOptions': {
+                  'fileFormat': 'TF_RECORD_IMAGE',
+                  'driveDestination': {'filenamePrefix': 'TestDescription'},
+                  'tfRecordOptions': {
+                      'tileDimensions': {'width': 256, 'height': 256},
+                      'marginDimensions': {
+                          'width': 32,
+                          'height': 32,
+                      },
+                      'compress': True,
+                      'maxSizeBytes': {'value': '1000000000'},
+                      'defaultValue': -999,
+                      'tensorDepths': {'b1': 1, 'b2': 2},
+                      'sequenceData': True,
+                      'collapseBands': True,
+                      'maxMaskedRatio': {'value': 0.5},
                   },
-                  'marginDimensions': {
-                      'width': 32,
-                      'height': 32,
-                  },
-                  'compress': True,
-                  'maxSizeBytes': {'value': '1000000000'},
-                  'defaultValue': -999,
-                  'tensorDepths': {'b1': 1, 'b2': 2},
-                  'sequenceData': True,
-                  'collapseBands': True,
-                  'maxMaskedRatio': {'value': 0.5},
               },
+              'maxPixels': {'value': '10000000000'},
           },
-          'maxPixels': {
-              'value': '10000000000'
-          },
-      }, task.config)
+          task.config,
+      )
 
   def testExportImageToAssetCloudApi(self):
     """Verifies the Asset export task created by Export.image.toAsset()."""
@@ -316,14 +373,16 @@ class BatchTestCase(apitestcase.ApiTestCase):
       config = dict(
           image=ee.Image(1),
           assetId='users/foo/bar',
-          pyramidingPolicy={'B1': 'min'})
+          pyramidingPolicy={'B1': 'min'},
+      )
       expected_expression = ee.Image(1)
 
       # Test keyed parameters.
       task_keyed = ee.batch.Export.image.toAsset(
           image=config['image'],
           assetId=config['assetId'],
-          pyramidingPolicy=config['pyramidingPolicy'])
+          pyramidingPolicy=config['pyramidingPolicy'],
+      )
       self.assertIsNone(task_keyed.id)
       self.assertIsNone(task_keyed.name)
       self.assertEqual('EXPORT_IMAGE', task_keyed.task_type)
@@ -334,15 +393,15 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'myExportImageTask',
               'assetExportOptions': {
                   'earthEngineDestination': {
-                      'name':
-                          'projects/earthengine-legacy/assets/users/foo/bar',
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
                   },
-                  'pyramidingPolicyOverrides': {
-                      'B1': 'MIN'
-                  }
+                  'pyramidingPolicyOverrides': {'B1': 'MIN'},
               },
           },
-          task_keyed.config)
+          task_keyed.config,
+      )
 
       task_ordered = ee.batch.Export.image.toAsset(
           config['image'],
@@ -350,7 +409,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           config['assetId'],
           maxPixels=1000,
           maxWorkers=100,
-          shardSize=4)
+          shardSize=4,
+      )
       self.assertEqual('EXPORT_IMAGE', task_ordered.task_type)
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual(
@@ -359,21 +419,17 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'TestDescription',
               'assetExportOptions': {
                   'earthEngineDestination': {
-                      'name':
-                          'projects/earthengine-legacy/assets/users/foo/bar',
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
                   },
-                  'tileSize': {
-                      'value': 4
-                  }
+                  'tileSize': {'value': 4},
               },
-              'maxPixels': {
-                  'value': '1000'
-              },
-              'maxWorkers': {
-                  'value': 100
-              }
+              'maxPixels': {'value': '1000'},
+              'maxWorkers': {'value': 100},
           },
-          task_ordered.config)
+          task_ordered.config,
+      )
 
   def testExportImageToAssetCloudApi_withTileSize(self):
     """Verifies the Asset export task created by Export.image.toAsset()."""
@@ -381,7 +437,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
       config = dict(
           image=ee.Image(1),
           assetId='users/foo/bar',
-          pyramidingPolicy={'B1': 'min'})
+          pyramidingPolicy={'B1': 'min'},
+      )
       expected_expression = ee.Image(1)
 
       task_ordered = ee.batch.Export.image.toAsset(
@@ -390,7 +447,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           config['assetId'],
           maxPixels=1000,
           maxWorkers=100,
-          tileSize=4)
+          tileSize=4,
+      )
       self.assertEqual('EXPORT_IMAGE', task_ordered.task_type)
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual(
@@ -399,21 +457,17 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'TestDescription',
               'assetExportOptions': {
                   'earthEngineDestination': {
-                      'name':
-                          'projects/earthengine-legacy/assets/users/foo/bar',
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
                   },
-                  'tileSize': {
-                      'value': 4
-                  }
+                  'tileSize': {'value': 4},
               },
-              'maxPixels': {
-                  'value': '1000'
-              },
-              'maxWorkers': {
-                  'value': 100
-              }
+              'maxPixels': {'value': '1000'},
+              'maxWorkers': {'value': 100},
           },
-          task_ordered.config)
+          task_ordered.config,
+      )
 
   def testExportImageToCloudStorageCloudApi(self):
     """Verifies the Cloud Storage export task created by Export.image()."""
@@ -422,37 +476,92 @@ class BatchTestCase(apitestcase.ApiTestCase):
       config = dict(
           region=region['coordinates'],
           maxPixels=10**10,
-          outputBucket='test-bucket')
+          outputBucket='test-bucket',
+      )
       task = ee.batch.Export.image.toCloudStorage(
-          ee.Image(1), 'TestDescription', config['outputBucket'], None, None,
-          config['region'], None, None, None, config['maxPixels'], None,
-          [512, 2048], True)
+          ee.Image(1),
+          'TestDescription',
+          config['outputBucket'],
+          None,
+          None,
+          config['region'],
+          None,
+          None,
+          None,
+          config['maxPixels'],
+          None,
+          [512, 2048],
+          True,
+      )
       expected_expression = ee.Image(1).clip(region)
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
-      self.assertEqual({
-          'expression': expected_expression,
-          'description': 'TestDescription',
-          'fileExportOptions': {
-              'fileFormat': 'GEO_TIFF',
-              'cloudStorageDestination': {
-                  'bucket': 'test-bucket',
-                  'filenamePrefix': 'TestDescription'
-              },
-              'geoTiffOptions': {
-                  'tileDimensions': {
-                      'width': 512,
-                      'height': 2048
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'TestDescription',
+              'fileExportOptions': {
+                  'fileFormat': 'GEO_TIFF',
+                  'cloudStorageDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'TestDescription',
                   },
-                  'skipEmptyFiles': True,
+                  'geoTiffOptions': {
+                      'tileDimensions': {'width': 512, 'height': 2048},
+                      'skipEmptyFiles': True,
+                  },
               },
+              'maxPixels': {'value': '10000000000'},
           },
-          'maxPixels': {
-              'value': '10000000000'
+          task.config,
+      )
+
+      config = dict(
+          region=region['coordinates'],
+          maxPixels=10**10,
+          outputBucket='test-bucket',
+          priority=999,
+      )
+      task_with_priority = ee.batch.Export.image.toCloudStorage(
+          ee.Image(1),
+          'TestDescription',
+          config['outputBucket'],
+          None,
+          None,
+          config['region'],
+          None,
+          None,
+          None,
+          config['maxPixels'],
+          None,
+          [512, 2048],
+          True,
+          None,
+          None,
+          config['priority'],
+      )
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'TestDescription',
+              'fileExportOptions': {
+                  'fileFormat': 'GEO_TIFF',
+                  'cloudStorageDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'TestDescription',
+                  },
+                  'geoTiffOptions': {
+                      'tileDimensions': {'width': 512, 'height': 2048},
+                      'skipEmptyFiles': True,
+                  },
+              },
+              'maxPixels': {'value': '10000000000'},
+              'priority': {'value': 999},
           },
-      }, task.config)
+          task_with_priority.config,
+      )
 
   def testExportImageToGoogleDriveCloudApi(self):
     """Verifies the Drive destined task created by Export.image.toDrive()."""
@@ -465,9 +574,13 @@ class BatchTestCase(apitestcase.ApiTestCase):
           maxPixels=10**10,
           crs='foo',
           crsTransform='[9,8,7,6,5,4]',
-          shardSize=512)
-      expected_expression = ee.Image(1).reproject(
-          'foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0]).clip(region)
+          shardSize=512,
+      )
+      expected_expression = (
+          ee.Image(1)
+          .reproject('foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0])
+          .clip(region)
+      )
       self.assertIsNone(drive_task_by_keys.id)
       self.assertIsNone(drive_task_by_keys.name)
       self.assertEqual('EXPORT_IMAGE', drive_task_by_keys.task_type)
@@ -480,45 +593,81 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'fileFormat': 'GEO_TIFF',
                   'driveDestination': {
                       'folder': 'foo',
-                      'filenamePrefix': 'myExportImageTask'
+                      'filenamePrefix': 'myExportImageTask',
                   },
-                  'geoTiffOptions': {
-                      'tileSize': {
-                          'value': 512
-                      }
-                  }
+                  'geoTiffOptions': {'tileSize': {'value': 512}},
               },
-              'maxPixels': {
-                  'value': '10000000000'
-              },
-          }, drive_task_by_keys.config)
+              'maxPixels': {'value': '10000000000'},
+          },
+          drive_task_by_keys.config,
+      )
 
       drive_task_with_old_keys = ee.batch.Export.image.toDrive(
-          image=ee.Image(1), region=region['coordinates'], driveFolder='foo',
-          driveFileNamePrefix='fooExport', maxPixels=10**10,
-          crs='foo', crs_transform='[9,8,7,6,5,4]')
+          image=ee.Image(1),
+          region=region['coordinates'],
+          driveFolder='foo',
+          driveFileNamePrefix='fooExport',
+          maxPixels=10**10,
+          crs='foo',
+          crs_transform='[9,8,7,6,5,4]',
+      )
       self.assertIsNone(drive_task_with_old_keys.id)
       self.assertIsNone(drive_task_by_keys.name)
       self.assertEqual('EXPORT_IMAGE', drive_task_with_old_keys.task_type)
       self.assertEqual('UNSUBMITTED', drive_task_with_old_keys.state)
-      self.assertEqual({
-          'expression': expected_expression,
-          'description': 'myExportImageTask',
-          'fileExportOptions': {
-              'fileFormat': 'GEO_TIFF',
-              'driveDestination': {
-                  'folder': 'foo',
-                  'filenamePrefix': 'fooExport'
-              }
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'myExportImageTask',
+              'fileExportOptions': {
+                  'fileFormat': 'GEO_TIFF',
+                  'driveDestination': {
+                      'folder': 'foo',
+                      'filenamePrefix': 'fooExport',
+                  },
+              },
+              'maxPixels': {'value': '10000000000'},
           },
-          'maxPixels': {
-              'value': '10000000000'
-          },
-      }, drive_task_with_old_keys.config)
+          drive_task_with_old_keys.config,
+      )
 
-      with self.assertRaisesRegex(ee.EEException,
-                                  'Unknown configuration options.*'):
+      with self.assertRaisesRegex(
+          ee.EEException, 'Unknown configuration options.*'
+      ):
         ee.batch.Export.image.toDrive(image=ee.Image(1), framesPerSecond=30)
+
+      drive_task_with_priority = ee.batch.Export.image.toDrive(
+          image=ee.Image(1),
+          region=region['coordinates'],
+          folder='foo',
+          maxPixels=10**10,
+          crs='foo',
+          crsTransform='[9,8,7,6,5,4]',
+          shardSize=512,
+          priority=999,
+      )
+      expected_expression = (
+          ee.Image(1)
+          .reproject('foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0])
+          .clip(region)
+      )
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'myExportImageTask',
+              'fileExportOptions': {
+                  'fileFormat': 'GEO_TIFF',
+                  'driveDestination': {
+                      'folder': 'foo',
+                      'filenamePrefix': 'myExportImageTask',
+                  },
+                  'geoTiffOptions': {'tileSize': {'value': 512}},
+              },
+              'maxPixels': {'value': '10000000000'},
+              'priority': {'value': 999},
+          },
+          drive_task_with_priority.config,
+      )
 
   def testExportMapToCloudStorageCloudApi(self):
     """Verifies the task created by Export.map.toCloudStorage()."""
@@ -528,7 +677,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           bucket='test-bucket',
           maxZoom=7,
           path='foo/gcs/path',
-          maxWorkers=100)
+          maxWorkers=100,
+      )
 
       # Test keyed parameters.
       task_keyed = ee.batch.Export.map.toCloudStorage(
@@ -537,60 +687,120 @@ class BatchTestCase(apitestcase.ApiTestCase):
           maxZoom=config['maxZoom'],
           path=config['path'],
           maxWorkers=config['maxWorkers'],
-          bucketCorsUris=['*'])
+          bucketCorsUris=['*'],
+      )
       expected_expression = ee.Image(1)
       self.assertIsNone(task_keyed.id)
       self.assertIsNone(task_keyed.name)
       self.assertEqual('EXPORT_TILES', task_keyed.task_type)
       self.assertEqual('UNSUBMITTED', task_keyed.state)
-      self.assertEqual({
-          'expression': expected_expression,
-          'description': 'myExportMapTask',
-          'tileOptions': {
-              'endZoom': config['maxZoom'],
-          },
-          'tileExportOptions': {
-              'fileFormat': 'AUTO_JPEG_PNG',
-              'cloudStorageDestination': {
-                  'bucket': config['bucket'],
-                  'filenamePrefix': config['path'],
-                  'permissions': 'PUBLIC',
-                  'bucketCorsUris': ['*'],
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'myExportMapTask',
+              'tileOptions': {
+                  'endZoom': config['maxZoom'],
               },
+              'tileExportOptions': {
+                  'fileFormat': 'AUTO_JPEG_PNG',
+                  'cloudStorageDestination': {
+                      'bucket': config['bucket'],
+                      'filenamePrefix': config['path'],
+                      'permissions': 'PUBLIC',
+                      'bucketCorsUris': ['*'],
+                  },
+              },
+              'maxWorkers': {'value': 100},
           },
-          'maxWorkers': {'value': 100}
-      }, task_keyed.config)
+          task_keyed.config,
+      )
 
-      with self.assertRaisesRegex(ee.EEException,
-                                  'Unknown configuration options.*'):
+      with self.assertRaisesRegex(
+          ee.EEException, 'Unknown configuration options.*'
+      ):
         config_with_bogus_option = config.copy()
         config_with_bogus_option['framesPerSecond'] = 30
         ee.batch.Export.map.toCloudStorage(**config_with_bogus_option)
 
       # Test ordered parameters.
       task_ordered = ee.batch.Export.map.toCloudStorage(
-          config['image'], 'TestDescription', config['bucket'], 'jpeg', None,
-          False, None, 30, None, None, None, 'aFakeKey', maxWorkers=100)
+          config['image'],
+          'TestDescription',
+          config['bucket'],
+          'jpeg',
+          None,
+          False,
+          None,
+          30,
+          None,
+          None,
+          None,
+          'aFakeKey',
+          maxWorkers=100,
+      )
       self.assertIsNone(task_ordered.id)
       self.assertIsNone(task_ordered.name)
       self.assertEqual('EXPORT_TILES', task_ordered.task_type)
       self.assertEqual('UNSUBMITTED', task_ordered.state)
-      self.assertEqual({
-          'expression': expected_expression,
-          'description': 'TestDescription',
-          'tileOptions': {
-              'scale': 30,
-              'mapsApiKey': 'aFakeKey',
-          },
-          'tileExportOptions': {
-              'fileFormat': 'JPEG',
-              'cloudStorageDestination': {
-                  'bucket': config['bucket'],
-                  'filenamePrefix': 'TestDescription',
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'TestDescription',
+              'tileOptions': {
+                  'scale': 30,
+                  'mapsApiKey': 'aFakeKey',
               },
+              'tileExportOptions': {
+                  'fileFormat': 'JPEG',
+                  'cloudStorageDestination': {
+                      'bucket': config['bucket'],
+                      'filenamePrefix': 'TestDescription',
+                  },
+              },
+              'maxWorkers': {'value': 100},
           },
-          'maxWorkers': {'value': 100}
-      }, task_ordered.config)
+          task_ordered.config,
+      )
+
+      config = dict(
+          image=ee.Image(1),
+          bucket='test-bucket',
+          maxZoom=7,
+          path='foo/gcs/path',
+          maxWorkers=100,
+          priority=999,
+      )
+      task_with_priority = ee.batch.Export.map.toCloudStorage(
+          image=config['image'],
+          bucket=config['bucket'],
+          maxZoom=config['maxZoom'],
+          path=config['path'],
+          maxWorkers=config['maxWorkers'],
+          bucketCorsUris=['*'],
+          priority=config['priority'],
+      )
+      expected_expression = ee.Image(1)
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'myExportMapTask',
+              'tileOptions': {
+                  'endZoom': config['maxZoom'],
+              },
+              'tileExportOptions': {
+                  'fileFormat': 'AUTO_JPEG_PNG',
+                  'cloudStorageDestination': {
+                      'bucket': config['bucket'],
+                      'filenamePrefix': config['path'],
+                      'permissions': 'PUBLIC',
+                      'bucketCorsUris': ['*'],
+                  },
+              },
+              'maxWorkers': {'value': 100},
+              'priority': {'value': 999},
+          },
+          task_with_priority.config,
+      )
 
   def testExportMapToCloudStorageCloudApi_WithV1Parameters(self):
     """Verifies Export.map.toCloudStorage() tasks with v1 parameters."""
@@ -605,7 +815,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           path='foo/gcs/path',
           skipEmptyTiles=True,
           skipEmpty=False,  # Takes precedence over skipEmpty.
-          maxWorkers=100)
+          maxWorkers=100,
+      )
 
       # Test keyed parameters.
       task_keyed = ee.batch.Export.map.toCloudStorage(
@@ -618,7 +829,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           path=config['path'],
           maxWorkers=config['maxWorkers'],
           skipEmptyTiles=config['skipEmptyTiles'],
-          skipEmpty=config['skipEmpty'])
+          skipEmpty=config['skipEmpty'],
+      )
       expected_expression = ee.Image(1)
       self.assertIsNone(task_keyed.id)
       self.assertIsNone(task_keyed.name)
@@ -641,39 +853,74 @@ class BatchTestCase(apitestcase.ApiTestCase):
                       'permissions': 'PUBLIC',
                   },
               },
-              'maxWorkers': {
-                  'value': 100
-              }
-          }, task_keyed.config)
+              'maxWorkers': {'value': 100},
+          },
+          task_keyed.config,
+      )
+
+  def testExportMapToCloudStorageCloudApi_WithV1AlphaParameters(self):
+    """Verifies Export.map.toCloudStorage() tasks with v1alpha parameters."""
+    with apitestcase.UsingCloudApi():
+      task_keyed = ee.batch.Export.map.toCloudStorage(
+          image=ee.Image(0),
+          bucket='test-bucket',
+          minZoom=2,
+          maxWorkers=1,
+          maxZoom=3,
+          skipEmptyTiles=True,
+      )
+      self.assertEqual(
+          {
+              'expression': ee.Image(0),
+              'description': 'myExportMapTask',
+              'tileOptions': {'startZoom': 2, 'endZoom': 3, 'skipEmpty': True},
+              'tileExportOptions': {
+                  'fileFormat': 'AUTO_JPEG_PNG',
+                  'cloudStorageDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'myExportMapTask',
+                      'permissions': 'PUBLIC',
+                  },
+              },
+              'maxWorkers': {'value': 1},
+          },
+          task_keyed.config,
+      )
 
   def testExportTableCloudApi(self):
     """Verifies the task created by Export.table()."""
     with apitestcase.UsingCloudApi():
       task = ee.batch.Export.table(
-          ee.FeatureCollection('drive test FC'), config={'maxWorkers': 100})
+          ee.FeatureCollection('drive test FC'), config={'maxWorkers': 100}
+      )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
-      self.assertEqual({
-          'expression': ee.FeatureCollection('drive test FC'),
-          'description': 'myExportTableTask',
-          'fileExportOptions': {
-              'fileFormat': 'CSV',
-              'driveDestination': {
-                  'filenamePrefix': 'myExportTableTask',
-              }
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('drive test FC'),
+              'description': 'myExportTableTask',
+              'fileExportOptions': {
+                  'fileFormat': 'CSV',
+                  'driveDestination': {
+                      'filenamePrefix': 'myExportTableTask',
+                  },
+              },
+              'maxWorkers': {'value': 100},
           },
-          'maxWorkers': {'value': 100},
-      }, task.config)
+          task.config,
+      )
 
   def testExportTableCloudApiBogusParameter(self):
     """Verifies that bogus parameters are rejected."""
     with apitestcase.UsingCloudApi():
-      with self.assertRaisesRegex(ee.EEException,
-                                  'Unknown configuration options.*'):
+      with self.assertRaisesRegex(
+          ee.EEException, 'Unknown configuration options.*'
+      ):
         ee.batch.Export.table.toDrive(
-            ee.FeatureCollection('drive test FC'), framesPerSecond=30)
+            ee.FeatureCollection('drive test FC'), framesPerSecond=30
+        )
 
   def testExportTableSelectorsCloudApi(self):
     """Verifies that table export accepts a list or tuple of selectors."""
@@ -681,18 +928,21 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           selectors=['ab', 'bb', 'c'],
-          outputBucket='foo')
+          outputBucket='foo',
+      )
       self.assertEqual(['ab', 'bb', 'c'], task.config['selectors'])
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           selectors=('x', 'y'),
-          outputBucket='foo')
+          outputBucket='foo',
+      )
       self.assertEqual(['x', 'y'], task.config['selectors'])
       # Single string should work too.
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           selectors='ab,cd,ef',
-          outputBucket='foo')
+          outputBucket='foo',
+      )
       self.assertEqual(['ab', 'cd', 'ef'], task.config['selectors'])
 
   def testExportTableToCloudStorageCloudApi(self):
@@ -701,7 +951,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           outputBucket='test-bucket',
-          maxVertices=1e6)
+          maxVertices=1e6,
+      )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
@@ -717,10 +968,33 @@ class BatchTestCase(apitestcase.ApiTestCase):
                       'filenamePrefix': 'myExportTableTask',
                   },
               },
-              'maxVertices': {
-                  'value': int(1e6)
+              'maxVertices': {'value': int(1e6)},
+          },
+          task.config,
+      )
+
+      task_with_priority = ee.batch.Export.table.toCloudStorage(
+          collection=ee.FeatureCollection('foo'),
+          outputBucket='test-bucket',
+          maxVertices=1e6,
+          priority=999,
+      )
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'myExportTableTask',
+              'fileExportOptions': {
+                  'fileFormat': 'CSV',
+                  'cloudStorageDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'myExportTableTask',
+                  },
               },
-          }, task.config)
+              'maxVertices': {'value': int(1e6)},
+              'priority': {'value': 999},
+          },
+          task_with_priority.config,
+      )
 
   def testExportTableToGoogleDriveCloudApi(self):
     """Verifies the Drive destined task created by Export.table.toDrive()."""
@@ -736,11 +1010,9 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'fileFormat': test_format,
               'driveDestination': {
                   'filenamePrefix': test_file_name_prefix,
-              }
+              },
           },
-          'maxVertices': {
-              'value': 0
-          }
+          'maxVertices': {'value': 0},
       }
 
       # Ordered parameters
@@ -750,7 +1022,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           None,
           test_file_name_prefix,
           test_format,
-          maxVertices=0)
+          maxVertices=0,
+      )
       self.assertIsNone(task_ordered.id)
       self.assertIsNone(task_ordered.name)
       self.assertEqual('EXPORT_FEATURES', task_ordered.task_type)
@@ -761,7 +1034,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
       expected_config['description'] = 'myExportTableTask'
       expected_config['fileExportOptions']['fileFormat'] = 'CSV'
       expected_config['fileExportOptions']['driveDestination'][
-          'folder'] = 'fooFolder'
+          'folder'
+      ] = 'fooFolder'
 
       # Test that deprecated parameters (driveFolder and driveFileNamePrefix)
       # still work.
@@ -769,7 +1043,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           collection=test_collection,
           driveFolder='fooFolder',
           driveFileNamePrefix='fooDriveFileNamePrefix',
-          maxVertices=0)
+          maxVertices=0,
+      )
       self.assertEqual('EXPORT_FEATURES', task_old_keys.task_type)
       self.assertEqual('UNSUBMITTED', task_old_keys.state)
       self.assertEqual(expected_config, task_old_keys.config)
@@ -779,10 +1054,34 @@ class BatchTestCase(apitestcase.ApiTestCase):
           collection=test_collection,
           folder='fooFolder',
           fileNamePrefix='fooDriveFileNamePrefix',
-          maxVertices=0)
+          maxVertices=0,
+      )
       self.assertEqual('EXPORT_FEATURES', task_new_keys.task_type)
       self.assertEqual('UNSUBMITTED', task_new_keys.state)
       self.assertEqual(expected_config, task_new_keys.config)
+
+      expected_config_with_priority = {
+          'expression': test_collection,
+          'description': test_description,
+          'fileExportOptions': {
+              'fileFormat': test_format,
+              'driveDestination': {
+                  'filenamePrefix': test_file_name_prefix,
+              },
+          },
+          'maxVertices': {'value': 0},
+          'priority': {'value': 999},
+      }
+      task_with_priority = ee.batch.Export.table.toDrive(
+          test_collection,
+          test_description,
+          None,
+          test_file_name_prefix,
+          test_format,
+          maxVertices=0,
+          priority=999,
+      )
+      self.assertEqual(expected_config_with_priority, task_with_priority.config)
 
   def testExportTableToAssetCloudApi(self):
     """Verifies the export task created by Export.table.toAsset()."""
@@ -790,7 +1089,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table.toAsset(
           collection=ee.FeatureCollection('foo'),
           description='foo',
-          assetId='users/foo/bar')
+          assetId='users/foo/bar',
+      )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
@@ -801,12 +1101,35 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'foo',
               'assetExportOptions': {
                   'earthEngineDestination': {
-                      'name':
-                          'projects/earthengine-legacy/assets/users/foo/bar',
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
                   }
-              }
+              },
           },
-          task.config)
+          task.config,
+      )
+      task_with_priority = ee.batch.Export.table.toAsset(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          assetId='users/foo/bar',
+          priority=999,
+      )
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'foo',
+              'assetExportOptions': {
+                  'earthEngineDestination': {
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
+                  }
+              },
+              'priority': {'value': 999},
+          },
+          task_with_priority.config,
+      )
 
   def testExportTableWithFileFormatCloudApi(self):
     """Verifies the task created by Export.table() given a file format."""
@@ -814,7 +1137,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           outputBucket='test-bucket',
-          fileFormat='tfRecord')
+          fileFormat='tfRecord',
+      )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
@@ -828,9 +1152,11 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'cloudStorageDestination': {
                       'bucket': 'test-bucket',
                       'filenamePrefix': 'myExportTableTask',
-                  }
-              }
-          }, task.config)
+                  },
+              },
+          },
+          task.config,
+      )
 
   def testExportTableToFeatureViewCloudApi(self):
     """Verifies the export task created by Export.table.toFeatureView()."""
@@ -841,8 +1167,9 @@ class BatchTestCase(apitestcase.ApiTestCase):
           assetId='users/foo/bar',
           ingestionTimeParameters={
               'maxFeaturesPerTile': 10,
-              'zOrderRanking': []
-          })
+              'zOrderRanking': [],
+          },
+      )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
@@ -853,16 +1180,46 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'foo',
               'featureViewExportOptions': {
                   'featureViewDestination': {
-                      'name':
-                          'projects/earthengine-legacy/assets/users/foo/bar',
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
                   },
                   'ingestionTimeParameters': {
-                      'thinningOptions': {
-                          'maxFeaturesPerTile': 10
-                      },
-                  }
-              }
-          }, task.config)
+                      'thinningOptions': {'maxFeaturesPerTile': 10},
+                  },
+              },
+          },
+          task.config,
+      )
+
+      task_with_priority = ee.batch.Export.table.toFeatureView(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          assetId='users/foo/bar',
+          ingestionTimeParameters={
+              'maxFeaturesPerTile': 10,
+              'zOrderRanking': [],
+          },
+          priority=999,
+      )
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'foo',
+              'featureViewExportOptions': {
+                  'featureViewDestination': {
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
+                  },
+                  'ingestionTimeParameters': {
+                      'thinningOptions': {'maxFeaturesPerTile': 10},
+                  },
+              },
+              'priority': {'value': 999},
+          },
+          task_with_priority.config,
+      )
 
   def testExportTableToFeatureViewEmptyParamsCloudApi(self):
     """Verifies the export task created by Export.table.toFeatureView()."""
@@ -870,7 +1227,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table.toFeatureView(
           collection=ee.FeatureCollection('foo'),
           description='foo',
-          assetId='users/foo/bar')
+          assetId='users/foo/bar',
+      )
       with self.subTest(name='TaskIdAndName'):
         self.assertIsNone(task.id)
         self.assertIsNone(task.name)
@@ -885,12 +1243,15 @@ class BatchTestCase(apitestcase.ApiTestCase):
                 'description': 'foo',
                 'featureViewExportOptions': {
                     'featureViewDestination': {
-                        'name':
-                            'projects/earthengine-legacy/assets/users/foo/bar',
+                        'name': (
+                            'projects/earthengine-legacy/assets/users/foo/bar'
+                        ),
                     },
-                    'ingestionTimeParameters': {}
-                }
-            }, task.config)
+                    'ingestionTimeParameters': {},
+                },
+            },
+            task.config,
+        )
 
   def testExportTableToFeatureViewAllIngestionParams(self):
     """Verifies the task ingestion params created by toFeatureView()."""
@@ -902,70 +1263,78 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'maxFeaturesPerTile': 10,
             'thinningStrategy': 'GLOBALLY_CONSISTENT',
             'thinningRanking': 'my-attribute ASC, other-attr DESC',
-            'zOrderRanking': ['.minZoomLevel DESC', '.geometryType ASC']
-        })
+            'zOrderRanking': ['.minZoomLevel DESC', '.geometryType ASC'],
+        },
+    )
     expected_ingestion_params = {
         'rankingOptions': {
             'thinningRankingRule': {
-                'rankByOneThingRule': [{
-                    'direction': 'ASCENDING',
-                    'rankByAttributeRule': {
-                        'attributeName': 'my-attribute'
-                    }
-                }, {
-                    'direction': 'DESCENDING',
-                    'rankByAttributeRule': {
-                        'attributeName': 'other-attr'
-                    }
-                }]
+                'rankByOneThingRule': [
+                    {
+                        'direction': 'ASCENDING',
+                        'rankByAttributeRule': {
+                            'attributeName': 'my-attribute'
+                        },
+                    },
+                    {
+                        'direction': 'DESCENDING',
+                        'rankByAttributeRule': {'attributeName': 'other-attr'},
+                    },
+                ]
             },
             'zOrderRankingRule': {
-                'rankByOneThingRule': [{
-                    'direction': 'DESCENDING',
-                    'rankByMinZoomLevelRule': {}
-                }, {
-                    'direction': 'ASCENDING',
-                    'rankByGeometryTypeRule': {}
-                }]
-            }
+                'rankByOneThingRule': [
+                    {'direction': 'DESCENDING', 'rankByMinZoomLevelRule': {}},
+                    {'direction': 'ASCENDING', 'rankByGeometryTypeRule': {}},
+                ]
+            },
         },
         'thinningOptions': {
             'maxFeaturesPerTile': 10,
-            'thinningStrategy': 'GLOBALLY_CONSISTENT'
-        }
+            'thinningStrategy': 'GLOBALLY_CONSISTENT',
+        },
     }
     self.assertEqual(
         expected_ingestion_params,
-        task.config['featureViewExportOptions']['ingestionTimeParameters'])
+        task.config['featureViewExportOptions']['ingestionTimeParameters'],
+    )
 
   def testExportTableToFeatureViewBadRankByOneThingRule(self):
     """Verifies a bad RankByOneThingRule throws an exception."""
-    with self.assertRaisesRegex(ee.EEException,
-                                'Ranking rule format is invalid.*'):
+    with self.assertRaisesRegex(
+        ee.EEException, 'Ranking rule format is invalid.*'
+    ):
       ee.batch.Export.table.toFeatureView(
           collection=ee.FeatureCollection('foo'),
           assetId='users/foo/bar',
-          ingestionTimeParameters={'thinningRanking': 'my-attribute BAD_DIR'})
+          ingestionTimeParameters={'thinningRanking': 'my-attribute BAD_DIR'},
+      )
 
   def testExportTableToFeatureViewBadRankingRule(self):
     """Verifies a bad RankingRule throws an exception."""
-    with self.assertRaisesRegex(ee.EEException,
-                                'Unable to build ranking rule from rules.*'):
+    with self.assertRaisesRegex(
+        ee.EEException, 'Unable to build ranking rule from rules.*'
+    ):
       ee.batch.Export.table.toFeatureView(
           collection=ee.FeatureCollection('foo'),
           assetId='users/foo/bar',
-          ingestionTimeParameters={'thinningRanking': {'key': 'val'}})
+          ingestionTimeParameters={'thinningRanking': {'key': 'val'}},
+      )
 
-  @unittest.skip('assertRaisesWithLiteralMatch is google specific')
   def testExportTableToFeatureViewBadIngestionTimeParams(self):
     """Verifies a bad set of ingestion time params throws an exception."""
-    with self.assertRaisesWithLiteralMatch(
-        ee.EEException, ('The following keys are unrecognized in the '
-                         'ingestion parameters: [\'badThinningKey\']')):
+    with self.assertRaisesRegex(
+        ee.EEException,
+        (
+            r'The following keys are unrecognized in the '
+            r'ingestion parameters: \[\'badThinningKey\'\]'
+        ),
+    ):
       ee.batch.Export.table.toFeatureView(
           collection=ee.FeatureCollection('foo'),
           assetId='users/foo/bar',
-          ingestionTimeParameters={'badThinningKey': {'key': 'val'}})
+          ingestionTimeParameters={'badThinningKey': {'key': 'val'}},
+      )
 
   def testExportTableToBigQueryRequiredParams(self):
     """Verifies the export task created by Export.table.toBigQuery()."""
@@ -996,6 +1365,28 @@ class BatchTestCase(apitestcase.ApiTestCase):
                 },
             },
             task.config,
+        )
+      with self.subTest(name='PriorityIsSet'):
+        task_with_priority = ee.batch.Export.table.toBigQuery(
+            collection=ee.FeatureCollection('foo'),
+            table='project.dataset.table',
+            description='foo',
+            priority=999,
+        )
+        self.assertEqual(
+            {
+                'expression': ee.FeatureCollection('foo'),
+                'description': 'foo',
+                'bigqueryExportOptions': {
+                    'bigqueryDestination': {
+                        'table': 'project.dataset.table',
+                        'overwrite': False,
+                        'append': False,
+                    }
+                },
+                'priority': {'value': 999},
+            },
+            task_with_priority.config,
         )
 
   def testExportTableToBigQueryAllParams(self):
@@ -1045,7 +1436,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           framesPerSecond=30,
           maxFrames=10000,
           maxPixels=10000000,
-          maxWorkers=100)
+          maxWorkers=100,
+      )
       collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
       task = ee.batch.Export.video(collection, 'TestVideoName', config)
       self.assertIsNone(task.id)
@@ -1056,7 +1448,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
 
       def expected_preparation_function(img):
         img = img.setDefaultProjection(
-            crs='SR-ORG:6627', crsTransform=[1, 0, 0, 0, -1, 0])
+            crs='SR-ORG:6627', crsTransform=[1, 0, 0, 0, -1, 0]
+        )
         img = img.clipToBoundsAndScale(geometry=region, maxDimension=16)
         return img
 
@@ -1065,24 +1458,26 @@ class BatchTestCase(apitestcase.ApiTestCase):
       # serialised forms instead.
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task.config.pop('expression').serialize(for_cloud_api=True))
-      self.assertEqual({
-          'description': 'TestVideoName',
-          'videoOptions': {
-              'framesPerSecond': 30,
-              'maxFrames': 10000,
-              'maxPixelsPerFrame': {
-                  'value': '10000000'
-              }
+          task.config.pop('expression').serialize(for_cloud_api=True),
+      )
+      self.assertEqual(
+          {
+              'description': 'TestVideoName',
+              'videoOptions': {
+                  'framesPerSecond': 30,
+                  'maxFrames': 10000,
+                  'maxPixelsPerFrame': {'value': '10000000'},
+              },
+              'fileExportOptions': {
+                  'fileFormat': 'MP4',
+                  'driveDestination': {
+                      'filenamePrefix': 'TestVideoName',
+                  },
+              },
+              'maxWorkers': {'value': 100},
           },
-          'fileExportOptions': {
-              'fileFormat': 'MP4',
-              'driveDestination': {
-                  'filenamePrefix': 'TestVideoName',
-              }
-          },
-          'maxWorkers': {'value': 100}
-      }, task.config)
+          task.config,
+      )
 
       config['outputBucket'] = 'test-bucket'
       gcs_task = ee.batch.Export.video(collection, 'TestVideoName', config)
@@ -1090,41 +1485,47 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('UNSUBMITTED', gcs_task.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          gcs_task.config.pop('expression').serialize(for_cloud_api=True))
-      self.assertEqual({
-          'description': 'TestVideoName',
-          'videoOptions': {
-              'framesPerSecond': 30,
-              'maxFrames': 10000,
-              'maxPixelsPerFrame': {
-                  'value': '10000000'
-              }
+          gcs_task.config.pop('expression').serialize(for_cloud_api=True),
+      )
+      self.assertEqual(
+          {
+              'description': 'TestVideoName',
+              'videoOptions': {
+                  'framesPerSecond': 30,
+                  'maxFrames': 10000,
+                  'maxPixelsPerFrame': {'value': '10000000'},
+              },
+              'fileExportOptions': {
+                  'fileFormat': 'MP4',
+                  'cloudStorageDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'TestVideoName',
+                  },
+              },
+              'maxWorkers': {'value': 100},
           },
-          'fileExportOptions': {
-              'fileFormat': 'MP4',
-              'cloudStorageDestination': {
-                  'bucket': 'test-bucket',
-                  'filenamePrefix': 'TestVideoName',
-              }
-          },
-          'maxWorkers': {'value': 100}
-      }, gcs_task.config)
+          gcs_task.config,
+      )
 
-      with self.assertRaisesRegex(ee.EEException,
-                                  'Unknown configuration options.*'):
+      with self.assertRaisesRegex(
+          ee.EEException, 'Unknown configuration options.*'
+      ):
         config_with_bogus_option = config.copy()
         config_with_bogus_option['flamesPerSleestak'] = 30
-        ee.batch.Export.video(collection, 'TestVideoName',
-                              config_with_bogus_option)
+        ee.batch.Export.video(
+            collection, 'TestVideoName', config_with_bogus_option
+        )
 
   def testExportVideoToCloudStorageCloudApi(self):
     """Verifies the task created by Export.video.toCloudStorage()."""
     with apitestcase.UsingCloudApi():
       region = ee.Geometry.Rectangle(1, 2, 3, 4)
       collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
+
       def expected_preparation_function(img):
         img = img.reproject(
-            crs='foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0])
+            crs='foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0]
+        )
         img = img.clipToBoundsAndScale(geometry=region, maxDimension=16)
         return img
 
@@ -1136,8 +1537,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'cloudStorageDestination': {
                   'bucket': 'test-bucket',
                   'filenamePrefix': 'TestVideoName',
-              }
-          }
+              },
+          },
       }
 
       # Test keyed parameters.
@@ -1148,35 +1549,78 @@ class BatchTestCase(apitestcase.ApiTestCase):
           dimensions=16,
           region=region['coordinates'],
           crsTransform='[9,8,7,6,5,4]',
-          crs='foo')
+          crs='foo',
+      )
       self.assertIsNone(task_keyed.id)
       self.assertIsNone(task_keyed.name)
       self.assertEqual('EXPORT_VIDEO', task_keyed.task_type)
       self.assertEqual('UNSUBMITTED', task_keyed.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_keyed.config.pop('expression').serialize(for_cloud_api=True))
+          task_keyed.config.pop('expression').serialize(for_cloud_api=True),
+      )
       self.assertEqual(expected_config, task_keyed.config)
 
       # Test ordered parameters.
       task_ordered = ee.batch.Export.video.toCloudStorage(
-          collection, 'TestVideoName', 'test-bucket', None, None, 16,
-          region['coordinates'], None, 'foo', '[9,8,7,6,5,4]')
+          collection,
+          'TestVideoName',
+          'test-bucket',
+          None,
+          None,
+          16,
+          region['coordinates'],
+          None,
+          'foo',
+          '[9,8,7,6,5,4]',
+      )
       self.assertEqual('EXPORT_VIDEO', task_ordered.task_type)
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_ordered.config.pop('expression').serialize(for_cloud_api=True))
+          task_ordered.config.pop('expression').serialize(for_cloud_api=True),
+      )
       self.assertEqual(expected_config, task_ordered.config)
+
+      expected_config_with_priority = {
+          'description': 'TestVideoName',
+          'fileExportOptions': {
+              'fileFormat': 'MP4',
+              'cloudStorageDestination': {
+                  'bucket': 'test-bucket',
+                  'filenamePrefix': 'TestVideoName',
+              },
+          },
+          'priority': {'value': 999},
+      }
+      task_with_priority = ee.batch.Export.video.toCloudStorage(
+          collection=collection,
+          description='TestVideoName',
+          bucket='test-bucket',
+          dimensions=16,
+          region=region['coordinates'],
+          crsTransform='[9,8,7,6,5,4]',
+          crs='foo',
+          priority=999,
+      )
+      self.assertEqual(
+          expected_collection.serialize(for_cloud_api=True),
+          task_with_priority.config.pop('expression').serialize(
+              for_cloud_api=True
+          ),
+      )
+      self.assertEqual(expected_config_with_priority, task_with_priority.config)
 
   def testExportVideoToDriveCloudApi(self):
     """Verifies the task created by Export.video.toDrive()."""
     with apitestcase.UsingCloudApi():
       region = ee.Geometry.Rectangle(1, 2, 3, 4)
       collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
+
       def expected_preparation_function(img):
         img = img.reproject(
-            crs='SR-ORG:6627', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0])
+            crs='SR-ORG:6627', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0]
+        )
         img = img.clipToBoundsAndScale(geometry=region, maxDimension=16)
         return img
 
@@ -1188,8 +1632,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'driveDestination': {
                   'folder': 'test-folder',
                   'filenamePrefix': 'TestVideoName',
-              }
-          }
+              },
+          },
       }
 
       # Test keyed parameters.
@@ -1199,26 +1643,66 @@ class BatchTestCase(apitestcase.ApiTestCase):
           folder='test-folder',
           dimensions=16,
           crsTransform='[9,8,7,6,5,4]',
-          region=region['coordinates'])
+          region=region['coordinates'],
+      )
       self.assertIsNone(task_keyed.id)
       self.assertIsNone(task_keyed.name)
       self.assertEqual('EXPORT_VIDEO', task_keyed.task_type)
       self.assertEqual('UNSUBMITTED', task_keyed.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_keyed.config.pop('expression').serialize(for_cloud_api=True))
+          task_keyed.config.pop('expression').serialize(for_cloud_api=True),
+      )
       self.assertEqual(expected_config, task_keyed.config)
 
       # Test ordered parameters.
       task_ordered = ee.batch.Export.video.toDrive(
-          collection, 'TestVideoName', 'test-folder', None, None, 16,
-          region['coordinates'], None, 'SR-ORG:6627', '[9,8,7,6,5,4]')
+          collection,
+          'TestVideoName',
+          'test-folder',
+          None,
+          None,
+          16,
+          region['coordinates'],
+          None,
+          'SR-ORG:6627',
+          '[9,8,7,6,5,4]',
+      )
       self.assertEqual('EXPORT_VIDEO', task_ordered.task_type)
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_ordered.config.pop('expression').serialize(for_cloud_api=True))
+          task_ordered.config.pop('expression').serialize(for_cloud_api=True),
+      )
       self.assertEqual(expected_config, task_ordered.config)
+
+      expected_config_with_priority = {
+          'description': 'TestVideoName',
+          'fileExportOptions': {
+              'fileFormat': 'MP4',
+              'driveDestination': {
+                  'folder': 'test-folder',
+                  'filenamePrefix': 'TestVideoName',
+              },
+          },
+          'priority': {'value': 999},
+      }
+      task_with_priority = ee.batch.Export.video.toDrive(
+          collection=collection,
+          description='TestVideoName',
+          folder='test-folder',
+          dimensions=16,
+          crsTransform='[9,8,7,6,5,4]',
+          region=region['coordinates'],
+          priority=999,
+      )
+      self.assertEqual(
+          expected_collection.serialize(for_cloud_api=True),
+          task_with_priority.config.pop('expression').serialize(
+              for_cloud_api=True
+          ),
+      )
+      self.assertEqual(expected_config_with_priority, task_with_priority.config)
 
   def testExportWorkloadTag(self):
     """Verifies that the workload tag state is captured before start."""

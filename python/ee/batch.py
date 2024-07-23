@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """An interface to the Earth Engine batch processing system.
 
 Use the static methods on the Export class to create export tasks, call start()
@@ -21,6 +20,18 @@ from ee import ee_exception
 from ee import geometry
 
 
+def _transform_operation_to_task(operation: Dict[str, Any]) -> Task:
+  """Converts an operation to a task."""
+  status = _cloud_api_utils.convert_operation_to_task(operation)
+  return Task(
+      status['id'],
+      status.get('task_type'),
+      status.get('state'),
+      {'description': status.get('description')},
+      status.get('name'),
+  )
+
+
 class Task:
   """A batch task that can be run on the EE batch processing system."""
 
@@ -29,6 +40,7 @@ class Task:
     EXPORT_MAP = 'EXPORT_TILES'
     EXPORT_TABLE = 'EXPORT_FEATURES'
     EXPORT_VIDEO = 'EXPORT_VIDEO'
+    EXPORT_CLASSIFIER = 'EXPORT_CLASSIFIER'
 
   class State(str, enum.Enum):
     """The state of a Task."""
@@ -108,6 +120,14 @@ class Task:
     self.state = state
     self.name = name
 
+  @property
+  def operation_name(self) -> Optional[str]:
+    if self.name:
+      return self.name
+    if self.id:
+      return _cloud_api_utils.convert_task_id_to_operation_name(self.id)
+    return None
+
   def start(self) -> None:
     """Starts the task. No-op for started tasks."""
     if not self.config:
@@ -129,6 +149,8 @@ class Task:
       result = data.exportTable(self._request_id, self.config)
     elif self.task_type == Task.Type.EXPORT_VIDEO:
       result = data.exportVideo(self._request_id, self.config)
+    elif self.task_type == Task.Type.EXPORT_CLASSIFIER:
+      result = data.exportClassifier(self._request_id, self.config)
     else:
       raise ee_exception.EEException(
           'Unknown Task type "{}"'.format(self.task_type))
@@ -150,8 +172,9 @@ class Task:
       - error_message: Failure reason. Appears only if state is FAILED.
       May also include other fields.
     """
-    if self.id:
-      result = data.getTaskStatus(self.id)[0]
+    if self.operation_name:
+      operation = data.getOperation(self.operation_name)
+      result = _cloud_api_utils.convert_operation_to_task(operation)
       if result['state'] == 'UNKNOWN':
         result['state'] = Task.State.UNSUBMITTED
     else:
@@ -164,7 +187,7 @@ class Task:
 
   def cancel(self) -> None:
     """Cancels the task."""
-    data.cancelTask(self.id)
+    data.cancelOperation(self.operation_name)
 
   @staticmethod
   def list() -> List[Task]:
@@ -176,15 +199,7 @@ class Task:
     Returns:
       A list of Tasks.
     """
-    statuses = data.getTaskList()
-    tasks = []
-    for status in statuses:
-      tasks.append(Task(status['id'],
-                        status.get('task_type'),
-                        status.get('state'),
-                        {'description': status.get('description')},
-                        status.get('name')))
-    return tasks
+    return list(map(_transform_operation_to_task, data.listOperations()))
 
   def __repr__(self) -> str:
     """Returns a string representation of the task."""
@@ -246,14 +261,17 @@ class Export:
               single positive integer as the maximum dimension or
               "WIDTHxHEIGHT" where WIDTH and HEIGHT are each positive integers.
             - skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-              image tiles. Defaults to false.
+              image tiles. Defaults to false. Only supported on GeoTIFF exports.
+            - priority: The priority of the task within the project. Higher
+              priority tasks are scheduled sooner. Must be an integer between 0
+              and 9999. Defaults to 100.
             If exporting to Google Drive (default):
             - driveFolder: The Google Drive Folder that the export will reside
               in. Note: (a) if the folder name exists at any level, the output
               is written to it, (b) if duplicate folder names exist, output is
               written to the most recently modified folder, (c) if the folder
               name does not exist, a new folder will be created at the root,
-              and (d) folder names with separators (e.g. 'path/to/file') are
+              and (d) folder names with separators (e.g., 'path/to/file') are
               interpreted as literal strings, not system paths. Defaults to
               Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.
@@ -288,6 +306,7 @@ class Export:
         crs=None,
         crsTransform=None,
         maxPixels=None,
+        priority=None,
         **kwargs):
       """Creates a task to export an EE Image to an EE Asset.
 
@@ -320,6 +339,9 @@ class Export:
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
             pixels in the specified projection. Defaults to 100,000,000.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -349,6 +371,7 @@ class Export:
                        skipEmptyTiles=None,
                        fileFormat=None,
                        formatOptions=None,
+                       priority=None,
                        **kwargs):
       """Creates a task to export an EE Image to Google Cloud Storage.
 
@@ -357,43 +380,44 @@ class Export:
         description: Human-readable name of the task.
         bucket: The name of a Cloud Storage bucket for the export.
         fileNamePrefix: Cloud Storage object name prefix for the export.
-            Defaults to the name of the task.
-        dimensions: The dimensions of the exported image. Takes either a
-            single positive integer as the maximum dimension or "WIDTHxHEIGHT"
-            where WIDTH and HEIGHT are each positive integers.
-        region: The lon,lat coordinates for a LinearRing or Polygon
-            specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the image's
-            region.
-        scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image asset unless a crsTransform
-            is specified.
-        crs: The coordinate reference system of the exported image's
-            projection. Defaults to the image's default projection.
-        crsTransform: A comma-separated string of 6 numbers describing
-            the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, xShearing,
-            xTranslation, yShearing, yScale and yTranslation. Defaults to
-            the image's native CRS transform.
-        maxPixels: The maximum allowed number of pixels in the exported
-            image. The task will fail if the exported region covers more
-            pixels in the specified projection. Defaults to 100,000,000.
+          Defaults to the name of the task.
+        dimensions: The dimensions of the exported image. Takes either a single
+          positive integer as the maximum dimension or "WIDTHxHEIGHT" where
+          WIDTH and HEIGHT are each positive integers.
+        region: The lon,lat coordinates for a LinearRing or Polygon specifying
+          the region to export. Can be specified as a nested lists of numbers or
+          a serialized string. Defaults to the image's region.
+        scale: The resolution in meters per pixel. Defaults to the native
+          resolution of the image asset unless a crsTransform is specified.
+        crs: The coordinate reference system of the exported image's projection.
+          Defaults to the image's default projection.
+        crsTransform: A comma-separated string of 6 numbers describing the
+          affine transform of the coordinate reference system of the exported
+          image's projection, in the order: xScale, xShearing, xTranslation,
+          yShearing, yScale and yTranslation. Defaults to the image's native CRS
+          transform.
+        maxPixels: The maximum allowed number of pixels in the exported image.
+          The task will fail if the exported region covers more pixels in the
+          specified projection. Defaults to 100,000,000.
         shardSize: Size in pixels of the tiles in which this image will be
-            computed. Defaults to 256.
+          computed. Defaults to 256.
         fileDimensions: The dimensions in pixels of each image file, if the
-            image is too large to fit in a single file. May specify a
-            single number to indicate a square shape, or a tuple of two
-            dimensions to indicate (width,height). Note that the image will
-            still be clipped to the overall image dimensions. Must be a
-            multiple of shardSize.
-        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-            image tiles. Defaults to false.
+          image is too large to fit in a single file. May specify a single
+          number to indicate a square shape, or a tuple of two dimensions to
+          indicate (width,height). Note that the image will still be clipped to
+          the overall image dimensions. Must be a multiple of shardSize.
+        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked) image
+          tiles. Defaults to false. Only supported on GeoTIFF exports.
         fileFormat: The string file format to which the image is exported.
-            Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
-            'GeoTIFF'.
-        formatOptions: A dictionary of string keys to format specific options.
+          Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
+          'GeoTIFF'.
+        formatOptions: A dictionary of string keys to format-specific options.
+          For 'GeoTIFF': 'cloudOptimized' (bool), 'noData' (float).
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
-            such as 'crs_transform'.
+          such as 'crs_transform'.
 
       Returns:
         An unstarted Task that exports the image to Google Cloud Storage.
@@ -419,52 +443,54 @@ class Export:
                 skipEmptyTiles=None,
                 fileFormat=None,
                 formatOptions=None,
+                priority=None,
                 **kwargs):
       """Creates a task to export an EE Image to Drive.
 
       Args:
         image: The image to be exported.
         description: Human-readable name of the task.
-        folder: The name of a unique folder in your Drive account to
-            export into. Defaults to the root of the drive.
-        fileNamePrefix: The Google Drive filename for the export.
-            Defaults to the name of the task.
-        dimensions: The dimensions of the exported image. Takes either a
-            single positive integer as the maximum dimension or "WIDTHxHEIGHT"
-            where WIDTH and HEIGHT are each positive integers.
-        region: The lon,lat coordinates for a LinearRing or Polygon
-            specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the image's
-            region.
-        scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image asset unless a crsTransform
-            is specified.
-        crs: The coordinate reference system of the exported image's
-            projection. Defaults to the image's default projection.
-        crsTransform: A comma-separated string of 6 numbers describing
-            the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, xShearing,
-            xTranslation, yShearing, yScale and yTranslation. Defaults to
-            the image's native CRS transform.
-        maxPixels: The maximum allowed number of pixels in the exported
-            image. The task will fail if the exported region covers more
-            pixels in the specified projection. Defaults to 100,000,000.
+        folder: The name of a unique folder in your Drive account to export
+          into. Defaults to the root of the drive.
+        fileNamePrefix: The Google Drive filename for the export. Defaults to
+          the name of the task.
+        dimensions: The dimensions of the exported image. Takes either a single
+          positive integer as the maximum dimension or "WIDTHxHEIGHT" where
+          WIDTH and HEIGHT are each positive integers.
+        region: The lon,lat coordinates for a LinearRing or Polygon specifying
+          the region to export. Can be specified as a nested lists of numbers or
+          a serialized string. Defaults to the image's region.
+        scale: The resolution in meters per pixel. Defaults to the native
+          resolution of the image asset unless a crsTransform is specified.
+        crs: The coordinate reference system of the exported image's projection.
+          Defaults to the image's default projection.
+        crsTransform: A comma-separated string of 6 numbers describing the
+          affine transform of the coordinate reference system of the exported
+          image's projection, in the order: xScale, xShearing, xTranslation,
+          yShearing, yScale and yTranslation. Defaults to the image's native CRS
+          transform.
+        maxPixels: The maximum allowed number of pixels in the exported image.
+          The task will fail if the exported region covers more pixels in the
+          specified projection. Defaults to 100,000,000.
         shardSize: Size in pixels of the tiles in which this image will be
-            computed. Defaults to 256.
+          computed. Defaults to 256.
         fileDimensions: The dimensions in pixels of each image file, if the
-            image is too large to fit in a single file. May specify a
-            single number to indicate a square shape, or a tuple of two
-            dimensions to indicate (width,height). Note that the image will
-            still be clipped to the overall image dimensions. Must be a
-            multiple of shardSize.
-        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-            image tiles. Defaults to false.
+          image is too large to fit in a single file. May specify a single
+          number to indicate a square shape, or a tuple of two dimensions to
+          indicate (width,height). Note that the image will still be clipped to
+          the overall image dimensions. Must be a multiple of shardSize.
+        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked) image
+          tiles. Defaults to false. Only supported on GeoTIFF exports.
         fileFormat: The string file format to which the image is exported.
-            Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
-            'GeoTIFF'.
-        formatOptions: A dictionary of string keys to format specific options.
+          Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
+          'GeoTIFF'.
+        formatOptions: A dictionary of string keys to format-specific options.
+          For 'GeoTIFF': 'cloudOptimized' (bool), 'noData' (float).
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
-            such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
+          such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
 
       Returns:
         An unstarted Task that exports the image to Drive.
@@ -498,6 +524,7 @@ class Export:
                        skipEmptyTiles=None,
                        mapsApiKey=None,
                        bucketCorsUris=None,
+                       priority=None,
                        **kwargs):
       """Creates a task to export an Image as a pyramid of map tiles.
 
@@ -540,6 +567,9 @@ class Export:
             Cross-Origin-Resource-Sharing, or CORS. You can allow all domains to
             have access using "*", but this is generally discouraged. See
             https://cloud.google.com/storage/docs/cross-origin for more details.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -572,13 +602,16 @@ class Export:
             for the task:
             - fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
               "KMZ", or "SHP".
+            - priority: The priority of the task within the project. Higher
+              priority tasks are scheduled sooner. Must be an integer between 0
+              and 9999. Defaults to 100.
             If exporting to Google Drive (default):
             - driveFolder: The Google Drive Folder that the export will reside
               in. Note: (a) if the folder name exists at any level, the output
               is written to it, (b) if duplicate folder names exist, output is
               written to the most recently modified folder, (c) if the folder
               name does not exist, a new folder will be created at the root,
-              and (d) folder names with separators (e.g. 'path/to/file') are
+              and (d) folder names with separators (e.g., 'path/to/file') are
               interpreted as literal strings, not system paths. Defaults to
               Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.
@@ -614,6 +647,7 @@ class Export:
                        fileFormat=None,
                        selectors=None,
                        maxVertices=None,
+                       priority=None,
                        **kwargs):
       """Creates a task to export a FeatureCollection to Google Cloud Storage.
 
@@ -631,6 +665,9 @@ class Export:
         maxVertices:
             Max number of uncut vertices per geometry; geometries with more
             vertices will be cut into pieces smaller than this size.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'outputBucket'.
 
@@ -650,6 +687,7 @@ class Export:
                 fileFormat=None,
                 selectors=None,
                 maxVertices=None,
+                priority=None,
                 **kwargs):
       """Creates a task to export a FeatureCollection to Drive.
 
@@ -668,6 +706,9 @@ class Export:
         maxVertices:
             Max number of uncut vertices per geometry; geometries with more
             vertices will be cut into pieces smaller than this size.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'driveFolder' and 'driveFileNamePrefix'.
 
@@ -685,6 +726,7 @@ class Export:
         description='myExportTableTask',
         assetId=None,
         maxVertices=None,
+        priority=None,
         **kwargs):
       """Creates a task to export a FeatureCollection to an EE table asset.
 
@@ -695,6 +737,9 @@ class Export:
         maxVertices:
             Max number of uncut vertices per geometry; geometries with more
             vertices will be cut into pieces smaller than this size.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated.
 
       Returns:
@@ -704,6 +749,7 @@ class Export:
           'description': description,
           'assetId': assetId,
           'maxVertices': maxVertices,
+          'priority': priority,
       }
       config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
@@ -716,6 +762,7 @@ class Export:
         description='myExportTableTask',
         assetId=None,
         ingestionTimeParameters=None,
+        priority=None,
         **kwargs):
       """Creates a task to export a FeatureCollection to a FeatureView.
 
@@ -724,6 +771,9 @@ class Export:
         description: Human-readable name of the task.
         assetId: The destination asset ID.
         ingestionTimeParameters: The FeatureView ingestion time parameters.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated.
 
       Returns:
@@ -733,6 +783,7 @@ class Export:
           'description': description,
           'assetId': assetId,
           'ingestionTimeParameters': ingestionTimeParameters,
+          'priority': priority,
       }
       config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
@@ -748,6 +799,7 @@ class Export:
         append=False,
         selectors=None,
         maxVertices=None,
+        priority=None,
         **kwargs,
     ):
       """Creates a task to export a FeatureCollection to a BigQuery table.
@@ -760,7 +812,7 @@ class Export:
         description: Human-readable name of the task.
         table: The fully-qualifed BigQuery destination table with
           "project_id.dataset_id.table_id" format.
-        overwrite: [Not yet supported.] Whether the existing table should be
+        overwrite: Whether the existing table should be
           overwritten by the results of this export.
           The `overwrite` and `append` parameters cannot be `true`
           simultaneously. The export fails if the table already exists and both
@@ -772,6 +824,9 @@ class Export:
           included.
         maxVertices: Max number of uncut vertices per geometry; geometries with
           more vertices will be cut into pieces smaller than this size.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated.
 
       Returns:
@@ -784,6 +839,7 @@ class Export:
           'append': append,
           'selectors': selectors,
           'maxVertices': maxVertices,
+          'priority': priority,
       }
       config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(
@@ -831,13 +887,16 @@ class Export:
             - maxFrames: The maximum number of frames.
               Defaults to 1000 frames. By setting this explicitly, you may
               raise or lower the limit.
+            - priority: The priority of the task within the project. Higher
+              priority tasks are scheduled sooner. Must be an integer between 0
+              and 9999. Defaults to 100.
             If exporting to Google Drive (default):
             - driveFolder: The Google Drive Folder that the export will reside
               in. Note: (a) if the folder name exists at any level, the output
               is written to it, (b) if duplicate folder names exist, output is
               written to the most recently modified folder, (c) if the folder
               name does not exist, a new folder will be created at the root,
-              and (d) folder names with separators (e.g. 'path/to/file') are
+              and (d) folder names with separators (e.g., 'path/to/file') are
               interpreted as literal strings, not system paths. Defaults to
               Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.
@@ -861,11 +920,20 @@ class Export:
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(collection, description='myExportVideoTask',
-                       bucket=None, fileNamePrefix=None, framesPerSecond=None,
-                       dimensions=None, region=None, scale=None, crs=None,
-                       crsTransform=None, maxPixels=None,
-                       maxFrames=None, **kwargs):
+    def toCloudStorage(collection,
+                       description='myExportVideoTask',
+                       bucket=None,
+                       fileNamePrefix=None,
+                       framesPerSecond=None,
+                       dimensions=None,
+                       region=None,
+                       scale=None,
+                       crs=None,
+                       crsTransform=None,
+                       maxPixels=None,
+                       maxFrames=None,
+                       priority=None,
+                       **kwargs):
       """Creates a task to export an ImageCollection video to Cloud Storage.
 
       Args:
@@ -898,6 +966,9 @@ class Export:
         maxFrames: The maximum number of frames to export.
             Defaults to 1000 frames. By setting this explicitly, you may
             raise or lower the limit.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -911,10 +982,20 @@ class Export:
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
 
     @staticmethod
-    def toDrive(collection, description='myExportVideoTask',
-                folder=None, fileNamePrefix=None, framesPerSecond=None,
-                dimensions=None, region=None, scale=None, crs=None,
-                crsTransform=None, maxPixels=None, maxFrames=None, **kwargs):
+    def toDrive(collection,
+                description='myExportVideoTask',
+                folder=None,
+                fileNamePrefix=None,
+                framesPerSecond=None,
+                dimensions=None,
+                region=None,
+                scale=None,
+                crs=None,
+                crsTransform=None,
+                maxPixels=None,
+                maxFrames=None,
+                priority=None,
+                **kwargs):
       """Creates a task to export an ImageCollection as a video to Drive.
 
       Args:
@@ -948,6 +1029,9 @@ class Export:
         maxFrames: The maximum number of frames to export.
             Defaults to 1000 frames. By setting this explicitly, you may
             raise or lower the limit.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -958,6 +1042,62 @@ class Export:
       config = _prepare_video_export_config(collection, config,
                                             Task.ExportDestination.DRIVE)
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
+
+  class classifier:
+    """A class with static methods to start classifier export tasks."""
+
+    def __init__(self):
+      """Forbids class instantiation."""
+      raise AssertionError('This class cannot be instantiated.')
+
+    def __new__(cls,
+                classifier,
+                description='myExportClassifierTask',
+                config=None):
+      """Export an EE Classifier.
+
+      Args:
+        classifier: The feature collection to be exported.
+        description: Human-readable name of the task.
+        config: A dictionary that will be copied and used as parameters
+            for the task:
+            - assetId: The destination asset ID.
+            - priority: The priority of the task within the project. Higher
+              priority tasks are scheduled sooner. Must be an integer between 0
+              and 9999. Defaults to 100.
+      Returns:
+        An unstarted Task that exports the table.
+      """
+      config = (config or {}).copy()
+      return Export.classifier.toAsset(classifier, description, **config)
+
+    # Disable argument usage check; arguments are accessed using locals().
+    # pylint: disable=unused-argument
+    @staticmethod
+    def toAsset(classifier,
+                description='myExportClassifierTask',
+                assetId=None,
+                overwrite=False,
+                priority=None,
+                **kwargs):
+      """Creates a task to export an EE Image to an EE Asset.
+
+      Args:
+        classifier: The classifier to be exported.
+        description: Human-readable name of the task.
+        assetId: The destination asset ID.
+        overwrite: If an existing asset can be overwritten by this export.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
+        **kwargs: Holds other keyword arguments.
+      Returns:
+        An unstarted Task that exports the image as an Earth Engine Asset.
+      """
+      config = _capture_parameters(locals(), ['classifier'])
+      config = _prepare_classifier_export_config(classifier, config,
+                                                 Task.ExportDestination.ASSET)
+      return _create_export_task(config, Task.Type.EXPORT_CLASSIFIER)
 
 # Mapping from file formats to prefixes attached to format specific config.
 FORMAT_PREFIX_MAP = {'GEOTIFF': 'tiff', 'TFRECORD': 'tfrecord'}
@@ -1041,14 +1181,21 @@ def _prepare_image_export_config(
   # This can only be set by internal users.
   if 'maxWorkers' in config:
     request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
 
   # Of the remaining fields in ExportImageRequest:
   # - All the values that would go into the PixelGrid should have been folded
   #   into the image's Expression.
   # - The request ID will be populated when the Task is created.
   # We've been deleting config parameters as we handle them. Anything left
-  # over is a problem.
+  # over is a problem. We can provide helpful error messages for some edge
+  # cases like params that only work for specific export types.
   if config:
+    if 'skipEmptyTiles' in config:
+      raise ValueError('skipEmptyTiles is only supported for GeoTIFF exports.')
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
 
@@ -1092,6 +1239,10 @@ def _prepare_map_export_config(
   # This can only be set by internal users.
   if 'maxWorkers' in config:
     request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
   if config:
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
@@ -1159,6 +1310,11 @@ def _prepare_table_export_config(
   if 'maxWorkers' in config:
     request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
 
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
+
   if config:
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
@@ -1196,6 +1352,11 @@ def _prepare_video_export_config(
   # This can only be set by internal users.
   if 'maxWorkers' in config:
     request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
+
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
 
   if config:
     raise ee_exception.EEException(
@@ -1409,6 +1570,11 @@ def _prepare_classifier_export_config(
   request['expression'] = classifier
   if 'description' in config:
     request['description'] = config.pop('description')
+
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
 
   if export_destination == Task.ExportDestination.ASSET:
     request['assetExportOptions'] = {

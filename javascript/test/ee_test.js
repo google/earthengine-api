@@ -14,13 +14,13 @@ describe('ee', function() {
 
   it('retrieves a map ID synchronously', function() {
     const image = new ee.Image('srtm90_v4');
-    const map = image.getMap({'min': 0, 'max': 1000});
+    const map = image.getMapId({'min': 0, 'max': 1000});
     expect(map.mapid).toMatch(/\w+/);
   });
 
   it('retrieves a map ID asynchronously', function(done) {
     const image = new ee.Image('srtm90_v4');
-    image.getMap({'min': 0, 'max': 1000}, ({mapid}) => {
+    image.getMapId({'min': 0, 'max': 1000}, ({mapid}) => {
       expect(mapid).toMatch(/\w+/);
       done();
     });
@@ -57,7 +57,7 @@ describe('ee', function() {
   });
 
   it('supports joins, generated functions', function(done) {
-    const primary = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+    const primary = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
                         .filterDate('2014-04-01', '2014-06-01')
                         .filterBounds(ee.Geometry.Point(-122.09, 37.42));
 

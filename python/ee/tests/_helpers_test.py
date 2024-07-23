@@ -8,11 +8,11 @@ name since that is the name we want to ensure works.
 
 import io
 
-import ee
-from ee import apitestcase
-from ee.apifunction import ApiFunction
-from ee.computedobject import ComputedObject
 import unittest
+import ee
+from ee import apifunction
+from ee import apitestcase
+from ee import computedobject
 
 
 class ProfilingTest(apitestcase.ApiTestCase):
@@ -20,8 +20,9 @@ class ProfilingTest(apitestcase.ApiTestCase):
   def MockValue(self, value):
     """Overridden to check for profiling-related data."""
     hooked = ee.data._thread_locals.profile_hook is not None
-    is_get_profiles = (isinstance(value, ComputedObject) and value.func ==
-                       ApiFunction.lookup('Profile.getProfiles'))
+    is_get_profiles = isinstance(
+        value, computedobject.ComputedObject
+    ) and value.func == apifunction.ApiFunction.lookup('Profile.getProfiles')
     return 'hooked=%s getProfiles=%s' % (hooked, is_get_profiles)
 
   def testProfilePrinting(self):

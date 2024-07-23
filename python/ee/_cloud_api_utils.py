@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Earth Engine helper functions for working with the Cloud API.
 
 Many of the functions defined here are for mapping legacy calls in ee.data into
@@ -12,10 +11,9 @@ import datetime
 import json
 import os
 import re
-from typing import Any, Callable, Dict, List, Optional, Protocol, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
 import warnings
 
-from google import auth
 import google_auth_httplib2
 from googleapiclient import discovery
 from googleapiclient import http
@@ -40,27 +38,16 @@ ASSET_ROOT_PATTERN = (r'^projects/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
 _cloud_api_user_project: Optional[str] = None
 
 
-class HttpTransportable(Protocol):
-  """A protocol for HTTP transport objects."""
-
-  def request(  # pylint: disable=invalid-name
-      self,
-      uri: str,
-      method: str,
-      body: Optional[str],
-      headers: Optional[Dict[str, str]],
-      redirections: Optional[int],
-      connection_type: Optional[Type[Any]],
-  ) -> Any:
-    """Make an HTTP request."""
-
-
 class _Http:
   """A httplib2.Http-like object based on requests."""
+  _session: requests.Session
   _timeout: Optional[float]
 
-  def __init__(self, timeout: Optional[float] = None):
+  def __init__(
+      self, session: requests.Session, timeout: Optional[float] = None
+  ):
     self._timeout = timeout
+    self._session = session
 
   def request(  # pylint: disable=invalid-name
       self,
@@ -72,15 +59,27 @@ class _Http:
       connection_type: Optional[Type[Any]] = None,
   ) -> Tuple[httplib2.Response, Any]:
     """Makes an HTTP request using httplib2 semantics."""
-    del connection_type  # Unused
+    del connection_type  # Ignored
+    del redirections  # Ignored
 
-    with requests.Session() as session:
-      session.max_redirects = redirections
-      response = session.request(
-          method, uri, data=body, headers=headers, timeout=self._timeout)
-      headers = dict(response.headers)
-      headers['status'] = response.status_code
-      content = response.content
+    try:
+      # googleapiclient is expecting an httplib2 object, and doesn't include
+      # requests error in the list of transient errors. Therefore, transient
+      # requests errors should be converted to kinds that googleapiclient
+      # consider transient.
+      response = self._session.request(
+          method, uri, data=body, headers=headers, timeout=self._timeout
+      )
+    except requests.exceptions.ConnectionError as connection_error:
+      raise ConnectionError(connection_error) from connection_error
+    except requests.exceptions.ChunkedEncodingError as encoding_error:
+      # This is not a one-to-one match, but it's close enough.
+      raise ConnectionError(encoding_error) from encoding_error
+    except requests.exceptions.Timeout as timeout_error:
+      raise TimeoutError(timeout_error) from timeout_error
+    headers = dict(response.headers)
+    headers['status'] = response.status_code
+    content = response.content
     return httplib2.Response(headers), content
 
 
@@ -143,18 +142,21 @@ def set_cloud_api_user_project(cloud_api_user_project: str) -> None:
 
 def build_cloud_resource(
     api_base_url: str,
+    session: requests.Session,
     api_key: Optional[str] = None,
-    credentials: Optional[auth.credentials.Credentials] = None,
+    credentials: Optional[Any] = None,
     timeout: Optional[float] = None,
     headers_supplier: Optional[Callable[[], Dict[str, Any]]] = None,
     response_inspector: Optional[Callable[[Any], None]] = None,
-    http_transport: Optional[HttpTransportable] = None,
+    http_transport: Optional[Any] = None,
     raw: Optional[bool] = False,
-) -> discovery.Resource:
+) -> Any:
   """Builds an Earth Engine Cloud API resource.
 
   Args:
     api_base_url: The base URL of the cloud endpoints.
+    session: The Requests session to issue all requests in. This manages
+      shared resources, such as connection pools.
     api_key: An API key that's enabled for use with the Earth Engine Cloud API.
     credentials: OAuth2 credentials to use when authenticating to the API.
     timeout: How long a timeout to set on requests, in seconds.
@@ -172,8 +174,11 @@ def build_cloud_resource(
       '{}/$discovery/rest?version={}&prettyPrint=false'
       .format(api_base_url, VERSION))
   if http_transport is None:
-    http_transport = _Http(timeout)
+    http_transport = _Http(session, timeout)
   if credentials is not None:
+    # Suppress the quota project, to avoid serviceUsage error from discovery.
+    if credentials.quota_project_id:
+      credentials = credentials.with_quota_project(None)
     http_transport = google_auth_httplib2.AuthorizedHttp(
         credentials, http=http_transport
     )
@@ -236,7 +241,7 @@ def build_cloud_resource_from_document(
   """
   request_builder = _wrap_request(headers_supplier, response_inspector)
   if http_transport is None:
-    http_transport = _Http()
+    http_transport = _Http(requests.Session())
   alt_model = model.RawModel() if raw else None
   return discovery.build_from_document(
       discovery_document,
@@ -836,6 +841,7 @@ def convert_operation_to_task(operation: Dict[str, Any]) -> Dict[str, Any]:
           'type': 'task_type',
           'destinationUris': 'destination_uris',
           'batchEecuUsageSeconds': 'batch_eecu_usage_seconds',
+          'priority': 'priority',
           })
   if operation.get('done'):
     if 'error' in operation:

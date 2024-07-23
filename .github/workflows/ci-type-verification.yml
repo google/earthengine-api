@@ -1,0 +1,44 @@
+name: ci-type-verification
+on:
+  # Triggers the workflow when new code is pushed to the master branch.
+  push:
+    branches: [ master ]
+  # Enables running this workflow manually from the Actions tab.
+  workflow_dispatch:
+jobs:
+  build:
+    name: "Type verification"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Cancel previous
+      uses: styfle/cancel-workflow-action@0.7.0
+      with:
+        access_token: ${{ github.token }}
+      if: ${{github.ref != 'refs/head/master'}}
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+    - name: Install EE API
+      run: |
+        pip install ./python[tests]
+        pip install pyright
+        pip install pytype
+        pip install mypy
+    - name: pyright ee type verification
+      run: |
+        pyright --verifytypes ee
+      continue-on-error: true
+    - name: pyright ee.cli type verification
+      run: |
+        pyright --verifytypes ee.cli
+      continue-on-error: true
+    - name: mypy ee and ee.cli type verification
+      run: |
+        mypy -p ee
+      continue-on-error: true
+    - name: pytype ee type verification
+      run: |
+        cd python
+        pytype -k -d import-error ee

@@ -4,7 +4,6 @@ goog.module.declareLegacyNamespace();
 const AbstractTile = goog.require('ee.layers.AbstractTile');
 const AbstractTileSource = goog.require('ee.layers.AbstractTileSource');
 const PriorityPool = goog.require('goog.structs.PriorityPool');
-const Profiler = goog.requireType('ee.data.Profiler');
 const data = goog.require('ee.data');
 const events = goog.require('goog.events');
 
@@ -18,7 +17,7 @@ const EarthEngineTileSource = class extends AbstractTileSource {
   /**
    * @param {!data.RawMapId} mapId The EE map ID for fetching this layer's
    *     tiles.
-   * @param {data.Profiler=} opt_profiler The profiler to send map tile
+   * @param {?data.Profiler=} opt_profiler The profiler to send map tile
    *     calculation cost to, if any.
    */
   constructor(mapId, opt_profiler) {
@@ -31,6 +30,7 @@ const EarthEngineTileSource = class extends AbstractTileSource {
      * Map tile calculation cost will be sent to this profiler, if its enabled
      * flag is set.
      * @private {?data.Profiler}
+     * @const
      */
     this.profiler_ = opt_profiler || null;
   }
@@ -65,9 +65,10 @@ const EarthEngineTileSource = class extends AbstractTileSource {
     tile.sourceUrl = this.getTileUrl_(tile.coord, tile.zoom);
 
     // When a request token is available, load the tile.
-    var handleAvailableToken =
-        goog.bind(this.handleAvailableToken_, this, tile);
-    var tokenPool = EarthEngineTileSource.getGlobalTokenPool_();
+    const handleAvailableToken = (token) => {
+      this.handleAvailableToken_(tile, token);
+    };
+    const tokenPool = this.getGlobalTokenPool_();
     tokenPool.getObject(handleAvailableToken, opt_priority);
   }
 
@@ -77,13 +78,33 @@ const EarthEngineTileSource = class extends AbstractTileSource {
   }
 
   /**
+   * Sets the global parallelism for EE tiles.
+   *
+   * Note that most browsers will also throttle concurrent requests to the same
+   * domain, and that each Earth Engine user/project has its own concurrent
+   * request quota. This means that the actual parallelism will be the minimum
+   * of {this value, the browser's limit, the user and project's quota across
+   * clients}.
+   *
+   * Also note that increasing parallelism doesn't change the latency of
+   * individual requests, it just allows more requests to be in flight at once.
+   * Said another way, the amount of time per request won't change, but setting
+   * a higher parallelism can potentially yield greater overall throughput.
+   *
+   * @param {number} parallelism The new parallelism limit.
+   */
+  setGlobalParallelism(parallelism) {
+    this.getGlobalTokenPool_().setMaximumCount(parallelism);
+  }
+
+  /**
    * Handles a request pool token being available by starting the tile load.
    * @param {AbstractTile} tile The tile to load.
    * @param {!Object} token The EE tile token pool object for this load.
    * @private
    */
   handleAvailableToken_(tile, token) {
-    var tokenPool = EarthEngineTileSource.getGlobalTokenPool_();
+    const tokenPool = this.getGlobalTokenPool_();
 
     // Exit early if the tile was aborted (e.g. because the layer was hidden or
     // this tile was panned out of view).
@@ -122,10 +143,10 @@ const EarthEngineTileSource = class extends AbstractTileSource {
    * @return {!PriorityPool} The global EE tile request token pool.
    * @private
    */
-  static getGlobalTokenPool_() {
+  getGlobalTokenPool_() {
     if (!EarthEngineTileSource.TOKEN_POOL_) {
       EarthEngineTileSource.TOKEN_POOL_ =
-          new PriorityPool(0, EarthEngineTileSource.TOKEN_COUNT_);
+          new PriorityPool(0, EarthEngineTileSource.DEFAULT_TOKEN_COUNT_);
     }
     return EarthEngineTileSource.TOKEN_POOL_;
   }
@@ -135,7 +156,11 @@ goog.exportSymbol('ee.layers.EarthEngineTileSource', EarthEngineTileSource);
 /** @private {?PriorityPool} The global EE tile token pool. */
 EarthEngineTileSource.TOKEN_POOL_ = null;
 
-/** @private {number} The global max count of outstanding EE tile requests. */
-EarthEngineTileSource.TOKEN_COUNT_ = 4;
+/**
+ * @private {number}
+ * @const
+ * The default global count of outstanding EE tile requests.
+ */
+EarthEngineTileSource.DEFAULT_TOKEN_COUNT_ = 4;
 
 exports = EarthEngineTileSource;

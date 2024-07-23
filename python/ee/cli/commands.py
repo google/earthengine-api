@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Commands supported by the Earth Engine command line interface.
 
 Each command is implemented by extending the Command class. Each class
@@ -380,17 +379,21 @@ class AuthenticateCommand:
     parser.add_argument(
         '--quiet',
         action='store_true',
-        help='Do not prompt for input, and run gcloud in no-browser mode.')
+        help='Do not prompt for input, run gcloud-legacy in no-browser mode.')
     parser.add_argument(
         '--code-verifier',
         help='PKCE verifier to prevent auth code stealing.')
     parser.add_argument(
         '--auth_mode',
-        help='One of: notebook - use notebook authenticator; gcloud - use'
-        ' gcloud; appdefault - read GOOGLE_APPLICATION_CREDENTIALS;'
-        ' localhost[:PORT] - use local browser')
+        help='One of: notebook - use notebook authenticator; colab - use Colab'
+        ' authenticator; gcloud / gcloud-legacy - use gcloud;'
+        ' localhost[:PORT|:0] - use local browser')
     parser.add_argument(
         '--scopes', help='Optional comma-separated list of scopes.')
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        help='Run authentication even if credentials already exist.')
 
   def run(
       self, args: argparse.Namespace, config: utils.CommandLineConfig
@@ -400,10 +403,20 @@ class AuthenticateCommand:
 
     # Filter for arguments relevant for ee.Authenticate()
     args_auth = {x: vars(args)[x] for x in (
-        'authorization_code', 'quiet', 'code_verifier', 'auth_mode')}
+        'authorization_code', 'quiet', 'code_verifier', 'auth_mode', 'force')}
     if args.scopes:
       args_auth['scopes'] = args.scopes.split(',')
-    ee.Authenticate(**args_auth)
+
+    if ee.oauth.in_colab_shell():
+      print(
+          'Authenticate: Limited support in Colab. Use ee.Authenticate()'
+          ' or --auth_mode=notebook instead.'
+      )
+      if not args.auth_mode:
+        args_auth['auth_mode'] = 'notebook'
+
+    if ee.Authenticate(**args_auth):
+      print('Authenticate: Credentials already exist.  Use --force to refresh.')
 
 
 class SetProjectCommand:
@@ -420,11 +433,15 @@ class SetProjectCommand:
     """Saves the project to the config file."""
 
     config_path = config.config_file
-    with open(config_path) as config_file_json:
-      config = json.load(config_file_json)
+    try:
+      with open(config_path) as json_config_file:
+        config = json.load(json_config_file)
+    except FileNotFoundError:
+      # File may not exist if we initialized from default credentials.
+      config = {}
 
     config['project'] = args.project
-    json.dump(config, open(config_path, 'w'))
+    ee.oauth.write_private_json(config_path, config)
     print('Successfully saved project id')
 
 
@@ -443,12 +460,16 @@ class UnSetProjectCommand:
     del args  # Unused.
 
     config_path = config.config_file
-    with open(config_path) as config_file_json:
-      config = json.load(config_file_json)
+    try:
+      with open(config_path) as json_config_file:
+        config = json.load(json_config_file)
+    except FileNotFoundError:
+      # File may not exist if we initialized from default credentials.
+      config = {}
 
     if 'project' in config:
       del config['project']
-    json.dump(config, open(config_path, 'w'))
+    ee.oauth.write_private_json(config_path, config)
     print('Successfully unset project id')
 
 
@@ -1137,6 +1158,8 @@ class TaskInfoCommand:
         print('  Error: %s' % status['error_message'])
       if 'destination_uris' in status:
         print('  Destination URIs: %s' % ', '.join(status['destination_uris']))
+      if 'priority' in status:
+        print('  Priority: %s' % status['priority'])
 
 
 class TaskListCommand:
@@ -1155,7 +1178,7 @@ class TaskListCommand:
         '-l',
         action='store_true',
         help=('Print output in long format. Extra columns are: creation time, '
-              'start time, update time, EECU-seconds, output URLs.')
+              'start time, update time, EECU-seconds, output URLs, priority.')
     )
 
   def run(
@@ -1179,12 +1202,15 @@ class TaskListCommand:
         eecu = '{:.4f}'.format(
             task['batch_eecu_usage_seconds']
         ) if 'batch_eecu_usage_seconds' in task else '-'
+        trailing_extras = task.get('destination_uris', [])
+        trailing_extras.append(task.get('priority', '-'))
         extra = ' {:20s} {:20s} {:20s} {:11s} {}'.format(
             show_date(task['creation_timestamp_ms']),
             show_date(task['start_timestamp_ms']),
             show_date(task['update_timestamp_ms']),
             eecu,
-            ' '.join(task.get('destination_uris', [])))
+            ' '.join(map(str, trailing_extras)),
+        )
       print(format_str.format(
           task['id'], task_type, truncated_desc,
           task['state'], task.get('error_message', '---')) + extra)

@@ -2,7 +2,7 @@
 // a custom visualization of topography.
 
 // Load a global elevation image.
-var elev = ee.Image('USGS/GMTED2010');
+var elev = ee.Image('USGS/GMTED2010').select('be75');
 
 // Zoom to an area of interest.
 Map.setCenter(-121.069, 50.709, 6);
@@ -44,4 +44,3 @@ var v = shade.divide(255);
 // Note the cast to byte in order to export the image correctly.
 var rgb = hs.addBands(v).hsvToRgb().multiply(255).byte();
 Map.addLayer(rgb, {}, 'styled');
-

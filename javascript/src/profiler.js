@@ -46,7 +46,8 @@ ee.data.Profiler = class extends goog.events.EventTarget {
     this.isEnabled_ = false;
 
     /**
-     * Non-null unique object iff we have a refresh request outstanding.
+     * Non-null unique object if and only if we have a refresh request
+     * outstanding.
      * @private {?Object}
      */
     this.lastRefreshToken_ = null;

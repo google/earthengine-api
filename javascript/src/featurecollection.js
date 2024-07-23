@@ -132,36 +132,54 @@ ee.FeatureCollection.reset = function() {
 
 
 /**
- * An imperative function that returns a map id and token, suitable for
+ * An imperative function that returns a map ID and optional token, suitable for
  * generating a Map overlay.
  *
  * @param {?Object=} opt_visParams The visualization parameters. Currently only
- *     one parameter, 'color', containing an RGB color string is allowed.  If
- *     vis_params isn't specified, then the color #000000 is used.
+ *     one parameter, 'color', containing an RGB color string is allowed. If
+ *     visParams is not specified, black ("000000") is used.
  * @param {function(!Object, string=)=} opt_callback An async callback.
- *     If not supplied, the call is made synchronously.
  * @return {!ee.data.MapId|undefined} An object which may be passed to
  *     ee.data.getTileUrl or ui.Map.addLayer, including an additional 'image'
  *     field, containing a Collection.draw image wrapping a FeatureCollection
  *     containing this feature. Undefined if a callback was specified.
  * @export
  */
-ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extractFromFunction(
-      ee.FeatureCollection.prototype.getMap, arguments);
+ee.FeatureCollection.prototype.getMapId = function(
+    opt_visParams, opt_callback) {
+  const args = ee.arguments.extractFromFunction(
+      ee.FeatureCollection.prototype.getMapId, arguments);
 
-  var painted = /** @type {!ee.Image} */(
-      ee.ApiFunction._apply('Collection.draw', {
+  const painted =
+      /** @type {!ee.Image} */ (ee.ApiFunction._apply('Collection.draw', {
         'collection': this,
         'color': (args['visParams'] || {})['color'] || '000000'
       }));
 
   if (args['callback']) {
-    painted.getMap(undefined, args['callback']);
+    painted.getMapId(undefined, args['callback']);
   } else {
-    return painted.getMap();
+    return painted.getMapId();
   }
 };
+
+
+/**
+ * An imperative function that returns a map ID and optional token, suitable for
+ * generating a Map overlay.
+ *
+ * @deprecated Use getMapId() instead.
+ * @param {?Object=} opt_visParams The visualization parameters. Currently only
+ *     one parameter, 'color', containing an RGB color string is allowed. If
+ *     visParams is not specified, black ("000000") is used.
+ * @param {function(!Object, string=)=} opt_callback An async callback.
+ * @return {!ee.data.MapId|undefined} An object which may be passed to
+ *     ee.data.getTileUrl or ui.Map.addLayer, including an additional 'image'
+ *     field, containing a Collection.draw image wrapping a FeatureCollection
+ *     containing this feature. Undefined if a callback was specified.
+ * @export
+ */
+ee.FeatureCollection.prototype.getMap = ee.FeatureCollection.prototype.getMapId;
 
 
 /**

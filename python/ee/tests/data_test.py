@@ -6,15 +6,56 @@ from unittest import mock
 import httplib2
 import requests
 
+import unittest
 import ee
 from ee import _cloud_api_utils
 from ee import apitestcase
 from ee import featurecollection
 from ee import image
-import unittest
 
 
 class DataTest(unittest.TestCase):
+
+  def setUp(self):
+    super().setUp()
+    mock.patch.object(
+        ee.data,
+        'getAlgorithms',
+        return_value=apitestcase.GetAlgorithms(),
+        autospec=True,
+    ).start()
+
+  def tearDown(self):
+    super().tearDown()
+    mock.patch.stopall()
+
+  def testIsInitialized(self):
+    self.assertFalse(ee.data.is_initialized())
+    with apitestcase.UsingCloudApi():
+      self.assertTrue(ee.data.is_initialized())
+
+  def testSetMaxRetries_badValues(self):
+    with self.assertRaises(ValueError):
+      ee.data.setMaxRetries(-1)
+    with self.assertRaises(ValueError):
+      ee.data.setMaxRetries(100)
+
+  def testSetMaxRetries(self):
+    mock_result = {'result': 5}
+    ee.data.setMaxRetries(3)
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      cloud_api_resource.projects().value().compute().execute.return_value = (
+          mock_result
+      )
+      self.assertEqual(5, ee.data.computeValue(ee.Number(1)))
+      self.assertEqual(
+          3,
+          cloud_api_resource.projects()
+          .value()
+          .compute()
+          .execute.call_args.kwargs['num_retries'],
+      )
 
   def testListOperations(self):
     mock_http = mock.MagicMock(httplib2.Http)
@@ -120,10 +161,57 @@ class DataTest(unittest.TestCase):
           asset['cloud_storage_location'],
           {'uris': ['gs://my-bucket/path']},
       )
-      self.assertEqual(
-          asset['tilestore_location'],
-          {'sources': []},
+
+  def testCreateFolder(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'type': 'FOLDER',
+          'name': 'projects/earthengine-legacy/assets/users/foo/xyz1234',
+          'id': 'users/foo/xyz1234',
+      }
+      cloud_api_resource.projects().assets().create.execute.return_value = (
+          mock_result
       )
+      ee.data.createFolder('users/foo/xyz123')
+      mock_create_asset = cloud_api_resource.projects().assets().create
+      mock_create_asset.assert_called_once()
+      parent = mock_create_asset.call_args.kwargs['parent']
+      self.assertEqual(parent, 'projects/earthengine-legacy')
+      asset_id = mock_create_asset.call_args.kwargs['assetId']
+      self.assertEqual(asset_id, 'users/foo/xyz123')
+      asset = mock_create_asset.call_args.kwargs['body']
+      self.assertEqual(asset, {'type': 'FOLDER'})
+
+  def testStartIngestion(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'name': 'operations/ingestion', 'done': False}
+      cloud_api_resource.projects().image().import_().execute.return_value = (
+          mock_result
+      )
+      manifest = {
+          'id': 'projects/some-project/assets/some-name',
+          'arg': 'something',
+      }
+      result = ee.data.startIngestion(
+          'request_id',
+          manifest,
+          True
+      )
+      self.assertEqual(result['id'], 'ingestion')
+      self.assertEqual(result['name'], 'operations/ingestion')
+
+      mock_import = cloud_api_resource.projects().image().import_
+      import_args = mock_import.call_args.kwargs['body']
+      self.assertEqual(
+          import_args['imageManifest'],
+          {
+              'name': 'projects/some-project/assets/some-name',
+              'arg': 'something',
+          },
+      )
+      self.assertTrue(import_args['overwrite'])
 
   def testSetAssetProperties(self):
     mock_http = mock.MagicMock(httplib2.Http)
@@ -153,10 +241,53 @@ class DataTest(unittest.TestCase):
       cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
       cloud_api_resource.projects().assets().listAssets_next.return_value = None
-      actual_result = ee.data.listAssets({'p': 'q'})
+      actual_result = ee.data.listAssets('path/to/folder')
       cloud_api_resource.projects().assets().listAssets(
       ).execute.assert_called_once()
       self.assertEqual(mock_result, actual_result)
+
+  def testListAssetsWithPageSize(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({'status': 200})
+    page = (
+        b'{"assets": [{"path": "id1", "type": "type1"}], "nextPageToken": "t1"}'
+    )
+    mock_http.request.side_effect = [(ok_resp, page)]
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      actual_result = ee.data.listAssets(
+          {'parent': 'path/to/folder', 'pageSize': 3}
+      )
+      expected_result = {
+          'assets': [{'path': 'id1', 'type': 'type1'}],
+          'nextPageToken': 't1',
+      }
+      self.assertEqual(expected_result, actual_result)
+
+  def testListAssetsMultiplePages(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({'status': 200})
+    page1 = (
+        b'{"assets": [{"path": "id1", "type": "type1"}], "nextPageToken": "t1"}'
+    )
+    page2 = (
+        b'{"assets": [{"path": "id2", "type": "type2"}], "nextPageToken": "t2"}'
+    )
+    page3 = b'{"assets": [{"path": "id3", "type": "type3"}]}'
+    mock_http.request.side_effect = [
+        (ok_resp, page1),
+        (ok_resp, page2),
+        (ok_resp, page3),
+    ]
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      actual_result = ee.data.listAssets('path/to/folder')
+      expected_result = {
+          'assets': [
+              {'path': 'id1', 'type': 'type1'},
+              {'path': 'id2', 'type': 'type2'},
+              {'path': 'id3', 'type': 'type3'},
+          ]
+      }
+      self.assertEqual(expected_result, actual_result)
 
   def testListImages(self):
     cloud_api_resource = mock.MagicMock()
@@ -165,13 +296,56 @@ class DataTest(unittest.TestCase):
       cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
       cloud_api_resource.projects().assets().listAssets_next.return_value = None
-      actual_result = ee.data.listImages({'p': 'q'})
+      actual_result = ee.data.listImages('path/to/folder')
       cloud_api_resource.projects().assets().listAssets(
       ).execute.assert_called_once()
       self.assertEqual({'images': [{
           'path': 'id1',
           'type': 'type1'
       }]}, actual_result)
+
+  def testListImagesWithPageSize(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({'status': 200})
+    page = (
+        b'{"assets": [{"path": "id1", "type": "type1"}], "nextPageToken": "t1"}'
+    )
+    mock_http.request.side_effect = [(ok_resp, page)]
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      actual_result = ee.data.listImages(
+          {'parent': 'path/to/folder', 'pageSize': 3}
+      )
+      expected_result = {
+          'images': [{'path': 'id1', 'type': 'type1'}],
+          'nextPageToken': 't1',
+      }
+      self.assertEqual(expected_result, actual_result)
+
+  def testListImagesMultiplePages(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({'status': 200})
+    page1 = (
+        b'{"assets": [{"path": "id1", "type": "type1"}], "nextPageToken": "t1"}'
+    )
+    page2 = (
+        b'{"assets": [{"path": "id2", "type": "type2"}], "nextPageToken": "t2"}'
+    )
+    page3 = b'{"assets": [{"path": "id3", "type": "type3"}]}'
+    mock_http.request.side_effect = [
+        (ok_resp, page1),
+        (ok_resp, page2),
+        (ok_resp, page3),
+    ]
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      actual_result = ee.data.listImages('path/to/folder')
+      expected_result = {
+          'images': [
+              {'path': 'id1', 'type': 'type1'},
+              {'path': 'id2', 'type': 'type2'},
+              {'path': 'id3', 'type': 'type3'},
+          ]
+      }
+      self.assertEqual(expected_result, actual_result)
 
   def testListBuckets(self):
     cloud_api_resource = mock.MagicMock()
@@ -303,14 +477,7 @@ class DataTest(unittest.TestCase):
             cloud_api_resource.projects().maps().create.call_args_list[1]
             .kwargs['workloadTag'])
 
-  # The Cloud API context manager does not mock getAlgorithms, so it's done
-  # separately here.
-  @mock.patch.object(
-      ee.data,
-      'getAlgorithms',
-      return_value=apitestcase.GetAlgorithms(),
-      autospec=True)
-  def testGetDownloadId(self, _):
+  def testGetDownloadId(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
       mock_result = {'name': 'projects/earthengine-legacy/thumbnails/DOCID'}
@@ -599,6 +766,60 @@ class DataTest(unittest.TestCase):
 
     ee.data.resetWorkloadTag(True)
     self.assertEqual('', ee.data.getWorkloadTag())
+
+  def testResetWorkloadTagOptParams(self):
+    ee.data.setDefaultWorkloadTag('reset-me')
+    self.assertEqual('reset-me', ee.data.getWorkloadTag())
+    ee.data.resetWorkloadTag(opt_resetDefault=True)
+    self.assertEqual('', ee.data.getWorkloadTag())
+
+  def testGetAssetRootQuota_V1Alpha(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      fake_asset = {
+          'type': 'FOLDER',
+          'name': 'projects/test-proj/assets',
+          'quota': {
+              'assetCount': 123,
+              'maxAssets': 456,
+              'sizeBytes': 789,
+              'maxSizeBytes': 1001,
+          },
+      }
+      cloud_api_resource.projects().assets().get().execute.return_value = (
+          fake_asset
+      )
+
+      quota = ee.data.getAssetRootQuota('projects/test-proj/assets')
+      expected = {
+          'asset_count': {'usage': 123, 'limit': 456},
+          'asset_size': {'usage': 789, 'limit': 1001},
+      }
+      self.assertEqual(expected, quota)
+
+  def testGetAssetRootQuota(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      fake_asset = {
+          'type': 'FOLDER',
+          'name': 'projects/test-proj/assets',
+          'quota': {
+              'assetCount': 123,
+              'maxAssetCount': 456,
+              'sizeBytes': 789,
+              'maxSizeBytes': 1001,
+          },
+      }
+      cloud_api_resource.projects().assets().get().execute.return_value = (
+          fake_asset
+      )
+
+      quota = ee.data.getAssetRootQuota('projects/test-proj/assets')
+      expected = {
+          'asset_count': {'usage': 123, 'limit': 456},
+          'asset_size': {'usage': 789, 'limit': 1001},
+      }
+      self.assertEqual(expected, quota)
 
 
 def DoCloudProfileStubHttp(test, expect_profiling):

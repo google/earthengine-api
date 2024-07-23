@@ -189,4 +189,4 @@ function configLayout(deviceInfo) {
   }
 }
 
-ui.root.onResize(configLayout);
+ui.root.onResize(ui.util.debounce(configLayout, 100));

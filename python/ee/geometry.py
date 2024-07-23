@@ -1,18 +1,40 @@
-#!/usr/bin/env python3
 """An object representing EE Geometries."""
 
 from __future__ import annotations
 
 import collections.abc
 import json
-import numbers
+import math
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
+from ee import ee_list
+from ee import ee_number
+from ee import ee_string
 from ee import ee_types
+from ee import errormargin
+from ee import featurecollection
+from ee import projection
 from ee import serializer
+
+_ErrorMarginType = Union[
+    float,
+    'ee_number.Number',
+    errormargin.ErrorMargin,
+    computedobject.ComputedObject,
+]
+_GeometryType = Union[Any, computedobject.ComputedObject]
+_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_ProjectionType = Union[
+    str,
+    'ee_string.String',
+    projection.Projection,
+    computedobject.ComputedObject,
+]
 
 # A sentinel value used to detect unspecified function parameters.
 _UNSPECIFIED = object()
@@ -26,37 +48,37 @@ class Geometry(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
+  @_utils.accept_opt_prefix('opt_proj', 'opt_geodesic', 'opt_evenOdd')
   def __init__(
       self,
       geo_json: Union[Dict[str, Any], computedobject.ComputedObject, Geometry],
-      opt_proj: Optional[Any] = None,
-      opt_geodesic: Optional[bool] = None,
-      opt_evenOdd: Optional[bool] = None,  # pylint: disable=g-bad-name
+      proj: Optional[Any] = None,
+      geodesic: Optional[bool] = None,
+      evenOdd: Optional[bool] = None,  # pylint: disable=g-bad-name
   ):
     """Creates a geometry.
 
     Args:
-      geo_json: The GeoJSON object describing the geometry or a
-          computed object to be reinterpred as a Geometry. Supports
-          CRS specifications as per the GeoJSON spec, but only allows named
-          (rather than "linked" CRSs). If this includes a 'geodesic' field,
-          and opt_geodesic is not specified, it will be used as opt_geodesic.
-      opt_proj: An optional projection specification, either as an
-          ee.Projection, as a CRS ID code or as a WKT string. If specified,
-          overrides any CRS found in the geo_json parameter. If unspecified and
-          the geo_json does not declare a CRS, defaults to "EPSG:4326"
-          (x=longitude, y=latitude).
-      opt_geodesic: Whether line segments should be interpreted as spherical
-          geodesics. If false, indicates that line segments should be
-          interpreted as planar lines in the specified CRS. If absent,
-          defaults to true if the CRS is geographic (including the default
+      geo_json: The GeoJSON object describing the geometry or a computed object
+        to be reinterpred as a Geometry. Supports CRS specifications as per the
+        GeoJSON spec, but only allows named (rather than "linked" CRSs). If this
+        includes a 'geodesic' field, and geodesic is not specified, it will be
+        used as geodesic.
+      proj: An optional projection specification, either as an ee.Projection, as
+        a CRS ID code or as a WKT string. If specified, overrides any CRS found
+        in the geo_json parameter. If unspecified and the geo_json does not
+        declare a CRS, defaults to "EPSG:4326" (x=longitude, y=latitude).
+      geodesic: Whether line segments should be interpreted as spherical
+        geodesics. If false, indicates that line segments should be interpreted
+        as planar lines in the specified CRS. If absent, defaults to true if the
+        CRS is geographic (including the default
           EPSG:4326), or to false if the CRS is projected.
-      opt_evenOdd: If true, polygon interiors will be determined by the even/odd
-          rule, where a point is inside if it crosses an odd number of edges to
-          reach a point at infinity. Otherwise polygons use the left-inside
-          rule, where interiors are on the left side of the shell's edges when
-          walking the vertices in the given order. If unspecified, defaults to
-          True.
+      evenOdd: If true, polygon interiors will be determined by the even/odd
+        rule, where a point is inside if it crosses an odd number of edges to
+        reach a point at infinity. Otherwise polygons use the left-inside rule,
+        where interiors are on the left side of the shell's edges when walking
+        the vertices in the given order. If unspecified, defaults to True.
+
     Raises:
       EEException: if the given geometry isn't valid.
     """
@@ -66,7 +88,7 @@ class Geometry(computedobject.ComputedObject):
     computed = isinstance(geo_json, computedobject.ComputedObject) and not (
         isinstance(geo_json, Geometry) and geo_json._type is not None
     )
-    options = opt_proj or opt_geodesic or opt_evenOdd
+    options = proj or geodesic or evenOdd
     if computed:
       if options:
         raise ee_exception.EEException(
@@ -89,28 +111,28 @@ class Geometry(computedobject.ComputedObject):
     self._type = geo_json['type']
 
     # The coordinates of the geometry, up to 4 nested levels with numbers at
-    # the last level. None iff type is GeometryCollection.
+    # the last level. None if and only if type is GeometryCollection.
     self._coordinates = geo_json.get('coordinates')
 
     # The subgeometries, None unless type is GeometryCollection.
     self._geometries = geo_json.get('geometries')
 
     # The projection code (WKT or identifier) of the geometry.
-    if opt_proj:
-      self._proj = opt_proj
+    if proj:
+      self._proj = proj
     elif 'crs' in geo_json:
       self._proj = self._get_name_from_crs(geo_json.get('crs'))
     else:
       self._proj = None
 
     # Whether the geometry has spherical geodesic edges.
-    self._geodesic = opt_geodesic
-    if opt_geodesic is None and 'geodesic' in geo_json:
+    self._geodesic = geodesic
+    if geodesic is None and 'geodesic' in geo_json:
       self._geodesic = bool(geo_json['geodesic'])
 
     # Whether polygon interiors use the even/odd rule.
-    self._evenOdd = opt_evenOdd  # pylint: disable=g-bad-name
-    if opt_evenOdd is None and 'evenOdd' in geo_json:
+    self._evenOdd = evenOdd  # pylint: disable=g-bad-name
+    if evenOdd is None and 'evenOdd' in geo_json:
       self._evenOdd = bool(geo_json['evenOdd'])
 
     # Build a proxy for this object that is an invocation of a server-side
@@ -156,7 +178,7 @@ class Geometry(computedobject.ComputedObject):
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Geometry', 'Geometry')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod
@@ -180,7 +202,7 @@ class Geometry(computedobject.ComputedObject):
       coords: A list of two [x,y] coordinates in the given projection.
       proj: The projection of this geometry, or EPSG:4326 if unspecified.
       *args: For convenience, varargs may be used when all arguments are
-          numbers. This allows creating EPSG:4326 points, e.g.
+          numbers. This allows creating EPSG:4326 points, e.g.,
           ee.Geometry.Point(lng, lat).
       **kwargs: Keyword args that accept "lon" and "lat" for backward-
           compatibility.
@@ -213,7 +235,7 @@ class Geometry(computedobject.ComputedObject):
           no ee.Geometry inputs.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating EPSG:4326 MultiPoints given an even
-          number of arguments, e.g.
+          number of arguments, e.g.,
           ee.Geometry.MultiPoint(aLng, aLat, bLng, bLat, ...).
 
     Returns:
@@ -254,7 +276,7 @@ class Geometry(computedobject.ComputedObject):
           True.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating EPSG:4326 Polygons given exactly four
-          coordinates, e.g.
+          coordinates, e.g.,
           ee.Geometry.Rectangle(minLng, minLat, maxLng, maxLat).
       **kwargs: Keyword args that accept "xlo", "ylo", "xhi" and "yhi" for
           backward-compatibility.
@@ -283,12 +305,17 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(init)
 
   @staticmethod
-  def BBox(west: float, south: float, east: float, north: float) -> Geometry:
+  def BBox(
+      west: Union[float, computedobject.ComputedObject],
+      south: Union[float, computedobject.ComputedObject],
+      east: Union[float, computedobject.ComputedObject],
+      north: Union[float, computedobject.ComputedObject],
+  ) -> Geometry:
     """Constructs a rectangle ee.Geometry from lines of latitude and longitude.
 
     If (east - west) ≥ 360° then the longitude range will be normalized to -180°
     to +180°; otherwise they will be treated as designating points on a circle
-    (e.g. east may be numerically less than west).
+    (e.g., east may be numerically less than west).
 
     Args:
       west: The westernmost enclosed longitude. Will be adjusted to lie in the
@@ -315,10 +342,10 @@ class Geometry(computedobject.ComputedObject):
     # become bad JSON. The other two infinities are acceptable because we
     # support the general idea of an around-the-globe latitude band. By writing
     # them negated, we also reject NaN.
-    if not west < float('inf'):
+    if not west < math.inf:
       raise ee_exception.EEException(
           'Geometry.BBox: west must not be {}'.format(west))
-    if not east > float('-inf'):
+    if not east > -math.inf:
       raise ee_exception.EEException(
           'Geometry.BBox: east must not be {}'.format(east))
     # Reject cases which, if we clamped them instead, would move a box whose
@@ -353,13 +380,16 @@ class Geometry(computedobject.ComputedObject):
     # GeoJSON does not have a Rectangle type, so expand to a Polygon.
     return Geometry(
         geo_json={
-            'coordinates': [[[west, north],
-                             [west, south],
-                             [east, south],
-                             [east, north]]],
+            'coordinates': [[
+                [west, north],
+                [west, south],
+                [east, south],
+                [east, north],
+            ]],
             'type': 'Polygon',
         },
-        opt_geodesic=False)
+        geodesic=False,
+    )
 
   @staticmethod
   def _canonicalize_longitude(longitude: float) -> float:
@@ -398,7 +428,7 @@ class Geometry(computedobject.ComputedObject):
           explicitly requested result projection or geodesic state.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 LineStrings given
-          an even number of arguments, e.g.
+          an even number of arguments, e.g.,
           ee.Geometry.LineString(aLng, aLat, bLng, bLat, ...).
 
     Returns:
@@ -438,7 +468,7 @@ class Geometry(computedobject.ComputedObject):
           explicitly requested result projection or geodesic state.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 LinearRings given
-          an even number of arguments, e.g.
+          an even number of arguments, e.g.,
           ee.Geometry.LinearRing(aLng, aLat, bLng, bLat, ...).
 
     Returns:
@@ -479,7 +509,7 @@ class Geometry(computedobject.ComputedObject):
           explicitly requested result projection or geodesic state.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 MultiLineStrings
-          with a single LineString, given an even number of arguments, e.g.
+          with a single LineString, given an even number of arguments, e.g.,
           ee.Geometry.MultiLineString(aLng, aLat, bLng, bLat, ...).
 
     Returns:
@@ -523,7 +553,7 @@ class Geometry(computedobject.ComputedObject):
           True.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 Polygons with a
-          single LinearRing given an even number of arguments, e.g.
+          single LinearRing given an even number of arguments, e.g.,
           ee.Geometry.Polygon(aLng, aLat, bLng, bLat, ..., aLng, aLat).
 
     Returns:
@@ -569,7 +599,7 @@ class Geometry(computedobject.ComputedObject):
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 MultiPolygons with
           a single Polygon with a single LinearRing given an even number of
-          arguments, e.g.
+          arguments, e.g.,
           ee.Geometry.MultiPolygon(aLng, aLat, bLng, bLat, ..., aLng, aLat).
 
     Returns:
@@ -579,10 +609,11 @@ class Geometry(computedobject.ComputedObject):
                                            evenOdd) + args)
     return Geometry(Geometry._parseArgs('MultiPolygon', 4, all_args))
 
-  def encode(self, opt_encoder: Optional[Any] = None) -> Dict[str, Any]:
+  @_utils.accept_opt_prefix('opt_encoder')
+  def encode(self, encoder: Optional[Any] = None) -> Dict[str, Any]:
     """Returns a GeoJSON-compatible representation of the geometry."""
     if not getattr(self, '_type', None):
-      return super().encode(opt_encoder)
+      return super().encode(encoder)
 
     result = {'type': self._type}
     if self._type == 'GeometryCollection':
@@ -613,7 +644,8 @@ class Geometry(computedobject.ComputedObject):
     if self.func:
       raise ee_exception.EEException(
           'Cannot convert a computed geometry to GeoJSON. '
-          'Use getInfo() instead.')
+          'Wrap a getInfo() call in json.dumps instead.'
+      )
 
     return self.encode()
 
@@ -622,7 +654,8 @@ class Geometry(computedobject.ComputedObject):
     if self.func:
       raise ee_exception.EEException(
           'Cannot convert a computed geometry to GeoJSON. '
-          'Use getInfo() instead.')
+          'Wrap a getInfo() call in json.dumps instead.'
+      )
     return json.dumps(self.toGeoJSON())
 
   def serialize(self, for_cloud_api=True):
@@ -694,7 +727,7 @@ class Geometry(computedobject.ComputedObject):
     else:
       # Make sure the pts are all numbers.
       for i in shape:
-        if not isinstance(i, numbers.Number):
+        if not isinstance(i, (float, int)):
           return -1
 
       # Test that we have an even number of pts.
@@ -714,7 +747,7 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An array of pairs of points.
     """
-    if not (coordinates and isinstance(coordinates[0], numbers.Number)):
+    if not (coordinates and isinstance(coordinates[0], (float, int))):
       return coordinates
     if len(coordinates) == 2:
       return coordinates
@@ -821,7 +854,7 @@ class Geometry(computedobject.ComputedObject):
       raise ee_exception.EEException('Unexpected nesting level.')
 
     # Handle a list of numbers.
-    if all(isinstance(i, numbers.Number) for i in coords):
+    if all(isinstance(i, (float, int)) for i in coords):
       coords = Geometry._coordinatesToLine(coords)
 
     # Make sure the number of nesting levels is correct.
@@ -862,3 +895,561 @@ class Geometry(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'Geometry'
+
+  def area(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> ee_number.Number:
+    """Returns the area of the geometry.
+
+    Returns the area of the geometry. Area of points and line strings is 0 and
+    the area of multi geometries is the sum of the areas of their components
+    (intersecting areas are counted multiple times).
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the result will be in the units of the coordinate
+        system of this projection. Otherwise it will be in square meters.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.area', self, maxError, proj
+    )
+
+  def bounds(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns the bounding rectangle of the geometry.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the result will be in this projection. Otherwise it
+        will be in EPSG:4326.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.bounds', self, maxError, proj
+    )
+
+  def buffer(
+      self,
+      distance: _NumberType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns the input buffered by a given distance.
+
+    If the distance is positive, the geometry is expanded, and if the distance
+    is negative, the geometry is contracted.
+
+    Args:
+      distance: The distance of the buffering, which may be negative. If no
+        projection is specified, the unit is meters. Otherwise the unit is in
+        the coordinate system of the projection.
+      maxError: The maximum amount of error tolerated when approximating the
+        buffering circle and performing any necessary reprojection. If
+        unspecified, defaults to 1% of the distance.
+      proj: If specified, the buffering will be performed in this projection and
+        the distance will be interpreted as units of the coordinate system of
+        this projection. Otherwise the distance is interpereted as meters and
+        the buffering is performed in a spherical coordinate system.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.buffer', self, distance, maxError, proj
+    )
+
+  # TODO: Add centroid.
+
+  def containedIn(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> computedobject.ComputedObject:
+    """Returns true if and only if one geometry is contained in the other.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+
+    Returns:
+      An ee.Boolean.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.containedIn', self, right, maxError, proj
+    )
+
+  def contains(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> computedobject.ComputedObject:
+    """Returns true if and only if one geometry contains the other.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+
+    Returns:
+      An ee.Boolean.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.contains', self, right, maxError, proj
+    )
+
+  def convexHull(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns the convex hull of the given geometry.
+
+    The convex hull of a single point is the point itself, the convex hull of
+    collinear points is a line, and the convex hull of everything else is a
+    polygon. Note that a degenerate polygon with all vertices on the same line
+    will result in a line segment.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.convexHull', self, maxError, proj
+    )
+
+  def coordinates(self) -> ee_list.List:
+    """Returns a GeoJSON-style list of the geometry's coordinates."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.coordinates', self)
+
+  def coveringGrid(
+      self, proj: _ProjectionType, scale: Optional[_NumberType] = None
+  ) -> featurecollection.FeatureCollection:
+    """Returns a collection of features that cover this geometry.
+
+    Each feature is a rectangle in the grid defined by the given projection.
+
+    Args:
+      proj: The projection in which to construct the grid. A feature is
+        generated for each grid cell that intersects 'geometry', where cell
+        corners are at integer-valued positions in the projection. If the
+        projection is scaled in meters, the points will be on a grid of that
+        size at the point of true scale.
+      scale: Overrides the scale of the projection, if provided. May be required
+        if the projection isn't already scaled.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.coveringGrid', self, proj, scale
+    )
+
+  def cutLines(
+      self,
+      distances: _ListType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns geometries cut into pieces along the given distances.
+
+    Converts LineString, MultiLineString, and LinearRing geometries into a
+    MultiLineString by cutting them into parts no longer than the given distance
+    along their length. All other geometry types will be converted to an empty
+    MultiLineString.
+
+    Args:
+      distances: Distances along each LineString to cut the line into separate
+        pieces, measured in units of the given proj, or meters if proj is
+        unspecified.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: Projection of the result and distance measurements, or EPSG:4326 if
+        unspecified.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.cutLines', self, distances, maxError, proj
+    )
+
+  def difference(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns the result of subtracting the 'right' geometry from the geometry.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.difference', self, right, maxError, proj
+    )
+
+  def disjoint(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> computedobject.ComputedObject:
+    """Returns true if and only if the geometries are disjoint.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+
+    Returns:
+      An ee.Boolean.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.disjoint', self, right, maxError, proj
+    )
+
+  def dissolve(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns the union of the geometry.
+
+    This leaves single geometries untouched, and unions multi geometries.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the union will be performed in this projection.
+        Otherwise it will be performed in a spherical coordinate system.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.dissolve', self, maxError, proj
+    )
+
+  def distance(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> ee_number.Number:
+    """Returns the minimum distance between two geometries.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+
+    Returns:
+      An ee.Float.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.distance', self, right, maxError, proj
+    )
+
+  def edgesAreGeodesics(self) -> computedobject.ComputedObject:
+    """Returns true if the edges are geodesics for a spherical earth.
+
+    Returns true if the geometry edges, if any, are geodesics along a spherical
+    model of the earth; if false, any edges are straight lines in the
+    projection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.edgesAreGeodesics', self
+    )
+
+  # TODO: fromS2CellId.
+  # TODO: fromS2CellToken.
+
+  def geodesic(self) -> computedobject.ComputedObject:
+    """Returns false if edges are straight in the projection.
+
+    If true, edges are curved to follow the shortest path on the surface of the
+    Earth.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.geodesic', self)
+
+  def geometries(self) -> ee_list.List:
+    """Returns the list of geometries in a GeometryCollection.
+
+    For single geometries, returns a singleton list of the geometry .
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.geometries', self)
+
+  def intersection(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns the intersection of the two geometries.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.intersection', self, right, maxError, proj
+    )
+
+  def intersects(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> computedobject.ComputedObject:
+    """Returns true if and only if the geometries intersect.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+
+    Returns:
+      An ee.Boolean.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.intersects', self, right, maxError, proj
+    )
+
+  def isUnbounded(self) -> computedobject.ComputedObject:
+    """Returns whether the geometry is unbounded."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.isUnbounded', self)
+
+  def length(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> ee_number.Number:
+    """Returns the length of the linear parts of the geometry.
+
+    Polygonal parts are ignored. The length of multi geometries is the sum of
+    the lengths of their components.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the result will be in the units of the coordinate
+        system of this projection. Otherwise it will be in meters.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.length', self, maxError, proj
+    )
+
+  def perimeter(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> ee_number.Number:
+    """Returns the perimeter length of the polygonal parts of the geometry.
+
+    The perimeter of multi geometries is the sum of the perimeters of their
+    components.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the result will be in the units of the coordinate
+        system of this projection. Otherwise it will be in meters.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.perimeter', self, maxError, proj
+    )
+
+  def projection(self) -> projection.Projection:
+    """Returns the projection of the geometry."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.projection', self)
+
+  # TODO: Add s2Cell.
+
+  def simplify(
+      self,
+      maxError: _ErrorMarginType,  # pylint: disable=invalid-name
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns a simplified geometry to within a given error margin.
+
+    Note that this does not respect the error margin requested by the consumer
+    of this algorithm, unless maxError is explicitly specified to be null.
+
+    This overrides the default Earth Engine policy for propagating error
+    margins, so regardless of the geometry accuracy requested from the output,
+    the inputs will be requested with the error margin specified in the
+    arguments to this algorithm. This results in consistent rendering at all
+    zoom levels of a rendered vector map, but at lower zoom levels (i.e. zoomed
+    out), the geometry won't be simplified, which may harm performance.
+
+    Args:
+      maxError: The maximum amount of error by which the result may differ from
+        the input.
+      proj: If specified, the result will be in this projection. Otherwise it
+        will be in the same projection as the input. If the error margin is in
+        projected units, the margin will be interpreted as units of this
+        projection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.simplify', self, maxError, proj
+    )
+
+  def symmetricDifference(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns the symmetric difference between two geometries.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.symmetricDifference', self, right, maxError, proj
+    )
+
+  def transform(
+      self,
+      proj: Optional[_ProjectionType] = None,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+  ) -> Geometry:
+    """Returns the geometry Transformed to a specific projection.
+
+    Args:
+      proj: The target projection. Defaults to EPSG:4326. If this has a
+        geographic CRS, the edges of the geometry will be interpreted as
+        geodesics. Otherwise they will be interpreted as straight lines in the
+        projection.
+      maxError: The maximum projection error.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.transform', self, proj, maxError
+    )
+
+  def type(self) -> ee_string.String:
+    """Returns the GeoJSON type of the geometry."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.type', self)
+
+  def union(
+      self,
+      right: _GeometryType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns the union of the two geometries.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.union', self, right, maxError, proj
+    )
+
+  def withinDistance(
+      self,
+      right: _GeometryType,
+      distance: _NumberType,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> computedobject.ComputedObject:
+    """Returns true if the geometries are within a specified distance.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      distance: The distance threshold. If a projection is specified, the
+        distance is in units of that projected coordinate system, otherwise it
+        is in meters.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+
+    Returns:
+      An ee.Boolean.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.withinDistance', self, right, distance, maxError, proj
+    )

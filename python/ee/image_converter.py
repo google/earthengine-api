@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Converters used in the image data fetching methods."""
 
 import io

@@ -10,13 +10,14 @@ export interface ApiClientRequestHook {
 }
 
 export abstract class ApiClientHookFactory {
-  abstract getRequestHook(requestParams: GeneratedRequestParams):
-      ApiClientRequestHook;
+  abstract getRequestHook(
+    requestParams: GeneratedRequestParams,
+  ): ApiClientRequestHook;
 }
 
 export interface ApiClientHookFactoryCtor {
   // tslint:disable-next-line:no-any ctor args are of any type
-  new(...args: any[]): ApiClientHookFactory;
+  new (...args: any[]): ApiClientHookFactory;
 }
 
 export class DefaultApiClientHookFactory implements ApiClientHookFactory {
@@ -34,8 +35,9 @@ export class DefaultApiClientHookFactory implements ApiClientHookFactory {
  * from a {@link ApiClientHookFactory}.
  */
 export function getRequestHook(
-    factory: ApiClientHookFactory|null|undefined,
-    requestParams: GeneratedRequestParams): ApiClientRequestHook|null {
+  factory: ApiClientHookFactory | null | undefined,
+  requestParams: GeneratedRequestParams,
+): ApiClientRequestHook | null {
   if (factory == null) {
     return null;
   }

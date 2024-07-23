@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Interfaces implemented by serializable objects."""
 
 
