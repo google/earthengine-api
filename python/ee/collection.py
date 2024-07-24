@@ -34,6 +34,9 @@ _ErrorMarginType = Union[
     errormargin.ErrorMargin,
     computedobject.ComputedObject,
 ]
+_FeatureCollectionType = Union[
+    Any, 'featurecollection.FeatureCollection', computedobject.ComputedObject
+]
 _IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _ListType = Union[
     List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
@@ -449,8 +452,9 @@ class Collection(element.Element):
     """
     if not new_filter:
       raise ee_exception.EEException('Empty filters.')
-    return self._cast(apifunction.ApiFunction.call_(
-        'Collection.filter', self, new_filter))
+    return self._cast(
+        apifunction.ApiFunction.call_('Collection.filter', self, new_filter)
+    )
 
   @deprecation.CanUseDeprecated
   def filterMetadata(
@@ -659,6 +663,28 @@ class Collection(element.Element):
             'Collection.map', self, with_cast, dropNulls
         )
     )
+
+  def merge(
+      self, collection2: _FeatureCollectionType
+  ) -> featurecollection.FeatureCollection:
+    """Returns a collection with the elements from two collections.
+
+    Merges two collections into one. The result has all the elements that were
+    in either collection.
+
+    Elements from the first collection will have IDs prefixed with "1_" and
+    elements from the second collection will have IDs prefixed with "2_".
+
+    Note: If many collections need to be merged, consider placing them all in a
+    collection and using FeatureCollection.flatten() instead. Repeated use of
+    FeatureCollection.merge() will result in increasingly long element IDs and
+    reduced performance.
+
+    Args:
+      collection2: The second collection to merge.
+    """
+
+    return apifunction.ApiFunction.call_('Collection.merge', self, collection2)
 
   def randomColumn(
       self,
