@@ -2959,8 +2959,73 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.or', self, image2)
 
-  # TODO: paint
-  # TODO: pixelCoordinates
+  # TODO: Tighten the types of color and width.
+  def paint(
+      self,
+      featureCollection: _FeatureCollectionType,  # pylint: disable=invalid-name
+      color: Optional[_EeAnyType] = None,
+      width: Optional[_EeAnyType] = None,
+  ) -> Image:
+    """Returns an image with the geometries of a collection painted onto it.
+
+    Paints the geometries of a collection onto an image, using the given 'color'
+    value to replace each band's values where any geometry covers the image (or,
+    if a line width is specified, where the perimeters do).
+
+    This algorithm is most suitable for converting categorical data from feature
+    properties to pixels in an image; if you wish to visualize a collection,
+    consider using FeatureCollection.style instead, which supports RGB colors
+    whereas this algorithm is strictly 'monochrome' (using single numeric
+    values).
+
+    Args:
+      featureCollection: The collection painted onto the image.
+      color: The pixel value to paint into every band of the input image, either
+        as a number which will be used for all features, or the name of a
+        numeric property to take from each feature in the collection.
+      width: Line width, either as a number which will be the line width for all
+        geometries, or the name of a numeric property to take from each feature
+        in the collection. If unspecified, the geometries will be filled instead
+        of outlined.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.paint', self, featureCollection, color, width
+    )
+
+  @staticmethod
+  def pixelArea() -> Image:
+    """Returns an image with the value of each pixel in square meters.
+
+    Returns an image in which the value of each pixel is the area of that pixel
+    in square meters.
+
+    The returned image has a single band called "area."
+    """
+
+    return apifunction.ApiFunction.call_('Image.pixelArea')
+
+  @staticmethod
+  def pixelCoordinates(projection: _ProjectionType) -> Image:
+    """Returns the x and y coordinates of each pixel in the given projection.
+
+    Creates a two-band image containing the x and y coordinates of each pixel in
+    the given projection.
+
+    args:
+      projection: The projection in which to provide pixels.
+    """
+
+    return apifunction.ApiFunction.call_('Image.pixelCoordinates', projection)
+
+  @staticmethod
+  def pixelLonLat() -> Image:
+    """Returns an image with two bands named 'longitude' and 'latitude'.
+
+    The result at each pixel is in degrees.
+    """
+
+    return apifunction.ApiFunction.call_('Image.pixelLonLat')
 
   def polynomial(self, coefficients: _ListType) -> Image:
     """Compute a polynomial at each pixel using the given coefficients.
