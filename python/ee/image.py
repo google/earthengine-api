@@ -2579,6 +2579,16 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.matrixFnorm', self)
 
+  @staticmethod
+  def matrixIdentity(size: _IntegerType) -> Image:
+    """Returns an image where each pixel is a 2D identity matrix of size.
+
+    Args:
+      size: The length of each axis.
+    """
+
+    return apifunction.ApiFunction.call_('Image.matrixIdentity', size)
+
   def matrixInverse(self) -> Image:
     """Computes the inverse of the matrix."""
 
