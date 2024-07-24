@@ -606,6 +606,28 @@ class Collection(element.Element):
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
+  @staticmethod
+  def loadTable(
+      # pylint: disable=invalid-name
+      tableId: _StringType,
+      geometryColumn: Optional[_StringType] = None,
+      # pylint: enable=invalid-name
+      version: Optional[_IntegerType] = None,
+  ) -> featurecollection.FeatureCollection:
+    """Returns a Collection of features from a specified table.
+
+    Args:
+      tableId: The asset ID of the table to load.
+      geometryColumn: The name of the column to use as the main feature
+        geometry. Not used if tableId is an asset ID.
+      version: The version of the asset. -1 signifies the latest version.
+        Ignored unless tableId is an asset ID.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Collection.loadTable', tableId, geometryColumn, version
+    )
+
   # TODO(user): Can dropNulls default to False?
   @_utils.accept_opt_prefix('opt_dropNulls')
   def map(
