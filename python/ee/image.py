@@ -3068,7 +3068,25 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.projection', self)
 
-  # TODO: random
+  @staticmethod
+  def random(
+      seed: _IntegerType, distribution: Optional[_StringType] = None
+  ) -> Image:
+    """Returns an image with a random number at each pixel location.
+
+    When using the 'uniform' distribution, outputs are in the range of [0, 1).
+    Using the 'normal' distribution, the outputs have mu=0, sigma=1, but no
+    explicit limits.
+
+    Args:
+      seed: Seed for the random number generator.
+      distribution: The distribution type of random numbers to produce. One of
+        'uniform' or 'normal'.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Image.random', seed, distribution
+    )
 
   def randomVisualizer(self) -> Image:
     """Returns a random visualization image.
