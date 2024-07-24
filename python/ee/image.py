@@ -51,7 +51,9 @@ _DictionaryType = Union[
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 _EeBoolType = Union[Any, computedobject.ComputedObject]
 _ElementType = Union[Any, element.Element, computedobject.ComputedObject]
-_FeatureCollectionType = Union[Any, computedobject.ComputedObject]
+_FeatureCollectionType = Union[
+    Any, featurecollection.FeatureCollection, computedobject.ComputedObject
+]
 _GeometryType = Union[Any, computedobject.ComputedObject]
 _ImageCollectionType = Union[Any, computedobject.ComputedObject]
 _ImageType = Union[Any, computedobject.ComputedObject]
@@ -1205,6 +1207,25 @@ class Image(element.Element):
         self.name() + '.bitsToArrayImage', self
     )
 
+  def bitwiseAnd(self, image2: _ImageType) -> Image:
+    """Returns the bitwise AND of the current image and image2.
+
+    Calculates the bitwise AND of the input values for each matched pair of
+    bands in image1 and image2. If either image1 or image2 has only 1 band, then
+    it is used against all the bands in the other image. If the images have the
+    same number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.bitwiseAnd', self, image2
+    )
+
   def bitwiseNot(self) -> Image:
     """Calculates the bitwise NOT of the input.
 
@@ -2287,6 +2308,23 @@ class Image(element.Element):
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.hsvToRgb', self)
+
+  def hypot(self, image2: _ImageType) -> Image:
+    """Returns the length of the hypotenuse.
+
+    Calculates the magnitude of the 2D vector [x, y] for each matched pair of
+    bands in image1 and image2. If either image1 or image2 has only 1 band, then
+    it is used against all the bands in the other image. If the images have the
+    same number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is float.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.hypot', self, image2)
 
   def id(self) -> ee_string.String:
     """Returns the ID of a given element within a collection.
