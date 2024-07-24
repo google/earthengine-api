@@ -535,7 +535,28 @@ class Collection(element.Element):
 
     return apifunction.ApiFunction.call_('Collection.flatten', self)
 
-  # TODO: Add geometry().
+  def geometry(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+  ) -> ee_geometry.Geometry:
+    """Returns the geometry of a collection.
+
+    Extracts and merges the geometries of a collection. Requires that all the
+    geometries in the collection share the projection and edge
+    interpretation.
+
+    Caution: providing a large or complex collection as input can result in poor
+    performance. Collating the geometry of collections does not scale well; use
+    the smallest collection that is required to achieve the desired outcome.
+
+    Args:
+      maxError: An error margin to use when merging geometries.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Collection.geometry', self, maxError
+    )
 
   # pylint: disable-next=useless-parent-delegation
   def getInfo(self) -> Optional[Any]:
