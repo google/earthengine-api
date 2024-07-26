@@ -155,6 +155,10 @@ _TASKLIST_PAGE_SIZE = 500
 # Next page token key for list endpoints.
 _NEXT_PAGE_TOKEN_KEY = 'nextPageToken'
 
+_NOT_INITIALIZED_MESSAGE = (
+    'Earth Engine client library not initialized. See http://goo.gle/ee-auth.'
+)
+
 
 def initialize(
     credentials: Any = None,
@@ -342,15 +346,13 @@ def _install_cloud_api_resource() -> None:
 
 def _get_cloud_projects() -> Any:
   if _cloud_api_resource is None:
-    raise ee_exception.EEException(
-        'Earth Engine client library not initialized. Run `ee.Initialize()`')
+    raise ee_exception.EEException(_NOT_INITIALIZED_MESSAGE)
   return _cloud_api_resource.projects()
 
 
 def _get_cloud_projects_raw() -> Any:
   if _cloud_api_resource_raw is None:
-    raise ee_exception.EEException(
-        'Earth Engine client library not initialized. Run `ee.Initialize()`')
+    raise ee_exception.EEException(_NOT_INITIALIZED_MESSAGE)
   return _cloud_api_resource_raw.projects()
 
 
