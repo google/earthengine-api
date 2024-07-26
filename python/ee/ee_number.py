@@ -1,15 +1,22 @@
 """A wrapper for numbers."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Sequence, Union
 
 from ee import _cloud_api_utils
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
+from ee import dictionary
 from ee import ee_exception
 from ee import ee_string
 
+_DictionaryType = Union[
+    Dict[Any, Any],
+    Sequence[Any],
+    'dictionary.Dictionary',
+    computedobject.ComputedObject,
+]
 _IntegerType = Union[int, 'Number', computedobject.ComputedObject]
 _NumberType = Union[float, 'Number', computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
@@ -212,7 +219,22 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.ceil', self)
 
-  # TODO: Add clamp method with `min` and `max` args.
+  def clamp(
+      self,
+      min: _NumberType,  # pylint: disable=redefined-builtin
+      max: _NumberType,  # pylint: disable=redefined-builtin
+  ) -> 'Number':
+    """Returns a number that is clamped to lie within the range of min to max.
+
+    Args:
+      min: The minimum value to clamp to.
+      max: The maximum value to clamp to.
+
+    Returns:
+      An ee.Number.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.clamp', self, min, max)
 
   def cos(self) -> 'Number':
     """Computes the cosine of the input in radians."""
@@ -283,7 +305,22 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.exp', self)
 
-  # TODO: Add expression staticmethod
+  @staticmethod
+  def expression(
+      expression: _StringType, vars: Optional[_DictionaryType] = None
+  ) -> 'Number':
+    """Returns a number from computing a numeric expression.
+
+    Args:
+      expression: A mathematical expression string to be evaluated. In addition
+        to the standard arithmetic, boolean and relational operators,
+        expressions also support any function in Number, the '.' operator to
+        extract child elements from the 'vars' dictionary, and mathematical
+        constants math.pi and math.e.
+      vars: A dictionary of named values that can be used in the expression.
+    """
+
+    return apifunction.ApiFunction.call_('Number.expression', expression, vars)
 
   def first(self, right: _NumberType) -> 'Number':
     """Selects the value of the first value.
@@ -548,14 +585,24 @@ class Number(computedobject.ComputedObject):
 
     Args:
       right: The value to or with.
-
-    Returns:
-      An ee.Number.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.or', self, right)
 
-  # TODO: Add classmethod parse
+  def parse(
+      # pylint: disable=redefined-builtin
+      input: _StringType, radix: Optional[_IntegerType] = None
+  ) -> 'Number':
+    """Returns a number from a string.
+
+    Args:
+      input: The string to convert to a number.
+      radix: An integer representing the base number system from which to
+        convert. If input is not an integer, radix must equal 10 or not be
+        specified.
+    """
+
+    return apifunction.ApiFunction.call_('Number.parse', input, radix)
 
   def pow(self, right: _NumberType) -> 'Number':
     """Raises the first value to the power of the second.
