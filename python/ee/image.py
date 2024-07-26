@@ -2476,7 +2476,16 @@ class Image(element.Element):
     )
 
   # TODO: load
-  # TODO: loadGeoTIFF
+
+  @staticmethod
+  def loadGeoTIFF(uri: _StringType) -> Image:
+    """Returns an image from a GeoTIFF in Cloud Storage.
+
+    Args:
+      uri: The Cloud Storage URI of the GeoTIFF to load.
+    """
+
+    return apifunction.ApiFunction.call_('Image.loadGeoTIFF', uri)
 
   def log(self) -> Image:
     """Computes the natural logarithm of the input."""
