@@ -1505,7 +1505,17 @@ class Image(element.Element):
         self.name() + '.connectedPixelCount', self, maxSize, eightConnected
     )
 
-  # TODO: constant static method
+  # TODO: _EeAnyType to number or an Array or a list of Arrays.
+  @staticmethod
+  def constant(value: _EeAnyType) -> Image:
+    """Returns an image containing a constant value everywhere.
+
+    Args:
+      value: The value of the pixels in the constant image. Must be a number or
+        an Array or a list of numbers or Arrays.
+    """
+
+    return apifunction.ApiFunction.call_('Image.constant', value)
 
   # pylint: disable-next=redefined-outer-name
   def convolve(self, kernel: _KernelType) -> Image:
