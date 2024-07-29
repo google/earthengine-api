@@ -52,8 +52,14 @@ inspectorPanel.add(ui.Label('[Legend]'));
  * Chart setup
  */
 
+// Displays the given UI component (a chart or a message) in the inspector
+// panel, at the position of the chart.
+var displayChart = function(component) {
+  inspectorPanel.widgets().set(2, component);
+}
+
 // Generates a new time series chart of SST for the given coordinates.
-var generateChart = function (coords) {
+var generateChart = function(coords) {
   // Update the lon/lat panel with values from the click event.
   lon.setValue('lon: ' + coords.lon.toFixed(2));
   lat.setValue('lat: ' + coords.lat.toFixed(2));
@@ -65,25 +71,35 @@ var generateChart = function (coords) {
   mapPanel.layers().set(1, dot);
 
   // Make a chart from the time series.
-  var sstChart = ui.Chart.image.series(sst, point, ee.Reducer.mean(), 500);
+  displayChart(ui.Label('Processing location...', {'height': '200px'}));
+  var selectionSize = composite.sampleRegions(point).size();
+  selectionSize.evaluate(function(size) {
+    if (!size) {
+      var badSelection = ui.Label(
+        'Invalid location. Please select a different location',
+        {'color': 'red', 'height': '200px'});
+      displayChart(badSelection);
+      return;
+    }
+    var sstChart = ui.Chart.image.series(sst, point, ee.Reducer.mean(), 500);
 
-  // Customize the chart.
-  sstChart.setOptions({
-    title: 'Sea surface temp: time series',
-    vAxis: {title: 'Temp (C)'},
-    hAxis: {title: 'Date', format: 'MM-yy', gridlines: {count: 7}},
-    series: {
-      0: {
-        color: 'blue',
-        lineWidth: 0,
-        pointsVisible: true,
-        pointSize: 2,
+    // Customize the chart.
+    sstChart.setOptions({
+      title: 'Sea surface temp: time series',
+      vAxis: {title: 'Temp (C)'},
+      hAxis: {title: 'Date', format: 'MM-yy', gridlines: {count: 7}},
+      series: {
+        0: {
+          color: 'blue',
+          lineWidth: 0,
+          pointsVisible: true,
+          pointSize: 2,
+        },
       },
-    },
-    legend: {position: 'right'},
-  });
-  // Add the chart at a fixed position, so that new charts overwrite older ones.
-  inspectorPanel.widgets().set(2, sstChart);
+      legend: {position: 'right'},
+    });
+    displayChart(sstChart);
+  })
 };
 
 
