@@ -25,6 +25,7 @@ from ee import ee_number
 from ee import ee_string
 from ee import ee_types
 from ee import element
+from ee import errormargin
 from ee import feature
 from ee import featurecollection
 from ee import function
@@ -50,6 +51,12 @@ _DictionaryType = Union[
 ]
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 _EeBoolType = Union[Any, computedobject.ComputedObject]
+_ErrorMarginType = Union[
+    float,
+    'ee_number.Number',
+    errormargin.ErrorMargin,
+    computedobject.ComputedObject,
+]
 _ElementType = Union[Any, element.Element, computedobject.ComputedObject]
 _FeatureCollectionType = Union[
     Any, featurecollection.FeatureCollection, computedobject.ComputedObject
@@ -2116,7 +2123,29 @@ class Image(element.Element):
         self.name() + '.gammainc', self, image2
     )
 
-  # TODO: geometry
+  def geometry(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+      geodesics: Optional[_EeBoolType] = None,
+  ) -> geometry.Geometry:
+    """Returns the geometry of a given feature in a given projection.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the geometry will be in this projection. If
+        unspecified, the geometry will be in its default projection.
+      geodesics: If true, the geometry will have geodesic edges. If false, it
+        will have edges as straight lines in the specified projection. If null,
+        the edge interpretation will be the same as the original geometry. This
+        argument is ignored if proj is not specified.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.geometry', self, maxError, proj, geodesics
+    )
 
   def glcmTexture(
       self,
