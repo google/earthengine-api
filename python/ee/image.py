@@ -3552,7 +3552,51 @@ class Image(element.Element):
         stiffness,
     )
 
-  # TODO: remap
+  def remap(
+      self,
+      from_: Optional[_ListType] = None,
+      to: Optional[_ListType] = None,
+      defaultValue: Optional[_EeAnyType] = None,  # pylint: disable=invalid-name
+      bandName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      **kwargs,
+  ) -> Image:
+    # pylint: disable=g-doc-args
+    """Returns an image with the values of a band remapped.
+
+    Maps from input values to output values, represented by two parallel lists.
+    Any input values not included in the input list are either set to
+    defaultValue if it is given or masked if it isn't. Note that inputs
+    containing floating point values might sometimes fail to match due to
+    floating point precision errors.
+
+    Args:
+      from: The source values (numbers or ee.Array). All values in this list
+        will be mapped to the corresponding value in 'to'.
+      to: The destination values (numbers or ee.Array). These are used to
+        replace the corresponding values in 'from'. Must have the same number of
+        values as 'from'.
+      defaultValue: The default value to replace values that weren't matched by
+        a value in 'from'. If not specified, unmatched values are masked out.
+      bandName: The name of the band to remap. If not specified, the first band
+        in the image is used.
+    """
+    # pylint: enable=g-doc-args
+
+    if kwargs:
+      if kwargs.keys() != {'from'}:
+        raise TypeError(
+            f'Unexpected arguments: {list(kwargs.keys())}. Expected: from.'
+        )
+      from_ = kwargs['from']
+
+    if not from_:
+      raise TypeError('from is required.')
+    if not to:
+      raise TypeError('to is required.')
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.remap', self, from_, to, defaultValue, bandName
+    )
 
   def rename(self, names: Any, *args) -> Image:
     """Rename the bands of an image.
