@@ -2475,7 +2475,19 @@ class Image(element.Element):
         matchPropertyName,
     )
 
-  # TODO: load
+  @staticmethod
+  def load(
+      id: _StringType,  # pylint: disable=redefined-builtin
+      version: Optional[_IntegerType] = None,
+  ) -> Image:
+    """Returns the image given its ID.
+
+    Args:
+      id: The asset ID of the image.
+      version: The version of the asset. -1 signifies the latest version.
+    """
+
+    return apifunction.ApiFunction.call_('Image.load', id, version)
 
   @staticmethod
   def loadGeoTIFF(uri: _StringType) -> Image:
