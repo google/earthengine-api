@@ -1,7 +1,16 @@
 """A wrapper for Models."""
 
+from typing import Any, Union
+
 from ee import apifunction
 from ee import computedobject
+from ee import featurecollection
+from ee import image
+
+_FeatureCollectionType = Union[
+    Any, featurecollection.FeatureCollection, computedobject.ComputedObject
+]
+_ImageType = Union[Any, image.Image, computedobject.ComputedObject]
 
 
 class Model(computedobject.ComputedObject):
@@ -55,3 +64,37 @@ class Model(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'Model'
+
+  # TODO: Add fromAiPlatformPredictor
+  # TODO: Add fromVertexAi
+
+  def predictImage(self, image: _ImageType) -> image.Image:
+    """Returns an image with predictions from pixel tiles of an image.
+
+    The predictions are merged as bands with the input image.
+
+    The model will receive 0s in place of masked pixels. The masks of predicted
+    output bands are the minimum of the masks of the inputs.
+
+    Args:
+      image: The input image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.predictImage', self, image
+    )
+
+  def predictProperties(
+      self, collection: _FeatureCollectionType
+  ) -> featurecollection.FeatureCollection:
+    """Returns a feature collection with predictions for each feature.
+
+    Predicted properties are merged with the properties of the input feature.
+
+    Args:
+      collection: The input collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.predictProperties', self, collection
+    )
