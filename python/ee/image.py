@@ -1427,7 +1427,49 @@ class Image(element.Element):
         self.name() + '.clip', self, clip_geometry
     )
 
-  # TODO: clipToBoundsAndScale
+  def clipToBoundsAndScale(
+      self,
+      # pylint: disable-next=redefined-outer-name
+      geometry: Optional[_GeometryType] = None,
+      width: Optional[_IntegerType] = None,
+      height: Optional[_IntegerType] = None,
+      # pylint: disable-next=invalid-name
+      maxDimension: Optional[_IntegerType] = None,
+      scale: Optional[_NumberType] = None,
+  ) -> Image:
+    """Returns an image clipped to a geometry and scaled.
+
+    Clips an image to the bounds of a Geometry, and scales the clipped image to
+    a particular size or scale.
+
+    Caution: providing a large or complex collection as the `geometry` argument
+    can result in poor performance. Collating the geometry of collections does
+    not scale well; use the smallest collection (or geometry) that is required
+    to achieve the desired outcome.
+
+    Args:
+      geometry: The Geometry to clip the image to. The image will be clipped to
+        the bounding box, in the image's projection, of this geometry.
+      width: The width to scale the image to, in pixels. Must be provided along
+        with "height". Exclusive with "maxDimension" and "scale".
+      height: The height to scale the image to, in pixels. Must be provided
+        along with "width". Exclusive with "maxDimension" and "scale".
+      maxDimension: The maximum dimension to scale the image to, in pixels.
+        Exclusive with "width", "height" and "scale".
+      scale: If scale is specified, then the projection is scaled by dividing
+        the specified scale value by the nominal size of a meter in the image's
+        projection. Exclusive with "width", "height" and "maxDimension".
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.clipToBoundsAndScale',
+        self,
+        geometry,
+        width,
+        height,
+        maxDimension,
+        scale,
+    )
 
   def clipToCollection(self, collection: _FeatureCollectionType) -> Image:
     """Clips an image to a FeatureCollection.

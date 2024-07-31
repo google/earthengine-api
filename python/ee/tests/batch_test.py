@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Test for the ee.batch module."""
 
+import json
 from typing import Any, Optional
 import unittest
 from unittest import mock
@@ -237,9 +238,15 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
+
+      self.assertEqual(
+          json.loads(task.config['expression'].serialize()),
+          json.loads(expected_expression.serialize()),
+      )
+
+      task.config.pop('expression')
       self.assertEqual(
           {
-              'expression': expected_expression,
               'assetExportOptions': {
                   'earthEngineDestination': {
                       'name': (

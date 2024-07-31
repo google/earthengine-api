@@ -694,18 +694,24 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
           'dimensions': [3, 2],
           'something': 'else'
       })
+      self.assertEqual({'something': 'else'}, params)
+
       reprojected_image = self._base_image.reproject(
           crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6]
       )
 
+      expected_expression = reprojected_image.clipToBoundsAndScale(
+          geometry=ee.Geometry.Rectangle(
+              coords=[0, 0, 3, 2],
+              proj=reprojected_image.projection(),
+              geodesic=False,
+              evenOdd=True,
+          )
+      )
       self.assertEqual(
-          reprojected_image.clipToBoundsAndScale(
-              geometry=ee.Geometry.Rectangle(
-                  coords=[0, 0, 3, 2],
-                  proj=reprojected_image.projection(),
-                  geodesic=False,
-                  evenOdd=True)), image)
-      self.assertEqual({'something': 'else'}, params)
+          json.loads(image.serialize()),
+          json.loads(expected_expression.serialize()),
+      )
 
   def test_prepare_for_export_with_only_region(self):
     with apitestcase.UsingCloudApi():
@@ -724,12 +730,17 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
       image, params = self._base_image.prepare_for_export(
           {'crs': 'ABCD', 'dimensions': [3, 2], 'something': 'else'}
       )
+      self.assertEqual({'something': 'else'}, params)
+
       projected = self._base_image.setDefaultProjection(
           crs='ABCD', crsTransform=[1, 0, 0, 0, -1, 0]
       )
 
-      self.assertEqual(projected.clipToBoundsAndScale(width=3, height=2), image)
-      self.assertEqual({'something': 'else'}, params)
+      expected_expression = projected.clipToBoundsAndScale(width=3, height=2)
+      self.assertEqual(
+          json.loads(image.serialize()),
+          json.loads(expected_expression.serialize()),
+      )
 
   def test_morphological_operators(self):
     """Verifies the focal operators are installed with aliases."""
