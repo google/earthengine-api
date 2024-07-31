@@ -528,7 +528,10 @@ class Collection(element.Element):
     """
     return self.filter(ee_filter.Filter.date(start, end))
 
-  # TODO: b/b286278053 - Add first().
+  def first(self) -> element.Element:
+    """Returns the first entry from a given collection."""
+
+    return apifunction.ApiFunction.call_('Collection.first', self)
 
   def flatten(self) -> featurecollection.FeatureCollection:
     """Flattens collections of collections."""
