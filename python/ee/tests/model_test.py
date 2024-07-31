@@ -220,7 +220,159 @@ class ModelTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # TODO: test_from_vertex_ai
+  def test_from_vertex_ai(self):
+    project = 'ee-demos'
+    region = 'us-central1'
+    endpoint_id = '5184137951335940096'
+    endpoint = f'projects/{project}/locations/{region}/endpoints/{endpoint_id}'
+
+    input_properties = ['a', 'b']
+    input_type_override = {'c': ee.PixelType.int8()}
+    input_shapes = {'d': [1, 2]}
+    proj = 'epsg:4326'
+    fix_input_proj = True
+    input_tile_size = [3, 4]
+    input_overlap_size = [5, 6]
+    output_tile_size = [7, 8]
+    output_bands = {'e': {'type': ee.PixelType.int16(), 'dimensions': 10}}
+    output_properties = {'f': {'type': ee.PixelType.int32(), 'dimensions': 11}}
+    output_multiplier = 9.1
+    max_payload_bytes = 2014
+    payload_format = 'RAW_JSON'
+
+    expect = make_expression_graph({
+        'functionName': 'Model.fromVertexAi',
+        'arguments': {
+            'endpoint': {'constantValue': endpoint},
+            'fixInputProj': {'constantValue': fix_input_proj},
+            'inputOverlapSize': {'constantValue': input_overlap_size},
+            'inputProperties': {'constantValue': input_properties},
+            'inputShapes': {'constantValue': input_shapes},
+            'inputTileSize': {'constantValue': input_tile_size},
+            'inputTypeOverride': {
+                'dictionaryValue': {
+                    'values': {
+                        'c': {
+                            'functionInvocationValue': {
+                                'functionName': 'PixelType',
+                                'arguments': {
+                                    'precision': {
+                                        'functionInvocationValue': {
+                                            'functionName': 'PixelType.int8',
+                                            'arguments': {},
+                                        }
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }
+            },
+            'maxPayloadBytes': {'constantValue': max_payload_bytes},
+            'outputBands': {
+                'dictionaryValue': {
+                    'values': {
+                        'e': {
+                            'dictionaryValue': {
+                                'values': {
+                                    'dimensions': {'constantValue': 10},
+                                    'type': {
+                                        'functionInvocationValue': {
+                                            'functionName': 'PixelType',
+                                            'arguments': {
+                                                'precision': {
+                                                    'functionInvocationValue': {
+                                                        'functionName': (
+                                                            'PixelType.int16'
+                                                        ),
+                                                        'arguments': {},
+                                                    }
+                                                }
+                                            },
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            'outputMultiplier': {'constantValue': output_multiplier},
+            'outputProperties': {
+                'dictionaryValue': {
+                    'values': {
+                        'f': {
+                            'dictionaryValue': {
+                                'values': {
+                                    'dimensions': {'constantValue': 11},
+                                    'type': {
+                                        'functionInvocationValue': {
+                                            'functionName': 'PixelType',
+                                            'arguments': {
+                                                'precision': {
+                                                    'functionInvocationValue': {
+                                                        'functionName': (
+                                                            'PixelType.int32'
+                                                        ),
+                                                        'arguments': {},
+                                                    }
+                                                }
+                                            },
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            'outputTileSize': {'constantValue': output_tile_size},
+            'payloadFormat': {'constantValue': payload_format},
+            'proj': {
+                'functionInvocationValue': {
+                    'functionName': 'Projection',
+                    'arguments': {'crs': {'constantValue': 'epsg:4326'}},
+                }
+            },
+        },
+    })
+    expression = ee.Model.fromVertexAi(
+        endpoint,
+        input_properties,
+        input_type_override,
+        input_shapes,
+        proj,
+        fix_input_proj,
+        input_tile_size,
+        input_overlap_size,
+        output_tile_size,
+        output_bands,
+        output_properties,
+        output_multiplier,
+        max_payload_bytes,
+        payload_format,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Model.fromVertexAi(
+        endpoint=endpoint,
+        inputProperties=input_properties,
+        inputTypeOverride=input_type_override,
+        inputShapes=input_shapes,
+        proj=proj,
+        fixInputProj=fix_input_proj,
+        inputTileSize=input_tile_size,
+        inputOverlapSize=input_overlap_size,
+        outputTileSize=output_tile_size,
+        outputBands=output_bands,
+        outputProperties=output_properties,
+        outputMultiplier=output_multiplier,
+        maxPayloadBytes=max_payload_bytes,
+        payloadFormat=payload_format,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_predict_image(self):
     end_point = 'an end point'
