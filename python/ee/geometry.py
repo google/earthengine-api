@@ -969,7 +969,28 @@ class Geometry(computedobject.ComputedObject):
         self.name() + '.buffer', self, distance, maxError, proj
     )
 
-  # TODO: Add centroid.
+  def centroid(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns a point at the center of the highest-dimension components.
+
+    Lower-dimensional components are ignored, so the centroid of a geometry
+    containing two polygons, three lines and a point is equivalent to the
+    centroid of a geometry containing just the two polygons.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the result will be in this projection. Otherwise it
+        will be in EPSG:4326.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.centroid', self, maxError, proj
+    )
 
   def containedIn(
       self,
