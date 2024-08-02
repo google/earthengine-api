@@ -207,6 +207,12 @@ def _cloud_timestamp_for_timestamp_ms(timestamp_ms: float) -> str:
   # Desired format is like '2003-09-07T19:30:12.345Z'
   return datetime.datetime.utcfromtimestamp(
       timestamp_ms / 1000.0).isoformat() + 'Z'
+  # return (
+  #     datetime.datetime.fromtimestamp(
+  #         timestamp_ms / 1000.0, datetime.timezone.utc
+  #     ).isoformat()
+  #     + 'Z'
+  # )
 
 
 def _parse_millis(millis: float) -> datetime.datetime:
