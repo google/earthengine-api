@@ -95,5 +95,5 @@ jobs:
         run: |
           sleep 3  # To account for PyPi publish delay.
           python -m pip install --upgrade pip
-          python -m pip install --upgrade earthengine-api
+          python -m pip install --upgrade --pre earthengine-api
           python -c "import ee; print(ee.__version__)"
