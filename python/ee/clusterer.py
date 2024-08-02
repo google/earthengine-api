@@ -11,7 +11,6 @@ from ee import ee_string
 from ee import featurecollection
 
 _EeBoolType = Union[Any, computedobject.ComputedObject]
-_ClustererType = Union[Any, 'Clusterer', computedobject.ComputedObject]
 _FeatureCollectionType = Union[
     Any, 'featurecollection.FeatureCollection', computedobject.ComputedObject
 ]
