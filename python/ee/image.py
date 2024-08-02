@@ -2498,7 +2498,7 @@ class Image(element.Element):
       self,
       # pylint: disable=invalid-name
       imageCollection: _ImageCollectionType,
-      linkedBands: _EeAnyType = None,
+      linkedBands: Optional[_EeAnyType] = None,
       linkedProperties: Optional[_EeAnyType] = None,
       matchPropertyName: Optional[_StringType] = None,
       # pylint: enable=invalid-name
