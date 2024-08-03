@@ -155,6 +155,10 @@ _TASKLIST_PAGE_SIZE = 500
 # Next page token key for list endpoints.
 _NEXT_PAGE_TOKEN_KEY = 'nextPageToken'
 
+_NOT_INITIALIZED_MESSAGE = (
+    'Earth Engine client library not initialized. See http://goo.gle/ee-auth.'
+)
+
 
 def initialize(
     credentials: Any = None,
@@ -272,7 +276,8 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
     project = args.get('quota_project_id') or oauth.get_appdefault_project()
     if project and project != credentials.quota_project_id:
       credentials = credentials.with_quota_project(project)
-    return credentials
+    if oauth.is_valid_credentials(credentials):
+      return credentials
   raise ee_exception.EEException(  # pylint: disable=raise-missing-from
       'Please authorize access to your Earth Engine account by '
       'running\n\nearthengine authenticate\n\n'
@@ -342,15 +347,13 @@ def _install_cloud_api_resource() -> None:
 
 def _get_cloud_projects() -> Any:
   if _cloud_api_resource is None:
-    raise ee_exception.EEException(
-        'Earth Engine client library not initialized. Run `ee.Initialize()`')
+    raise ee_exception.EEException(_NOT_INITIALIZED_MESSAGE)
   return _cloud_api_resource.projects()
 
 
 def _get_cloud_projects_raw() -> Any:
   if _cloud_api_resource_raw is None:
-    raise ee_exception.EEException(
-        'Earth Engine client library not initialized. Run `ee.Initialize()`')
+    raise ee_exception.EEException(_NOT_INITIALIZED_MESSAGE)
   return _cloud_api_resource_raw.projects()
 
 

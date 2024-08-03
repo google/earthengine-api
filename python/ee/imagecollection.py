@@ -44,6 +44,7 @@ _ProjectionType = Union[
 _ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
 _StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
+REDUCE_PREFIX = 'reduce'
 
 class ImageCollection(collection.Collection):
   """Representation for an Earth Engine ImageCollection."""
@@ -623,3 +624,90 @@ class ImageCollection(collection.Collection):
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.toBands', self)
+
+  # Methods from 'reduce.*'
+
+  def And(self) -> image.Image:
+    """Returns an image with the logical AND of the collection.
+
+    Reduces an image collection by setting each pixel to 1 if and only if all
+    the non-masked values at that pixel are non-zero across the stack of all
+    matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.and', self)
+
+  # count comes from Collection, not reduce.count.
+
+  def max(self) -> image.Image:
+    """Returns an image with the maximum value of the collection.
+
+    Reduces an image collection by calculating the maximum value of each pixel
+    across the stack of all matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.max', self)
+
+  def mean(self) -> image.Image:
+    """Returns an image with the mean of the collection.
+
+    Reduces an image collection by calculating the mean of all values at each
+    pixel across the stack of all matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.mean', self)
+
+  def median(self) -> image.Image:
+    """Returns an image with the median of the collection.
+
+    Reduces an image collection by calculating the median of all values at each
+    pixel across the stack of all matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.median', self)
+
+  def min(self) -> image.Image:
+    """Returns an image with the minimum value of the collection.
+
+    Reduces an image collection by calculating the minimum value of each pixel
+    across the stack of all matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.min', self)
+
+  def mode(self) -> image.Image:
+    """Returns an image with the most common value of the collection.
+
+    Reduces an image collection by calculating the most common value at each
+    pixel across the stack of all matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.mode', self)
+
+  def Or(self) -> image.Image:
+    """Returns an image with the logical OR of the collection.
+
+    Reduces an image collection by setting each pixel to 1 if and only if any of
+    the non-masked values at that pixel are non-zero across the stack of all
+    matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.or', self)
+
+  def product(self) -> image.Image:
+    """Returns an image with the product of the collection.
+
+    Reduces an image collection by calculating the product of all values at each
+    pixel across the stack of all matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.product', self)
+
+  def sum(self) -> image.Image:
+    """Returns an image with the sum of the collection.
+
+    Reduces an image collection by calculating the sum of all values at each
+    pixel across the stack of all matching bands. Bands are matched by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.sum', self)

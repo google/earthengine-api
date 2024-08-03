@@ -1007,5 +1007,98 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
 
+class ImageCollectionReduceTest(apitestcase.ApiTestCase):
+
+  def test_and(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.and',
+    })
+    expression = collection.And()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_max(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.max',
+    })
+    expression = collection.max()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_mean(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.mean',
+    })
+    expression = collection.mean()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_median(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.median',
+    })
+    expression = collection.median()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_min(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.min',
+    })
+    expression = collection.min()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_mode(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.mode',
+    })
+    expression = collection.mode()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_or(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.or',
+    })
+    expression = collection.Or()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_product(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.product',
+    })
+    expression = collection.product()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_sum(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        'functionName': 'reduce.sum',
+    })
+    expression = collection.sum()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+
 if __name__ == '__main__':
   unittest.main()

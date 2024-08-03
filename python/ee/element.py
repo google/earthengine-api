@@ -98,7 +98,12 @@ class Element(computedobject.ComputedObject):
         'Element.copyProperties', self, source, properties, exclude
     )
 
-  # TODO: Add get - resolve collection_test and dictionary_test.
+  def get(
+      self, property: _StringType  # pylint: disable=redefined-builtin
+  ) -> computedobject.ComputedObject:
+    """Returns a property from a feature."""
+
+    return apifunction.ApiFunction.call_('Element.get', self, property)
 
   # pylint: disable-next=redefined-builtin
   def getArray(self, property: _StringType) -> ee_array.Array:

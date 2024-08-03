@@ -34,6 +34,9 @@ _ErrorMarginType = Union[
     errormargin.ErrorMargin,
     computedobject.ComputedObject,
 ]
+_FeatureCollectionType = Union[
+    Any, 'featurecollection.FeatureCollection', computedobject.ComputedObject
+]
 _IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _ListType = Union[
     List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
@@ -141,8 +144,9 @@ class Collection(element.Element):
         'AggregateFeatureCollection.count_distinct', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_first(self, property: _StringType) -> Any:
+  def aggregate_first(
+      self, property: _StringType  # pylint: disable=redefined-builtin
+  ) -> computedobject.ComputedObject:
     """Returns the first value of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -174,8 +178,10 @@ class Collection(element.Element):
         'AggregateFeatureCollection.histogram', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_max(self, property: _StringType) -> Any:
+  def aggregate_max(
+      self, property: _StringType  # pylint: disable=redefined-builtin
+
+  ) -> computedobject.ComputedObject:
     """Returns the maximum value of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -204,8 +210,9 @@ class Collection(element.Element):
         'AggregateFeatureCollection.mean', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_min(self, property: _StringType) -> Any:
+  def aggregate_min(
+      self, property: _StringType  # pylint: disable=redefined-builtin
+  ) -> computedobject.ComputedObject:
     """Returns the minimum value of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -445,8 +452,9 @@ class Collection(element.Element):
     """
     if not new_filter:
       raise ee_exception.EEException('Empty filters.')
-    return self._cast(apifunction.ApiFunction.call_(
-        'Collection.filter', self, new_filter))
+    return self._cast(
+        apifunction.ApiFunction.call_('Collection.filter', self, new_filter)
+    )
 
   @deprecation.CanUseDeprecated
   def filterMetadata(
@@ -520,14 +528,38 @@ class Collection(element.Element):
     """
     return self.filter(ee_filter.Filter.date(start, end))
 
-  # TODO: b/b286278053 - Add first().
+  def first(self) -> element.Element:
+    """Returns the first entry from a given collection."""
+
+    return apifunction.ApiFunction.call_('Collection.first', self)
 
   def flatten(self) -> featurecollection.FeatureCollection:
     """Flattens collections of collections."""
 
     return apifunction.ApiFunction.call_('Collection.flatten', self)
 
-  # TODO: Add geometry().
+  def geometry(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+  ) -> ee_geometry.Geometry:
+    """Returns the geometry of a collection.
+
+    Extracts and merges the geometries of a collection. Requires that all the
+    geometries in the collection share the projection and edge
+    interpretation.
+
+    Caution: providing a large or complex collection as input can result in poor
+    performance. Collating the geometry of collections does not scale well; use
+    the smallest collection that is required to achieve the desired outcome.
+
+    Args:
+      maxError: An error margin to use when merging geometries.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Collection.geometry', self, maxError
+    )
 
   # pylint: disable-next=useless-parent-delegation
   def getInfo(self) -> Optional[Any]:
@@ -602,6 +634,28 @@ class Collection(element.Element):
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
+  @staticmethod
+  def loadTable(
+      # pylint: disable=invalid-name
+      tableId: _StringType,
+      geometryColumn: Optional[_StringType] = None,
+      # pylint: enable=invalid-name
+      version: Optional[_IntegerType] = None,
+  ) -> featurecollection.FeatureCollection:
+    """Returns a Collection of features from a specified table.
+
+    Args:
+      tableId: The asset ID of the table to load.
+      geometryColumn: The name of the column to use as the main feature
+        geometry. Not used if tableId is an asset ID.
+      version: The version of the asset. -1 signifies the latest version.
+        Ignored unless tableId is an asset ID.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Collection.loadTable', tableId, geometryColumn, version
+    )
+
   # TODO(user): Can dropNulls default to False?
   @_utils.accept_opt_prefix('opt_dropNulls')
   def map(
@@ -633,6 +687,28 @@ class Collection(element.Element):
             'Collection.map', self, with_cast, dropNulls
         )
     )
+
+  def merge(
+      self, collection2: _FeatureCollectionType
+  ) -> featurecollection.FeatureCollection:
+    """Returns a collection with the elements from two collections.
+
+    Merges two collections into one. The result has all the elements that were
+    in either collection.
+
+    Elements from the first collection will have IDs prefixed with "1_" and
+    elements from the second collection will have IDs prefixed with "2_".
+
+    Note: If many collections need to be merged, consider placing them all in a
+    collection and using FeatureCollection.flatten() instead. Repeated use of
+    FeatureCollection.merge() will result in increasingly long element IDs and
+    reduced performance.
+
+    Args:
+      collection2: The second collection to merge.
+    """
+
+    return apifunction.ApiFunction.call_('Collection.merge', self, collection2)
 
   def randomColumn(
       self,

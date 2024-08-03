@@ -9,7 +9,6 @@ from ee import ee_array
 from ee import ee_list
 from ee import ee_number
 
-_ArrayType = Union['ee_array.Array', computedobject.ComputedObject]
 _ConfusionMatrixType = Union['ConfusionMatrix', computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
 _NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
@@ -34,7 +33,11 @@ class ConfusionMatrix(computedobject.ComputedObject):
 
   def __init__(
       self,
-      array: Optional[Union[_ArrayType, _ConfusionMatrixType]],
+      array: Union[
+          ee_array.Array,
+          ConfusionMatrix,
+          computedobject.ComputedObject,
+      ],
       order: Optional[_ListType] = None,
   ):
     """Creates a ConfusionMatrix wrapper.
@@ -44,6 +47,8 @@ class ConfusionMatrix(computedobject.ComputedObject):
 
     Args:
       array: A square, 2D array of integers, representing the confusion matrix.
+        Note that unlike the ee.Array constructor, this argument cannot take a
+        list.
       order: The row and column size and order, for non-contiguous or non-zero
         based matrices.
     """

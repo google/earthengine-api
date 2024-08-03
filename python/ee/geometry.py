@@ -27,6 +27,7 @@ _ErrorMarginType = Union[
     computedobject.ComputedObject,
 ]
 _GeometryType = Union[Any, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
 _NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 _ProjectionType = Union[
@@ -35,6 +36,7 @@ _ProjectionType = Union[
     projection.Projection,
     computedobject.ComputedObject,
 ]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 # A sentinel value used to detect unspecified function parameters.
 _UNSPECIFIED = object()
@@ -967,7 +969,28 @@ class Geometry(computedobject.ComputedObject):
         self.name() + '.buffer', self, distance, maxError, proj
     )
 
-  # TODO: Add centroid.
+  def centroid(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Geometry:
+    """Returns a point at the center of the highest-dimension components.
+
+    Lower-dimensional components are ignored, so the centroid of a geometry
+    containing two polygons, three lines and a point is equivalent to the
+    centroid of a geometry containing just the two polygons.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the result will be in this projection. Otherwise it
+        will be in EPSG:4326.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.centroid', self, maxError, proj
+    )
 
   def containedIn(
       self,
@@ -1203,8 +1226,30 @@ class Geometry(computedobject.ComputedObject):
         self.name() + '.edgesAreGeodesics', self
     )
 
-  # TODO: fromS2CellId.
-  # TODO: fromS2CellToken.
+  @staticmethod
+  def fromS2CellId(
+      cellId: _IntegerType,  # pylint: disable=invalid-name
+  ) -> Geometry:
+    """Returns the Polygon corresponding to an S2 cell id.
+
+    Args:
+      cellId: The S2 cell id as 64 bit integer.
+    """
+
+    return apifunction.ApiFunction.call_('Geometry.fromS2CellId', cellId)
+
+  @staticmethod
+  def fromS2CellToken(
+      cellToken: _StringType,  # pylint: disable=invalid-name
+  ) -> Geometry:
+    """Returns the Polygon corresponding to an S2 cell id as a hex string.
+
+    Args:
+      cellToken: The S2 cell id as a hex string. Trailing zeros are required,
+        e.g. the top level face containing Antarctica is 0xb000000000000000.
+    """
+
+    return apifunction.ApiFunction.call_('Geometry.fromS2CellToken', cellToken)
 
   def geodesic(self) -> computedobject.ComputedObject:
     """Returns false if edges are straight in the projection.
@@ -1324,7 +1369,15 @@ class Geometry(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.projection', self)
 
-  # TODO: Add s2Cell.
+  @staticmethod
+  def s2Cell(cellId: _IntegerType) -> Geometry:  # pylint: disable=invalid-name
+    """Returns the Polygon corresponding to an S2 cell id.
+
+    Args:
+      cellId: The S2 cell id as 64 bit integer.
+    """
+
+    return apifunction.ApiFunction.call_('Geometry.s2Cell', cellId)
 
   def simplify(
       self,

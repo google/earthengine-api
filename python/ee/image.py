@@ -25,6 +25,7 @@ from ee import ee_number
 from ee import ee_string
 from ee import ee_types
 from ee import element
+from ee import errormargin
 from ee import feature
 from ee import featurecollection
 from ee import function
@@ -50,8 +51,16 @@ _DictionaryType = Union[
 ]
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 _EeBoolType = Union[Any, computedobject.ComputedObject]
+_ErrorMarginType = Union[
+    float,
+    'ee_number.Number',
+    errormargin.ErrorMargin,
+    computedobject.ComputedObject,
+]
 _ElementType = Union[Any, element.Element, computedobject.ComputedObject]
-_FeatureCollectionType = Union[Any, computedobject.ComputedObject]
+_FeatureCollectionType = Union[
+    Any, featurecollection.FeatureCollection, computedobject.ComputedObject
+]
 _GeometryType = Union[Any, computedobject.ComputedObject]
 _ImageCollectionType = Union[Any, computedobject.ComputedObject]
 _ImageType = Union[Any, computedobject.ComputedObject]
@@ -1205,6 +1214,25 @@ class Image(element.Element):
         self.name() + '.bitsToArrayImage', self
     )
 
+  def bitwiseAnd(self, image2: _ImageType) -> Image:
+    """Returns the bitwise AND of the current image and image2.
+
+    Calculates the bitwise AND of the input values for each matched pair of
+    bands in image1 and image2. If either image1 or image2 has only 1 band, then
+    it is used against all the bands in the other image. If the images have the
+    same number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.bitwiseAnd', self, image2
+    )
+
   def bitwiseNot(self) -> Image:
     """Calculates the bitwise NOT of the input.
 
@@ -1399,7 +1427,49 @@ class Image(element.Element):
         self.name() + '.clip', self, clip_geometry
     )
 
-  # TODO: clipToBoundsAndScale
+  def clipToBoundsAndScale(
+      self,
+      # pylint: disable-next=redefined-outer-name
+      geometry: Optional[_GeometryType] = None,
+      width: Optional[_IntegerType] = None,
+      height: Optional[_IntegerType] = None,
+      # pylint: disable-next=invalid-name
+      maxDimension: Optional[_IntegerType] = None,
+      scale: Optional[_NumberType] = None,
+  ) -> Image:
+    """Returns an image clipped to a geometry and scaled.
+
+    Clips an image to the bounds of a Geometry, and scales the clipped image to
+    a particular size or scale.
+
+    Caution: providing a large or complex collection as the `geometry` argument
+    can result in poor performance. Collating the geometry of collections does
+    not scale well; use the smallest collection (or geometry) that is required
+    to achieve the desired outcome.
+
+    Args:
+      geometry: The Geometry to clip the image to. The image will be clipped to
+        the bounding box, in the image's projection, of this geometry.
+      width: The width to scale the image to, in pixels. Must be provided along
+        with "height". Exclusive with "maxDimension" and "scale".
+      height: The height to scale the image to, in pixels. Must be provided
+        along with "width". Exclusive with "maxDimension" and "scale".
+      maxDimension: The maximum dimension to scale the image to, in pixels.
+        Exclusive with "width", "height" and "scale".
+      scale: If scale is specified, then the projection is scaled by dividing
+        the specified scale value by the nominal size of a meter in the image's
+        projection. Exclusive with "width", "height" and "maxDimension".
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.clipToBoundsAndScale',
+        self,
+        geometry,
+        width,
+        height,
+        maxDimension,
+        scale,
+    )
 
   def clipToCollection(self, collection: _FeatureCollectionType) -> Image:
     """Clips an image to a FeatureCollection.
@@ -1484,7 +1554,17 @@ class Image(element.Element):
         self.name() + '.connectedPixelCount', self, maxSize, eightConnected
     )
 
-  # TODO: constant static method
+  # TODO: _EeAnyType to number or an Array or a list of Arrays.
+  @staticmethod
+  def constant(value: _EeAnyType) -> Image:
+    """Returns an image containing a constant value everywhere.
+
+    Args:
+      value: The value of the pixels in the constant image. Must be a number or
+        an Array or a list of numbers or Arrays.
+    """
+
+    return apifunction.ApiFunction.call_('Image.constant', value)
 
   # pylint: disable-next=redefined-outer-name
   def convolve(self, kernel: _KernelType) -> Image:
@@ -2085,7 +2165,29 @@ class Image(element.Element):
         self.name() + '.gammainc', self, image2
     )
 
-  # TODO: geometry
+  def geometry(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_ErrorMarginType] = None,
+      proj: Optional[_ProjectionType] = None,
+      geodesics: Optional[_EeBoolType] = None,
+  ) -> geometry.Geometry:
+    """Returns the geometry of a given feature in a given projection.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the geometry will be in this projection. If
+        unspecified, the geometry will be in its default projection.
+      geodesics: If true, the geometry will have geodesic edges. If false, it
+        will have edges as straight lines in the specified projection. If null,
+        the edge interpretation will be the same as the original geometry. This
+        argument is ignored if proj is not specified.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.geometry', self, maxError, proj, geodesics
+    )
 
   def glcmTexture(
       self,
@@ -2288,6 +2390,23 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.hsvToRgb', self)
 
+  def hypot(self, image2: _ImageType) -> Image:
+    """Returns the length of the hypotenuse.
+
+    Calculates the magnitude of the 2D vector [x, y] for each matched pair of
+    bands in image1 and image2. If either image1 or image2 has only 1 band, then
+    it is used against all the bands in the other image. If the images have the
+    same number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is float.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.hypot', self, image2)
+
   def id(self) -> ee_string.String:
     """Returns the ID of a given element within a collection.
 
@@ -2379,7 +2498,7 @@ class Image(element.Element):
       self,
       # pylint: disable=invalid-name
       imageCollection: _ImageCollectionType,
-      linkedBands: _EeAnyType = None,
+      linkedBands: Optional[_EeAnyType] = None,
       linkedProperties: Optional[_EeAnyType] = None,
       matchPropertyName: Optional[_StringType] = None,
       # pylint: enable=invalid-name
@@ -2427,8 +2546,29 @@ class Image(element.Element):
         matchPropertyName,
     )
 
-  # TODO: load
-  # TODO: loadGeoTIFF
+  @staticmethod
+  def load(
+      id: _StringType,  # pylint: disable=redefined-builtin
+      version: Optional[_IntegerType] = None,
+  ) -> Image:
+    """Returns the image given its ID.
+
+    Args:
+      id: The asset ID of the image.
+      version: The version of the asset. -1 signifies the latest version.
+    """
+
+    return apifunction.ApiFunction.call_('Image.load', id, version)
+
+  @staticmethod
+  def loadGeoTIFF(uri: _StringType) -> Image:
+    """Returns an image from a GeoTIFF in Cloud Storage.
+
+    Args:
+      uri: The Cloud Storage URI of the GeoTIFF to load.
+    """
+
+    return apifunction.ApiFunction.call_('Image.loadGeoTIFF', uri)
 
   def log(self) -> Image:
     """Computes the natural logarithm of the input."""
@@ -2540,6 +2680,16 @@ class Image(element.Element):
     """Computes the Frobenius norm of the matrix."""
 
     return apifunction.ApiFunction.call_(self.name() + '.matrixFnorm', self)
+
+  @staticmethod
+  def matrixIdentity(size: _IntegerType) -> Image:
+    """Returns an image where each pixel is a 2D identity matrix of size.
+
+    Args:
+      size: The length of each axis.
+    """
+
+    return apifunction.ApiFunction.call_('Image.matrixIdentity', size)
 
   def matrixInverse(self) -> Image:
     """Computes the inverse of the matrix."""
@@ -2911,8 +3061,73 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.or', self, image2)
 
-  # TODO: paint
-  # TODO: pixelCoordinates
+  # TODO: Tighten the types of color and width.
+  def paint(
+      self,
+      featureCollection: _FeatureCollectionType,  # pylint: disable=invalid-name
+      color: Optional[_EeAnyType] = None,
+      width: Optional[_EeAnyType] = None,
+  ) -> Image:
+    """Returns an image with the geometries of a collection painted onto it.
+
+    Paints the geometries of a collection onto an image, using the given 'color'
+    value to replace each band's values where any geometry covers the image (or,
+    if a line width is specified, where the perimeters do).
+
+    This algorithm is most suitable for converting categorical data from feature
+    properties to pixels in an image; if you wish to visualize a collection,
+    consider using FeatureCollection.style instead, which supports RGB colors
+    whereas this algorithm is strictly 'monochrome' (using single numeric
+    values).
+
+    Args:
+      featureCollection: The collection painted onto the image.
+      color: The pixel value to paint into every band of the input image, either
+        as a number which will be used for all features, or the name of a
+        numeric property to take from each feature in the collection.
+      width: Line width, either as a number which will be the line width for all
+        geometries, or the name of a numeric property to take from each feature
+        in the collection. If unspecified, the geometries will be filled instead
+        of outlined.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.paint', self, featureCollection, color, width
+    )
+
+  @staticmethod
+  def pixelArea() -> Image:
+    """Returns an image with the value of each pixel in square meters.
+
+    Returns an image in which the value of each pixel is the area of that pixel
+    in square meters.
+
+    The returned image has a single band called "area."
+    """
+
+    return apifunction.ApiFunction.call_('Image.pixelArea')
+
+  @staticmethod
+  def pixelCoordinates(projection: _ProjectionType) -> Image:
+    """Returns the x and y coordinates of each pixel in the given projection.
+
+    Creates a two-band image containing the x and y coordinates of each pixel in
+    the given projection.
+
+    args:
+      projection: The projection in which to provide pixels.
+    """
+
+    return apifunction.ApiFunction.call_('Image.pixelCoordinates', projection)
+
+  @staticmethod
+  def pixelLonLat() -> Image:
+    """Returns an image with two bands named 'longitude' and 'latitude'.
+
+    The result at each pixel is in degrees.
+    """
+
+    return apifunction.ApiFunction.call_('Image.pixelLonLat')
 
   def polynomial(self, coefficients: _ListType) -> Image:
     """Compute a polynomial at each pixel using the given coefficients.
@@ -2955,7 +3170,25 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.projection', self)
 
-  # TODO: random
+  @staticmethod
+  def random(
+      seed: _IntegerType, distribution: Optional[_StringType] = None
+  ) -> Image:
+    """Returns an image with a random number at each pixel location.
+
+    When using the 'uniform' distribution, outputs are in the range of [0, 1).
+    Using the 'normal' distribution, the outputs have mu=0, sigma=1, but no
+    explicit limits.
+
+    Args:
+      seed: Seed for the random number generator.
+      distribution: The distribution type of random numbers to produce. One of
+        'uniform' or 'normal'.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Image.random', seed, distribution
+    )
 
   def randomVisualizer(self) -> Image:
     """Returns a random visualization image.
@@ -3361,7 +3594,51 @@ class Image(element.Element):
         stiffness,
     )
 
-  # TODO: remap
+  def remap(
+      self,
+      from_: Optional[_ListType] = None,
+      to: Optional[_ListType] = None,
+      defaultValue: Optional[_EeAnyType] = None,  # pylint: disable=invalid-name
+      bandName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      **kwargs,
+  ) -> Image:
+    # pylint: disable=g-doc-args
+    """Returns an image with the values of a band remapped.
+
+    Maps from input values to output values, represented by two parallel lists.
+    Any input values not included in the input list are either set to
+    defaultValue if it is given or masked if it isn't. Note that inputs
+    containing floating point values might sometimes fail to match due to
+    floating point precision errors.
+
+    Args:
+      from: The source values (numbers or ee.Array). All values in this list
+        will be mapped to the corresponding value in 'to'.
+      to: The destination values (numbers or ee.Array). These are used to
+        replace the corresponding values in 'from'. Must have the same number of
+        values as 'from'.
+      defaultValue: The default value to replace values that weren't matched by
+        a value in 'from'. If not specified, unmatched values are masked out.
+      bandName: The name of the band to remap. If not specified, the first band
+        in the image is used.
+    """
+    # pylint: enable=g-doc-args
+
+    if kwargs:
+      if kwargs.keys() != {'from'}:
+        raise TypeError(
+            f'Unexpected arguments: {list(kwargs.keys())}. Expected: from.'
+        )
+      from_ = kwargs['from']
+
+    if not from_:
+      raise TypeError('from is required.')
+    if not to:
+      raise TypeError('to is required.')
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.remap', self, from_, to, defaultValue, bandName
+    )
 
   def rename(self, names: Any, *args) -> Image:
     """Rename the bands of an image.
