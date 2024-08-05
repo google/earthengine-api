@@ -8,11 +8,13 @@ from ee import apifunction
 from ee import computedobject
 from ee import ee_string
 from ee import featurecollection
-from ee import filter
+from ee import filter as ee_filter
 
 _EeBoolType = Union[Any, computedobject.ComputedObject]
-_FeatureCollectionType = Union[Any, computedobject.ComputedObject]
-_FilterType = Union[filter.Filter, computedobject.ComputedObject]
+_FeatureCollectionType = Union[
+    Any, featurecollection.FeatureCollection, computedobject.ComputedObject
+]
+_FilterType = Union[ee_filter.Filter, computedobject.ComputedObject]
 _StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
