@@ -30,6 +30,7 @@ from ee import feature
 from ee import featurecollection
 from ee import function
 from ee import geometry
+from ee import imagecollection
 from ee import kernel
 from ee import projection
 from ee import reducer
@@ -62,11 +63,15 @@ _FeatureCollectionType = Union[
     Any, featurecollection.FeatureCollection, computedobject.ComputedObject
 ]
 _GeometryType = Union[Any, computedobject.ComputedObject]
-_ImageCollectionType = Union[Any, computedobject.ComputedObject]
-_ImageType = Union[Any, computedobject.ComputedObject]
+_ImageCollectionType = Union[
+    Any, imagecollection.ImageCollection, computedobject.ComputedObject
+]
+_ImageType = Union[Any, 'Image', computedobject.ComputedObject]
 _IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _KernelType = Union[kernel.Kernel, computedobject.ComputedObject]
-_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
+_ListType = Union[
+    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
+]
 _NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _ProjectionType = Union[
     str,
