@@ -77,8 +77,8 @@ class FilterTest(apitestcase.ApiTestCase):
 
   def test_date(self):
     """Verifies that date filters work."""
-    d1 = datetime.datetime.strptime('1/1/2000', '%m/%d/%Y')
-    d2 = datetime.datetime.strptime('1/1/2001', '%m/%d/%Y')
+    d1 = datetime.datetime(2000, 1, 1)
+    d2 = datetime.datetime(2001, 1, 1)
     instant_range = ee.ApiFunction.call_('DateRange', d1, None)
     long_range = ee.ApiFunction.call_('DateRange', d1, d2)
 
@@ -253,6 +253,46 @@ class FilterTest(apitestcase.ApiTestCase):
         leftValue=left_value,
         maxError=max_error,
     )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_date_with_datetime(self):
+    start = datetime.datetime(2024, 8, 3)
+    end = datetime.datetime(2024, 8, 10)
+    expect = make_expression_graph({
+        'functionName': 'Filter.dateRangeContains',
+        'arguments': {
+            'leftValue': {
+                'functionInvocationValue': {
+                    'functionName': 'DateRange',
+                    'arguments': {
+                        'start': {
+                            'functionInvocationValue': {
+                                'functionName': 'Date',
+                                'arguments': {
+                                    'value': {'constantValue': 1722643200000}
+                                },
+                            }
+                        },
+                        'end': {
+                            'functionInvocationValue': {
+                                'functionName': 'Date',
+                                'arguments': {
+                                    'value': {'constantValue': 1723248000000}
+                                },
+                            }
+                        },
+                    },
+                }
+            },
+            'rightField': {'constantValue': 'system:time_start'},
+        },
+    })
+    expression = ee.Filter.date(start, end)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.date(start=start, end=end)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 

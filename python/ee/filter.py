@@ -12,6 +12,7 @@ Example usage:
 
 from __future__ import annotations
 
+import datetime
 from typing import Any, List, Optional, Tuple, Union
 
 from ee import _utils
@@ -23,7 +24,9 @@ from ee import ee_number
 from ee import ee_string
 from ee import errormargin
 
-_DateType = Union[float, str, 'ee_date.Date', computedobject.ComputedObject]
+_DateType = Union[
+    datetime.datetime, float, str, 'ee_date.Date', computedobject.ComputedObject
+]
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 _ErrorMarginType = Union[
     float,
