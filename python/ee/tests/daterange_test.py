@@ -4,6 +4,7 @@
 DateRange is currently 100% dynamically generated.
 """
 
+import datetime
 import json
 from typing import Any, Dict
 
@@ -118,41 +119,58 @@ class DateRangeTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
   def test_init_ee_dates(self):
-    start = ee.Date('2017-06-24')
-    end = ee.Date('2017-06-24T07:00:00')
+    start_str = '2017-06-24'
+    start = ee.Date(start_str)
+    end_str = '2017-06-24T07:00:00'
+    end = ee.Date(end_str)
     daterange = ee.DateRange(start, end)
     result = json.loads(daterange.serialize())
-    expect = {
-        'result': '0',
-        'values': {
-            '0': {
+    expect = make_expression_graph({
+        'functionName': 'DateRange',
+        'arguments': {
+            'start': {
                 'functionInvocationValue': {
-                    'functionName': 'DateRange',
+                    'functionName': 'Date',
+                    'arguments': {'value': {'constantValue': start_str}},
+                }
+            },
+            'end': {
+                'functionInvocationValue': {
+                    'functionName': 'Date',
                     'arguments': {
-                        'end': {
-                            'functionInvocationValue': {
-                                'functionName': 'Date',
-                                'arguments': {
-                                    'value': {
-                                        'constantValue': '2017-06-24T07:00:00'
-                                    }
-                                },
-                            }
-                        },
-                        'start': {
-                            'functionInvocationValue': {
-                                'functionName': 'Date',
-                                'arguments': {
-                                    'value': {'constantValue': '2017-06-24'}
-                                },
-                            }
-                        },
+                        'value': {'constantValue': end_str}
                     },
                 }
-            }
+            },
         },
-    }
+    })
     self.assertEqual(expect, result)
+
+  def test_init_datetime(self):
+    start_ms = 1407628801000
+    start = datetime.datetime(2014, 8, 10, 0, 0, 1)
+    end_ms = start_ms + 1000
+    end = datetime.datetime(2014, 8, 10, 0, 0, 2)
+    expect = make_expression_graph({
+        'functionName': 'DateRange',
+        'arguments': {
+            'start': {
+                'functionInvocationValue': {
+                    'functionName': 'Date',
+                    'arguments': {'value': {'constantValue': start_ms}},
+                }
+            },
+            'end': {
+                'functionInvocationValue': {
+                    'functionName': 'Date',
+                    'arguments': {'value': {'constantValue': end_ms}},
+                }
+            },
+        },
+    })
+    result = json.loads(ee.DateRange(start, end).serialize())
+
+    self.assertEqual(result, expect)
 
   def test_no_args(self):
     message = r"missing 1 required positional argument: 'start'"
