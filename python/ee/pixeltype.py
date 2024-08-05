@@ -1,4 +1,5 @@
 """A wrapper for PixelTypes."""
+from __future__ import annotations
 
 from typing import Any, Dict, Optional, Union
 
@@ -131,55 +132,55 @@ class PixelType(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.precision', self)
 
   @staticmethod
-  def double() -> 'PixelType':
+  def double() -> PixelType:
     """Returns the 64-bit floating point pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.double')
 
   @staticmethod
-  def float() -> 'PixelType':
+  def float() -> PixelType:
     """Returns the 32-bit floating point pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.float')
 
   @staticmethod
-  def int16() -> 'PixelType':
+  def int16() -> PixelType:
     """Returns the 16-bit signed integer pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.int16')
 
   @staticmethod
-  def int32() -> 'PixelType':
+  def int32() -> PixelType:
     """Returns the 32-bit signed integer pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.int32')
 
   @staticmethod
-  def int64() -> 'PixelType':
+  def int64() -> PixelType:
     """Returns the 64-bit signed integer pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.int64')
 
   @staticmethod
-  def int8() -> 'PixelType':
+  def int8() -> PixelType:
     """Returns the 8-bit signed integer pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.int8')
 
   @staticmethod
-  def uint16() -> 'PixelType':
+  def uint16() -> PixelType:
     """Returns the 16-bit unsigned integer pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.uint16')
 
   @staticmethod
-  def uint32() -> 'PixelType':
+  def uint32() -> PixelType:
     """Returns the 32-bit unsigned integer pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.uint32')
 
   @staticmethod
-  def uint8() -> 'PixelType':
+  def uint8() -> PixelType:
     """Returns the 8-bit unsigned integer pixel type."""
 
     return apifunction.ApiFunction.call_('PixelType.uint8')
