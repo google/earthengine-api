@@ -64,8 +64,6 @@ packages = [
 [tool.setuptools.package-data]
 ee = [
   "py.typed",
-  "tests/*.py",
-  "tests/*.json",
 ]
 
 [project.optional-dependencies]
