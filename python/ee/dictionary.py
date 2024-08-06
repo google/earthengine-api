@@ -23,7 +23,9 @@ _EeKeyType = Union[bool, float, int, str, computedobject.ComputedObject]
 # TODO: Make a better type for a list of keys.
 _EeKeyListType = _EeAnyType
 _IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
+_ListType = Union[
+    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
+]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 # TODO: Make a better type for a list of strings.
 #   Or is this the same as _EeKeyListType?

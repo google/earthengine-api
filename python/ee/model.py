@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 from ee import apifunction
 from ee import computedobject
 from ee import dictionary
+from ee import ee_list
 from ee import ee_number
 from ee import ee_string
 from ee import featurecollection
@@ -24,7 +25,9 @@ _FeatureCollectionType = Union[
 ]
 _ImageType = Union[Any, image.Image, computedobject.ComputedObject]
 _IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
+_ListType = Union[
+    List[Any], Tuple[Any, Any], ee_list.List, computedobject.ComputedObject
+]
 _NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _ProjectionType = Union[
     str,

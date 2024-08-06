@@ -10,7 +10,9 @@ from ee import ee_list
 from ee import ee_number
 
 _ConfusionMatrixType = Union['ConfusionMatrix', computedobject.ComputedObject]
-_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
+_ListType = Union[
+    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
+]
 _NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 
 
