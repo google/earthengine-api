@@ -9,7 +9,7 @@ from ee import ee_list
 from ee import ee_number
 from ee import ee_string
 from ee import featurecollection
-from ee import image
+from ee import image as ee_image
 from ee import projection
 
 _DictionaryType = Union[
@@ -23,7 +23,7 @@ _EeBoolType = Union[Any, computedobject.ComputedObject]
 _FeatureCollectionType = Union[
     Any, featurecollection.FeatureCollection, computedobject.ComputedObject
 ]
-_ImageType = Union[Any, image.Image, computedobject.ComputedObject]
+_ImageType = Union[Any, ee_image.Image, computedobject.ComputedObject]
 _IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _ListType = Union[
     List[Any], Tuple[Any, Any], ee_list.List, computedobject.ComputedObject
@@ -281,7 +281,7 @@ class Model(computedobject.ComputedObject):
         payloadFormat,
     )
 
-  def predictImage(self, image: _ImageType) -> image.Image:
+  def predictImage(self, image: _ImageType) -> ee_image.Image:
     """Returns an image with predictions from pixel tiles of an image.
 
     The predictions are merged as bands with the input image.
