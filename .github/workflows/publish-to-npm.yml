@@ -7,6 +7,7 @@ on:
 
 jobs:
   smoke-test:
+    if: "!github.event.release.prerelease"  # Only run if not a prerelease.
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -32,6 +33,7 @@ jobs:
           EE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
 
   publish-npm:
+    if: "!github.event.release.prerelease"  # Only run if not a prerelease.
     needs: smoke-test
     runs-on: ubuntu-latest
     steps:
