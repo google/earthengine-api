@@ -307,7 +307,9 @@ class Number(computedobject.ComputedObject):
 
   @staticmethod
   def expression(
-      expression: _StringType, vars: Optional[_DictionaryType] = None
+      expression: _StringType,
+      # pylint: disable-next=redefined-builtin
+      vars: Optional[_DictionaryType] = None,
   ) -> Number:
     """Returns a number from computing a numeric expression.
 
@@ -590,8 +592,8 @@ class Number(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.or', self, right)
 
   def parse(
-      # pylint: disable=redefined-builtin
-      input: _StringType, radix: Optional[_IntegerType] = None
+      input: _StringType,  # pylint: disable=redefined-builtin
+      radix: Optional[_IntegerType] = None,
   ) -> Number:
     """Returns a number from a string.
 
