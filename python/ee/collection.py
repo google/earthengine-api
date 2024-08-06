@@ -180,7 +180,6 @@ class Collection(element.Element):
 
   def aggregate_max(
       self, property: _StringType  # pylint: disable=redefined-builtin
-
   ) -> computedobject.ComputedObject:
     """Returns the maximum value of the selected property.
 
@@ -855,8 +854,8 @@ class Collection(element.Element):
         location. One of: `circle`, `square`, `diamond`, `cross`, `plus`,
         `pentagram`, `hexagram`, `triangle`, `triangle_up`, `triangle_down`,
         `triangle_left`, `triangle_right`, `pentagon`, `hexagon`, `star5`,
-        `star6`. This argument also supports the following Matlab marker
-        abbreviations: `o`, `s`, `d`, `x`, `+`, `p`, `h`, `^`, `v`, `<`, `>`.
+        `star6`. This argument also supports these Matlab marker abbreviations:
+        `o`, `s`, `d`, `x`, `+`, `p`, `h`, `^`, `v`, `<`, `>`.
       width: The default line width for lines and outlines for polygons and
         point shapes.
       fillColor: The color for filling polygons and point shapes. Defaults to
