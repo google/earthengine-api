@@ -133,7 +133,7 @@ class Dictionary(computedobject.ComputedObject):
 
   # TODO: keys should be a _StringListType.
   @staticmethod
-  def fromLists(keys: _ListType, values: _ListType) -> 'Dictionary':
+  def fromLists(keys: _ListType, values: _ListType) -> Dictionary:
     """Returns a dictionary from two parallel lists of keys and values.
 
     Args:

@@ -63,7 +63,7 @@ class List(computedobject.ComputedObject):
           'Invalid argument specified for ee.List(): %s' % arg)
 
   @staticmethod
-  def repeat(value: _EeAnyType, count: _IntegerType) -> 'List':
+  def repeat(value: _EeAnyType, count: _IntegerType) -> List:
     """Returns a new list containing value repeated count times.
 
     Args:
@@ -78,7 +78,7 @@ class List(computedobject.ComputedObject):
       end: Optional[_NumberType] = None,
       step: Optional[_NumberType] = None,
       count: Optional[_IntegerType] = None,
-  ) -> 'List':
+  ) -> List:
     """Returns a List of numbers from start to end (inclusive).
 
     Generate a sequence of numbers from start to end (inclusive) in increments
@@ -129,7 +129,7 @@ class List(computedobject.ComputedObject):
     else:
       return super().encode_cloud_value(encoder)
 
-  def add(self, element: Any) -> 'List':
+  def add(self, element: Any) -> List:
     """Appends the element to the end of list.
 
     Args:
@@ -141,7 +141,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.add', self, element)
 
-  def cat(self, other: _EeListType) -> 'List':
+  def cat(self, other: _EeListType) -> List:
     """Concatenates the contents of other onto list.
 
     Args:
@@ -185,7 +185,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.containsAll', self, other
     )
 
-  def distinct(self) -> 'List':
+  def distinct(self) -> List:
     """Returns a copy of list without duplicate elements."""
 
     return apifunction.ApiFunction.call_(self.name() + '.distinct', self)
@@ -203,7 +203,7 @@ class List(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.equals', self, other)
 
   # pylint: disable-next=redefined-builtin
-  def filter(self, filter: ee_filter.Filter) -> 'List':
+  def filter(self, filter: ee_filter.Filter) -> List:
     """Filters a list to only the elements that match the given filter.
 
     To filter list items that aren't images or features, test a property
@@ -218,7 +218,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.filter', self, filter)
 
-  def flatten(self) -> 'List':
+  def flatten(self) -> List:
     """Flattens any sublists into a single list."""
 
     return apifunction.ApiFunction.call_(self.name() + '.flatten', self)
@@ -350,7 +350,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.indexOfSublist', self, target
     )
 
-  def insert(self, index: _IntegerType, element: _EeAnyType) -> 'List':
+  def insert(self, index: _IntegerType, element: _EeAnyType) -> List:
     """Inserts element at the specified position in list.
 
     A negative index counts backwards from the end of the list.
@@ -369,7 +369,7 @@ class List(computedobject.ComputedObject):
     )
 
   # TODO: Improve the type of `function`
-  def iterate(self, function: Any, first: _EeAnyType) -> 'List':
+  def iterate(self, function: Any, first: _EeAnyType) -> List:
     """Iterate an algorithm over a list.
 
     The algorithm is expected to take two objects, the current list item, and
@@ -432,7 +432,7 @@ class List(computedobject.ComputedObject):
   # pylint: disable=invalid-name
   def map(
       self, baseAlgorithm: _EeAnyType, dropNulls: _EeBoolType = False
-  ) -> 'List':
+  ) -> List:
     # pylint: enable=invalid-name
     """Map an algorithm over a list.
 
@@ -469,7 +469,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.reduce', self, reducer)
 
-  def remove(self, element: _EeAnyType) -> 'List':
+  def remove(self, element: _EeAnyType) -> List:
     """Removes the first occurrence of the specified element from list.
 
     Args:
@@ -481,7 +481,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.remove', self, element)
 
-  def removeAll(self, other: _EeListType) -> 'List':
+  def removeAll(self, other: _EeListType) -> List:
     """Removes from list all of the elements that are contained in other list.
 
     Args:
@@ -495,7 +495,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.removeAll', self, other
     )
 
-  def replace(self, oldval: _EeAnyType, newval: _EeAnyType) -> 'List':
+  def replace(self, oldval: _EeAnyType, newval: _EeAnyType) -> List:
     """Replaces the first occurrence of oldval in list with newval.
 
     Args:
@@ -510,7 +510,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.replace', self, oldval, newval
     )
 
-  def replaceAll(self, oldval: _EeAnyType, newval: _EeAnyType) -> 'List':
+  def replaceAll(self, oldval: _EeAnyType, newval: _EeAnyType) -> List:
     """Replaces all occurrences of oldval in list with newval.
 
     Args:
@@ -525,12 +525,12 @@ class List(computedobject.ComputedObject):
         self.name() + '.replaceAll', self, oldval, newval
     )
 
-  def reverse(self) -> 'List':
+  def reverse(self) -> List:
     """Reverses the order of the elements in list."""
 
     return apifunction.ApiFunction.call_(self.name() + '.reverse', self)
 
-  def rotate(self, distance: _IntegerType) -> 'List':
+  def rotate(self, distance: _IntegerType) -> List:
     """Rotates the elements of the list by the specified distance.
 
     Elements rotated off the end are pushed onto the other end of the list.
@@ -546,7 +546,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.rotate', self, distance
     )
 
-  def set(self, index: _IntegerType, element: _EeAnyType) -> 'List':
+  def set(self, index: _IntegerType, element: _EeAnyType) -> List:
     """Sets the value at the specified position in list.
 
     Replaces the value at the specified position in list with element. A
@@ -565,7 +565,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.set', self, index, element
     )
 
-  def shuffle(self, seed: Optional[_IntegerType] = None) -> 'List':
+  def shuffle(self, seed: Optional[_IntegerType] = None) -> List:
     """Randomly permute the specified list.
 
     Note that the permutation order will always be the same for any given seed,
@@ -592,7 +592,7 @@ class List(computedobject.ComputedObject):
       start: _IntegerType,
       end: Optional[_IntegerType] = None,
       step: Optional[_IntegerType] = None,
-  ) -> 'List':
+  ) -> List:
     """Returns a range of elements from a list.
 
     Negative values for start or end count backwards from the end of the list.
@@ -615,7 +615,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.slice', self, start, end, step
     )
 
-  def sort(self, keys: Optional[_EeListType] = None) -> 'List':
+  def sort(self, keys: Optional[_EeListType] = None) -> List:
     """Sorts the list into ascending order.
 
     If the keys argument is provided, then it is sorted first, and the
@@ -636,7 +636,7 @@ class List(computedobject.ComputedObject):
       start: _IntegerType,
       count: _IntegerType,
       other: Optional[_EeListType] = None,
-  ) -> 'List':
+  ) -> List:
     """Removes elements from list and replaces with elements from other.
 
     Args:
@@ -653,7 +653,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.splice', self, start, count, other
     )
 
-  def swap(self, pos1: _IntegerType, pos2: _IntegerType) -> 'List':
+  def swap(self, pos1: _IntegerType, pos2: _IntegerType) -> List:
     """Swaps the elements at the specified positions.
 
     A negative position counts backwards from the end of the list.
@@ -670,7 +670,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.swap', self, pos1, pos2
     )
 
-  def unzip(self) -> 'List':
+  def unzip(self) -> List:
     """Rearranges a list of lists.
 
     Transposes a list of lists, extracting the first element of each inner list
@@ -684,7 +684,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.unzip', self)
 
-  def zip(self, other: _EeListType) -> 'List':
+  def zip(self, other: _EeListType) -> List:
     """Pairs the elements of two lists to create a list of two-element lists.
 
     When the input lists are of different sizes, the final list has the same

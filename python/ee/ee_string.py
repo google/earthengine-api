@@ -85,7 +85,7 @@ class String(computedobject.ComputedObject):
     else:
       return super().encode_cloud_value(encoder)
 
-  def cat(self, string2: _StringType) -> 'String':
+  def cat(self, string2: _StringType) -> String:
     """Concatenates two strings.
 
     Args:
@@ -119,7 +119,7 @@ class String(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.decodeJSON', self)
 
   @staticmethod
-  def encodeJSON(object: _EeAnyType) -> 'String':
+  def encodeJSON(object: _EeAnyType) -> String:
     """Returns an ee.String with an object encoded as JSON.
 
     Supports primitives, lists, and dictionaries.
@@ -185,7 +185,7 @@ class String(computedobject.ComputedObject):
       regex: _StringType,
       replacement: _StringType,
       flags: Optional[_StringType] = None,
-  ) -> 'String':
+  ) -> String:
     """Returns a string with some or all matches of a pattern replaced.
 
     Args:
@@ -216,7 +216,7 @@ class String(computedobject.ComputedObject):
 
   def slice(
       self, start: _IntegerType, end: Optional[_IntegerType] = None
-  ) -> 'String':
+  ) -> String:
     """Returns a substring of the given string.
 
     If the specified range exceeds the length of the string, returns a shorter
@@ -254,17 +254,17 @@ class String(computedobject.ComputedObject):
         self.name() + '.split', self, regex, flags
     )
 
-  def toLowerCase(self) -> 'String':
+  def toLowerCase(self) -> String:
     """Converts all of the characters in a string to lower case."""
 
     return apifunction.ApiFunction.call_(self.name() + '.toLowerCase', self)
 
-  def toUpperCase(self) -> 'String':
+  def toUpperCase(self) -> String:
     """Converts all of the characters in a string to upper case."""
 
     return apifunction.ApiFunction.call_(self.name() + '.toUpperCase', self)
 
-  def trim(self) -> 'String':
+  def trim(self) -> String:
     """Returns a string with any leading and trailing whitespace removed."""
 
     return apifunction.ApiFunction.call_(self.name() + '.trim', self)
