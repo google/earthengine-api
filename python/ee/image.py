@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from ee import _utils
 from ee import apifunction
-from ee import classifier
-from ee import clusterer
+from ee import classifier as ee_classifier
+from ee import clusterer as ee_clusterer
 from ee import computedobject
 from ee import data
 from ee import deprecation
@@ -29,11 +29,11 @@ from ee import errormargin
 from ee import feature
 from ee import featurecollection
 from ee import function
-from ee import geometry
+from ee import geometry as ee_geometry
 from ee import imagecollection
-from ee import kernel
-from ee import projection
-from ee import reducer
+from ee import kernel as ee_kernel
+from ee import projection as ee_projection
+from ee import reducer as ee_reducer
 
 _ArrayType = Union[
     Any,
@@ -42,8 +42,8 @@ _ArrayType = Union[
     'ee_list.List',
     computedobject.ComputedObject,
 ]
-_ClassifierType = Union[classifier.Classifier, computedobject.ComputedObject]
-_ClustererType = Union[clusterer.Clusterer, computedobject.ComputedObject]
+_ClassifierType = Union[ee_classifier.Classifier, computedobject.ComputedObject]
+_ClustererType = Union[ee_clusterer.Clusterer, computedobject.ComputedObject]
 _DictionaryType = Union[
     Dict[Any, Any],
     Sequence[Any],
@@ -68,7 +68,7 @@ _ImageCollectionType = Union[
 ]
 _ImageType = Union[Any, 'Image', computedobject.ComputedObject]
 _IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_KernelType = Union[kernel.Kernel, computedobject.ComputedObject]
+_KernelType = Union[ee_kernel.Kernel, computedobject.ComputedObject]
 _ListType = Union[
     List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
 ]
@@ -76,10 +76,10 @@ _NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _ProjectionType = Union[
     str,
     'ee_string.String',
-    projection.Projection,
+    ee_projection.Projection,
     computedobject.ComputedObject,
 ]
-_ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
+_ReducerType = Union[ee_reducer.Reducer, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
@@ -280,7 +280,7 @@ class Image(element.Element):
           if len(dimensions) == 2:
             del request['dimensions']
             dimensions_consumed = True
-            desired_rectangle = geometry.Geometry.Rectangle(
+            desired_rectangle = ee_geometry.Geometry.Rectangle(
                 [0, 0, dimensions[0], dimensions[1]],
                 proj=image.projection(),
                 geodesic=False,
@@ -339,7 +339,7 @@ class Image(element.Element):
             # Geometry's constructor knows how to handle the first two.
             region = params[key]
             # If given a Geometry object, just use the client's Geometry.
-            if isinstance(region, geometry.Geometry):
+            if isinstance(region, ee_geometry.Geometry):
               selection_params['geometry'] = region
               continue
             # Otherwise, we may be given a GeoJSON object or string.
@@ -349,13 +349,13 @@ class Image(element.Element):
             if isinstance(region, list):
               if (len(region) == 2
                   or all(isinstance(e, (float, int)) for e in region)):
-                selection_params['geometry'] = geometry.Geometry.Rectangle(
+                selection_params['geometry'] = ee_geometry.Geometry.Rectangle(
                     region, None, geodesic=False)
               else:
-                selection_params['geometry'] = geometry.Geometry.Polygon(
+                selection_params['geometry'] = ee_geometry.Geometry.Polygon(
                     region, None, geodesic=False)
               continue
-            selection_params['geometry'] = geometry.Geometry(
+            selection_params['geometry'] = ee_geometry.Geometry(
                 region, proj=None, geodesic=False
             )
           else:
@@ -815,10 +815,7 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.and', self, image2)
 
   def arrayAccum(
-      self,
-      axis: _IntegerType,
-      # pylint: disable-next=redefined-outer-name
-      reducer: Optional[_ReducerType] = None,
+      self, axis: _IntegerType, reducer: Optional[_ReducerType] = None,
   ) -> Image:
     """Accumulates elements of each array pixel along the given axis.
 
@@ -1021,7 +1018,7 @@ class Image(element.Element):
 
   def arrayReduce(
       self,
-      reducer: _EeAnyType,  # pylint: disable=redefined-outer-name
+      reducer: _EeAnyType,
       axes: _EeAnyType,
       fieldAxis: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -1388,7 +1385,7 @@ class Image(element.Element):
 
   def classify(
       self,
-      classifier: _ClassifierType,  # pylint: disable=redefined-outer-name
+      classifier: _ClassifierType,
       outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
   ) -> Image:
     """Classifies an image.
@@ -1424,7 +1421,7 @@ class Image(element.Element):
     try:
       # Need to manually promote GeoJSON, because the signature does not
       # specify the type so auto promotion will not work.
-      clip_geometry = geometry.Geometry(clip_geometry)
+      clip_geometry = ee_geometry.Geometry(clip_geometry)
     except ee_exception.EEException:
       pass  # Not an ee.Geometry or GeoJSON. Just pass it along.
 
@@ -1434,7 +1431,6 @@ class Image(element.Element):
 
   def clipToBoundsAndScale(
       self,
-      # pylint: disable-next=redefined-outer-name
       geometry: Optional[_GeometryType] = None,
       width: Optional[_IntegerType] = None,
       height: Optional[_IntegerType] = None,
@@ -1496,7 +1492,7 @@ class Image(element.Element):
 
   def cluster(
       self,
-      clusterer: _ClustererType,  # pylint: disable=redefined-outer-name
+      clusterer: _ClustererType,
       outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
   ) -> Image:
     """Applies a clusterer to an image.
@@ -1571,7 +1567,6 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_('Image.constant', value)
 
-  # pylint: disable-next=redefined-outer-name
   def convolve(self, kernel: _KernelType) -> Image:
     """Convolves each band of an image with the given kernel.
 
@@ -1747,7 +1742,6 @@ class Image(element.Element):
       # pylint: disable=invalid-name
       referenceImage: _ImageType,
       maxOffset: _NumberType,
-      # pylint: disable-next=redefined-outer-name
       projection: Optional[_ProjectionType] = None,
       patchWidth: Optional[_NumberType] = None,
       # pylint: enable=invalid-name
@@ -1795,7 +1789,6 @@ class Image(element.Element):
 
   def distance(
       self,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       skipMasked: Optional[_EeBoolType] = True,  # pylint: disable=invalid-name
   ) -> Image:
@@ -1837,7 +1830,6 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.double', self)
 
-  # pylint: disable-next=redefined-outer-name
   def entropy(self, kernel: _KernelType) -> Image:
     """Returns an ee.Image with the entropy.
 
@@ -1981,7 +1973,6 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the maximum value of the input within the kernel.
@@ -2015,7 +2006,6 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the mean value of the input within the kernel.
@@ -2049,7 +2039,6 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the median value of the input within the kernel.
@@ -2083,7 +2072,6 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the minimum value of the input within the kernel.
@@ -2117,7 +2105,6 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the mode value of the input within the kernel.
@@ -2176,7 +2163,7 @@ class Image(element.Element):
       maxError: Optional[_ErrorMarginType] = None,
       proj: Optional[_ProjectionType] = None,
       geodesics: Optional[_EeBoolType] = None,
-  ) -> geometry.Geometry:
+  ) -> ee_geometry.Geometry:
     """Returns the geometry of a given feature in a given projection.
 
     Args:
@@ -2197,7 +2184,6 @@ class Image(element.Element):
   def glcmTexture(
       self,
       size: Optional[_IntegerType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       average: Optional[_EeBoolType] = None,
   ) -> Image:
@@ -2950,7 +2936,7 @@ class Image(element.Element):
 
   def neighborhoodToArray(
       self,
-      kernel: _KernelType,  # pylint: disable=redefined-outer-name
+      kernel: _KernelType,
       # pylint: disable-next=invalid-name
       defaultValue: Optional[_NumberType] = None,
   ) -> Image:
@@ -2978,7 +2964,6 @@ class Image(element.Element):
         self.name() + '.neighborhoodToArray', self, kernel, defaultValue
     )
 
-  # pylint: disable-next=redefined-outer-name
   def neighborhoodToBands(self, kernel: _KernelType) -> Image:
     """Turns the neighborhood of a pixel into a set of bands.
 
@@ -3166,7 +3151,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.pow', self, image2)
 
-  def projection(self) -> projection.Projection:
+  def projection(self) -> ee_projection.Projection:
     """Returns the default projection of an Image.
 
     Throws an error if the bands of the image don't all have the same
@@ -3209,7 +3194,6 @@ class Image(element.Element):
         self.name() + '.randomVisualizer', self
     )
 
-  # pylint: disable-next=redefined-outer-name
   def reduce(self, reducer: _ReducerType) -> Image:
     """Applies a reducer to all of the bands of an image.
 
@@ -3229,7 +3213,7 @@ class Image(element.Element):
 
   def reduceConnectedComponents(
       self,
-      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
+      reducer: _ReducerType,
       labelBand: Optional[_StringType] = None,  # pylint: disable=invalid-name
       maxSize: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -3262,8 +3246,8 @@ class Image(element.Element):
 
   def reduceNeighborhood(
       self,
-      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
-      kernel: _KernelType,  # pylint: disable=redefined-outer-name
+      reducer: _ReducerType,
+      kernel: _KernelType,
       # pylint: disable=invalid-name
       inputWeight: Optional[_StringType] = None,
       skipMasked: Optional[_EeBoolType] = None,
@@ -3309,8 +3293,7 @@ class Image(element.Element):
 
   def reduceRegion(
       self,
-      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
-      # pylint: disable-next=redefined-outer-name
+      reducer: _ReducerType,
       geometry: Optional[_GeometryType] = None,
       scale: Optional[_NumberType] = None,
       crs: Optional[_ProjectionType] = None,
@@ -3366,7 +3349,7 @@ class Image(element.Element):
   def reduceRegions(
       self,
       collection: _FeatureCollectionType,
-      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
+      reducer: _ReducerType,
       scale: Optional[_NumberType] = None,
       crs: Optional[_ProjectionType] = None,
       crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
@@ -3410,7 +3393,7 @@ class Image(element.Element):
 
   def reduceResolution(
       self,
-      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
+      reducer: _ReducerType,
       bestEffort: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
       maxPixels: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -3446,10 +3429,8 @@ class Image(element.Element):
 
   def reduceToVectors(
       self,
-      # pylint: disable=redefined-outer-name
       reducer: Optional[_ReducerType] = None,
       geometry: Optional[_GeometryType] = None,
-      # pylint: enable=redefined-outer-name
       scale: Optional[_NumberType] = None,
       # pylint: disable=invalid-name
       geometryType: Optional[_StringType] = None,
@@ -3784,7 +3765,6 @@ class Image(element.Element):
       self,
       region: Optional[_GeometryType] = None,
       scale: Optional[_NumberType] = None,
-      # pylint: disable-next=redefined-outer-name
       projection: Optional[_ProjectionType] = None,
       factor: Optional[_NumberType] = None,
       # pylint: disable=invalid-name
@@ -3884,7 +3864,6 @@ class Image(element.Element):
       collection: _FeatureCollectionType,
       properties: Optional[_ListType] = None,
       scale: Optional[_NumberType] = None,
-      # pylint: disable-next=redefined-outer-name
       projection: Optional[_ProjectionType] = None,
       tileScale: Optional[_NumberType] = None,  # pylint: disable=invalid-name
       geometries: Optional[_EeBoolType] = None,
@@ -4118,7 +4097,6 @@ class Image(element.Element):
   def spectralDilation(
       self,
       metric: Optional[_StringType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -4173,7 +4151,6 @@ class Image(element.Element):
   def spectralErosion(
       self,
       metric: Optional[_StringType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -4204,7 +4181,6 @@ class Image(element.Element):
   def spectralGradient(
       self,
       metric: Optional[_StringType] = None,
-      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -4242,7 +4218,6 @@ class Image(element.Element):
       classBand: Optional[_StringType] = None,  # pylint: disable=invalid-name
       region: Optional[_GeometryType] = None,
       scale: Optional[_NumberType] = None,
-      # pylint: disable-next=redefined-outer-name
       projection: Optional[_ProjectionType] = None,
       seed: Optional[_IntegerType] = None,
       classValues: Optional[_ListType] = None,  # pylint: disable=invalid-name
