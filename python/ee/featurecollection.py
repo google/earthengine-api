@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from ee import _utils
 from ee import apifunction
-from ee import classifier
-from ee import clusterer
+from ee import classifier as ee_classifier
+from ee import clusterer as ee_clusterer
 from ee import collection
 from ee import computedobject
 from ee import data
@@ -24,10 +24,12 @@ from ee import errormargin
 from ee import feature
 from ee import geometry
 from ee import image
-from ee import reducer
+from ee import reducer as ee_reducer
 
-_ClassifierType = Union['classifier.Classifier', computedobject.ComputedObject]
-_ClustererType = Union['clusterer.Clusterer', computedobject.ComputedObject]
+_ClassifierType = Union[
+    'ee_classifier.Classifier', computedobject.ComputedObject
+]
+_ClustererType = Union['ee_clusterer.Clusterer', computedobject.ComputedObject]
 _ErrorMarginType = Union[
     float,
     'ee_number.Number',
@@ -39,7 +41,7 @@ _ListType = Union[
     List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
 ]
 _NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
+_ReducerType = Union[ee_reducer.Reducer, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
@@ -283,7 +285,7 @@ class FeatureCollection(collection.Collection):
 
   def inverseDistance(
       self,
-      range: _NumberType,
+      range: _NumberType,  # pylint: disable=redefined-builtin
       propertyName: _StringType,  # pylint: disable=invalid-name
       mean: _NumberType,
       stdDev: _NumberType,  # pylint: disable=invalid-name
@@ -317,7 +319,7 @@ class FeatureCollection(collection.Collection):
       self,
       propertyName: _StringType,  # pylint: disable=invalid-name
       shape: _StringType,
-      range: _NumberType,
+      range: _NumberType,  # pylint: disable=redefined-builtin
       sill: _NumberType,
       nugget: _NumberType,
       maxDistance: Optional[_NumberType] = None,  # pylint: disable=invalid-name
