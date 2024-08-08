@@ -13,7 +13,7 @@ from ee import ee_number
 from ee import ee_string
 from ee import filter as ee_filter
 from ee import geometry
-from ee import reducer
+from ee import reducer as ee_reducer
 
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 # TODO: What will the backend accept for bools?
@@ -24,6 +24,7 @@ _EeListType = Union[
 _IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
+_ReducerType = Union[ee_reducer.Reducer, computedobject.ComputedObject]
 
 
 class List(computedobject.ComputedObject):
@@ -429,11 +430,12 @@ class List(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.length', self)
 
   # TODO: Improve the type of `baseAlgorithm`.
-  # pylint: disable=invalid-name
   def map(
-      self, baseAlgorithm: _EeAnyType, dropNulls: _EeBoolType = False
+      # pylint: disable-next=invalid-name
+      self,
+      baseAlgorithm: _EeAnyType,
+      dropNulls: _EeBoolType = False,
   ) -> List:
-    # pylint: enable=invalid-name
     """Map an algorithm over a list.
 
     The algorithm is expected to take an Object and return an Object.
@@ -451,8 +453,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.map', self, baseAlgorithm, dropNulls
     )
 
-  # pylint: disable-next=redefined-outer-name
-  def reduce(self, reducer: reducer.Reducer) -> computedobject.ComputedObject:
+  def reduce(self, reducer: _ReducerType) -> computedobject.ComputedObject:
     """Apply a reducer to a list.
 
     If the reducer takes more than 1 input, then each element in the list is
