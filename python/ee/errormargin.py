@@ -1,15 +1,11 @@
 """A wrapper for ErrorMargins."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
-from ee import ee_number
-from ee import ee_string
-
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class ErrorMargin(computedobject.ComputedObject):
@@ -40,8 +36,8 @@ class ErrorMargin(computedobject.ComputedObject):
 
   def __init__(
       self,
-      value: Optional[_NumberType] = None,
-      unit: Optional[_StringType] = None,
+      value: Optional[_arg_types.Number] = None,
+      unit: Optional[_arg_types.String] = None,
   ):
     """Creates a ErrorMargin wrapper.
 

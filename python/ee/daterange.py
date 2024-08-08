@@ -1,19 +1,12 @@
 """A wrapper for DateRanges."""
 from __future__ import annotations
 
-import datetime
 from typing import Any, Dict, Optional, Union
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
 from ee import ee_date
-from ee import ee_string
-
-_DateRangeType = Union['DateRange', computedobject.ComputedObject]
-_DateType = Union[
-    datetime.datetime, float, str, 'ee_date.Date', computedobject.ComputedObject
-]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class DateRange(computedobject.ComputedObject):
@@ -36,10 +29,10 @@ class DateRange(computedobject.ComputedObject):
 
   def __init__(
       self,
-      start: Union[_DateType, _DateRangeType],
-      end: Optional[_DateType] = None,
+      start: Union[_arg_types.Date, _arg_types.DateRange],
+      end: Optional[_arg_types.Date] = None,
       # pylint: disable-next=invalid-name
-      timeZone: Optional[_StringType] = None,
+      timeZone: Optional[_arg_types.String] = None,
   ):
     """Creates a DateRange wrapper.
 
@@ -92,7 +85,7 @@ class DateRange(computedobject.ComputedObject):
     return 'DateRange'
 
   def contains(
-      self, other: Union[_DateType, _DateRangeType]
+      self, other: Union[_arg_types.Date, _arg_types.DateRange]
   ) -> computedobject.ComputedObject:
     """Returns true if the given Date or DateRange is within this DateRange.
 
@@ -111,7 +104,7 @@ class DateRange(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.end', self)
 
   def intersection(
-      self, other: Union[_DateType, _DateRangeType]
+      self, other: Union[_arg_types.Date, _arg_types.DateRange]
   ) -> 'DateRange':
     """Returns a DateRange that contains all the timespan of this and other.
 
@@ -130,7 +123,7 @@ class DateRange(computedobject.ComputedObject):
     )
 
   def intersects(
-      self, other: Union[_DateType, _DateRangeType]
+      self, other: Union[_arg_types.Date, _arg_types.DateRange]
   ) -> computedobject.ComputedObject:
     """Returns true if the other DateRange has at least one time in common.
 
@@ -166,7 +159,9 @@ class DateRange(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_('DateRange.unbounded')
 
-  def union(self, other: Union[_DateType, _DateRangeType]) -> DateRange:
+  def union(
+      self, other: Union[_arg_types.Date, _arg_types.DateRange]
+  ) -> DateRange:
     """Returns a DateRange that contains all points in this and other.
 
     Args:

@@ -5,44 +5,21 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
-from ee import classifier as ee_classifier
-from ee import clusterer as ee_clusterer
 from ee import collection
 from ee import computedobject
 from ee import data
 from ee import deprecation
 from ee import ee_exception
 from ee import ee_list
-from ee import ee_number
-from ee import ee_string
 from ee import ee_types
-from ee import errormargin
 from ee import feature
 from ee import geometry
 from ee import image
-from ee import reducer as ee_reducer
-
-_ClassifierType = Union[
-    'ee_classifier.Classifier', computedobject.ComputedObject
-]
-_ClustererType = Union['ee_clusterer.Clusterer', computedobject.ComputedObject]
-_ErrorMarginType = Union[
-    float,
-    'ee_number.Number',
-    errormargin.ErrorMargin,
-    computedobject.ComputedObject,
-]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_ReducerType = Union[ee_reducer.Reducer, computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class FeatureCollection(collection.Collection):
@@ -246,8 +223,9 @@ class FeatureCollection(collection.Collection):
 
   def classify(
       self,
-      classifier: _ClassifierType,
-      outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      classifier: _arg_types.Classifier,
+      # pylint: disable-next=invalid-name
+      outputName: Optional[_arg_types.String] = None,
   ) -> FeatureCollection:
     """Returns the result of classifying each feature in a collection.
 
@@ -266,8 +244,9 @@ class FeatureCollection(collection.Collection):
 
   def cluster(
       self,
-      clusterer: _ClustererType,
-      outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      clusterer: _arg_types.Clusterer,
+      # pylint: disable-next=invalid-name
+      outputName: Optional[_arg_types.String] = None,
   ) -> FeatureCollection:
     """Returns the results of clustering each feature in a collection.
 
@@ -285,12 +264,12 @@ class FeatureCollection(collection.Collection):
 
   def inverseDistance(
       self,
-      range: _NumberType,  # pylint: disable=redefined-builtin
-      propertyName: _StringType,  # pylint: disable=invalid-name
-      mean: _NumberType,
-      stdDev: _NumberType,  # pylint: disable=invalid-name
-      gamma: Optional[_NumberType] = None,
-      reducer: Optional[_ReducerType] = None,
+      range: _arg_types.Number,  # pylint: disable=redefined-builtin
+      propertyName: _arg_types.String,  # pylint: disable=invalid-name
+      mean: _arg_types.Number,
+      stdDev: _arg_types.Number,  # pylint: disable=invalid-name
+      gamma: Optional[_arg_types.Number] = None,
+      reducer: Optional[_arg_types.Reducer] = None,
   ) -> image.Image:
     """Returns an inverse-distance weighted estimate of the value at each pixel.
 
@@ -317,13 +296,14 @@ class FeatureCollection(collection.Collection):
 
   def kriging(
       self,
-      propertyName: _StringType,  # pylint: disable=invalid-name
-      shape: _StringType,
-      range: _NumberType,  # pylint: disable=redefined-builtin
-      sill: _NumberType,
-      nugget: _NumberType,
-      maxDistance: Optional[_NumberType] = None,  # pylint: disable=invalid-name
-      reducer: Optional[_ReducerType] = None,
+      propertyName: _arg_types.String,  # pylint: disable=invalid-name
+      shape: _arg_types.String,
+      range: _arg_types.Number,  # pylint: disable=redefined-builtin
+      sill: _arg_types.Number,
+      nugget: _arg_types.Number,
+      # pylint: disable-next=invalid-name
+      maxDistance: Optional[_arg_types.Number] = None,
+      reducer: Optional[_arg_types.Reducer] = None,
   ) -> image.Image:
     """Returns the results of sampling a Kriging estimator at each pixel.
 
@@ -352,7 +332,9 @@ class FeatureCollection(collection.Collection):
     )
 
   def makeArray(
-      self, properties: _ListType, name: Optional[_StringType] = None
+      self,
+      properties: _arg_types.List,
+      name: Optional[_arg_types.String] = None,
   ) -> FeatureCollection:
     """Returns a collection with a 1-D Array property for each feature.
 
@@ -375,10 +357,10 @@ class FeatureCollection(collection.Collection):
   @staticmethod
   def randomPoints(
       region: geometry.Geometry,
-      points: Optional[_IntegerType] = None,
-      seed: Optional[_IntegerType] = None,
+      points: Optional[_arg_types.Integer] = None,
+      seed: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
   ) -> FeatureCollection:
     """Returns a collection of random points.
 

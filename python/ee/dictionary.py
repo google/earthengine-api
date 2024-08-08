@@ -1,8 +1,9 @@
 """A wrapper for dictionaries."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Optional, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
@@ -13,20 +14,10 @@ from ee import ee_string
 from ee import geometry
 from ee import image
 
-_DictType = Union[
-    Dict[Any, Any], Sequence[Any], 'Dictionary', computedobject.ComputedObject
-]
-_EeAnyType = Union[Any, computedobject.ComputedObject]
-_EeBoolType = Union[Any, computedobject.ComputedObject]
 # bool, float, and int are automatically converted to ee.String for keys.
 _EeKeyType = Union[bool, float, int, str, computedobject.ComputedObject]
 # TODO: Make a better type for a list of keys.
-_EeKeyListType = _EeAnyType
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
+_EeKeyListType = Any
 # TODO: Make a better type for a list of strings.
 #   Or is this the same as _EeKeyListType?
 _StringListType = Union[Any, computedobject.ComputedObject]
@@ -42,7 +33,7 @@ class Dictionary(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, arg: Optional[_DictType] = None):
+  def __init__(self, arg: Optional[_arg_types.Dictionary] = None):
     """Construct a dictionary.
 
     Args:
@@ -98,7 +89,9 @@ class Dictionary(computedobject.ComputedObject):
       return super().encode_cloud_value(encoder)
 
   def combine(
-      self, second: _DictType, overwrite: Optional[_EeBoolType] = None
+      self,
+      second: _arg_types.Dictionary,
+      overwrite: Optional[_arg_types.Bool] = None,
   ) -> Dictionary:
     """Combines two dictionaries.
 
@@ -119,7 +112,7 @@ class Dictionary(computedobject.ComputedObject):
         self.name() + '.combine', self, second, overwrite
     )
 
-  def contains(self, key: _StringType) -> computedobject.ComputedObject:
+  def contains(self, key: _arg_types.String) -> computedobject.ComputedObject:
     """Returns true if the dictionary contains the given key.
 
     Args:
@@ -133,7 +126,7 @@ class Dictionary(computedobject.ComputedObject):
 
   # TODO: keys should be a _StringListType.
   @staticmethod
-  def fromLists(keys: _ListType, values: _ListType) -> Dictionary:
+  def fromLists(keys: _arg_types.List, values: _arg_types.List) -> Dictionary:
     """Returns a dictionary from two parallel lists of keys and values.
 
     Args:
@@ -147,7 +140,7 @@ class Dictionary(computedobject.ComputedObject):
       self,
       key: _EeKeyType,
       # pylint: disable-next=invalid-name
-      defaultValue: Optional[_EeAnyType] = None,
+      defaultValue: Optional[_arg_types.Any] = None,
   ) -> computedobject.ComputedObject:
     """Extracts a named value from a dictionary.
 
@@ -222,7 +215,7 @@ class Dictionary(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.keys', self)
 
   # pylint: disable-next=invalid-name
-  def map(self, baseAlgorithm: _EeAnyType) -> Dictionary:
+  def map(self, baseAlgorithm: _arg_types.Any) -> Dictionary:
     """Map an algorithm over a dictionary.
 
     The algorithm is expected to take 2 arguments, a key from the existing
@@ -242,9 +235,9 @@ class Dictionary(computedobject.ComputedObject):
 
   def remove(
       self,
-      selectors: _EeAnyType,
+      selectors: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      ignoreMissing: Optional[_EeBoolType] = None,
+      ignoreMissing: Optional[_arg_types.Bool] = None,
   ) -> Dictionary:
     """Returns a dictionary with the specified keys removed.
 
@@ -283,9 +276,9 @@ class Dictionary(computedobject.ComputedObject):
 
   def select(
       self,
-      selectors: _EeAnyType,
+      selectors: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      ignoreMissing: Optional[_EeBoolType] = None,
+      ignoreMissing: Optional[_arg_types.Bool] = None,
   ) -> Dictionary:
     """Returns a dictionary with only the specified keys.
 
@@ -302,7 +295,7 @@ class Dictionary(computedobject.ComputedObject):
         self.name() + '.select', self, selectors, ignoreMissing
     )
 
-  def set(self, key: _EeKeyType, value: _EeAnyType) -> Dictionary:
+  def set(self, key: _EeKeyType, value: _arg_types.Any) -> Dictionary:
     """Set a value in a dictionary.
 
     Args:
@@ -323,7 +316,7 @@ class Dictionary(computedobject.ComputedObject):
   def toArray(
       self,
       keys: Optional[_EeKeyListType] = None,
-      axis: Optional[_IntegerType] = None,
+      axis: Optional[_arg_types.Integer] = None,
   ) -> ee_array.Array:
     """Returns numeric values of a dictionary as an array.
 
@@ -342,7 +335,7 @@ class Dictionary(computedobject.ComputedObject):
         self.name() + '.toArray', self, keys, axis
     )
 
-  def toImage(self, names: Optional[_EeAnyType] = None) -> image.Image:
+  def toImage(self, names: Optional[_arg_types.Any] = None) -> image.Image:
     """Creates an image of constants from values in a dictionary.
 
     The bands of the image are ordered and named according to the names

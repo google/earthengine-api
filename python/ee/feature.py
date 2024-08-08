@@ -1,8 +1,9 @@
 """An object representing EE Features."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
@@ -13,30 +14,7 @@ from ee import ee_list
 from ee import ee_number
 from ee import ee_string
 from ee import element
-from ee import errormargin
 from ee import geometry
-from ee import projection
-
-_EeAnyType = Union[Any, computedobject.ComputedObject]
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_ErrorMarginType = Union[
-    float,
-    'ee_number.Number',
-    errormargin.ErrorMargin,
-    computedobject.ComputedObject,
-]
-_GeometryType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_ProjectionType = Union[
-    str,
-    'ee_string.String',
-    projection.Projection,
-    computedobject.ComputedObject,
-]
 
 
 class Feature(element.Element):
@@ -159,8 +137,8 @@ class Feature(element.Element):
   def area(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> ee_number.Number:
     """Returns the area of the feature's default geometry.
 
@@ -182,8 +160,8 @@ class Feature(element.Element):
   def bounds(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns a feature containing the bounding box of the geometry.
 
@@ -200,10 +178,10 @@ class Feature(element.Element):
 
   def buffer(
       self,
-      distance: _NumberType,
+      distance: _arg_types.Number,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns the input buffered by a given distance.
 
@@ -230,8 +208,8 @@ class Feature(element.Element):
   def centroid(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns a point at the center.
 
@@ -254,10 +232,10 @@ class Feature(element.Element):
 
   def containedIn(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if the geometry is contained in the geometry of another.
 
@@ -280,10 +258,10 @@ class Feature(element.Element):
 
   def contains(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if the geometry contains the geometry of another.
 
@@ -307,8 +285,8 @@ class Feature(element.Element):
   def convexHull(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns the convex hull of the original geometry.
 
@@ -331,10 +309,10 @@ class Feature(element.Element):
 
   def cutLines(
       self,
-      distances: _ListType,
+      distances: _arg_types.List,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns a feature containing the cut lines.
 
@@ -360,10 +338,10 @@ class Feature(element.Element):
 
   def difference(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns the geometry of the feature minus the 'right' geometry.
 
@@ -387,10 +365,10 @@ class Feature(element.Element):
 
   def disjoint(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if and only if the feature geometries are disjoint.
 
@@ -414,8 +392,8 @@ class Feature(element.Element):
   def dissolve(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns a feature containing the union of the geometry of a feature.
 
@@ -434,10 +412,10 @@ class Feature(element.Element):
 
   def distance(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> ee_number.Number:
     """Returns the minimum distance between the geometries of two features.
 
@@ -458,9 +436,9 @@ class Feature(element.Element):
   def geometry(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
-      geodesics: Optional[_EeBoolType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
+      geodesics: Optional[_arg_types.Bool] = None,
   ) -> 'geometry.Geometry':
     """Returns the geometry of a given feature in a given projection.
 
@@ -481,10 +459,10 @@ class Feature(element.Element):
 
   def hersDescriptor(
       self,
-      selectors: Optional[_ListType] = None,
-      buckets: Optional[_IntegerType] = None,
+      selectors: Optional[_arg_types.List] = None,
+      buckets: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      peakWidthScale: Optional[_NumberType] = None,
+      peakWidthScale: Optional[_arg_types.Number] = None,
   ) -> dictionary.Dictionary:
     """Returns a dictionary of Histogram Error Ring Statistic (HERS) arrays.
 
@@ -518,10 +496,10 @@ class Feature(element.Element):
 
   def intersection(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns the intersection of the geometries with right.
 
@@ -547,10 +525,10 @@ class Feature(element.Element):
 
   def intersects(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if and only if the feature geometries intersect.
 
@@ -574,8 +552,8 @@ class Feature(element.Element):
   def length(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> ee_number.Number:
     """Returns the length of the linear parts of the geometry of a feature.
 
@@ -596,8 +574,8 @@ class Feature(element.Element):
   def perimeter(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> ee_number.Number:
     """Returns the length of the perimeter of the polygonal parts of the geometry of a given feature.
 
@@ -618,9 +596,9 @@ class Feature(element.Element):
   def select(
       self,
       # pylint: disable=invalid-name
-      propertySelectors: _ListType,
-      newProperties: Optional[_ListType] = None,
-      retainGeometry: Optional[_EeBoolType] = None,
+      propertySelectors: _arg_types.List,
+      newProperties: Optional[_arg_types.List] = None,
+      retainGeometry: Optional[_arg_types.Bool] = None,
       # pylint: enable=invalid-name
   ) -> Feature:
     """Returns a feature with the selected properties.
@@ -644,7 +622,9 @@ class Feature(element.Element):
         retainGeometry,
     )
 
-  def setGeometry(self, geometry: Optional[_GeometryType] = None) -> Feature:
+  def setGeometry(
+      self, geometry: Optional[_arg_types.Geometry] = None
+  ) -> Feature:
     """Returns the feature with the geometry replaced by the specified geometry.
 
     Args:
@@ -658,8 +638,8 @@ class Feature(element.Element):
   def simplify(
       self,
       # pylint: disable-next=invalid-name
-      maxError: _ErrorMarginType,
-      proj: Optional[_ProjectionType] = None,
+      maxError: _arg_types.ErrorMargin,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns a feature with geometry simplified to within an error margin.
 
@@ -688,10 +668,10 @@ class Feature(element.Element):
 
   def symmetricDifference(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns a feature containing the symmetric difference with right.
 
@@ -709,7 +689,7 @@ class Feature(element.Element):
         self.name() + '.symmetricDifference', self, right, maxError, proj
     )
 
-  def toArray(self, properties: _ListType) -> ee_array.Array:
+  def toArray(self, properties: _arg_types.List) -> ee_array.Array:
     """Returns an array from the given properties of an object.
 
     The properties must all be numbers.
@@ -724,9 +704,9 @@ class Feature(element.Element):
 
   def transform(
       self,
-      proj: Optional[_ProjectionType] = None,
+      proj: Optional[_arg_types.Projection] = None,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
   ) -> Feature:
     """Transforms the geometry of a feature to a specific projection.
 
@@ -747,10 +727,10 @@ class Feature(element.Element):
 
   def union(
       self,
-      right: _EeAnyType,
+      right: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Feature:
     """Returns a feature containing the union of the geometries of two features.
 
@@ -770,11 +750,11 @@ class Feature(element.Element):
 
   def withinDistance(
       self,
-      right: _EeAnyType,
-      distance: _NumberType,
+      right: _arg_types.Any,
+      distance: _arg_types.Number,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if the geometries of right are within a specified distance.
 

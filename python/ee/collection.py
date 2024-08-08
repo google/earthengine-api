@@ -6,8 +6,9 @@ This class is never intended to be instantiated by the user.
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, Optional, Type, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
@@ -18,32 +19,12 @@ from ee import ee_date
 from ee import ee_exception
 from ee import ee_list
 from ee import ee_number
-from ee import ee_string
 from ee import element
-from ee import errormargin
 from ee import featurecollection
 from ee import filter as ee_filter
 from ee import function
 from ee import geometry as ee_geometry
 from ee import image
-from ee import reducer
-
-_ErrorMarginType = Union[
-    float,
-    'ee_number.Number',
-    errormargin.ErrorMargin,
-    computedobject.ComputedObject,
-]
-_FeatureCollectionType = Union[
-    Any, 'featurecollection.FeatureCollection', computedobject.ComputedObject
-]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Collection(element.Element):
@@ -85,7 +66,7 @@ class Collection(element.Element):
     return 'Collection'
 
   # pylint: disable-next=redefined-builtin
-  def aggregate_array(self, property: _StringType) -> ee_list.List:
+  def aggregate_array(self, property: _arg_types.String) -> ee_list.List:
     """Returns a list of all the values of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -100,7 +81,7 @@ class Collection(element.Element):
     )
 
   # pylint: disable-next=redefined-builtin
-  def count(self, property: _StringType) -> ee_number.Number:
+  def count(self, property: _arg_types.String) -> ee_number.Number:
     """Returns the number of non-null values of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -115,7 +96,7 @@ class Collection(element.Element):
     )
 
   # pylint: disable-next=redefined-builtin
-  def aggregate_count(self, property: _StringType) -> ee_number.Number:
+  def aggregate_count(self, property: _arg_types.String) -> ee_number.Number:
     """Returns the number of distinct values of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -129,8 +110,10 @@ class Collection(element.Element):
         'AggregateFeatureCollection.count', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_count_distinct(self, property: _StringType) -> ee_number.Number:
+  def aggregate_count_distinct(
+      self,
+      property: _arg_types.String,  # pylint: disable=redefined-builtin
+  ) -> ee_number.Number:
     """Returns the number of distinct values of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -145,7 +128,7 @@ class Collection(element.Element):
     )
 
   def aggregate_first(
-      self, property: _StringType  # pylint: disable=redefined-builtin
+      self, property: _arg_types.String  # pylint: disable=redefined-builtin
   ) -> computedobject.ComputedObject:
     """Returns the first value of the selected property.
 
@@ -160,8 +143,9 @@ class Collection(element.Element):
         'AggregateFeatureCollection.first', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_histogram(self, property: _StringType) -> dictionary.Dictionary:
+  def aggregate_histogram(
+      self, property: _arg_types.String  # pylint: disable=redefined-builtin
+  ) -> dictionary.Dictionary:
     """Returns a histogram of the selected property as a dictionary.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -179,7 +163,7 @@ class Collection(element.Element):
     )
 
   def aggregate_max(
-      self, property: _StringType  # pylint: disable=redefined-builtin
+      self, property: _arg_types.String  # pylint: disable=redefined-builtin
   ) -> computedobject.ComputedObject:
     """Returns the maximum value of the selected property.
 
@@ -195,7 +179,7 @@ class Collection(element.Element):
     )
 
   # pylint: disable-next=redefined-builtin
-  def aggregate_mean(self, property: _StringType) -> ee_number.Number:
+  def aggregate_mean(self, property: _arg_types.String) -> ee_number.Number:
     """Returns the mean of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -210,7 +194,7 @@ class Collection(element.Element):
     )
 
   def aggregate_min(
-      self, property: _StringType  # pylint: disable=redefined-builtin
+      self, property: _arg_types.String  # pylint: disable=redefined-builtin
   ) -> computedobject.ComputedObject:
     """Returns the minimum value of the selected property.
 
@@ -226,7 +210,7 @@ class Collection(element.Element):
     )
 
   # pylint: disable-next=redefined-builtin
-  def aggregate_product(self, property: _StringType) -> ee_number.Number:
+  def aggregate_product(self, property: _arg_types.String) -> ee_number.Number:
     """Returns the product of the values ofthe selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -240,8 +224,11 @@ class Collection(element.Element):
         'AggregateFeatureCollection.product', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_sample_sd(self, property: _StringType) -> ee_number.Number:
+  def aggregate_sample_sd(
+      self,
+      # pylint: disable-next=redefined-builtin
+      property: _arg_types.String,
+  ) -> ee_number.Number:
     """Returns the sample standard deviation of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -255,8 +242,11 @@ class Collection(element.Element):
         'AggregateFeatureCollection.sample_sd', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_sample_var(self, property: _StringType) -> ee_number.Number:
+  def aggregate_sample_var(
+      self,
+      # pylint: disable-next=redefined-builtin
+      property: _arg_types.String,
+  ) -> ee_number.Number:
     """Returns the sample variance of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -273,8 +263,11 @@ class Collection(element.Element):
         'AggregateFeatureCollection.sample_var', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_stats(self, property: _StringType) -> dictionary.Dictionary:
+  def aggregate_stats(
+      self,
+      # pylint: disable-next=redefined-builtin
+      property: _arg_types.String,
+  ) -> dictionary.Dictionary:
     """Returns a dictionary of statistics for the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -290,7 +283,7 @@ class Collection(element.Element):
     )
 
   # pylint: disable-next=redefined-builtin
-  def aggregate_sum(self, property: _StringType) -> ee_number.Number:
+  def aggregate_sum(self, property: _arg_types.String) -> ee_number.Number:
     """Returns the sum of the values of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -305,7 +298,7 @@ class Collection(element.Element):
     )
 
   # pylint: disable-next=redefined-builtin
-  def aggregate_total_sd(self, property: _StringType) -> ee_number.Number:
+  def aggregate_total_sd(self, property: _arg_types.String) -> ee_number.Number:
     """Returns the total standard deviation of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -319,8 +312,11 @@ class Collection(element.Element):
         'AggregateFeatureCollection.total_sd', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_total_var(self, property: _StringType) -> ee_number.Number:
+  def aggregate_total_var(
+      self,
+      # pylint: disable-next=redefined-builtin
+      property: _arg_types.String,
+  ) -> ee_number.Number:
     """Returns the total variance of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -337,8 +333,8 @@ class Collection(element.Element):
   def distance(
       self,
       # pylint: disable=invalid-name
-      searchRadius: Optional[_NumberType] = None,
-      maxError: Optional[_NumberType] = None,
+      searchRadius: Optional[_arg_types.Number] = None,
+      maxError: Optional[_arg_types.Number] = None,
       # pylint: enable=invalid-name
   ) -> image.Image:
     """Returns a distance image for the collection.
@@ -366,7 +362,7 @@ class Collection(element.Element):
     )
 
   def distinct(
-      self, properties: Union[_StringType, _ListType]
+      self, properties: Union[_arg_types.String, _arg_types.List]
   ) -> featurecollection.FeatureCollection:
     """Returns a collection with duplicates removed.
 
@@ -385,10 +381,10 @@ class Collection(element.Element):
 
   def draw(
       self,
-      color: _StringType,
+      color: _arg_types.String,
       # pylint: disable=invalid-name
-      pointRadius: Optional[_IntegerType] = None,
-      strokeWidth: Optional[_IntegerType] = None,
+      pointRadius: Optional[_arg_types.Integer] = None,
+      strokeWidth: Optional[_arg_types.Integer] = None,
       # pylint: enable=invalid-name
   ) -> image.Image:
     """Returns a painted image of a vector collection for visualization.
@@ -413,9 +409,9 @@ class Collection(element.Element):
 
   def errorMatrix(
       self,
-      actual: _StringType,
-      predicted: _StringType,
-      order: Optional[_ListType] = None,
+      actual: _arg_types.String,
+      predicted: _arg_types.String,
+      order: Optional[_arg_types.List] = None,
   ) -> confusionmatrix.ConfusionMatrix:
     """Returns a 2D error matrix for a collection.
 
@@ -540,7 +536,7 @@ class Collection(element.Element):
   def geometry(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
   ) -> ee_geometry.Geometry:
     """Returns the geometry of a collection.
 
@@ -636,10 +632,10 @@ class Collection(element.Element):
   @staticmethod
   def loadTable(
       # pylint: disable=invalid-name
-      tableId: _StringType,
-      geometryColumn: Optional[_StringType] = None,
+      tableId: _arg_types.String,
+      geometryColumn: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
-      version: Optional[_IntegerType] = None,
+      version: Optional[_arg_types.Integer] = None,
   ) -> featurecollection.FeatureCollection:
     """Returns a Collection of features from a specified table.
 
@@ -688,7 +684,7 @@ class Collection(element.Element):
     )
 
   def merge(
-      self, collection2: _FeatureCollectionType
+      self, collection2: _arg_types.FeatureCollection
   ) -> featurecollection.FeatureCollection:
     """Returns a collection with the elements from two collections.
 
@@ -711,9 +707,10 @@ class Collection(element.Element):
 
   def randomColumn(
       self,
-      columnName: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      seed: Optional[_IntegerType] = None,
-      distribution: Optional[_StringType] = None,
+      # pylint: disable=next=invalid-name
+      columnName: Optional[_arg_types.String] = None,
+      seed: Optional[_arg_types.Integer] = None,
+      distribution: Optional[_arg_types.String] = None,
   ) -> featurecollection.FeatureCollection:
     """Returns a collection with a random column added to each feature.
 
@@ -736,10 +733,10 @@ class Collection(element.Element):
 
   def reduceColumns(
       self,
-      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
-      selectors: _ListType,
+      reducer: _arg_types.Reducer,
+      selectors: _arg_types.List,
       # pylint: disable=invalid-name
-      weightSelectors: Optional[_ListType] = None,
+      weightSelectors: Optional[_arg_types.List] = None,
   ) -> dictionary.Dictionary:
     """Returns a dictionary of results, keyed with the output names.
 
@@ -762,7 +759,7 @@ class Collection(element.Element):
     )
 
   def reduceToImage(
-      self, properties: _ListType, reducer: _ReducerType  # pylint: disable=redefined-outer-name
+      self, properties: _arg_types.List, reducer: _arg_types.Reducer
   ) -> image.Image:
     """Returns an image from a collection using a reducer.
 
@@ -783,9 +780,9 @@ class Collection(element.Element):
   def remap(
       self,
       # pylint: disable=invalid-name
-      lookupIn: _ListType,
-      lookupOut: _ListType,
-      columnName: _StringType,
+      lookupIn: _arg_types.List,
+      lookupOut: _arg_types.List,
+      columnName: _arg_types.String,
       # pylint: enable=invalid-name
   ) -> featurecollection.FeatureCollection:
     """Remaps the value of a specific property in a collection.
@@ -833,15 +830,19 @@ class Collection(element.Element):
 
   def style(
       self,
-      color: Optional[_StringType] = None,
-      pointSize: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
-      pointShape: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      width: Optional[_NumberType] = None,
-      fillColor: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      color: Optional[_arg_types.String] = None,
+      # pylint: disable=invalid-name
+      pointSize: Optional[_arg_types.Integer] = None,
+      pointShape: Optional[_arg_types.String] = None,
+      # pylint: enable=invalid-name
+      width: Optional[_arg_types.Number] = None,
+      # pylint: disable=invalid-name
+      fillColor: Optional[_arg_types.String] = None,
+      styleProperty: Optional[_arg_types.String] = None,
+      # pylint: enable=invalid-name
+      neighborhood: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      styleProperty: Optional[_StringType] = None,
-      neighborhood: Optional[_IntegerType] = None,
-      lineType: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      lineType: Optional[_arg_types.String] = None,
   ) -> image.Image:
     """Draw a vector collection for visualization using a simple style language.
 
@@ -886,7 +887,9 @@ class Collection(element.Element):
     )
 
   def toList(
-      self, count: _IntegerType, offset: Optional[_IntegerType] = None
+      self,
+      count: _arg_types.Integer,
+      offset: Optional[_arg_types.Integer] = None,
   ) -> ee_list.List:
     """Returns the elements of a collection as a list.
 
@@ -904,7 +907,7 @@ class Collection(element.Element):
   def union(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
   ) -> featurecollection.FeatureCollection:
     """Returns a collection containing a single feature with a unioned geometry.
 

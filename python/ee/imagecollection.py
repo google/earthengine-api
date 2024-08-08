@@ -2,49 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import collection
 from ee import computedobject
 from ee import data
 from ee import deprecation
-from ee import dictionary
 from ee import ee_exception
 from ee import ee_list
-from ee import ee_number
-from ee import ee_string
 from ee import ee_types
 from ee import image
-from ee import projection
-from ee import reducer
-
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_DictionaryType = Union[
-    Dict[Any, Any],
-    Sequence[Any],
-    'dictionary.Dictionary',
-    computedobject.ComputedObject,
-]
-_GeometryType = Union[Any, computedobject.ComputedObject]
-# The full range in inputs for an ImageCollection argument is large.
-_ImageCollectionType = Union[
-    Any, 'ImageCollection', computedobject.ComputedObject
-]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
-_ProjectionType = Union[
-    str,
-    'ee_string.String',
-    projection.Projection,
-    computedobject.ComputedObject,
-]
-_ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
-_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 REDUCE_PREFIX = 'reduce'
 
@@ -400,8 +370,8 @@ class ImageCollection(collection.Collection):
 
   def cast(
       self,
-      bandTypes: _DictionaryType,  # pylint: disable=invalid-name
-      bandOrder: _ListType,  # pylint: disable=invalid-name
+      bandTypes: _arg_types.Dictionary,  # pylint: disable=invalid-name
+      bandOrder: _arg_types.List,  # pylint: disable=invalid-name
   ) -> ImageCollection:
     """Casts some or all bands of each image to the specified types.
 
@@ -425,8 +395,8 @@ class ImageCollection(collection.Collection):
 
   def combine(
       self,
-      secondary: _ImageCollectionType,
-      overwrite: Optional[_EeBoolType] = None,
+      secondary: _arg_types.ImageCollection,
+      overwrite: Optional[_arg_types.Bool] = None,
   ) -> ImageCollection:
     """Returns a collection adding all the bands from the image in secondary.
 
@@ -450,8 +420,9 @@ class ImageCollection(collection.Collection):
 
   def formaTrend(
       self,
-      covariates: Optional[_ImageCollectionType] = None,
-      windowSize: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
+      covariates: Optional[_arg_types.ImageCollection] = None,
+      # pylint: enable=invalid-name
+      windowSize: Optional[_arg_types.Integer] = None,
   ) -> image.Image:
     """Returns an image with the forma trend of the collection.
 
@@ -477,17 +448,18 @@ class ImageCollection(collection.Collection):
     )
 
   @staticmethod
-  def fromImages(images: _ListType) -> ImageCollection:
+  def fromImages(images: _arg_types.List) -> ImageCollection:
     """Returns the image collection containing the given images."""
 
     return apifunction.ApiFunction.call_('ImageCollection.fromImages', images)
 
   def getRegion(
       self,
-      geometry: _GeometryType,
-      scale: Optional[_NumberType] = None,
-      crs: Optional[_ProjectionType] = None,
-      crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
+      geometry: _arg_types.Geometry,
+      scale: Optional[_arg_types.Number] = None,
+      crs: Optional[_arg_types.Projection] = None,
+      # pylint: disable-next=invalid-name
+      crsTransform: Optional[_arg_types.List] = None,
   ) -> ee_list.List:
     """Returns a list of values for each [pixel, band, image] tuple.
 
@@ -514,7 +486,7 @@ class ImageCollection(collection.Collection):
 
   @staticmethod
   def load(
-      id: _StringType, version: Optional[_IntegerType] = None
+      id: _arg_types.String, version: Optional[_arg_types.Integer] = None
   ) -> ImageCollection:
     """Returns the image collection given its ID.
 
@@ -525,7 +497,7 @@ class ImageCollection(collection.Collection):
 
     return apifunction.ApiFunction.call_('ImageCollection.load', id, version)
 
-  def merge(self, collection2: _ImageCollectionType) -> ImageCollection:
+  def merge(self, collection2: _arg_types.ImageCollection) -> ImageCollection:
     """Returns a collection of two image collections merged into one.
 
     The result has all the images that were in either collection.
@@ -544,7 +516,7 @@ class ImageCollection(collection.Collection):
     return apifunction.ApiFunction.call_(self.name() + '.mosaic', self)
 
   def qualityMosaic(
-      self, qualityBand: _StringType  # pylint: disable=invalid-name
+      self, qualityBand: _arg_types.String  # pylint: disable=invalid-name
   ) -> image.Image:
     """Returns an image with the quality mosaic of the collection.
 
@@ -561,9 +533,9 @@ class ImageCollection(collection.Collection):
 
   def reduce(
       self,
-      reducer: _ReducerType,
+      reducer: _arg_types.Reducer,
       # pylint: disable-next=invalid-name
-      parallelScale: Optional[_NumberType] = None,
+      parallelScale: Optional[_arg_types.Number] = None,
   ) -> image.Image:
     """Returns a reduced image from the collection.
 
@@ -601,7 +573,9 @@ class ImageCollection(collection.Collection):
 
     return apifunction.ApiFunction.call_(self.name() + '.toArray', self)
 
-  def toArrayPerBand(self, axis: Optional[_IntegerType] = None) -> image.Image:
+  def toArrayPerBand(
+      self, axis: Optional[_arg_types.Integer] = None
+  ) -> image.Image:
     """Returns an image of an image collection converted into 2D arrays.
 
     Concatenates multiple images into a single array image. The result will be

@@ -1,22 +1,11 @@
 """A wrapper for Kernels."""
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import Optional
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
-from ee import ee_list
-from ee import ee_number
-from ee import ee_string
-
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_KernelType = Union['Kernel', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Kernel(computedobject.ComputedObject):
@@ -67,7 +56,9 @@ class Kernel(computedobject.ComputedObject):
     return 'Kernel'
 
   def add(
-      self, kernel2: _KernelType, normalize: Optional[_EeBoolType] = None
+      self,
+      kernel2: _arg_types.Kernel,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns the addition of two kernels.
 
@@ -87,10 +78,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def chebyshev(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a Chebyshev kernel.
 
@@ -112,10 +103,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def circle(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a circle-shaped boolean kernel.
 
@@ -134,8 +125,8 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def compass(
-      magnitude: Optional[_NumberType] = None,
-      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_arg_types.Number] = None,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns a 3x3 Prewitt's Compass edge-detection kernel.
 
@@ -148,10 +139,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def cross(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a cross-shaped boolean kernel.
 
@@ -170,10 +161,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def diamond(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a diamond-shaped boolean kernel.
 
@@ -192,10 +183,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def euclidean(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a distance kernel based on Euclidean (straight-line) distance.
 
@@ -215,12 +206,12 @@ class Kernel(computedobject.ComputedObject):
   # TODO: Test missing weights.
   @staticmethod
   def fixed(
-      width: Optional[_IntegerType] = None,
-      height: Optional[_IntegerType] = None,
-      weights: Optional[_ListType] = None,
-      x: Optional[_IntegerType] = None,
-      y: Optional[_IntegerType] = None,
-      normalize: Optional[_EeBoolType] = None,
+      width: Optional[_arg_types.Integer] = None,
+      height: Optional[_arg_types.Integer] = None,
+      weights: Optional[_arg_types.List] = None,
+      x: Optional[_arg_types.Integer] = None,
+      y: Optional[_arg_types.Integer] = None,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns a kernel with the given weights.
 
@@ -242,11 +233,11 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def gaussian(
-      radius: _NumberType,
-      sigma: Optional[_NumberType] = None,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      sigma: Optional[_arg_types.Number] = None,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a Gaussian kernel from a sampled continuous Gaussian.
 
@@ -274,8 +265,8 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def kirsch(
-      magnitude: Optional[_NumberType] = None,
-      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_arg_types.Number] = None,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns a 3x3 Kirsch's Compass edge-detection kernel.
 
@@ -288,8 +279,8 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def laplacian4(
-      magnitude: Optional[_NumberType] = None,
-      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_arg_types.Number] = None,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns a 3x3 Laplacian-4 edge-detection kernel.
 
@@ -304,8 +295,8 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def laplacian8(
-      magnitude: Optional[_NumberType] = None,
-      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_arg_types.Number] = None,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns a 3x3 Laplacian-8 edge-detection kernel.
 
@@ -320,10 +311,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def manhattan(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a distance kernel based on rectilinear (city-block) distance.
 
@@ -342,10 +333,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def octagon(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns an octagon-shaped boolean kernel.
 
@@ -364,10 +355,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def plus(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a plus-shaped boolean kernel.
 
@@ -386,8 +377,8 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def prewitt(
-      magnitude: Optional[_NumberType] = None,
-      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_arg_types.Number] = None,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns a 3x3 Prewitt edge-detection kernel.
 
@@ -400,11 +391,11 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def rectangle(
-      xRadius: _NumberType,  # pylint: disable=invalid-name
-      yRadius: _NumberType,  # pylint: disable=invalid-name
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      xRadius: _arg_types.Number,  # pylint: disable=invalid-name
+      yRadius: _arg_types.Number,  # pylint: disable=invalid-name
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a rectangular-shaped kernel.
 
@@ -424,8 +415,8 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def roberts(
-      magnitude: Optional[_NumberType] = None,
-      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_arg_types.Number] = None,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns a 2x2 Roberts edge-detection kernel.
 
@@ -436,7 +427,7 @@ class Kernel(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_('Kernel.roberts', magnitude, normalize)
 
-  def rotate(self, rotations: _IntegerType) -> Kernel:
+  def rotate(self, rotations: _arg_types.Integer) -> Kernel:
     """Returns a rotated kernel.
 
     Args:
@@ -450,8 +441,8 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def sobel(
-      magnitude: Optional[_NumberType] = None,
-      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_arg_types.Number] = None,
+      normalize: Optional[_arg_types.Bool] = None,
   ) -> Kernel:
     """Returns a 3x3 Sobel edge-detection kernel.
 
@@ -464,10 +455,10 @@ class Kernel(computedobject.ComputedObject):
 
   @staticmethod
   def square(
-      radius: _NumberType,
-      units: Optional[_StringType] = None,
-      normalize: Optional[_EeBoolType] = None,
-      magnitude: Optional[_NumberType] = None,
+      radius: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      normalize: Optional[_arg_types.Bool] = None,
+      magnitude: Optional[_arg_types.Number] = None,
   ) -> Kernel:
     """Returns a square-shaped boolean kernel.
 

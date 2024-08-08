@@ -3,14 +3,13 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Sequence, Union
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
 from ee import ee_number
 from ee import ee_string
 
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_NumberSequenceType = Union[Sequence[_NumberType]]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
+_NumberSequenceType = Union[Sequence['_arg_types.Number']]
 
 
 class Projection(computedobject.ComputedObject):
@@ -45,10 +44,10 @@ class Projection(computedobject.ComputedObject):
 
   def __init__(
       self,
-      crs: _StringType,
+      crs: _arg_types.String,
       transform: Optional[_NumberSequenceType] = None,
       # pylint: disable-next=invalid-name
-      transformWkt: Optional[_StringType] = None,
+      transformWkt: Optional[_arg_types.String] = None,
   ):
     """Creates a Projection wrapper.
 
@@ -107,7 +106,7 @@ class Projection(computedobject.ComputedObject):
   def name() -> str:
     return 'Projection'
 
-  def atScale(self, meters: _NumberType) -> Projection:
+  def atScale(self, meters: _arg_types.Number) -> Projection:
     """Returns an ee.Projection scaled to the given scale in linear meters.
 
     Returns the projection scaled such that its units have the given scale in
@@ -137,7 +136,7 @@ class Projection(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.nominalScale', self)
 
-  def scale(self, x: _NumberType, y: _NumberType) -> Projection:
+  def scale(self, x: _arg_types.Number, y: _arg_types.Number) -> Projection:
     """Returns an ee.Projection scaled by the given amount in each axis.
 
     Args:
@@ -156,7 +155,7 @@ class Projection(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.transform', self)
 
-  def translate(self, x: _NumberType, y: _NumberType) -> Projection:
+  def translate(self, x: _arg_types.Number, y: _arg_types.Number) -> Projection:
     """Returns an ee.Projection translated by the given amount in each axis.
 
     Args:

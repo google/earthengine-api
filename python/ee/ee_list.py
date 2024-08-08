@@ -4,6 +4,7 @@ from __future__ import annotations
 # List clashes with the class List, so call it ListType
 from typing import Any, List as ListType, Optional, Tuple, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
@@ -14,17 +15,6 @@ from ee import ee_string
 from ee import filter as ee_filter
 from ee import geometry
 from ee import reducer as ee_reducer
-
-_EeAnyType = Union[Any, computedobject.ComputedObject]
-# TODO: What will the backend accept for bools?
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_EeListType = Union[
-    ListType[Any], Tuple[Any], Tuple[Any, Any], computedobject.ComputedObject
-]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
-_ReducerType = Union[ee_reducer.Reducer, computedobject.ComputedObject]
 
 
 class List(computedobject.ComputedObject):
@@ -38,7 +28,7 @@ class List(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, arg: Optional[_EeListType]):
+  def __init__(self, arg: Optional[_arg_types.List]):
     """Construct a list wrapper.
 
     This constructor accepts the following args:
@@ -64,7 +54,7 @@ class List(computedobject.ComputedObject):
           'Invalid argument specified for ee.List(): %s' % arg)
 
   @staticmethod
-  def repeat(value: _EeAnyType, count: _IntegerType) -> List:
+  def repeat(value: _arg_types.Any, count: _arg_types.Integer) -> List:
     """Returns a new list containing value repeated count times.
 
     Args:
@@ -75,10 +65,10 @@ class List(computedobject.ComputedObject):
 
   @staticmethod
   def sequence(
-      start: _NumberType,
-      end: Optional[_NumberType] = None,
-      step: Optional[_NumberType] = None,
-      count: Optional[_IntegerType] = None,
+      start: _arg_types.Number,
+      end: Optional[_arg_types.Number] = None,
+      step: Optional[_arg_types.Number] = None,
+      count: Optional[_arg_types.Integer] = None,
   ) -> List:
     """Returns a List of numbers from start to end (inclusive).
 
@@ -142,7 +132,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.add', self, element)
 
-  def cat(self, other: _EeListType) -> List:
+  def cat(self, other: _arg_types.List) -> List:
     """Concatenates the contents of other onto list.
 
     Args:
@@ -170,7 +160,9 @@ class List(computedobject.ComputedObject):
         self.name() + '.contains', self, element
     )
 
-  def containsAll(self, other: _EeListType) -> computedobject.ComputedObject:
+  def containsAll(
+      self, other: _arg_types.List
+  ) -> computedobject.ComputedObject:
     """Returns true if list contains all of the elements of other.
 
     The results are independent of the order.
@@ -191,7 +183,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.distinct', self)
 
-  def equals(self, other: _EeListType) -> computedobject.ComputedObject:
+  def equals(self, other: _arg_types.List) -> computedobject.ComputedObject:
     """Returns true if the list contains in order the same elements as other.
 
     Args:
@@ -238,7 +230,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.frequency', self, element
     )
 
-  def get(self, index: _IntegerType) -> computedobject.ComputedObject:
+  def get(self, index: _arg_types.Integer) -> computedobject.ComputedObject:
     """Returns the element at the specified position in list.
 
     Args:
@@ -251,7 +243,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.get', self, index)
 
-  def getArray(self, index: _IntegerType) -> ee_array.Array:
+  def getArray(self, index: _arg_types.Integer) -> ee_array.Array:
     """Returns the array at the specified position in list.
 
     If the value is not a array, an error will occur.
@@ -266,7 +258,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.getArray', self, index)
 
-  def getGeometry(self, index: _IntegerType) -> geometry.Geometry:
+  def getGeometry(self, index: _arg_types.Integer) -> geometry.Geometry:
     """Returns the geometry at the specified position in list.
 
     If the value is not a geometry, an error will occur.
@@ -283,7 +275,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.getGeometry', self, index
     )
 
-  def getNumber(self, index: _IntegerType) -> ee_number.Number:
+  def getNumber(self, index: _arg_types.Integer) -> ee_number.Number:
     """Returns the number at the specified position in list.
 
     If the value is not a number, an error will occur.
@@ -300,7 +292,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.getNumber', self, index
     )
 
-  def getString(self, index: _IntegerType) -> ee_string.String:
+  def getString(self, index: _arg_types.Integer) -> ee_string.String:
     """Returns the string at the specified position in list.
 
     If the value is not a string, an error will occur.
@@ -317,7 +309,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.getString', self, index
     )
 
-  def indexOf(self, element: _EeAnyType) -> ee_number.Number:
+  def indexOf(self, element: _arg_types.Any) -> ee_number.Number:
     """Returns the position of the first occurrence of element.
 
     Returns the position of the first occurrence of target in list, or -1 if
@@ -334,7 +326,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.indexOf', self, element
     )
 
-  def indexOfSublist(self, target: _EeListType) -> ee_number.Number:
+  def indexOfSublist(self, target: _arg_types.List) -> ee_number.Number:
     """Returns the position of the first occurrence of target.
 
     Returns the starting position of the first occurrence of target within list,
@@ -351,7 +343,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.indexOfSublist', self, target
     )
 
-  def insert(self, index: _IntegerType, element: _EeAnyType) -> List:
+  def insert(self, index: _arg_types.Integer, element: _arg_types.Any) -> List:
     """Inserts element at the specified position in list.
 
     A negative index counts backwards from the end of the list.
@@ -370,7 +362,7 @@ class List(computedobject.ComputedObject):
     )
 
   # TODO: Improve the type of `function`
-  def iterate(self, function: Any, first: _EeAnyType) -> List:
+  def iterate(self, function: Any, first: _arg_types.Any) -> List:
     """Iterate an algorithm over a list.
 
     The algorithm is expected to take two objects, the current list item, and
@@ -389,7 +381,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.iterate', self, function, first
     )
 
-  def join(self, separator: _StringType = '') -> ee_string.String:
+  def join(self, separator: _arg_types.String = '') -> ee_string.String:
     """Returns a string with the list elements with the separator between them.
 
     Returns a string containing the elements of the list joined together with
@@ -407,7 +399,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.join', self, separator)
 
-  def lastIndexOfSubList(self, target: _EeListType) -> ee_number.Number:
+  def lastIndexOfSubList(self, target: _arg_types.List) -> ee_number.Number:
     """Returns the position of that last instance of target in the list.
 
     Returns the starting position of the last occurrence of target within list,
@@ -431,10 +423,9 @@ class List(computedobject.ComputedObject):
 
   # TODO: Improve the type of `baseAlgorithm`.
   def map(
-      # pylint: disable-next=invalid-name
       self,
-      baseAlgorithm: _EeAnyType,
-      dropNulls: _EeBoolType = False,
+      baseAlgorithm: _arg_types.Any,  # pylint: disable=invalid-name
+      dropNulls: _arg_types.Bool = False,
   ) -> List:
     """Map an algorithm over a list.
 
@@ -453,7 +444,9 @@ class List(computedobject.ComputedObject):
         self.name() + '.map', self, baseAlgorithm, dropNulls
     )
 
-  def reduce(self, reducer: _ReducerType) -> computedobject.ComputedObject:
+  def reduce(
+      self, reducer: _arg_types.Reducer
+  ) -> computedobject.ComputedObject:
     """Apply a reducer to a list.
 
     If the reducer takes more than 1 input, then each element in the list is
@@ -470,7 +463,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.reduce', self, reducer)
 
-  def remove(self, element: _EeAnyType) -> List:
+  def remove(self, element: _arg_types.Any) -> List:
     """Removes the first occurrence of the specified element from list.
 
     Args:
@@ -482,7 +475,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.remove', self, element)
 
-  def removeAll(self, other: _EeListType) -> List:
+  def removeAll(self, other: _arg_types.List) -> List:
     """Removes from list all of the elements that are contained in other list.
 
     Args:
@@ -496,7 +489,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.removeAll', self, other
     )
 
-  def replace(self, oldval: _EeAnyType, newval: _EeAnyType) -> List:
+  def replace(self, oldval: _arg_types.Any, newval: _arg_types.Any) -> List:
     """Replaces the first occurrence of oldval in list with newval.
 
     Args:
@@ -511,7 +504,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.replace', self, oldval, newval
     )
 
-  def replaceAll(self, oldval: _EeAnyType, newval: _EeAnyType) -> List:
+  def replaceAll(self, oldval: _arg_types.Any, newval: _arg_types.Any) -> List:
     """Replaces all occurrences of oldval in list with newval.
 
     Args:
@@ -531,7 +524,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.reverse', self)
 
-  def rotate(self, distance: _IntegerType) -> List:
+  def rotate(self, distance: _arg_types.Integer) -> List:
     """Rotates the elements of the list by the specified distance.
 
     Elements rotated off the end are pushed onto the other end of the list.
@@ -547,7 +540,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.rotate', self, distance
     )
 
-  def set(self, index: _IntegerType, element: _EeAnyType) -> List:
+  def set(self, index: _arg_types.Integer, element: _arg_types.Any) -> List:
     """Sets the value at the specified position in list.
 
     Replaces the value at the specified position in list with element. A
@@ -566,7 +559,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.set', self, index, element
     )
 
-  def shuffle(self, seed: Optional[_IntegerType] = None) -> List:
+  def shuffle(self, seed: Optional[_arg_types.Integer] = None) -> List:
     """Randomly permute the specified list.
 
     Note that the permutation order will always be the same for any given seed,
@@ -590,9 +583,9 @@ class List(computedobject.ComputedObject):
 
   def slice(
       self,
-      start: _IntegerType,
-      end: Optional[_IntegerType] = None,
-      step: Optional[_IntegerType] = None,
+      start: _arg_types.Integer,
+      end: Optional[_arg_types.Integer] = None,
+      step: Optional[_arg_types.Integer] = None,
   ) -> List:
     """Returns a range of elements from a list.
 
@@ -616,7 +609,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.slice', self, start, end, step
     )
 
-  def sort(self, keys: Optional[_EeListType] = None) -> List:
+  def sort(self, keys: Optional[_arg_types.List] = None) -> List:
     """Sorts the list into ascending order.
 
     If the keys argument is provided, then it is sorted first, and the
@@ -634,9 +627,9 @@ class List(computedobject.ComputedObject):
 
   def splice(
       self,
-      start: _IntegerType,
-      count: _IntegerType,
-      other: Optional[_EeListType] = None,
+      start: _arg_types.Integer,
+      count: _arg_types.Integer,
+      other: Optional[_arg_types.List] = None,
   ) -> List:
     """Removes elements from list and replaces with elements from other.
 
@@ -654,7 +647,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.splice', self, start, count, other
     )
 
-  def swap(self, pos1: _IntegerType, pos2: _IntegerType) -> List:
+  def swap(self, pos1: _arg_types.Integer, pos2: _arg_types.Integer) -> List:
     """Swaps the elements at the specified positions.
 
     A negative position counts backwards from the end of the list.
@@ -685,7 +678,7 @@ class List(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.unzip', self)
 
-  def zip(self, other: _EeListType) -> List:
+  def zip(self, other: _arg_types.List) -> List:
     """Pairs the elements of two lists to create a list of two-element lists.
 
     When the input lists are of different sizes, the final list has the same

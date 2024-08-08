@@ -3,16 +3,13 @@ from __future__ import annotations
 
 from typing import Any, Optional, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
 from ee import ee_list
 from ee import ee_number
-
-_EeAnyType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_StringType = Union[str, 'String', computedobject.ComputedObject]
 
 
 class String(computedobject.ComputedObject):
@@ -25,7 +22,7 @@ class String(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, string: _StringType):
+  def __init__(self, string: _arg_types.String):
     """Construct a string wrapper.
 
     This constructor accepts the following args:
@@ -85,7 +82,7 @@ class String(computedobject.ComputedObject):
     else:
       return super().encode_cloud_value(encoder)
 
-  def cat(self, string2: _StringType) -> String:
+  def cat(self, string2: _arg_types.String) -> String:
     """Concatenates two strings.
 
     Args:
@@ -97,7 +94,7 @@ class String(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.cat', self, string2)
 
-  def compareTo(self, string2: _StringType) -> ee_number.Number:
+  def compareTo(self, string2: _arg_types.String) -> ee_number.Number:
     """Compares two strings lexicographically.
 
     Args:
@@ -119,7 +116,7 @@ class String(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.decodeJSON', self)
 
   @staticmethod
-  def encodeJSON(object: _EeAnyType) -> String:
+  def encodeJSON(object: _arg_types.Any) -> String:
     """Returns an ee.String with an object encoded as JSON.
 
     Supports primitives, lists, and dictionaries.
@@ -130,9 +127,7 @@ class String(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_('String.encodeJSON', object)
 
-  def equals(
-      self, target: _StringType
-  ) -> computedobject.ComputedObject:
+  def equals(self, target: _arg_types.String) -> computedobject.ComputedObject:
     """Checks for string equality with a given object.
 
     Args:
@@ -145,7 +140,7 @@ class String(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.equals', self, target)
 
-  def index(self, pattern: _StringType) -> ee_number.Number:
+  def index(self, pattern: _arg_types.String) -> ee_number.Number:
     """Searches a string for the first occurrence of a substring.
 
     Args:
@@ -163,7 +158,7 @@ class String(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.length', self)
 
   def match(
-      self, regex: _StringType, flags: Optional[_StringType] = None
+      self, regex: _arg_types.String, flags: Optional[_arg_types.String] = None
   ) -> ee_list.List:
     """Matches a string against a regular expression.
 
@@ -182,9 +177,9 @@ class String(computedobject.ComputedObject):
 
   def replace(
       self,
-      regex: _StringType,
-      replacement: _StringType,
-      flags: Optional[_StringType] = None,
+      regex: _arg_types.String,
+      replacement: _arg_types.String,
+      flags: Optional[_arg_types.String] = None,
   ) -> String:
     """Returns a string with some or all matches of a pattern replaced.
 
@@ -202,7 +197,7 @@ class String(computedobject.ComputedObject):
         self.name() + '.replace', self, regex, replacement, flags
     )
 
-  def rindex(self, pattern: _StringType) -> ee_number.Number:
+  def rindex(self, pattern: _arg_types.String) -> ee_number.Number:
     """Searches a string for the last occurrence of a substring.
 
     Args:
@@ -215,7 +210,7 @@ class String(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.rindex', self, pattern)
 
   def slice(
-      self, start: _IntegerType, end: Optional[_IntegerType] = None
+      self, start: _arg_types.Integer, end: Optional[_arg_types.Integer] = None
   ) -> String:
     """Returns a substring of the given string.
 
@@ -237,7 +232,7 @@ class String(computedobject.ComputedObject):
     )
 
   def split(
-      self, regex: _StringType, flags: Optional[_StringType] = None
+      self, regex: _arg_types.String, flags: Optional[_arg_types.String] = None
   ) -> ee_list.List:
     """Splits a string on a regular expression into a list of strings.
 

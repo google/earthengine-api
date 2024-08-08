@@ -7,6 +7,7 @@ import json
 import math
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
@@ -15,30 +16,10 @@ from ee import ee_list
 from ee import ee_number
 from ee import ee_string
 from ee import ee_types
-from ee import errormargin
 from ee import featurecollection
 from ee import projection
 from ee import serializer
 
-_ErrorMarginType = Union[
-    float,
-    'ee_number.Number',
-    errormargin.ErrorMargin,
-    computedobject.ComputedObject,
-]
-_GeometryType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], ee_list.List, computedobject.ComputedObject
-]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
-_ProjectionType = Union[
-    str,
-    'ee_string.String',
-    projection.Projection,
-    computedobject.ComputedObject,
-]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 # A sentinel value used to detect unspecified function parameters.
 _UNSPECIFIED = object()
@@ -903,8 +884,8 @@ class Geometry(computedobject.ComputedObject):
   def area(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> ee_number.Number:
     """Returns the area of the geometry.
 
@@ -926,8 +907,8 @@ class Geometry(computedobject.ComputedObject):
   def bounds(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns the bounding rectangle of the geometry.
 
@@ -944,10 +925,10 @@ class Geometry(computedobject.ComputedObject):
 
   def buffer(
       self,
-      distance: _NumberType,
+      distance: _arg_types.Number,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns the input buffered by a given distance.
 
@@ -974,8 +955,8 @@ class Geometry(computedobject.ComputedObject):
   def centroid(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns a point at the center of the highest-dimension components.
 
@@ -996,10 +977,10 @@ class Geometry(computedobject.ComputedObject):
 
   def containedIn(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if and only if one geometry is contained in the other.
 
@@ -1021,10 +1002,10 @@ class Geometry(computedobject.ComputedObject):
 
   def contains(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if and only if one geometry contains the other.
 
@@ -1047,8 +1028,8 @@ class Geometry(computedobject.ComputedObject):
   def convexHull(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns the convex hull of the given geometry.
 
@@ -1075,7 +1056,9 @@ class Geometry(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.coordinates', self)
 
   def coveringGrid(
-      self, proj: _ProjectionType, scale: Optional[_NumberType] = None
+      self,
+      proj: _arg_types.Projection,
+      scale: Optional[_arg_types.Number] = None,
   ) -> featurecollection.FeatureCollection:
     """Returns a collection of features that cover this geometry.
 
@@ -1097,10 +1080,10 @@ class Geometry(computedobject.ComputedObject):
 
   def cutLines(
       self,
-      distances: _ListType,
+      distances: _arg_types.List,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns geometries cut into pieces along the given distances.
 
@@ -1125,10 +1108,10 @@ class Geometry(computedobject.ComputedObject):
 
   def difference(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns the result of subtracting the 'right' geometry from the geometry.
 
@@ -1147,10 +1130,10 @@ class Geometry(computedobject.ComputedObject):
 
   def disjoint(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if and only if the geometries are disjoint.
 
@@ -1173,8 +1156,8 @@ class Geometry(computedobject.ComputedObject):
   def dissolve(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns the union of the geometry.
 
@@ -1193,10 +1176,10 @@ class Geometry(computedobject.ComputedObject):
 
   def distance(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> ee_number.Number:
     """Returns the minimum distance between two geometries.
 
@@ -1230,7 +1213,7 @@ class Geometry(computedobject.ComputedObject):
 
   @staticmethod
   def fromS2CellId(
-      cellId: _IntegerType,  # pylint: disable=invalid-name
+      cellId: _arg_types.Integer,  # pylint: disable=invalid-name
   ) -> Geometry:
     """Returns the Polygon corresponding to an S2 cell id.
 
@@ -1242,7 +1225,7 @@ class Geometry(computedobject.ComputedObject):
 
   @staticmethod
   def fromS2CellToken(
-      cellToken: _StringType,  # pylint: disable=invalid-name
+      cellToken: _arg_types.String,  # pylint: disable=invalid-name
   ) -> Geometry:
     """Returns the Polygon corresponding to an S2 cell id as a hex string.
 
@@ -1272,10 +1255,10 @@ class Geometry(computedobject.ComputedObject):
 
   def intersection(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns the intersection of the two geometries.
 
@@ -1294,10 +1277,10 @@ class Geometry(computedobject.ComputedObject):
 
   def intersects(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if and only if the geometries intersect.
 
@@ -1325,8 +1308,8 @@ class Geometry(computedobject.ComputedObject):
   def length(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> ee_number.Number:
     """Returns the length of the linear parts of the geometry.
 
@@ -1347,8 +1330,8 @@ class Geometry(computedobject.ComputedObject):
   def perimeter(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> ee_number.Number:
     """Returns the perimeter length of the polygonal parts of the geometry.
 
@@ -1372,7 +1355,8 @@ class Geometry(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.projection', self)
 
   @staticmethod
-  def s2Cell(cellId: _IntegerType) -> Geometry:  # pylint: disable=invalid-name
+  # pylint: disable-next=invalid-name
+  def s2Cell(cellId: _arg_types.Integer) -> Geometry:
     """Returns the Polygon corresponding to an S2 cell id.
 
     Args:
@@ -1383,8 +1367,8 @@ class Geometry(computedobject.ComputedObject):
 
   def simplify(
       self,
-      maxError: _ErrorMarginType,  # pylint: disable=invalid-name
-      proj: Optional[_ProjectionType] = None,
+      maxError: _arg_types.ErrorMargin,  # pylint: disable=invalid-name
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns a simplified geometry to within a given error margin.
 
@@ -1413,10 +1397,10 @@ class Geometry(computedobject.ComputedObject):
 
   def symmetricDifference(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns the symmetric difference between two geometries.
 
@@ -1435,9 +1419,9 @@ class Geometry(computedobject.ComputedObject):
 
   def transform(
       self,
-      proj: Optional[_ProjectionType] = None,
+      proj: Optional[_arg_types.Projection] = None,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
   ) -> Geometry:
     """Returns the geometry Transformed to a specific projection.
 
@@ -1460,10 +1444,10 @@ class Geometry(computedobject.ComputedObject):
 
   def union(
       self,
-      right: _GeometryType,
+      right: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Geometry:
     """Returns the union of the two geometries.
 
@@ -1482,11 +1466,11 @@ class Geometry(computedobject.ComputedObject):
 
   def withinDistance(
       self,
-      right: _GeometryType,
-      distance: _NumberType,
+      right: _arg_types.Geometry,
+      distance: _arg_types.Number,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> computedobject.ComputedObject:
     """Returns true if the geometries are within a specified distance.
 

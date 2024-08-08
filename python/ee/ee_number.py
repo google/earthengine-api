@@ -1,25 +1,15 @@
 """A wrapper for numbers."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Optional, Union
 
+from ee import _arg_types
 from ee import _cloud_api_utils
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
-from ee import dictionary
 from ee import ee_exception
 from ee import ee_string
-
-_DictionaryType = Union[
-    Dict[Any, Any],
-    Sequence[Any],
-    'dictionary.Dictionary',
-    computedobject.ComputedObject,
-]
-_IntegerType = Union[int, 'Number', computedobject.ComputedObject]
-_NumberType = Union[float, 'Number', computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Number(computedobject.ComputedObject):
@@ -32,7 +22,7 @@ class Number(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, number: _NumberType):
+  def __init__(self, number: _arg_types.Number):
     """Construct a number wrapper.
 
     This constructor accepts the following args:
@@ -95,7 +85,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.acos', self)
 
-  def add(self, right: _NumberType) -> Number:
+  def add(self, right: _arg_types.Number) -> Number:
     """Adds the right value.
 
     Args:
@@ -108,7 +98,7 @@ class Number(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.add', self, right)
 
   # `and` is not allowed by the Python parser.
-  def And(self, right: _NumberType) -> Number:
+  def And(self, right: _arg_types.Number) -> Number:
     """Returns 1 if and only if both values are non-zero.
 
     Args:
@@ -130,7 +120,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.atan', self)
 
-  def atan2(self, right: _NumberType) -> Number:
+  def atan2(self, right: _arg_types.Number) -> Number:
     """Calculates the angle in radians formed by the 2D vector [x, y].
 
     Args:
@@ -154,7 +144,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.bitCount', self)
 
-  def bitwiseAnd(self, right: _NumberType) -> Number:
+  def bitwiseAnd(self, right: _arg_types.Number) -> Number:
     """Calculates the bitwise AND of the input values.
 
     Args:
@@ -176,7 +166,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.bitwiseNot', self)
 
-  def bitwiseOr(self, right: _NumberType) -> Number:
+  def bitwiseOr(self, right: _arg_types.Number) -> Number:
     """Calculates the bitwise OR of the input values.
 
     Args:
@@ -190,7 +180,7 @@ class Number(computedobject.ComputedObject):
         self.name() + '.bitwiseOr', self, right
     )
 
-  def bitwiseXor(self, right: _NumberType) -> Number:
+  def bitwiseXor(self, right: _arg_types.Number) -> Number:
     """Calculates the bitwise XOR of the input values.
 
     Args:
@@ -221,8 +211,8 @@ class Number(computedobject.ComputedObject):
 
   def clamp(
       self,
-      min: _NumberType,  # pylint: disable=redefined-builtin
-      max: _NumberType,  # pylint: disable=redefined-builtin
+      min: _arg_types.Number,  # pylint: disable=redefined-builtin
+      max: _arg_types.Number,  # pylint: disable=redefined-builtin
   ) -> Number:
     """Returns a number that is clamped to lie within the range of min to max.
 
@@ -251,7 +241,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.digamma', self)
 
-  def divide(self, right: _NumberType) -> Number:
+  def divide(self, right: _arg_types.Number) -> Number:
     """Divides the first value by the second, returning 0 for division by 0.
 
     Args:
@@ -268,7 +258,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.double', self)
 
-  def eq(self, right: _NumberType) -> Number:
+  def eq(self, right: _arg_types.Number) -> Number:
     """Returns 1 if and only if the first value is equal to the second.
 
     Args:
@@ -307,9 +297,9 @@ class Number(computedobject.ComputedObject):
 
   @staticmethod
   def expression(
-      expression: _StringType,
+      expression: _arg_types.String,
       # pylint: disable-next=redefined-builtin
-      vars: Optional[_DictionaryType] = None,
+      vars: Optional[_arg_types.Dictionary] = None,
   ) -> Number:
     """Returns a number from computing a numeric expression.
 
@@ -324,7 +314,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_('Number.expression', expression, vars)
 
-  def first(self, right: _NumberType) -> Number:
+  def first(self, right: _arg_types.Number) -> Number:
     """Selects the value of the first value.
 
     Args:
@@ -336,7 +326,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.first', self, right)
 
-  def firstNonZero(self, right: _NumberType) -> Number:
+  def firstNonZero(self, right: _arg_types.Number) -> Number:
     """Returns the first value if it is non-zero, otherwise the second value.
 
     Args:
@@ -360,7 +350,9 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.floor', self)
 
-  def format(self, pattern: Optional[_StringType] = None) -> ee_string.String:
+  def format(
+      self, pattern: Optional[_arg_types.String] = None
+  ) -> ee_string.String:
     r"""Convert a number to a string using printf-style formatting.
 
     For more about format strings, see
@@ -386,7 +378,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.gamma', self)
 
-  def gammainc(self, right: _NumberType) -> Number:
+  def gammainc(self, right: _arg_types.Number) -> Number:
     """Calculates the regularized lower incomplete Gamma function γ(x,a).
 
     Args:
@@ -398,7 +390,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.gammainc', self, right)
 
-  def gt(self, right: _NumberType) -> Number:
+  def gt(self, right: _arg_types.Number) -> Number:
     """Returns 1 if and only if the first value is greater than the second.
 
     Args:
@@ -410,7 +402,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.gt', self, right)
 
-  def gte(self, right: _NumberType) -> Number:
+  def gte(self, right: _arg_types.Number) -> Number:
     """Returns 1 if the first value is greater than or equal to the second.
 
     Args:
@@ -422,7 +414,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.gte', self, right)
 
-  def hypot(self, right: _NumberType) -> Number:
+  def hypot(self, right: _arg_types.Number) -> Number:
     """Calculates the magnitude of the 2D vector [x, y].
 
     Args:
@@ -464,7 +456,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.lanczos', self)
 
-  def leftShift(self, right: _NumberType) -> Number:
+  def leftShift(self, right: _arg_types.Number) -> Number:
     """Calculates the left shift of v1 by v2 bits.
 
     Args:
@@ -493,7 +485,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.long', self)
 
-  def lt(self, right: _NumberType) -> Number:
+  def lt(self, right: _arg_types.Number) -> Number:
     """Returns 1 if and only if the first value is less than the second.
 
     Args:
@@ -505,7 +497,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.lt', self, right)
 
-  def lte(self, right: _NumberType) -> Number:
+  def lte(self, right: _arg_types.Number) -> Number:
     """Returns 1 if the first value is less than or equal to the second.
 
     Args:
@@ -517,7 +509,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.lte', self, right)
 
-  def max(self, right: _NumberType) -> Number:
+  def max(self, right: _arg_types.Number) -> Number:
     """Selects the maximum of the first and second values.
 
     Args:
@@ -529,7 +521,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.max', self, right)
 
-  def min(self, right: _NumberType) -> Number:
+  def min(self, right: _arg_types.Number) -> Number:
     """Selects the minimum of the first and second values.
 
     Args:
@@ -541,7 +533,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.min', self, right)
 
-  def mod(self, right: _NumberType) -> Number:
+  def mod(self, right: _arg_types.Number) -> Number:
     """Calculates the remainder of the first value divided by the second.
 
     Args:
@@ -553,7 +545,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.mod', self, right)
 
-  def multiply(self, right: _NumberType) -> Number:
+  def multiply(self, right: _arg_types.Number) -> Number:
     """Multiplies the first value by the second.
 
     Args:
@@ -565,7 +557,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.multiply', self, right)
 
-  def neq(self, right: _NumberType) -> Number:
+  def neq(self, right: _arg_types.Number) -> Number:
     """Returns 1 if and only if the first value is not equal to the second.
 
     Args:
@@ -582,7 +574,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.not', self)
 
-  def Or(self, right: _NumberType) -> Number:
+  def Or(self, right: _arg_types.Number) -> Number:
     """Returns 1 if and only if either input value is non-zero.
 
     Args:
@@ -592,8 +584,9 @@ class Number(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.or', self, right)
 
   def parse(
-      input: _StringType,  # pylint: disable=redefined-builtin
-      radix: Optional[_IntegerType] = None,
+      # pylint: disable=redefined-builtin
+      input: _arg_types.String,
+      radix: Optional[_arg_types.Integer] = None,
   ) -> Number:
     """Returns a number from a string.
 
@@ -606,7 +599,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_('Number.parse', input, radix)
 
-  def pow(self, right: _NumberType) -> Number:
+  def pow(self, right: _arg_types.Number) -> Number:
     """Raises the first value to the power of the second.
 
     Args:
@@ -618,7 +611,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.pow', self, right)
 
-  def rightShift(self, right: _NumberType) -> Number:
+  def rightShift(self, right: _arg_types.Number) -> Number:
     """Calculates the signed right shift of v1 by v2 bits.
 
     Args:
@@ -669,7 +662,7 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.sqrt', self)
 
-  def subtract(self, right: _NumberType) -> Number:
+  def subtract(self, right: _arg_types.Number) -> Number:
     """Subtracts the second value from the first.
 
     Args:

@@ -1,13 +1,12 @@
 """A wrapper for Blobs."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
 from ee import ee_string
-
-_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class Blob(computedobject.ComputedObject):
@@ -32,7 +31,7 @@ class Blob(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, url: _StringType):
+  def __init__(self, url: _arg_types.String):
     """Creates a Blob wrapper.
 
     Args:
@@ -78,7 +77,9 @@ class Blob(computedobject.ComputedObject):
   def name() -> str:
     return 'Blob'
 
-  def string(self, encoding: Optional[_StringType] = None) -> ee_string.String:
+  def string(
+      self, encoding: Optional[_arg_types.String] = None
+  ) -> ee_string.String:
     """Returns the contents of the blob as a String.
 
     Args:

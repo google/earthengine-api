@@ -1,19 +1,14 @@
 """A wrapper for ConfusionMatrices."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Union
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
 from ee import ee_array
 from ee import ee_list
 from ee import ee_number
-
-_ConfusionMatrixType = Union['ConfusionMatrix', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 
 
 class ConfusionMatrix(computedobject.ComputedObject):
@@ -37,10 +32,10 @@ class ConfusionMatrix(computedobject.ComputedObject):
       self,
       array: Union[
           ee_array.Array,
-          ConfusionMatrix,
+          _arg_types.ConfusionMatrix,
           computedobject.ComputedObject,
       ],
-      order: Optional[_ListType] = None,
+      order: Optional[_arg_types.List] = None,
   ):
     """Creates a ConfusionMatrix wrapper.
 
@@ -107,7 +102,7 @@ class ConfusionMatrix(computedobject.ComputedObject):
         self.name() + '.consumersAccuracy', self
     )
 
-  def fscore(self, beta: Optional[_NumberType] = None) -> ee_array.Array:
+  def fscore(self, beta: Optional[_arg_types.Number] = None) -> ee_array.Array:
     """Returns the F-beta score for the confusion matrix.
 
     Args:

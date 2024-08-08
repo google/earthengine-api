@@ -2,20 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Optional
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
-from ee import ee_string
 from ee import featurecollection
-from ee import filter as ee_filter
-
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_FeatureCollectionType = Union[
-    Any, featurecollection.FeatureCollection, computedobject.ComputedObject
-]
-_FilterType = Union[ee_filter.Filter, computedobject.ComputedObject]
-_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class Join(computedobject.ComputedObject):
@@ -76,9 +68,9 @@ class Join(computedobject.ComputedObject):
 
   def apply(
       self,
-      primary: _FeatureCollectionType,
-      secondary: _FeatureCollectionType,
-      condition: _FilterType,
+      primary: _arg_types.FeatureCollection,
+      secondary: _arg_types.FeatureCollection,
+      condition: _arg_types.Filter,
   ) -> featurecollection.FeatureCollection:
     """Joins two collections.
 
@@ -99,9 +91,9 @@ class Join(computedobject.ComputedObject):
   @staticmethod
   def inner(
       # pylint: disable=invalid-name
-      primaryKey: Optional[_StringType] = None,
-      secondaryKey: Optional[_StringType] = None,
-      measureKey: Optional[_StringType] = None,
+      primaryKey: Optional[_arg_types.String] = None,
+      secondaryKey: Optional[_arg_types.String] = None,
+      measureKey: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
   ) -> Join:
     """Returns a join with matching pairs of elements.
@@ -138,11 +130,13 @@ class Join(computedobject.ComputedObject):
 
   @staticmethod
   def saveAll(
-      matchesKey: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      ordering: Optional[_StringType] = None,
-      ascending: Optional[_EeBoolType] = None,
-      measureKey: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      outer: Optional[_EeBoolType] = None,
+      # pylint: disable-next=invalid-name
+      matchesKey: Optional[_arg_types.String] = None,
+      ordering: Optional[_arg_types.String] = None,
+      ascending: Optional[_arg_types.Bool] = None,
+      # pylint: disable-next=invalid-name
+      measureKey: Optional[_arg_types.String] = None,
+      outer: Optional[_arg_types.Bool] = None,
   ) -> Join:
     """Returns a join that returns all pairs of elements.
 
@@ -170,9 +164,9 @@ class Join(computedobject.ComputedObject):
 
   @staticmethod
   def saveBest(
-      matchKey: _StringType,  # pylint: disable=invalid-name
-      measureKey: _StringType,  # pylint: disable=invalid-name
-      outer: Optional[_EeBoolType] = None,
+      matchKey: _arg_types.String,  # pylint: disable=invalid-name
+      measureKey: _arg_types.String,  # pylint: disable=invalid-name
+      outer: Optional[_arg_types.Bool] = None,
   ) -> Join:
     """Returns a join that returns the best match pairs.
 
@@ -196,11 +190,12 @@ class Join(computedobject.ComputedObject):
 
   @staticmethod
   def saveFirst(
-      matchKey: _StringType,  # pylint: disable=invalid-name
-      ordering: Optional[_StringType] = None,
-      ascending: Optional[_EeBoolType] = None,
-      measureKey: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      outer: Optional[_EeBoolType] = None,
+      matchKey: _arg_types.String,  # pylint: disable=invalid-name
+      ordering: Optional[_arg_types.String] = None,
+      ascending: Optional[_arg_types.Bool] = None,
+      # pylint: disable-next=invalid-name
+      measureKey: Optional[_arg_types.String] = None,
+      outer: Optional[_arg_types.Bool] = None,
   ) -> Join:
     """Returns a join that returns the first match pairs.
 

@@ -1,17 +1,11 @@
 """A namespace for Terrain."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Optional
 
+from ee import _arg_types
 from ee import apifunction
-from ee import computedobject
-from ee import ee_number
 from ee import image as ee_image
-
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_ImageType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 
 
 class Terrain:
@@ -45,7 +39,7 @@ class Terrain:
     return 'Terrain'
 
   @staticmethod
-  def aspect(input: _ImageType) -> ee_image.Image:
+  def aspect(input: _arg_types.Image) -> ee_image.Image:
     """Returns an ee.Image with aspect in degrees from a terrain DEM.
 
     The local gradient is computed using the 4-connected neighbors of each
@@ -59,9 +53,9 @@ class Terrain:
 
   @staticmethod
   def fillMinima(
-      image: _ImageType,
-      borderValue: Optional[_IntegerType] = None,
-      neighborhood: Optional[_IntegerType] = None,
+      image: _arg_types.Image,
+      borderValue: Optional[_arg_types.Integer] = None,
+      neighborhood: Optional[_arg_types.Integer] = None,
   ) -> ee_image.Image:
     """Returns an ee.Image with local minima filled.
 
@@ -79,11 +73,11 @@ class Terrain:
 
   @staticmethod
   def hillShadow(
-      image: _ImageType,
-      azimuth: _NumberType,
-      zenith: _NumberType,
-      neighborhoodSize: Optional[_IntegerType] = None,
-      hysteresis: Optional[_EeBoolType] = None,
+      image: _arg_types.Image,
+      azimuth: _arg_types.Number,
+      zenith: _arg_types.Number,
+      neighborhoodSize: Optional[_arg_types.Integer] = None,
+      hysteresis: Optional[_arg_types.Bool] = None,
   ) -> ee_image.Image:
     """Returns an ee.Image with the hill shadow.
 
@@ -114,9 +108,9 @@ class Terrain:
 
   @staticmethod
   def hillshade(
-      input: _ImageType,
-      azimuth: Optional[_NumberType] = None,
-      elevation: Optional[_NumberType] = None,
+      input: _arg_types.Image,
+      azimuth: Optional[_arg_types.Number] = None,
+      elevation: Optional[_arg_types.Number] = None,
   ) -> ee_image.Image:
     """Returns an ee.Image with a simple hillshade from a DEM.
 
@@ -131,7 +125,7 @@ class Terrain:
     )
 
   @staticmethod
-  def products(input: _ImageType) -> ee_image.Image:
+  def products(input: _arg_types.Image) -> ee_image.Image:
     """Returns slope, aspect, and a simple hillshade from a terrain DEM.
 
     Expects an image containing either a single band of elevation, measured in
@@ -149,7 +143,7 @@ class Terrain:
     return apifunction.ApiFunction.call_('Terrain.products', input)
 
   @staticmethod
-  def slope(input: _ImageType) -> ee_image.Image:
+  def slope(input: _arg_types.Image) -> ee_image.Image:
     """Returns slope in degrees from a terrain DEM.
 
     The local gradient is computed using the 4-connected neighbors of each

@@ -1,29 +1,14 @@
 """A wrapper for Arrays."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
 from ee import dictionary
-# pylint: disable-next=unused-import
 from ee import ee_list
 from ee import ee_number
-# pylint: disable-next=unused-import
-from ee import ee_string
-from ee import reducer as ee_reducer
-
-_ArrayType = Union[
-    Any, List[Any], 'Array', 'ee_list.List', computedobject.ComputedObject
-]
-_EeAnyType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
-_ReducerType = Union[ee_reducer.Reducer, computedobject.ComputedObject]
 
 
 class Array(computedobject.ComputedObject):
@@ -50,9 +35,9 @@ class Array(computedobject.ComputedObject):
 
   def __init__(
       self,
-      values: _ArrayType,
+      values: _arg_types.Array,
       # pylint: disable-next=invalid-name
-      pixelType: Optional[_StringType] = None,
+      pixelType: Optional[_arg_types.String] = None,
   ):
     """Creates an Array wrapper.
 
@@ -105,7 +90,9 @@ class Array(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.abs', self)
 
   def accum(
-      self, axis: _IntegerType, reducer: Optional[_ReducerType] = None
+      self,
+      axis: _arg_types.Integer,
+      reducer: Optional[_arg_types.Reducer] = None,
   ) -> Array:
     """Accumulates elements of an array along the given axis.
 
@@ -133,7 +120,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.acos', self)
 
-  def add(self, right: _ArrayType) -> Array:
+  def add(self, right: _arg_types.Array) -> Array:
     """On an element-wise basis, adds the first value to the second.
 
     Args:
@@ -145,7 +132,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.add', self, right)
 
-  def And(self, right: _ArrayType) -> Array:
+  def And(self, right: _arg_types.Array) -> Array:
     """Returns 1 if both values are non-zero.
 
     Args:
@@ -179,7 +166,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.atan', self)
 
-  def atan2(self, right: _ArrayType) -> Array:
+  def atan2(self, right: _arg_types.Array) -> Array:
     """Calculates the angle formed by the 2D vector [x, y].
 
     Args:
@@ -202,7 +189,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.bitCount', self)
 
-  def bitsToArray(input: _IntegerType) -> Array:
+  def bitsToArray(input: _arg_types.Integer) -> Array:
     """Returns an Array from the bits of an integer.
 
     The array has as many elements as the position of the highest set bit, or a
@@ -214,7 +201,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_('Array.bitsToArray', input)
 
-  def bitwiseAnd(self, right: _ArrayType) -> Array:
+  def bitwiseAnd(self, right: _arg_types.Array) -> Array:
     """On an element-wise basis, calculates the bitwise AND of the input values.
 
     Args:
@@ -239,7 +226,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.bitwiseNot', self)
 
-  def bitwiseOr(self, right: _ArrayType) -> Array:
+  def bitwiseOr(self, right: _arg_types.Array) -> Array:
     """On an element-wise basis, calculates the bitwise OR of the input values.
 
     Args:
@@ -253,7 +240,7 @@ class Array(computedobject.ComputedObject):
         self.name() + '.bitwiseOr', self, right
     )
 
-  def bitwiseXor(self, right: _ArrayType) -> Array:
+  def bitwiseXor(self, right: _arg_types.Array) -> Array:
     """On an element-wise basis, calculates the bitwise XOR of the input values.
 
     Args:
@@ -273,7 +260,9 @@ class Array(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.byte', self)
 
   @staticmethod
-  def cat(arrays: _ListType, axis: Optional[_IntegerType] = None) -> Array:
+  def cat(
+      arrays: _arg_types.List, axis: Optional[_arg_types.Integer] = None
+  ) -> Array:
     """Returns an Array that is the concatenation of the given arrays.
 
     Concatenates multiple arrays into a single array along the given axis. Each
@@ -307,7 +296,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.cosh', self)
 
-  def cut(self, position: _ListType) -> Array:
+  def cut(self, position: _arg_types.List) -> Array:
     """Cut an array along one or more axes.
 
     Args:
@@ -328,7 +317,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.digamma', self)
 
-  def divide(self, right: _ArrayType) -> Array:
+  def divide(self, right: _arg_types.Array) -> Array:
     """Divides the first value by the second, returning 0 for division by 0.
 
     Args:
@@ -340,7 +329,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.divide', self, right)
 
-  def dotProduct(self, array2: _ArrayType) -> ee_number.Number:
+  def dotProduct(self, array2: _arg_types.Array) -> ee_number.Number:
     """Compute the dot product between two 1-D arrays.
 
     Args:
@@ -372,7 +361,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.eigen', self)
 
-  def eq(self, right: _ArrayType) -> Array:
+  def eq(self, right: _arg_types.Array) -> Array:
     """Returns 1 if the first value is equal to the second.
 
     Args:
@@ -409,7 +398,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.exp', self)
 
-  def first(self, right: _ArrayType) -> Array:
+  def first(self, right: _arg_types.Array) -> Array:
     """On an element-wise basis, selects the value of the first value.
 
     Args:
@@ -421,7 +410,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.first', self, right)
 
-  def firstNonZero(self, right: _ArrayType) -> Array:
+  def firstNonZero(self, right: _arg_types.Array) -> Array:
     """Selects the first value if it is non-zero, otherwise the second value.
 
     Args:
@@ -451,7 +440,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.gamma', self)
 
-  def gammainc(self, right: _EeAnyType) -> Array:
+  def gammainc(self, right: _arg_types.Any) -> Array:
     """Calculates the regularized lower incomplete Gamma function γ(x,a).
 
     Args:
@@ -463,7 +452,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.gammainc', self, right)
 
-  def get(self, position: _EeAnyType) -> ee_number.Number:
+  def get(self, position: _arg_types.Any) -> ee_number.Number:
     """Extracts the value at the given position from the input array.
 
     Args:
@@ -475,7 +464,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.get', self, position)
 
-  def gt(self, right: _EeAnyType) -> Array:
+  def gt(self, right: _arg_types.Any) -> Array:
     """Returns 1 if the first value is greater than the second.
 
     Args:
@@ -487,7 +476,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.gt', self, right)
 
-  def gte(self, right: _EeAnyType) -> Array:
+  def gte(self, right: _arg_types.Any) -> Array:
     """Returns 1 if the first value is greater than or equal to the second.
 
     Args:
@@ -499,7 +488,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.gte', self, right)
 
-  def hypot(self, right: _EeAnyType) -> Array:
+  def hypot(self, right: _arg_types.Any) -> Array:
     """Calculates the magnitude of the 2D vector [x, y].
 
     Args:
@@ -512,7 +501,7 @@ class Array(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.hypot', self, right)
 
   @staticmethod
-  def identity(size: _IntegerType) -> Array:
+  def identity(size: _arg_types.Integer) -> Array:
     """Returns a 2D identity matrix of the given size.
 
     Args:
@@ -551,7 +540,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.lanczos', self)
 
-  def leftShift(self, right: _EeAnyType) -> Array:
+  def leftShift(self, right: _arg_types.Any) -> Array:
     """On an element-wise basis, calculates the left shift of v1 by v2 bits.
 
     Args:
@@ -585,7 +574,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.long', self)
 
-  def lt(self, right: _EeAnyType) -> Array:
+  def lt(self, right: _arg_types.Any) -> Array:
     """Returns 1 if the first value is less than the second.
 
     Args:
@@ -597,7 +586,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.lt', self, right)
 
-  def lte(self, right: _EeAnyType) -> Array:
+  def lte(self, right: _arg_types.Any) -> Array:
     """Returns 1 if the first value is less than or equal to the second.
 
     Args:
@@ -609,7 +598,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.lte', self, right)
 
-  def mask(self, mask: _EeAnyType) -> Array:
+  def mask(self, mask: _arg_types.Any) -> Array:
     """Creates an array of just the elements that have non-zero mask matches.
 
     Creates a subarray by slicing out each position in an input array that is
@@ -679,7 +668,7 @@ class Array(computedobject.ComputedObject):
         self.name() + '.matrixLUDecomposition', self
     )
 
-  def matrixMultiply(self, right: _EeAnyType) -> Array:
+  def matrixMultiply(self, right: _arg_types.Any) -> Array:
     """Returns the matrix multiplication A * B.
 
     Args:
@@ -730,7 +719,7 @@ class Array(computedobject.ComputedObject):
         self.name() + '.matrixSingularValueDecomposition', self
     )
 
-  def matrixSolve(self, right: _EeAnyType) -> Array:
+  def matrixSolve(self, right: _arg_types.Any) -> Array:
     """Returns the least-squares solution of the input matrix.
 
     Solves for x in the matrix equation A * x = B, finding a least-squares
@@ -759,8 +748,8 @@ class Array(computedobject.ComputedObject):
 
   def matrixTranspose(
       self,
-      axis1: Optional[_IntegerType] = None,
-      axis2: Optional[_IntegerType] = None,
+      axis1: Optional[_arg_types.Integer] = None,
+      axis2: Optional[_arg_types.Integer] = None,
   ) -> Array:
     """Transposes two dimensions of an array.
 
@@ -776,7 +765,7 @@ class Array(computedobject.ComputedObject):
         self.name() + '.matrixTranspose', self, axis1, axis2
     )
 
-  def max(self, right: _EeAnyType) -> Array:
+  def max(self, right: _arg_types.Any) -> Array:
     """Selects the maximum of the first and second values.
 
     Args:
@@ -788,7 +777,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.max', self, right)
 
-  def min(self, right: _EeAnyType) -> Array:
+  def min(self, right: _arg_types.Any) -> Array:
     """Selects the minimum of the first and second values.
 
     Args:
@@ -800,7 +789,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.min', self, right)
 
-  def mod(self, right: _EeAnyType) -> Array:
+  def mod(self, right: _arg_types.Any) -> Array:
     """Calculates the remainder of the first value divided by the second.
 
     Args:
@@ -812,7 +801,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.mod', self, right)
 
-  def multiply(self, right: _EeAnyType) -> Array:
+  def multiply(self, right: _arg_types.Any) -> Array:
     """On an element-wise basis, multiplies the first value by the second.
 
     Args:
@@ -824,7 +813,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.multiply', self, right)
 
-  def neq(self, right: _EeAnyType) -> Array:
+  def neq(self, right: _arg_types.Any) -> Array:
     """Returns 1 if the first value is not equal to the second.
 
     Args:
@@ -841,7 +830,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.not', self)
 
-  def Or(self, right: _EeAnyType) -> Array:
+  def Or(self, right: _arg_types.Any) -> Array:
     """On an element-wise basis, returns 1 if either input value is non-zero.
 
     Args:
@@ -854,7 +843,7 @@ class Array(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.or', self, right)
 
   def pad(
-      self, lengths: _EeAnyType, pad: Optional[_NumberType] = None
+      self, lengths: _arg_types.Any, pad: Optional[_arg_types.Number] = None
   ) -> Array:
     """Pad an array to a given length.
 
@@ -874,7 +863,7 @@ class Array(computedobject.ComputedObject):
         self.name() + '.pad', self, lengths, pad
     )
 
-  def pow(self, right: _EeAnyType) -> Array:
+  def pow(self, right: _arg_types.Any) -> Array:
     """On an element-wise basis, raises the first value to the power of the second.
 
     Args:
@@ -886,7 +875,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.pow', self, right)
 
-  def project(self, axes: _EeAnyType) -> Array:
+  def project(self, axes: _arg_types.Any) -> Array:
     """Returns the projected array.
 
     Projects an array to a lower dimensional space by specifying the axes to
@@ -904,10 +893,10 @@ class Array(computedobject.ComputedObject):
 
   def reduce(
       self,
-      reducer: _ReducerType,
-      axes: _EeAnyType,
+      reducer: _arg_types.Reducer,
+      axes: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      fieldAxis: Optional[_IntegerType] = None,
+      fieldAxis: Optional[_arg_types.Integer] = None,
   ) -> Array:
     """Returns the result of applying the reducer on the array.
 
@@ -945,8 +934,8 @@ class Array(computedobject.ComputedObject):
 
   def repeat(
       self,
-      axis: Optional[_IntegerType] = None,
-      copies: Optional[_IntegerType] = None,
+      axis: Optional[_arg_types.Integer] = None,
+      copies: Optional[_arg_types.Integer] = None,
   ) -> Array:
     """Repeats the array along the given axis.
 
@@ -966,7 +955,7 @@ class Array(computedobject.ComputedObject):
         self.name() + '.repeat', self, axis, copies
     )
 
-  def reshape(self, shape: _EeAnyType) -> Array:
+  def reshape(self, shape: _arg_types.Any) -> Array:
     """Reshapes an array to a new list of dimension lengths.
 
     Args:
@@ -981,7 +970,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.reshape', self, shape)
 
-  def rightShift(self, right: _EeAnyType) -> Array:
+  def rightShift(self, right: _arg_types.Any) -> Array:
     """Calculates the signed right shift of v1 by v2 bits.
 
     Args:
@@ -1030,10 +1019,10 @@ class Array(computedobject.ComputedObject):
 
   def slice(
       self,
-      axis: Optional[_IntegerType] = None,
-      start: Optional[_IntegerType] = None,
-      end: Optional[_IntegerType] = None,
-      step: Optional[_IntegerType] = None,
+      axis: Optional[_arg_types.Integer] = None,
+      start: Optional[_arg_types.Integer] = None,
+      end: Optional[_arg_types.Integer] = None,
+      step: Optional[_arg_types.Integer] = None,
   ) -> Array:
     """Returns the result of slicing the array along the given axis.
 
@@ -1070,7 +1059,7 @@ class Array(computedobject.ComputedObject):
         self.name() + '.slice', self, axis, start, end, step
     )
 
-  def sort(self, keys: Optional[_EeAnyType] = None) -> Array:
+  def sort(self, keys: Optional[_arg_types.Any] = None) -> Array:
     """Sorts elements of the array along one axis.
 
     Args:
@@ -1089,7 +1078,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.sqrt', self)
 
-  def subtract(self, right: _EeAnyType) -> Array:
+  def subtract(self, right: _arg_types.Any) -> Array:
     """On an element-wise basis, subtracts the second value from the first.
 
     Args:
@@ -1183,8 +1172,8 @@ class Array(computedobject.ComputedObject):
 
   def transpose(
       self,
-      axis1: Optional[_IntegerType] = None,
-      axis2: Optional[_IntegerType] = None,
+      axis1: Optional[_arg_types.Integer] = None,
+      axis2: Optional[_arg_types.Integer] = None,
   ) -> Array:
     """Transposes two dimensions of an array.
 

@@ -5,8 +5,9 @@ This class is never intended to be instantiated by the user.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
@@ -16,28 +17,6 @@ from ee import ee_exception
 from ee import ee_list
 from ee import ee_number
 from ee import ee_string
-from ee import errormargin
-from ee import projection
-
-_EeAnyType = Union[Any, computedobject.ComputedObject]
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_ElementType = Union[Any, 'Element', computedobject.ComputedObject]
-_ErrorMarginType = Union[
-    float,
-    'ee_number.Number',
-    errormargin.ErrorMargin,
-    computedobject.ComputedObject,
-]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_ProjectionType = Union[
-    str,
-    'ee_string.String',
-    projection.Projection,
-    computedobject.ComputedObject,
-]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Element(computedobject.ComputedObject):
@@ -77,9 +56,9 @@ class Element(computedobject.ComputedObject):
   # NOTE: source is marked as optional in the API, but is required for users.
   def copyProperties(
       self,
-      source: _ElementType,
-      properties: Optional[_ListType] = None,
-      exclude: Optional[_ListType] = None,
+      source: _arg_types.Element,
+      properties: Optional[_arg_types.List] = None,
+      exclude: Optional[_arg_types.List] = None,
   ) -> Element:
     """Copies metadata properties from one element to another.
 
@@ -98,15 +77,14 @@ class Element(computedobject.ComputedObject):
         'Element.copyProperties', self, source, properties, exclude
     )
 
-  def get(
-      self, property: _StringType  # pylint: disable=redefined-builtin
-  ) -> computedobject.ComputedObject:
+  # pylint: disable-next=redefined-builtin
+  def get(self, property: _arg_types.String) -> computedobject.ComputedObject:
     """Returns a property from a feature."""
 
     return apifunction.ApiFunction.call_('Element.get', self, property)
 
   # pylint: disable-next=redefined-builtin
-  def getArray(self, property: _StringType) -> ee_array.Array:
+  def getArray(self, property: _arg_types.String) -> ee_array.Array:
     """Returns a property from a feature as an array.
 
     Args:
@@ -116,7 +94,7 @@ class Element(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_('Element.getArray', self, property)
 
   # pylint: disable-next=redefined-builtin
-  def getNumber(self, property: _StringType) -> ee_number.Number:
+  def getNumber(self, property: _arg_types.String) -> ee_number.Number:
     """Returns a property from a feature as a number.
 
     Args:
@@ -126,7 +104,7 @@ class Element(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_('Element.getNumber', self, property)
 
   # pylint: disable-next=redefined-builtin
-  def getString(self, property: _StringType) -> ee_string.String:
+  def getString(self, property: _arg_types.String) -> ee_string.String:
     """Returns a property from a feature as a string.
 
     Args:
@@ -197,7 +175,7 @@ class Element(computedobject.ComputedObject):
     return self._cast(result)
 
   def toDictionary(
-      self, properties: Optional[_ListType] = None
+      self, properties: Optional[_arg_types.List] = None
   ) -> dictionary.Dictionary:
     """Returns properties from a feature as a dictionary.
 

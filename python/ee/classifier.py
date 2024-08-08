@@ -1,27 +1,15 @@
 """A wrapper for Classifiers."""
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import Optional
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
 from ee import confusionmatrix
 from ee import dictionary
 from ee import ee_list
-from ee import ee_number
 from ee import ee_string
-from ee import featurecollection
-
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_FeatureCollectionType = Union[
-    Any, featurecollection.FeatureCollection, computedobject.ComputedObject
-]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Classifier(computedobject.ComputedObject):
@@ -71,34 +59,34 @@ class Classifier(computedobject.ComputedObject):
 
   def amnhMaxent(
       # pylint: disable=invalid-name
-      categoricalNames: Optional[_ListType] = None,
-      outputFormat: Optional[_StringType] = None,
-      autoFeature: Optional[_EeBoolType] = None,
+      categoricalNames: Optional[_arg_types.List] = None,
+      outputFormat: Optional[_arg_types.String] = None,
+      autoFeature: Optional[_arg_types.Bool] = None,
       # pylint: enable=invalid-name
-      linear: Optional[_EeBoolType] = None,
-      quadratic: Optional[_EeBoolType] = None,
-      product: Optional[_EeBoolType] = None,
-      threshold: Optional[_EeBoolType] = None,
-      hinge: Optional[_EeBoolType] = None,
+      linear: Optional[_arg_types.Bool] = None,
+      quadratic: Optional[_arg_types.Bool] = None,
+      product: Optional[_arg_types.Bool] = None,
+      threshold: Optional[_arg_types.Bool] = None,
+      hinge: Optional[_arg_types.Bool] = None,
       # pylint: disable=invalid-name
-      hingeThreshold: Optional[_IntegerType] = None,
-      l2lqThreshold: Optional[_IntegerType] = None,
-      lq2lqptThreshold: Optional[_IntegerType] = None,
-      addSamplesToBackground: Optional[_EeBoolType] = None,
-      addAllSamplesToBackground: Optional[_EeBoolType] = None,
-      betaMultiplier: Optional[_NumberType] = None,
-      betaHinge: Optional[_NumberType] = None,
-      betaLqp: Optional[_NumberType] = None,
-      betaCategorical: Optional[_NumberType] = None,
-      betaThreshold: Optional[_NumberType] = None,
+      hingeThreshold: Optional[_arg_types.Integer] = None,
+      l2lqThreshold: Optional[_arg_types.Integer] = None,
+      lq2lqptThreshold: Optional[_arg_types.Integer] = None,
+      addSamplesToBackground: Optional[_arg_types.Bool] = None,
+      addAllSamplesToBackground: Optional[_arg_types.Bool] = None,
+      betaMultiplier: Optional[_arg_types.Number] = None,
+      betaHinge: Optional[_arg_types.Number] = None,
+      betaLqp: Optional[_arg_types.Number] = None,
+      betaCategorical: Optional[_arg_types.Number] = None,
+      betaThreshold: Optional[_arg_types.Number] = None,
       # pylint: enable=invalid-name
-      extrapolate: Optional[_EeBoolType] = None,
+      extrapolate: Optional[_arg_types.Bool] = None,
       # pylint: disable=invalid-name
-      doClamp: Optional[_EeBoolType] = None,
-      writeClampGrid: Optional[_EeBoolType] = None,
-      randomTestPoints: Optional[_IntegerType] = None,
+      doClamp: Optional[_arg_types.Bool] = None,
+      writeClampGrid: Optional[_arg_types.Bool] = None,
+      randomTestPoints: Optional[_arg_types.Integer] = None,
       # pylint: enable=invalid-name
-      seed: Optional[_IntegerType] = None,
+      seed: Optional[_arg_types.Integer] = None,
   ) -> Classifier:
     """Returns a Maximum Entropy classifier.
 
@@ -203,7 +191,7 @@ class Classifier(computedobject.ComputedObject):
 
   @staticmethod
   def decisionTree(
-      treeString: _StringType,  # pylint: disable=invalid-name
+      treeString: _arg_types.String,  # pylint: disable=invalid-name
   ) -> Classifier:
     """Returns a classifier that applies the given decision tree.
 
@@ -216,7 +204,7 @@ class Classifier(computedobject.ComputedObject):
 
   @staticmethod
   def decisionTreeEnsemble(
-      treeStrings: _ListType,  # pylint: disable=invalid-name
+      treeStrings: _arg_types.List,  # pylint: disable=invalid-name
   ) -> Classifier:
     """Creates a classifier that applies the given decision trees.
 
@@ -241,20 +229,20 @@ class Classifier(computedobject.ComputedObject):
   @staticmethod
   def libsvm(
       # pylint: disable=invalid-name
-      decisionProcedure: Optional[_StringType] = None,
-      svmType: Optional[_StringType] = None,
-      kernelType: Optional[_StringType] = None,
+      decisionProcedure: Optional[_arg_types.String] = None,
+      svmType: Optional[_arg_types.String] = None,
+      kernelType: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
-      shrinking: Optional[_EeBoolType] = None,
-      degree: Optional[_IntegerType] = None,
-      gamma: Optional[_NumberType] = None,
-      coef0: Optional[_NumberType] = None,
-      cost: Optional[_NumberType] = None,
-      nu: Optional[_NumberType] = None,
+      shrinking: Optional[_arg_types.Bool] = None,
+      degree: Optional[_arg_types.Integer] = None,
+      gamma: Optional[_arg_types.Number] = None,
+      coef0: Optional[_arg_types.Number] = None,
+      cost: Optional[_arg_types.Number] = None,
+      nu: Optional[_arg_types.Number] = None,
       # pylint: disable=invalid-name
-      terminationEpsilon: Optional[_NumberType] = None,
-      lossEpsilon: Optional[_NumberType] = None,
-      oneClass: Optional[_IntegerType] = None,
+      terminationEpsilon: Optional[_arg_types.Number] = None,
+      lossEpsilon: Optional[_arg_types.Number] = None,
+      oneClass: Optional[_arg_types.Integer] = None,
       # pylint: enable=invalid-name
   ) -> Classifier:
     """Returns an empty Support Vector Machine classifier.
@@ -302,7 +290,8 @@ class Classifier(computedobject.ComputedObject):
     )
 
   @staticmethod
-  def load(id: _StringType) -> Classifier:  # pylint: disable=redefined-builtin
+  # pylint: disable-next=redefined-builtin
+  def load(id: _arg_types.String) -> Classifier:
     """Returns a classifier from an asset.
 
     Args:
@@ -316,8 +305,9 @@ class Classifier(computedobject.ComputedObject):
 
   @staticmethod
   def minimumDistance(
-      metric: Optional[_StringType] = None,
-      kNearest: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
+      metric: Optional[_arg_types.String] = None,
+      # pylint: disable-next=invalid-name
+      kNearest: Optional[_arg_types.Integer] = None,
   ) -> Classifier:
     # pyformat: disable
     """Returns a minimum distance classifier for the given distance metric.
@@ -362,7 +352,7 @@ class Classifier(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.schema', self)
 
-  def setOutputMode(self, mode: _StringType) -> Classifier:
+  def setOutputMode(self, mode: _arg_types.String) -> Classifier:
     # pyformat: disable
     """Returns a classifier with the given output mode.
 
@@ -392,8 +382,8 @@ class Classifier(computedobject.ComputedObject):
   @staticmethod
   def smileCart(
       # pylint: disable=invalid-name
-      maxNodes: Optional[_IntegerType] = None,
-      minLeafPopulation: Optional[_IntegerType] = None,
+      maxNodes: Optional[_arg_types.Integer] = None,
+      minLeafPopulation: Optional[_arg_types.Integer] = None,
       # pylint: enable=invalid-name
   ) -> Classifier:
     """Returns an empty CART classifier.
@@ -414,14 +404,14 @@ class Classifier(computedobject.ComputedObject):
 
   @staticmethod
   def smileGradientTreeBoost(
-      numberOfTrees: _IntegerType,  # pylint: disable=invalid-name
-      shrinkage: Optional[_NumberType] = None,
+      numberOfTrees: _arg_types.Integer,  # pylint: disable=invalid-name
+      shrinkage: Optional[_arg_types.Number] = None,
       # pylint: disable=invalid-name
-      samplingRate: Optional[_NumberType] = None,
-      maxNodes: Optional[_IntegerType] = None,
+      samplingRate: Optional[_arg_types.Number] = None,
+      maxNodes: Optional[_arg_types.Integer] = None,
       # pylint: enable=invalid-name
-      loss: Optional[_StringType] = None,
-      seed: Optional[_IntegerType] = None,
+      loss: Optional[_arg_types.String] = None,
+      seed: Optional[_arg_types.Integer] = None,
   ) -> Classifier:
     """Returns an empty Gradient Tree Boost classifier.
 
@@ -449,10 +439,10 @@ class Classifier(computedobject.ComputedObject):
 
   @staticmethod
   def smileKNN(
-      k: Optional[_IntegerType] = None,
+      k: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      searchMethod: Optional[_StringType] = None,
-      metric: Optional[_StringType] = None,
+      searchMethod: Optional[_arg_types.String] = None,
+      metric: Optional[_arg_types.String] = None,
   ) -> Classifier:
     # pyformat: disable
     """Returns an empty k-NN classifier.
@@ -485,7 +475,7 @@ class Classifier(computedobject.ComputedObject):
 
   @staticmethod
   def smileNaiveBayes(
-      lambda_: Optional[_NumberType] = None, **kwargs
+      lambda_: Optional[_arg_types.Number] = None, **kwargs
   ) -> Classifier:
     # pylint: disable=g-doc-args
     """Returns an empty Naive Bayes classifier.
@@ -511,13 +501,13 @@ class Classifier(computedobject.ComputedObject):
   @staticmethod
   def smileRandomForest(
       # pylint: disable=invalid-name
-      numberOfTrees: _IntegerType,
-      variablesPerSplit: Optional[_IntegerType] = None,
-      minLeafPopulation: Optional[_IntegerType] = None,
-      bagFraction: Optional[_NumberType] = None,
-      maxNodes: Optional[_IntegerType] = None,
+      numberOfTrees: _arg_types.Integer,
+      variablesPerSplit: Optional[_arg_types.Integer] = None,
+      minLeafPopulation: Optional[_arg_types.Integer] = None,
+      bagFraction: Optional[_arg_types.Number] = None,
+      maxNodes: Optional[_arg_types.Integer] = None,
       # pylint: enable=invalid-name
-      seed: Optional[_IntegerType] = None,
+      seed: Optional[_arg_types.Integer] = None,
   ) -> Classifier:
     """Returns an empty Random Forest classifier.
 
@@ -545,7 +535,7 @@ class Classifier(computedobject.ComputedObject):
 
   @staticmethod
   def spectralRegion(
-      coordinates: _ListType, schema: Optional[_ListType] = None
+      coordinates: _arg_types.List, schema: Optional[_arg_types.List] = None
   ) -> Classifier:
     """Returns a spectral region classifier.
 
@@ -575,14 +565,14 @@ class Classifier(computedobject.ComputedObject):
   def train(
       # classifier: _ClassifierType,
       self,
-      features: _FeatureCollectionType,
+      features: _arg_types.FeatureCollection,
       # pylint: disable=invalid-name
-      classProperty: _StringType,
-      inputProperties: Optional[_ListType] = None,
+      classProperty: _arg_types.String,
+      inputProperties: Optional[_arg_types.List] = None,
       # pylint: enable=invalid-name
-      subsampling: Optional[_NumberType] = None,
+      subsampling: Optional[_arg_types.Number] = None,
       # pylint: disable-next=invalid-name
-      subsamplingSeed: Optional[_IntegerType] = None,
+      subsamplingSeed: Optional[_arg_types.Integer] = None,
   ) -> Classifier:
     """Returns a trained classifier.
 

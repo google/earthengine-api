@@ -1,25 +1,12 @@
 """A wrapper for Clusterers."""
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import Optional
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
 from ee import ee_list
-from ee import ee_number
-from ee import ee_string
-from ee import featurecollection
-
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_FeatureCollectionType = Union[
-    Any, 'featurecollection.FeatureCollection', computedobject.ComputedObject
-]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Clusterer(computedobject.ComputedObject):
@@ -95,12 +82,12 @@ class Clusterer(computedobject.ComputedObject):
 
   def train(
       self,
-      features: _FeatureCollectionType,
+      features: _arg_types.FeatureCollection,
       # pylint: disable-next=invalid-name
-      inputProperties: Optional[_ListType] = None,
-      subsampling: Optional[_NumberType] = None,
+      inputProperties: Optional[_arg_types.List] = None,
+      subsampling: Optional[_arg_types.Number] = None,
       # pylint: disable-next=invalid-name
-      subsamplingSeed: Optional[_IntegerType] = None,
+      subsamplingSeed: Optional[_arg_types.Integer] = None,
   ) -> Clusterer:
     """Returns a trained Clusterer.
 
@@ -130,15 +117,15 @@ class Clusterer(computedobject.ComputedObject):
   @staticmethod
   def wekaCascadeKMeans(
       # pylint: disable=invalid-name
-      minClusters: Optional[_IntegerType] = None,
-      maxClusters: Optional[_IntegerType] = None,
+      minClusters: Optional[_arg_types.Integer] = None,
+      maxClusters: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      restarts: Optional[_IntegerType] = None,
-      manual: Optional[_EeBoolType] = None,
-      init: Optional[_EeBoolType] = None,
+      restarts: Optional[_arg_types.Integer] = None,
+      manual: Optional[_arg_types.Bool] = None,
+      init: Optional[_arg_types.Bool] = None,
       # pylint: disable=invalid-name
-      distanceFunction: Optional[_StringType] = None,
-      maxIterations: Optional[_IntegerType] = None,
+      distanceFunction: Optional[_arg_types.String] = None,
+      maxIterations: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
   ) -> Clusterer:
     """Returns a weka Cascade K-Means Clusterer.
@@ -174,9 +161,9 @@ class Clusterer(computedobject.ComputedObject):
 
   @staticmethod
   def wekaCobweb(
-      acuity: Optional[_NumberType] = None,
-      cutoff: Optional[_NumberType] = None,
-      seed: Optional[_IntegerType] = None,
+      acuity: Optional[_arg_types.Number] = None,
+      cutoff: Optional[_arg_types.Number] = None,
+      seed: Optional[_arg_types.Integer] = None,
   ) -> Clusterer:
     """Returns a weka Cobweb Clusterer.
 
@@ -198,23 +185,23 @@ class Clusterer(computedobject.ComputedObject):
 
   @staticmethod
   def wekaKMeans(
-      nClusters: _IntegerType,  # pylint: disable=invalid-name
-      init: Optional[_IntegerType] = None,
-      canopies: Optional[_EeBoolType] = None,
+      nClusters: _arg_types.Integer,  # pylint: disable=invalid-name
+      init: Optional[_arg_types.Integer] = None,
+      canopies: Optional[_arg_types.Bool] = None,
       # pylint: disable=invalid-name
-      maxCandidates: Optional[_IntegerType] = None,
-      periodicPruning: Optional[_IntegerType] = None,
-      minDensity: Optional[_IntegerType] = None,
+      maxCandidates: Optional[_arg_types.Integer] = None,
+      periodicPruning: Optional[_arg_types.Integer] = None,
+      minDensity: Optional[_arg_types.Integer] = None,
       # pylint: enable=invalid-name
-      t1: Optional[_NumberType] = None,
-      t2: Optional[_NumberType] = None,
+      t1: Optional[_arg_types.Number] = None,
+      t2: Optional[_arg_types.Number] = None,
       # pylint: disable=invalid-name
-      distanceFunction: Optional[_StringType] = None,
-      maxIterations: Optional[_IntegerType] = None,
-      preserveOrder: Optional[_EeBoolType] = None,
+      distanceFunction: Optional[_arg_types.String] = None,
+      maxIterations: Optional[_arg_types.Integer] = None,
+      preserveOrder: Optional[_arg_types.Bool] = None,
       # pylint: enable=invalid-name
-      fast: Optional[_EeBoolType] = None,
-      seed: Optional[_IntegerType] = None,
+      fast: Optional[_arg_types.Bool] = None,
+      seed: Optional[_arg_types.Integer] = None,
   ) -> Clusterer:
     """Returns a weka K-Means Clusterer.
 
@@ -273,12 +260,12 @@ class Clusterer(computedobject.ComputedObject):
   @staticmethod
   def wekaLVQ(
       # pylint: disable=invalid-name
-      numClusters: Optional[_IntegerType] = None,
-      learningRate: Optional[_NumberType] = None,
+      numClusters: Optional[_arg_types.Integer] = None,
+      learningRate: Optional[_arg_types.Number] = None,
       # pylint: enable=invalid-name
-      epochs: Optional[_IntegerType] = None,
+      epochs: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      normalizeInput: Optional[_EeBoolType] = None,
+      normalizeInput: Optional[_arg_types.Bool] = None,
   ) -> Clusterer:
     """Returns a weka Learning Vector Quantization (LVQ) Clusterer.
 
@@ -303,16 +290,16 @@ class Clusterer(computedobject.ComputedObject):
   @staticmethod
   def wekaXMeans(
       # pylint: disable=invalid-name
-      minClusters: Optional[_IntegerType] = None,
-      maxClusters: Optional[_IntegerType] = None,
-      maxIterations: Optional[_IntegerType] = None,
-      maxKMeans: Optional[_IntegerType] = None,
-      maxForChildren: Optional[_IntegerType] = None,
-      useKD: Optional[_EeBoolType] = None,
-      cutoffFactor: Optional[_NumberType] = None,
-      distanceFunction: Optional[_StringType] = None,
+      minClusters: Optional[_arg_types.Integer] = None,
+      maxClusters: Optional[_arg_types.Integer] = None,
+      maxIterations: Optional[_arg_types.Integer] = None,
+      maxKMeans: Optional[_arg_types.Integer] = None,
+      maxForChildren: Optional[_arg_types.Integer] = None,
+      useKD: Optional[_arg_types.Bool] = None,
+      cutoffFactor: Optional[_arg_types.Number] = None,
+      distanceFunction: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
-      seed: Optional[_IntegerType] = None,
+      seed: Optional[_arg_types.Integer] = None,
   ) -> Clusterer:
     """Returns a weka X-Means Clusterer.
 

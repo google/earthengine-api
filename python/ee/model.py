@@ -1,41 +1,12 @@
 """A wrapper for Models."""
 
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Optional
 
+from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
-from ee import dictionary
-from ee import ee_list
-from ee import ee_number
-from ee import ee_string
 from ee import featurecollection
 from ee import image as ee_image
-from ee import projection
-
-_DictionaryType = Union[
-    Dict[Any, Any],
-    Sequence[Any],
-    'dictionary.Dictionary',
-    computedobject.ComputedObject,
-]
-_EeAnyType = Union[Any, computedobject.ComputedObject]
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_FeatureCollectionType = Union[
-    Any, featurecollection.FeatureCollection, computedobject.ComputedObject
-]
-_ImageType = Union[Any, ee_image.Image, computedobject.ComputedObject]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], ee_list.List, computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_ProjectionType = Union[
-    str,
-    'ee_string.String',
-    projection.Projection,
-    computedobject.ComputedObject,
-]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Model(computedobject.ComputedObject):
@@ -93,26 +64,26 @@ class Model(computedobject.ComputedObject):
   @staticmethod
   def fromAiPlatformPredictor(
       # pylint: disable=invalid-name
-      projectName: Optional[_EeAnyType] = None,
-      projectId: Optional[_StringType] = None,
-      modelName: Optional[_StringType] = None,
+      projectName: Optional[_arg_types.Any] = None,
+      projectId: Optional[_arg_types.String] = None,
+      modelName: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
-      version: Optional[_StringType] = None,
-      region: Optional[_StringType] = None,
+      version: Optional[_arg_types.String] = None,
+      region: Optional[_arg_types.String] = None,
       # pylint: disable=invalid-name
-      inputProperties: Optional[_ListType] = None,
-      inputTypeOverride: Optional[_DictionaryType] = None,
-      inputShapes: Optional[_DictionaryType] = None,
+      inputProperties: Optional[_arg_types.List] = None,
+      inputTypeOverride: Optional[_arg_types.Dictionary] = None,
+      inputShapes: Optional[_arg_types.Dictionary] = None,
       # pylint: enable=invalid-name
-      proj: Optional[_ProjectionType] = None,
+      proj: Optional[_arg_types.Projection] = None,
       # pylint: disable=invalid-name
-      fixInputProj: Optional[_EeBoolType] = None,
-      inputTileSize: Optional[_ListType] = None,
-      inputOverlapSize: Optional[_ListType] = None,
-      outputTileSize: Optional[_ListType] = None,
-      outputBands: Optional[_DictionaryType] = None,
-      outputProperties: Optional[_DictionaryType] = None,
-      outputMultiplier: Optional[_NumberType] = None,
+      fixInputProj: Optional[_arg_types.Bool] = None,
+      inputTileSize: Optional[_arg_types.List] = None,
+      inputOverlapSize: Optional[_arg_types.List] = None,
+      outputTileSize: Optional[_arg_types.List] = None,
+      outputBands: Optional[_arg_types.Dictionary] = None,
+      outputProperties: Optional[_arg_types.Dictionary] = None,
+      outputMultiplier: Optional[_arg_types.Number] = None,
       # pylint: enable=invalid-name
   ) -> 'Model':
     """Returns an ee.Model from a description of an AI Platform prediction model.
@@ -190,23 +161,23 @@ class Model(computedobject.ComputedObject):
 
   @staticmethod
   def fromVertexAi(
-      endpoint: _StringType,
+      endpoint: _arg_types.String,
       # pylint: disable=invalid-name
-      inputProperties: Optional[_ListType] = None,
-      inputTypeOverride: Optional[_DictionaryType] = None,
-      inputShapes: Optional[_DictionaryType] = None,
+      inputProperties: Optional[_arg_types.List] = None,
+      inputTypeOverride: Optional[_arg_types.Dictionary] = None,
+      inputShapes: Optional[_arg_types.Dictionary] = None,
       # pylint: enable=invalid-name
-      proj: Optional[_ProjectionType] = None,
+      proj: Optional[_arg_types.Projection] = None,
       # pylint: disable=invalid-name
-      fixInputProj: Optional[_EeBoolType] = None,
-      inputTileSize: Optional[_ListType] = None,
-      inputOverlapSize: Optional[_ListType] = None,
-      outputTileSize: Optional[_ListType] = None,
-      outputBands: Optional[_DictionaryType] = None,
-      outputProperties: Optional[_DictionaryType] = None,
-      outputMultiplier: Optional[_NumberType] = None,
-      maxPayloadBytes: Optional[_IntegerType] = None,
-      payloadFormat: Optional[_StringType] = None,
+      fixInputProj: Optional[_arg_types.Bool] = None,
+      inputTileSize: Optional[_arg_types.List] = None,
+      inputOverlapSize: Optional[_arg_types.List] = None,
+      outputTileSize: Optional[_arg_types.List] = None,
+      outputBands: Optional[_arg_types.Dictionary] = None,
+      outputProperties: Optional[_arg_types.Dictionary] = None,
+      outputMultiplier: Optional[_arg_types.Number] = None,
+      maxPayloadBytes: Optional[_arg_types.Integer] = None,
+      payloadFormat: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
   ) -> 'Model':
     """Returns an ee.Model from a description of a Vertex AI model endpoint.
@@ -281,7 +252,7 @@ class Model(computedobject.ComputedObject):
         payloadFormat,
     )
 
-  def predictImage(self, image: _ImageType) -> ee_image.Image:
+  def predictImage(self, image: _arg_types.Image) -> ee_image.Image:
     """Returns an image with predictions from pixel tiles of an image.
 
     The predictions are merged as bands with the input image.
@@ -298,7 +269,7 @@ class Model(computedobject.ComputedObject):
     )
 
   def predictProperties(
-      self, collection: _FeatureCollectionType
+      self, collection: _arg_types.FeatureCollection
   ) -> featurecollection.FeatureCollection:
     """Returns a feature collection with predictions for each feature.
 

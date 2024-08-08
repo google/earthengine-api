@@ -7,80 +7,26 @@ details.
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Optional, Sequence, Tuple
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
-from ee import classifier as ee_classifier
-from ee import clusterer as ee_clusterer
 from ee import computedobject
 from ee import data
 from ee import deprecation
 from ee import dictionary
-from ee import ee_array
 from ee import ee_date
 from ee import ee_exception
 from ee import ee_list
-from ee import ee_number
 from ee import ee_string
 from ee import ee_types
 from ee import element
-from ee import errormargin
 from ee import feature
 from ee import featurecollection
 from ee import function
 from ee import geometry as ee_geometry
-from ee import imagecollection
-from ee import kernel as ee_kernel
 from ee import projection as ee_projection
-from ee import reducer as ee_reducer
-
-_ArrayType = Union[
-    Any,
-    List[Any],
-    'ee_array.Array',
-    'ee_list.List',
-    computedobject.ComputedObject,
-]
-_ClassifierType = Union[ee_classifier.Classifier, computedobject.ComputedObject]
-_ClustererType = Union[ee_clusterer.Clusterer, computedobject.ComputedObject]
-_DictionaryType = Union[
-    Dict[Any, Any],
-    Sequence[Any],
-    'dictionary.Dictionary',
-    computedobject.ComputedObject,
-]
-_EeAnyType = Union[Any, computedobject.ComputedObject]
-_EeBoolType = Union[Any, computedobject.ComputedObject]
-_ErrorMarginType = Union[
-    float,
-    'ee_number.Number',
-    errormargin.ErrorMargin,
-    computedobject.ComputedObject,
-]
-_ElementType = Union[Any, element.Element, computedobject.ComputedObject]
-_FeatureCollectionType = Union[
-    Any, featurecollection.FeatureCollection, computedobject.ComputedObject
-]
-_GeometryType = Union[Any, computedobject.ComputedObject]
-_ImageCollectionType = Union[
-    Any, imagecollection.ImageCollection, computedobject.ComputedObject
-]
-_ImageType = Union[Any, 'Image', computedobject.ComputedObject]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_KernelType = Union[ee_kernel.Kernel, computedobject.ComputedObject]
-_ListType = Union[
-    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
-]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_ProjectionType = Union[
-    str,
-    'ee_string.String',
-    ee_projection.Projection,
-    computedobject.ComputedObject,
-]
-_ReducerType = Union[ee_reducer.Reducer, computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 def _parse_dimensions(dimensions: Any) -> Sequence[Any]:
@@ -390,7 +336,8 @@ class Image(element.Element):
       - any remaining parameters.
     """
     image, params, dimensions_consumed = self._apply_crs_and_affine(params)
-    return image._apply_selection_and_scale(params, dimensions_consumed)  # pylint: disable=protected-access
+    # pylint: disable-next=protected-access
+    return image._apply_selection_and_scale(params, dimensions_consumed)
 
   def _apply_visualization(
       self, params: Dict[str, Any]
@@ -582,7 +529,8 @@ class Image(element.Element):
       EEException: If the region parameter is not an array or GeoJSON object.
     """
     image, params = self._apply_spatial_transformations(params)
-    image, params = image._apply_visualization(params)  # pylint: disable=protected-access
+    # pylint: disable-next=protected-access
+    image, params = image._apply_visualization(params)
     params['image'] = image
     return data.getThumbId(params)
 
@@ -744,7 +692,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.acos', self)
 
-  def add(self, image2: _ImageType) -> Image:
+  def add(self, image2: _arg_types.Image) -> Image:
     """Adds the first value to the second for each matched pair of bands.
 
     If either image1 or image2 has only 1 band, then it is used against all the
@@ -765,9 +713,9 @@ class Image(element.Element):
 
   def addBands(
       self,
-      srcImg: _ImageType,  # pylint: disable=invalid-name
-      names: Optional[_ListType] = None,
-      overwrite: Optional[_EeBoolType] = None,
+      srcImg: _arg_types.Image,  # pylint: disable=invalid-name
+      names: Optional[_arg_types.List] = None,
+      overwrite: Optional[_arg_types.Bool] = None,
   ) -> Image:
     """Returns an image containing all bands.
 
@@ -793,7 +741,7 @@ class Image(element.Element):
         self.name() + '.addBands', self, srcImg, names, overwrite
     )
 
-  def And(self, image2: _ImageType) -> Image:
+  def And(self, image2: _arg_types.Image) -> Image:
     """Returns 1 if both values are non-zero; otherwise 0.
 
     Returns 1 if and only if both values are non-zero for each matched pair of
@@ -815,7 +763,9 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.and', self, image2)
 
   def arrayAccum(
-      self, axis: _IntegerType, reducer: Optional[_ReducerType] = None,
+      self,
+      axis: _arg_types.Integer,
+      reducer: Optional[_arg_types.Reducer] = None,
   ) -> Image:
     """Accumulates elements of each array pixel along the given axis.
 
@@ -849,7 +799,9 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.arrayArgmax', self)
 
-  def arrayCat(self, image2: _ImageType, axis: _IntegerType) -> Image:
+  def arrayCat(
+      self, image2: _arg_types.Image, axis: _arg_types.Integer
+  ) -> Image:
     """Creates an array image by concatenating each array pixel.
 
     Creates an array image by concatenating each array pixel along the given
@@ -875,7 +827,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.arrayDimensions', self)
 
-  def arrayDotProduct(self, image2: _ImageType) -> Image:
+  def arrayDotProduct(self, image2: _arg_types.Image) -> Image:
     """Computes the dot product.
 
     Computes the dot product of each pair of 1-D arrays in the bands of the
@@ -894,8 +846,8 @@ class Image(element.Element):
 
   def arrayFlatten(
       self,
-      coordinateLabels: _ListType,  # pylint: disable=invalid-name
-      separator: Optional[_StringType] = None,
+      coordinateLabels: _arg_types.List,  # pylint: disable=invalid-name
+      separator: Optional[_arg_types.String] = None,
   ) -> Image:
     """Returns an image of scalar pixels with one band per element of the array.
 
@@ -917,7 +869,7 @@ class Image(element.Element):
         self.name() + '.arrayFlatten', self, coordinateLabels, separator
     )
 
-  def arrayGet(self, position: _ImageType) -> Image:
+  def arrayGet(self, position: _arg_types.Image) -> Image:
     """Returns the value at the given position in each band of the input image.
 
     For each band, an output band of the same name is created with the value at
@@ -936,7 +888,7 @@ class Image(element.Element):
         self.name() + '.arrayGet', self, position
     )
 
-  def arrayLength(self, axis: _IntegerType) -> Image:
+  def arrayLength(self, axis: _arg_types.Integer) -> Image:
     """Returns the length of each pixel's array along the given axis.
 
     Args:
@@ -955,7 +907,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.arrayLengths', self)
 
-  def arrayMask(self, mask: _ImageType) -> Image:
+  def arrayMask(self, mask: _arg_types.Image) -> Image:
     """Returns an image where each pixel is masked by another.
 
     Creates an array image where each array-valued pixel is masked with another
@@ -974,7 +926,7 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.arrayMask', self, mask)
 
   def arrayPad(
-      self, lengths: _ListType, pad: Optional[_NumberType] = None
+      self, lengths: _arg_types.List, pad: Optional[_arg_types.Number] = None
   ) -> Image:
     """Pads the array values in each pixel to be a fixed length.
 
@@ -996,7 +948,7 @@ class Image(element.Element):
         self.name() + '.arrayPad', self, lengths, pad
     )
 
-  def arrayProject(self, axes: _EeAnyType) -> Image:
+  def arrayProject(self, axes: _arg_types.Any) -> Image:
     """Creates an array image of lower dimension.
 
     Projects the array in each pixel to a lower dimensional space by specifying
@@ -1018,9 +970,10 @@ class Image(element.Element):
 
   def arrayReduce(
       self,
-      reducer: _EeAnyType,
-      axes: _EeAnyType,
-      fieldAxis: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
+      reducer: _arg_types.Any,
+      axes: _arg_types.Any,
+      # pylint: disable-next=invalid-name
+      fieldAxis: Optional[_arg_types.Integer] = None,
   ) -> Image:
     """Reduces elements of each array pixel.
 
@@ -1039,7 +992,9 @@ class Image(element.Element):
         self.name() + '.arrayReduce', self, reducer, axes, fieldAxis
     )
 
-  def arrayRepeat(self, axis: _IntegerType, copies: _EeAnyType) -> Image:
+  def arrayRepeat(
+      self, axis: _arg_types.Integer, copies: _arg_types.Any
+  ) -> Image:
     """Repeats each array pixel along the given axis.
 
     Each output pixel will have the shape of the input pixel, except length
@@ -1058,7 +1013,7 @@ class Image(element.Element):
     )
 
   def arrayReshape(
-      self, lengths: _EeAnyType, dimensions: _IntegerType
+      self, lengths: _arg_types.Any, dimensions: _arg_types.Integer
   ) -> Image:
     """Returns an image of arrays with a new shape.
 
@@ -1081,10 +1036,10 @@ class Image(element.Element):
 
   def arraySlice(
       self,
-      axis: Optional[_IntegerType] = None,
-      start: Optional[_EeAnyType] = None,
-      end: Optional[_EeAnyType] = None,
-      step: Optional[_IntegerType] = None,
+      axis: Optional[_arg_types.Integer] = None,
+      start: Optional[_arg_types.Any] = None,
+      end: Optional[_arg_types.Any] = None,
+      step: Optional[_arg_types.Integer] = None,
   ) -> Image:
     """Returns a subarray image.
 
@@ -1123,7 +1078,7 @@ class Image(element.Element):
         self.name() + '.arraySlice', self, axis, start, end, step
     )
 
-  def arraySort(self, keys: Optional[_EeAnyType] = None) -> Image:
+  def arraySort(self, keys: Optional[_arg_types.Any] = None) -> Image:
     """Sorts elements of each array pixel along one axis.
 
     Args:
@@ -1139,8 +1094,8 @@ class Image(element.Element):
 
   def arrayTranspose(
       self,
-      axis1: Optional[_IntegerType] = None,
-      axis2: Optional[_IntegerType] = None,
+      axis1: Optional[_arg_types.Integer] = None,
+      axis2: Optional[_arg_types.Integer] = None,
   ) -> Image:
     """Transposes two dimensions of each array pixel.
 
@@ -1166,7 +1121,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.atan', self)
 
-  def atan2(self, image2: _EeAnyType) -> Image:
+  def atan2(self, image2: _arg_types.Any) -> Image:
     """Returns an image of angles in radians of 2D vectors.
 
     Calculates the angle formed by the 2D vector [x, y] for each matched pair of
@@ -1216,7 +1171,7 @@ class Image(element.Element):
         self.name() + '.bitsToArrayImage', self
     )
 
-  def bitwiseAnd(self, image2: _ImageType) -> Image:
+  def bitwiseAnd(self, image2: _arg_types.Image) -> Image:
     """Returns the bitwise AND of the current image and image2.
 
     Calculates the bitwise AND of the input values for each matched pair of
@@ -1246,7 +1201,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.bitwiseNot', self)
 
-  def bitwiseOr(self, image2: _ImageType) -> Image:
+  def bitwiseOr(self, image2: _arg_types.Image) -> Image:
     """Returns the bitwise OR of the current image and image2.
 
     Calculates the bitwise OR of the input values for each matched pair of bands
@@ -1267,7 +1222,7 @@ class Image(element.Element):
         self.name() + '.bitwiseOr', self, image2
     )
 
-  def bitwiseXor(self, image2: _ImageType) -> Image:
+  def bitwiseXor(self, image2: _arg_types.Image) -> Image:
     """Returns the bitwise XOR of the current image and image2.
 
     Calculates the bitwise XOR of the input values for each matched pair of
@@ -1288,7 +1243,7 @@ class Image(element.Element):
         self.name() + '.bitwiseXor', self, image2
     )
 
-  def blend(self, top: _ImageType) -> Image:
+  def blend(self, top: _arg_types.Image) -> Image:
     """Overlays one image on top of another.
 
     The images are blended together using the masks as opacity. If either of
@@ -1312,8 +1267,8 @@ class Image(element.Element):
   def cast(
       self,
       # pylint: disable=invalid-name
-      bandTypes: _DictionaryType,
-      bandOrder: Optional[_EeAnyType] = None,
+      bandTypes: _arg_types.Dictionary,
+      bandOrder: Optional[_arg_types.Any] = None,
       # pylint: enable=invalid-name
   ) -> Image:
     """Casts some or all bands of an image to the specified types.
@@ -1351,8 +1306,8 @@ class Image(element.Element):
 
   def changeProj(
       self,
-      srcProj: _ProjectionType,  # pylint: disable=invalid-name
-      dstProj: _ProjectionType,  # pylint: disable=invalid-name
+      srcProj: _arg_types.Projection,  # pylint: disable=invalid-name
+      dstProj: _arg_types.Projection,  # pylint: disable=invalid-name
   ) -> Image:
     """Returns a reprojected image.
 
@@ -1368,7 +1323,7 @@ class Image(element.Element):
         self.name() + '.changeProj', self, srcProj, dstProj
     )
 
-  def clamp(self, low: _NumberType, high: _NumberType) -> Image:
+  def clamp(self, low: _arg_types.Number, high: _arg_types.Number) -> Image:
     """Returns an image clamped to the range low to high.
 
     Clamps the values in all bands of an image to all lie within the specified
@@ -1385,8 +1340,9 @@ class Image(element.Element):
 
   def classify(
       self,
-      classifier: _ClassifierType,
-      outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      classifier: _arg_types.Classifier,
+      # pylint: disable-next=invalid-name
+      outputName: Optional[_arg_types.String] = None,
   ) -> Image:
     """Classifies an image.
 
@@ -1431,12 +1387,12 @@ class Image(element.Element):
 
   def clipToBoundsAndScale(
       self,
-      geometry: Optional[_GeometryType] = None,
-      width: Optional[_IntegerType] = None,
-      height: Optional[_IntegerType] = None,
+      geometry: Optional[_arg_types.Geometry] = None,
+      width: Optional[_arg_types.Integer] = None,
+      height: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      maxDimension: Optional[_IntegerType] = None,
-      scale: Optional[_NumberType] = None,
+      maxDimension: Optional[_arg_types.Integer] = None,
+      scale: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Returns an image clipped to a geometry and scaled.
 
@@ -1472,7 +1428,7 @@ class Image(element.Element):
         scale,
     )
 
-  def clipToCollection(self, collection: _FeatureCollectionType) -> Image:
+  def clipToCollection(self, collection: _arg_types.FeatureCollection) -> Image:
     """Clips an image to a FeatureCollection.
 
     The output bands correspond exactly the input bands, except data not covered
@@ -1492,8 +1448,9 @@ class Image(element.Element):
 
   def cluster(
       self,
-      clusterer: _ClustererType,
-      outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      clusterer: _arg_types.Clusterer,
+      # pylint: disable-next=invalid-name
+      outputName: Optional[_arg_types.String] = None,
   ) -> Image:
     """Applies a clusterer to an image.
 
@@ -1514,8 +1471,8 @@ class Image(element.Element):
 
   def connectedComponents(
       self,
-      connectedness: _KernelType,
-      maxSize: _IntegerType,  # pylint: disable=invalid-name
+      connectedness: _arg_types.Kernel,
+      maxSize: _arg_types.Integer,  # pylint: disable=invalid-name
   ) -> Image:
     """Returns an ee.Image with the connectedness.
 
@@ -1537,8 +1494,8 @@ class Image(element.Element):
   def connectedPixelCount(
       self,
       # pylint: disable=invalid-name
-      maxSize: Optional[_IntegerType] = None,
-      eightConnected: Optional[_EeBoolType] = None,
+      maxSize: Optional[_arg_types.Integer] = None,
+      eightConnected: Optional[_arg_types.Bool] = None,
       # pylint: enable=invalid-name
   ) -> Image:
     """Returns an ee.Image with the number of connected neighbors.
@@ -1555,9 +1512,9 @@ class Image(element.Element):
         self.name() + '.connectedPixelCount', self, maxSize, eightConnected
     )
 
-  # TODO: _EeAnyType to number or an Array or a list of Arrays.
+  # TODO: Change EeAny to Number, an Array, or a list of Arrays.
   @staticmethod
-  def constant(value: _EeAnyType) -> Image:
+  def constant(value: _arg_types.Any) -> Image:
     """Returns an image containing a constant value everywhere.
 
     Args:
@@ -1567,7 +1524,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_('Image.constant', value)
 
-  def convolve(self, kernel: _KernelType) -> Image:
+  def convolve(self, kernel: _arg_types.Kernel) -> Image:
     """Convolves each band of an image with the given kernel.
 
     Args:
@@ -1586,9 +1543,9 @@ class Image(element.Element):
   # NOTE: The API specifies Element as the return type, but it returns an Image.
   def copyProperties(
       self,
-      source: _ElementType,
-      properties: Optional[_ListType] = None,
-      exclude: Optional[_ListType] = None,
+      source: _arg_types.Element,
+      properties: Optional[_arg_types.List] = None,
+      exclude: Optional[_arg_types.List] = None,
   ) -> Image:
     """Copies metadata properties from one element to another.
 
@@ -1619,10 +1576,10 @@ class Image(element.Element):
 
   def cumulativeCost(
       self,
-      source: _EeAnyType,
+      source: _arg_types.Any,
       # pylint: disable=invalid-name
-      maxDistance: _NumberType,
-      geodeticDistance: Optional[_EeBoolType] = None,
+      maxDistance: _arg_types.Number,
+      geodeticDistance: Optional[_arg_types.Bool] = None,
       # pylint: enable=invalid-name
   ) -> Image:
     """Returns an ee.Image with the cumulative cost map.
@@ -1679,10 +1636,10 @@ class Image(element.Element):
 
   def directionalDistanceTransform(
       self,
-      angle: _NumberType,
+      angle: _arg_types.Number,
       # pylint: disable=invalid-name
-      maxDistance: _IntegerType,
-      labelBand: Optional[_StringType] = None,
+      maxDistance: _arg_types.Integer,
+      labelBand: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
   ) -> Image:
     """Returns an ee.Image with the directional distance transform.
@@ -1711,9 +1668,10 @@ class Image(element.Element):
 
   def displace(
       self,
-      displacement: _EeAnyType,
-      mode: Optional[_StringType] = None,
-      maxOffset: Optional[_NumberType] = None,  # pylint: disable=invalid-name
+      displacement: _arg_types.Any,
+      mode: Optional[_arg_types.String] = None,
+      # pylint: disable-next=invalid-name
+      maxOffset: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Warps an image using an image of displacements.
 
@@ -1740,12 +1698,12 @@ class Image(element.Element):
   def displacement(
       self,
       # pylint: disable=invalid-name
-      referenceImage: _ImageType,
-      maxOffset: _NumberType,
-      projection: Optional[_ProjectionType] = None,
-      patchWidth: Optional[_NumberType] = None,
+      referenceImage: _arg_types.Image,
+      maxOffset: _arg_types.Number,
+      projection: Optional[_arg_types.Projection] = None,
+      patchWidth: Optional[_arg_types.Number] = None,
       # pylint: enable=invalid-name
-      stiffness: Optional[_NumberType] = None,
+      stiffness: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Returns an ee.Image with the displacement map.
 
@@ -1789,8 +1747,9 @@ class Image(element.Element):
 
   def distance(
       self,
-      kernel: Optional[_KernelType] = None,
-      skipMasked: Optional[_EeBoolType] = True,  # pylint: disable=invalid-name
+      kernel: Optional[_arg_types.Kernel] = None,
+      # pylint: disable-next=invalid-name
+      skipMasked: Optional[_arg_types.Bool] = True,
   ) -> Image:
     """Returns an ee.Image with the distance map.
 
@@ -1806,7 +1765,7 @@ class Image(element.Element):
         self.name() + '.distance', self, kernel, skipMasked
     )
 
-  def divide(self, image2: _ImageType) -> Image:
+  def divide(self, image2: _arg_types.Image) -> Image:
     """Returns an ee.Image with the current image divided by image2.
 
     Divides the first value by the second, returning 0 for division by 0 for
@@ -1830,7 +1789,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.double', self)
 
-  def entropy(self, kernel: _KernelType) -> Image:
+  def entropy(self, kernel: _arg_types.Kernel) -> Image:
     """Returns an ee.Image with the entropy.
 
     Computes the windowed entropy for each band using the specified kernel
@@ -1845,7 +1804,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.entropy', self, kernel)
 
-  def eq(self, image2: _ImageType) -> Image:
+  def eq(self, image2: _arg_types.Image) -> Image:
     """Returns an ee.Image with the current image equal to image2.
 
     Returns 1 if and only if the first value is equal to the second for each
@@ -1890,9 +1849,9 @@ class Image(element.Element):
 
   def fastDistanceTransform(
       self,
-      neighborhood: Optional[_IntegerType] = None,
-      units: Optional[_StringType] = None,
-      metric: Optional[_StringType] = None,
+      neighborhood: Optional[_arg_types.Integer] = None,
+      units: Optional[_arg_types.String] = None,
+      metric: Optional[_arg_types.String] = None,
   ) -> Image:
     """Returns the distance to the nearest non-zero valued pixel.
 
@@ -1917,7 +1876,7 @@ class Image(element.Element):
         metric,
     )
 
-  def first(self, image2: _ImageType) -> Image:
+  def first(self, image2: _arg_types.Image) -> Image:
     """Returns the first value for each matched pair of bands with image2.
 
     Selects the value of the first value for each matched pair of bands in
@@ -1936,7 +1895,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.first', self, image2)
 
-  def firstNonZero(self, image2: _ImageType) -> Image:
+  def firstNonZero(self, image2: _arg_types.Image) -> Image:
     """Returns the first non-zero value for each matched pair with image2.
 
     Selects the first value if it is non-zero, and the second value otherwise
@@ -1969,11 +1928,12 @@ class Image(element.Element):
 
   def focalMax(
       self,
-      radius: Optional[_NumberType] = None,
-      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      units: Optional[_StringType] = None,
-      iterations: Optional[_IntegerType] = None,
-      kernel: Optional[_KernelType] = None,
+      radius: Optional[_arg_types.Number] = None,
+      # pylint: disable-next=invalid-name
+      kernelType: Optional[_arg_types.String] = None,
+      units: Optional[_arg_types.String] = None,
+      iterations: Optional[_arg_types.Integer] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
   ) -> Image:
     """Returns the maximum value of the input within the kernel.
 
@@ -2002,11 +1962,12 @@ class Image(element.Element):
 
   def focalMean(
       self,
-      radius: Optional[_NumberType] = None,
-      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      units: Optional[_StringType] = None,
-      iterations: Optional[_IntegerType] = None,
-      kernel: Optional[_KernelType] = None,
+      radius: Optional[_arg_types.Number] = None,
+      # pylint: disable-next=invalid-name
+      kernelType: Optional[_arg_types.String] = None,
+      units: Optional[_arg_types.String] = None,
+      iterations: Optional[_arg_types.Integer] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
   ) -> Image:
     """Returns the mean value of the input within the kernel.
 
@@ -2035,11 +1996,12 @@ class Image(element.Element):
 
   def focalMedian(
       self,
-      radius: Optional[_NumberType] = None,
-      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      units: Optional[_StringType] = None,
-      iterations: Optional[_IntegerType] = None,
-      kernel: Optional[_KernelType] = None,
+      radius: Optional[_arg_types.Number] = None,
+      # pylint: disable-next=invalid-name
+      kernelType: Optional[_arg_types.String] = None,
+      units: Optional[_arg_types.String] = None,
+      iterations: Optional[_arg_types.Integer] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
   ) -> Image:
     """Returns the median value of the input within the kernel.
 
@@ -2068,11 +2030,12 @@ class Image(element.Element):
 
   def focalMin(
       self,
-      radius: Optional[_NumberType] = None,
-      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      units: Optional[_StringType] = None,
-      iterations: Optional[_IntegerType] = None,
-      kernel: Optional[_KernelType] = None,
+      radius: Optional[_arg_types.Number] = None,
+      # pylint: disable-next=invalid-name
+      kernelType: Optional[_arg_types.String] = None,
+      units: Optional[_arg_types.String] = None,
+      iterations: Optional[_arg_types.Integer] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
   ) -> Image:
     """Returns the minimum value of the input within the kernel.
 
@@ -2101,11 +2064,12 @@ class Image(element.Element):
 
   def focalMode(
       self,
-      radius: Optional[_NumberType] = None,
-      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      units: Optional[_StringType] = None,
-      iterations: Optional[_IntegerType] = None,
-      kernel: Optional[_KernelType] = None,
+      radius: Optional[_arg_types.Number] = None,
+      # pylint: disable-next=invalid-name
+      kernelType: Optional[_arg_types.String] = None,
+      units: Optional[_arg_types.String] = None,
+      iterations: Optional[_arg_types.Integer] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
   ) -> Image:
     """Returns the mode value of the input within the kernel.
 
@@ -2137,7 +2101,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.gamma', self)
 
-  def gammainc(self, image2: _ImageType) -> Image:
+  def gammainc(self, image2: _arg_types.Image) -> Image:
     """Returns the regularized lower incomplete Gamma function.
 
     Calculates the regularized lower incomplete Gamma function gamma(x,a) for
@@ -2160,9 +2124,9 @@ class Image(element.Element):
   def geometry(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_ErrorMarginType] = None,
-      proj: Optional[_ProjectionType] = None,
-      geodesics: Optional[_EeBoolType] = None,
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
+      geodesics: Optional[_arg_types.Bool] = None,
   ) -> ee_geometry.Geometry:
     """Returns the geometry of a given feature in a given projection.
 
@@ -2183,9 +2147,9 @@ class Image(element.Element):
 
   def glcmTexture(
       self,
-      size: Optional[_IntegerType] = None,
-      kernel: Optional[_KernelType] = None,
-      average: Optional[_EeBoolType] = None,
+      size: Optional[_arg_types.Integer] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
+      average: Optional[_arg_types.Bool] = None,
   ) -> Image:
     """Returns the GLCM texture metrics.
 
@@ -2250,7 +2214,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.gradient', self)
 
-  def gt(self, image2: _ImageType) -> Image:
+  def gt(self, image2: _arg_types.Image) -> Image:
     """Returns 1 if the image is greater than image2.
 
     Returns 1 if and only if the first value is greater than the second for each
@@ -2268,7 +2232,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.gt', self, image2)
 
-  def gte(self, image2: _ImageType) -> Image:
+  def gte(self, image2: _arg_types.Image) -> Image:
     """Returns 1 if the image is greater than or equal to image2.
 
     Returns 1 if and only if the first value is greater than or equal to the
@@ -2288,10 +2252,10 @@ class Image(element.Element):
 
   def hersDescriptor(
       self,
-      selectors: Optional[_ListType] = None,
-      buckets: Optional[_IntegerType] = None,
+      selectors: Optional[_arg_types.List] = None,
+      buckets: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      peakWidthScale: Optional[_NumberType] = None,
+      peakWidthScale: Optional[_arg_types.Number] = None,
   ) -> dictionary.Dictionary:
     """Returns a dictionary of Histogram Error Ring Statistic (HERS) arrays.
 
@@ -2318,9 +2282,9 @@ class Image(element.Element):
 
   def hersFeature(
       self,
-      reference: _DictionaryType,
+      reference: _arg_types.Dictionary,
       # pylint: disable-next=invalid-name
-      peakWidthScale: Optional[_NumberType] = None,
+      peakWidthScale: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Returns an ee.Image with Histogram Error Ring Statistic (HERS).
 
@@ -2340,11 +2304,11 @@ class Image(element.Element):
 
   def hersImage(
       self,
-      image2: _ImageType,
-      radius: _IntegerType,
-      buckets: Optional[_IntegerType] = None,
+      image2: _arg_types.Image,
+      radius: _arg_types.Integer,
+      buckets: Optional[_arg_types.Integer] = None,
       # pylint: disable-next=invalid-name
-      peakWidthScale: Optional[_NumberType] = None,
+      peakWidthScale: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Returns an Image with Histogram Error Ring Statistic (HERS) for pairs.
 
@@ -2381,7 +2345,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.hsvToRgb', self)
 
-  def hypot(self, image2: _ImageType) -> Image:
+  def hypot(self, image2: _arg_types.Image) -> Image:
     """Returns the length of the hypotenuse.
 
     Calculates the magnitude of the 2D vector [x, y] for each matched pair of
@@ -2433,9 +2397,9 @@ class Image(element.Element):
 
   def interpolate(
       self,
-      x: _ListType,
-      y: _ListType,
-      behavior: Optional[_StringType] = None,
+      x: _arg_types.List,
+      y: _arg_types.List,
+      behavior: Optional[_arg_types.String] = None,
   ) -> Image:
     """Returns an ee.Image with interpolated values.
 
@@ -2466,7 +2430,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.lanczos', self)
 
-  def leftShift(self, image2: _ImageType) -> Image:
+  def leftShift(self, image2: _arg_types.Image) -> Image:
     """Returns an ee.Image left shifted the values in image2.
 
     Calculates the left shift of v1 by v2 bits for each matched pair of bands in
@@ -2488,10 +2452,10 @@ class Image(element.Element):
   def linkCollection(
       self,
       # pylint: disable=invalid-name
-      imageCollection: _ImageCollectionType,
-      linkedBands: Optional[_EeAnyType] = None,
-      linkedProperties: Optional[_EeAnyType] = None,
-      matchPropertyName: Optional[_StringType] = None,
+      imageCollection: _arg_types.ImageCollection,
+      linkedBands: Optional[_arg_types.Any] = None,
+      linkedProperties: Optional[_arg_types.Any] = None,
+      matchPropertyName: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
   ) -> Image:
     """Links the source image to a matching image from an image collection.
@@ -2539,8 +2503,8 @@ class Image(element.Element):
 
   @staticmethod
   def load(
-      id: _StringType,  # pylint: disable=redefined-builtin
-      version: Optional[_IntegerType] = None,
+      id: _arg_types.String,  # pylint: disable=redefined-builtin
+      version: Optional[_arg_types.Integer] = None,
   ) -> Image:
     """Returns the image given its ID.
 
@@ -2552,7 +2516,7 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_('Image.load', id, version)
 
   @staticmethod
-  def loadGeoTIFF(uri: _StringType) -> Image:
+  def loadGeoTIFF(uri: _arg_types.String) -> Image:
     """Returns an image from a GeoTIFF in Cloud Storage.
 
     Args:
@@ -2576,7 +2540,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.long', self)
 
-  def lt(self, image2: _ImageType) -> Image:
+  def lt(self, image2: _arg_types.Image) -> Image:
     """Returns 1 if the image is less than image2.
 
     Returns 1 if and only if the first value is less than the second for each
@@ -2596,7 +2560,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.lt', self, image2)
 
-  def lte(self, image2: _ImageType) -> Image:
+  def lte(self, image2: _arg_types.Image) -> Image:
     """Returns 1 if the image is less than or equal to image2.
 
     Returns 1 if and only if the first value is less than or equal to the second
@@ -2616,7 +2580,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.lte', self, image2)
 
-  def mask(self, mask: Optional[_ImageType] = None) -> Image:
+  def mask(self, mask: Optional[_arg_types.Image] = None) -> Image:
     """Gets or sets an image's mask.
 
     The output image retains the metadata and footprint of the input image.
@@ -2673,7 +2637,7 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.matrixFnorm', self)
 
   @staticmethod
-  def matrixIdentity(size: _IntegerType) -> Image:
+  def matrixIdentity(size: _arg_types.Integer) -> Image:
     """Returns an image where each pixel is a 2D identity matrix of size.
 
     Args:
@@ -2705,7 +2669,7 @@ class Image(element.Element):
         self.name() + '.matrixLUDecomposition', self
     )
 
-  def matrixMultiply(self, image2: _ImageType) -> Image:
+  def matrixMultiply(self, image2: _arg_types.Image) -> Image:
     """Returns the matrix multiplication with image2.
 
     Returns the matrix multiplication A * B for each matched pair of bands in
@@ -2761,7 +2725,7 @@ class Image(element.Element):
         self.name() + '.matrixSingularValueDecomposition', self
     )
 
-  def matrixSolve(self, image2: _ImageType) -> Image:
+  def matrixSolve(self, image2: _arg_types.Image) -> Image:
     """Returns the solution for x in the matrix equation A * x = B.
 
     Solves for x in the matrix equation A * x = B, finding a least-squares
@@ -2796,8 +2760,8 @@ class Image(element.Element):
 
   def matrixTranspose(
       self,
-      axis1: Optional[_IntegerType] = None,
-      axis2: Optional[_IntegerType] = None,
+      axis1: Optional[_arg_types.Integer] = None,
+      axis2: Optional[_arg_types.Integer] = None,
   ) -> Image:
     """Transposes two dimensions of each array pixel.
 
@@ -2813,7 +2777,7 @@ class Image(element.Element):
         self.name() + '.matrixTranspose', self, axis1, axis2
     )
 
-  def max(self, image2: _ImageType) -> Image:
+  def max(self, image2: _arg_types.Image) -> Image:
     """Returns the maximum of the image or image2.
 
     Selects the maximum of the first and second values for each matched pair of
@@ -2835,8 +2799,8 @@ class Image(element.Element):
 
   def medialAxis(
       self,
-      neighborhood: Optional[_IntegerType] = None,
-      units: Optional[_StringType] = None,
+      neighborhood: Optional[_arg_types.Integer] = None,
+      units: Optional[_arg_types.String] = None,
   ) -> Image:
     """Returns the discrete medial axis of the input image.
 
@@ -2863,8 +2827,8 @@ class Image(element.Element):
 
   def metadata(
       self,
-      property: _StringType,  # pylint: disable=redefined-builtin
-      name: Optional[_StringType] = None
+      property: _arg_types.String,  # pylint: disable=redefined-builtin
+      name: Optional[_arg_types.String] = None,
   ) -> Image:
     """Generates a constant image of type double from a metadata property.
 
@@ -2881,7 +2845,7 @@ class Image(element.Element):
         self.name() + '.metadata', self, property, name
     )
 
-  def min(self, image2: _EeAnyType) -> Image:
+  def min(self, image2: _arg_types.Any) -> Image:
     """Returns the minimum of the image or image2.
 
     Selects the minimum of the first and second values for each matched pair of
@@ -2898,7 +2862,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.min', self, image2)
 
-  def mod(self, image2: _EeAnyType) -> Image:
+  def mod(self, image2: _arg_types.Any) -> Image:
     """Returns the remainder of the image divided by the second (modulus).
 
     Calculates the remainder of the first value divided by the second for each
@@ -2915,7 +2879,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.mod', self, image2)
 
-  def multiply(self, image2: _ImageType) -> Image:
+  def multiply(self, image2: _arg_types.Image) -> Image:
     """Returns the image multiplied by image2.
 
     Multiplies the first value by the second for each matched pair of bands in
@@ -2936,9 +2900,9 @@ class Image(element.Element):
 
   def neighborhoodToArray(
       self,
-      kernel: _KernelType,
+      kernel: _arg_types.Kernel,
       # pylint: disable-next=invalid-name
-      defaultValue: Optional[_NumberType] = None,
+      defaultValue: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Turns the neighborhood of each pixel in a scalar image into a 2D array.
 
@@ -2964,7 +2928,7 @@ class Image(element.Element):
         self.name() + '.neighborhoodToArray', self, kernel, defaultValue
     )
 
-  def neighborhoodToBands(self, kernel: _KernelType) -> Image:
+  def neighborhoodToBands(self, kernel: _arg_types.Kernel) -> Image:
     """Turns the neighborhood of a pixel into a set of bands.
 
     The neighborhood is specified using a Kernel and only non-zero-weight
@@ -2986,7 +2950,7 @@ class Image(element.Element):
         self.name() + '.neighborhoodToBands', self, kernel
     )
 
-  def neq(self, image2: _ImageType) -> Image:
+  def neq(self, image2: _arg_types.Image) -> Image:
     """Returns 1 if the pixel in the image is not equal to the pixel in image2.
 
     Returns 1 if and only if the first value is not equal to the second for each
@@ -3005,7 +2969,8 @@ class Image(element.Element):
 
   def normalizedDifference(
       self,
-      bandNames: Optional[_EeAnyType] = None,  # pylint: disable=invalid-name
+      # pylint: disable-next=invalid-name
+      bandNames: Optional[_arg_types.Any] = None,
   ) -> Image:
     """Computes the normalized difference between two bands.
 
@@ -3034,7 +2999,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.not', self)
 
-  def Or(self, image2: _ImageType) -> Image:
+  def Or(self, image2: _arg_types.Image) -> Image:
     """Returns 1 if the pixel in either image is non-zero, and 0 otherwise.
 
     Returns 1 if and only if either input value is non-zero for each matched
@@ -3054,9 +3019,10 @@ class Image(element.Element):
   # TODO: Tighten the types of color and width.
   def paint(
       self,
-      featureCollection: _FeatureCollectionType,  # pylint: disable=invalid-name
-      color: Optional[_EeAnyType] = None,
-      width: Optional[_EeAnyType] = None,
+      # pylint: disable-next=invalid-name
+      featureCollection: _arg_types.FeatureCollection,
+      color: Optional[_arg_types.Any] = None,
+      width: Optional[_arg_types.Any] = None,
   ) -> Image:
     """Returns an image with the geometries of a collection painted onto it.
 
@@ -3098,7 +3064,7 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_('Image.pixelArea')
 
   @staticmethod
-  def pixelCoordinates(projection: _ProjectionType) -> Image:
+  def pixelCoordinates(projection: _arg_types.Projection) -> Image:
     """Returns the x and y coordinates of each pixel in the given projection.
 
     Creates a two-band image containing the x and y coordinates of each pixel in
@@ -3119,7 +3085,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_('Image.pixelLonLat')
 
-  def polynomial(self, coefficients: _ListType) -> Image:
+  def polynomial(self, coefficients: _arg_types.List) -> Image:
     """Compute a polynomial at each pixel using the given coefficients.
 
     Args:
@@ -3134,7 +3100,7 @@ class Image(element.Element):
         self.name() + '.polynomial', self, coefficients
     )
 
-  def pow(self, image2: _ImageType) -> Image:
+  def pow(self, image2: _arg_types.Image) -> Image:
     """Returns an Image with image to the power of image2.
 
     Raises the first value to the power of the second for each matched pair of
@@ -3162,7 +3128,7 @@ class Image(element.Element):
 
   @staticmethod
   def random(
-      seed: _IntegerType, distribution: Optional[_StringType] = None
+      seed: _arg_types.Integer, distribution: Optional[_arg_types.String] = None
   ) -> Image:
     """Returns an image with a random number at each pixel location.
 
@@ -3194,7 +3160,7 @@ class Image(element.Element):
         self.name() + '.randomVisualizer', self
     )
 
-  def reduce(self, reducer: _ReducerType) -> Image:
+  def reduce(self, reducer: _arg_types.Reducer) -> Image:
     """Applies a reducer to all of the bands of an image.
 
     The reducer must have a single input and will be called at each pixel to
@@ -3213,9 +3179,11 @@ class Image(element.Element):
 
   def reduceConnectedComponents(
       self,
-      reducer: _ReducerType,
-      labelBand: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      maxSize: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
+      reducer: _arg_types.Reducer,
+      # pylint: disable=invalid-name
+      labelBand: Optional[_arg_types.String] = None,
+      maxSize: Optional[_arg_types.Integer] = None,
+      # pylint: enable=invalid-name
   ) -> Image:
     """Applies a reducer to all of the pixels inside of each 'object'.
 
@@ -3246,13 +3214,13 @@ class Image(element.Element):
 
   def reduceNeighborhood(
       self,
-      reducer: _ReducerType,
-      kernel: _KernelType,
+      reducer: _arg_types.Reducer,
+      kernel: _arg_types.Kernel,
       # pylint: disable=invalid-name
-      inputWeight: Optional[_StringType] = None,
-      skipMasked: Optional[_EeBoolType] = None,
+      inputWeight: Optional[_arg_types.String] = None,
+      skipMasked: Optional[_arg_types.Bool] = None,
       # pylint: enable=invalid-name
-      optimization: Optional[_StringType] = None,
+      optimization: Optional[_arg_types.String] = None,
   ) -> Image:
     """Returns an ee.Image with the reducer applied as determined by the kernel.
 
@@ -3293,15 +3261,15 @@ class Image(element.Element):
 
   def reduceRegion(
       self,
-      reducer: _ReducerType,
-      geometry: Optional[_GeometryType] = None,
-      scale: Optional[_NumberType] = None,
-      crs: Optional[_ProjectionType] = None,
+      reducer: _arg_types.Reducer,
+      geometry: Optional[_arg_types.Geometry] = None,
+      scale: Optional[_arg_types.Number] = None,
+      crs: Optional[_arg_types.Projection] = None,
       # pylint: disable=invalid-name
-      crsTransform: Optional[_ListType] = None,
-      bestEffort: Optional[_EeBoolType] = None,
-      maxPixels: Optional[_IntegerType] = None,
-      tileScale: Optional[_NumberType] = None,
+      crsTransform: Optional[_arg_types.List] = None,
+      bestEffort: Optional[_arg_types.Bool] = None,
+      maxPixels: Optional[_arg_types.Integer] = None,
+      tileScale: Optional[_arg_types.Number] = None,
       # pylint: enable=invalid-name
   ) -> dictionary.Dictionary:
     """Apply a reducer to all the pixels in a specific region.
@@ -3348,12 +3316,14 @@ class Image(element.Element):
 
   def reduceRegions(
       self,
-      collection: _FeatureCollectionType,
-      reducer: _ReducerType,
-      scale: Optional[_NumberType] = None,
-      crs: Optional[_ProjectionType] = None,
-      crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
-      tileScale: Optional[_NumberType] = None,  # pylint: disable=invalid-name
+      collection: _arg_types.FeatureCollection,
+      reducer: _arg_types.Reducer,
+      scale: Optional[_arg_types.Number] = None,
+      crs: Optional[_arg_types.Projection] = None,
+      # pylint: disable=invalid-name
+      crsTransform: Optional[_arg_types.List] = None,
+      tileScale: Optional[_arg_types.Number] = None,
+      # pylint: enable=invalid-name
   ) -> featurecollection.FeatureCollection:
     """Apply a reducer over the area of each feature in the given collection.
 
@@ -3393,9 +3363,11 @@ class Image(element.Element):
 
   def reduceResolution(
       self,
-      reducer: _ReducerType,
-      bestEffort: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
-      maxPixels: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
+      reducer: _arg_types.Reducer,
+      # pylint: disable=invalid-name
+      bestEffort: Optional[_arg_types.Bool] = None,
+      maxPixels: Optional[_arg_types.Integer] = None,
+      # pylint: enable=invalid-name
   ) -> Image:
     """Returns an ee.Image with the reducer applied to combine all input pixels.
 
@@ -3429,21 +3401,21 @@ class Image(element.Element):
 
   def reduceToVectors(
       self,
-      reducer: Optional[_ReducerType] = None,
-      geometry: Optional[_GeometryType] = None,
-      scale: Optional[_NumberType] = None,
+      reducer: Optional[_arg_types.Reducer] = None,
+      geometry: Optional[_arg_types.Geometry] = None,
+      scale: Optional[_arg_types.Number] = None,
       # pylint: disable=invalid-name
-      geometryType: Optional[_StringType] = None,
-      eightConnected: Optional[_EeBoolType] = None,
-      labelProperty: Optional[_StringType] = None,
+      geometryType: Optional[_arg_types.String] = None,
+      eightConnected: Optional[_arg_types.Bool] = None,
+      labelProperty: Optional[_arg_types.String] = None,
       # pylint: enable=invalid-name
-      crs: Optional[_ProjectionType] = None,
+      crs: Optional[_arg_types.Projection] = None,
       # pylint: disable=invalid-name
-      crsTransform: Optional[_ListType] = None,
-      bestEffort: Optional[_EeBoolType] = None,
-      maxPixels: Optional[_IntegerType] = None,
-      tileScale: Optional[_NumberType] = None,
-      geometryInNativeProjection: Optional[_EeBoolType] = None,
+      crsTransform: Optional[_arg_types.List] = None,
+      bestEffort: Optional[_arg_types.Bool] = None,
+      maxPixels: Optional[_arg_types.Integer] = None,
+      tileScale: Optional[_arg_types.Number] = None,
+      geometryInNativeProjection: Optional[_arg_types.Bool] = None,
       # pylint: enable=invalid-name
   ) -> featurecollection.FeatureCollection:
     """Convert an image to a feature collection by reducing homogeneous regions.
@@ -3508,9 +3480,10 @@ class Image(element.Element):
 
   def regexpRename(
       self,
-      regex: _StringType,
-      replacement: _StringType,
-      all: Optional[_EeBoolType] = None,  # pylint: disable=redefined-builtin
+      regex: _arg_types.String,
+      replacement: _arg_types.String,
+      # pylint: disable-next=redefined-builtin
+      all: Optional[_arg_types.Bool] = None,
   ) -> Image:
     """Renames the bands of an image.
 
@@ -3536,11 +3509,11 @@ class Image(element.Element):
   def register(
       self,
       # pylint: disable=invalid-name
-      referenceImage: _ImageType,
-      maxOffset: _NumberType,
-      patchWidth: Optional[_NumberType] = None,
+      referenceImage: _arg_types.Image,
+      maxOffset: _arg_types.Number,
+      patchWidth: Optional[_arg_types.Number] = None,
       # pylint: enable=invalid-name
-      stiffness: Optional[_NumberType] = None,
+      stiffness: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Registers an image to a reference image.
 
@@ -3582,10 +3555,12 @@ class Image(element.Element):
 
   def remap(
       self,
-      from_: Optional[_ListType] = None,
-      to: Optional[_ListType] = None,
-      defaultValue: Optional[_EeAnyType] = None,  # pylint: disable=invalid-name
-      bandName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      from_: Optional[_arg_types.List] = None,
+      to: Optional[_arg_types.List] = None,
+      # pylint: disable=invalid-name
+      defaultValue: Optional[_arg_types.Any] = None,
+      bandName: Optional[_arg_types.String] = None,
+      # pylint: enable=invalid-name
       **kwargs,
   ) -> Image:
     # pylint: disable=g-doc-args
@@ -3650,9 +3625,10 @@ class Image(element.Element):
 
   def reproject(
       self,
-      crs: _ProjectionType,
-      crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
-      scale: Optional[_NumberType] = None,
+      crs: _arg_types.Projection,
+      # pylint: disable-next=invalid-name
+      crsTransform: Optional[_arg_types.List] = None,
+      scale: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Force an image to be computed in a given projection and resolution.
 
@@ -3675,7 +3651,7 @@ class Image(element.Element):
         self.name() + '.reproject', self, crs, crsTransform, scale
     )
 
-  def resample(self, mode: Optional[_StringType] = None) -> Image:
+  def resample(self, mode: Optional[_arg_types.String] = None) -> Image:
     """Returns an image that uses bilinear or bicubic interpolation.
 
     An algorithm that returns an image identical to its argument, but which uses
@@ -3708,7 +3684,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.rgbToHsv', self)
 
-  def rightShift(self, image2: _ImageType) -> Image:
+  def rightShift(self, image2: _arg_types.Image) -> Image:
     """Returns an image with the pixels right shifted by image2.
 
     Calculates the signed right shift of v1 by v2 bits for each matched pair of
@@ -3737,8 +3713,8 @@ class Image(element.Element):
 
   def rsedTransform(
       self,
-      neighborhood: Optional[_IntegerType] = None,
-      units: Optional[_StringType] = None,
+      neighborhood: Optional[_arg_types.Integer] = None,
+      units: Optional[_arg_types.String] = None,
   ) -> Image:
     """Calculated the Reverse Squared Euclidean Distance (RSED).
 
@@ -3763,16 +3739,16 @@ class Image(element.Element):
 
   def sample(
       self,
-      region: Optional[_GeometryType] = None,
-      scale: Optional[_NumberType] = None,
-      projection: Optional[_ProjectionType] = None,
-      factor: Optional[_NumberType] = None,
+      region: Optional[_arg_types.Geometry] = None,
+      scale: Optional[_arg_types.Number] = None,
+      projection: Optional[_arg_types.Projection] = None,
+      factor: Optional[_arg_types.Number] = None,
       # pylint: disable=invalid-name
-      numPixels: Optional[_IntegerType] = None,
-      seed: Optional[_IntegerType] = None,
-      dropNulls: Optional[_EeBoolType] = None,
-      tileScale: Optional[_NumberType] = None,
-      geometries: Optional[_EeBoolType] = None,
+      numPixels: Optional[_arg_types.Integer] = None,
+      seed: Optional[_arg_types.Integer] = None,
+      dropNulls: Optional[_arg_types.Bool] = None,
+      tileScale: Optional[_arg_types.Number] = None,
+      geometries: Optional[_arg_types.Bool] = None,
       # pylint: enable=invalid-name
   ) -> featurecollection.FeatureCollection:
     """Returns an ee.FeatureCollection of samples from an ee.Image.
@@ -3820,11 +3796,11 @@ class Image(element.Element):
 
   def sampleRectangle(
       self,
-      region: Optional[_EeAnyType] = None,
-      properties: Optional[_ListType] = None,
+      region: Optional[_arg_types.Any] = None,
+      properties: Optional[_arg_types.List] = None,
       # pylint: disable=invalid-name
-      defaultValue: Optional[_NumberType] = None,
-      defaultArrayValue: Optional[_ArrayType] = None,
+      defaultValue: Optional[_arg_types.Number] = None,
+      defaultArrayValue: Optional[_arg_types.Array] = None,
       # pylint: enable=invalid-name
   ) -> feature.Feature:
     """Returns pixels from an image into a ND array per band.
@@ -3861,12 +3837,13 @@ class Image(element.Element):
 
   def sampleRegions(
       self,
-      collection: _FeatureCollectionType,
-      properties: Optional[_ListType] = None,
-      scale: Optional[_NumberType] = None,
-      projection: Optional[_ProjectionType] = None,
-      tileScale: Optional[_NumberType] = None,  # pylint: disable=invalid-name
-      geometries: Optional[_EeBoolType] = None,
+      collection: _arg_types.FeatureCollection,
+      properties: Optional[_arg_types.List] = None,
+      scale: Optional[_arg_types.Number] = None,
+      projection: Optional[_arg_types.Projection] = None,
+      # pylint: disable-next=invalid-name
+      tileScale: Optional[_arg_types.Number] = None,
+      geometries: Optional[_arg_types.Bool] = None,
   ) -> featurecollection.FeatureCollection:
     """Returns an ee.FeatureCollection of samples from an ee.Image.
 
@@ -3909,8 +3886,8 @@ class Image(element.Element):
   # pylint: disable-next=keyword-arg-before-vararg
   def select(
       self,
-      selectors: Optional[_ListType] = None,
-      names: Optional[_ListType] = None,
+      selectors: Optional[_arg_types.List] = None,
+      names: Optional[_arg_types.List] = None,
       *args,
   ) -> Image:
     """Selects bands from an image.
@@ -3985,9 +3962,10 @@ class Image(element.Element):
 
   def setDefaultProjection(
       self,
-      crs: _ProjectionType,
-      crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
-      scale: Optional[_NumberType] = None,
+      crs: _arg_types.Projection,
+      # pylint: disable-next=invalid-name
+      crsTransform: Optional[_arg_types.List] = None,
+      scale: Optional[_arg_types.Number] = None,
   ) -> Image:
     """Set a default projection to be applied to this image.
 
@@ -4040,7 +4018,7 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.sinh', self)
 
   # pylint: disable-next=invalid-name
-  def sldStyle(self, sldXml: _StringType) -> Image:
+  def sldStyle(self, sldXml: _arg_types.String) -> Image:
     """Styles a raster input with the provided OGC SLD styling.
 
     Points of note:
@@ -4076,7 +4054,7 @@ class Image(element.Element):
     )
 
   def slice(
-      self, start: _IntegerType, end: Optional[_IntegerType] = None
+      self, start: _arg_types.Integer, end: Optional[_arg_types.Integer] = None
   ) -> Image:
     """Selects a contiguous group of bands from an image by position.
 
@@ -4096,9 +4074,10 @@ class Image(element.Element):
 
   def spectralDilation(
       self,
-      metric: Optional[_StringType] = None,
-      kernel: Optional[_KernelType] = None,
-      useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+      metric: Optional[_arg_types.String] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
+      # pylint: disable-next=invalid-name
+      useCentroid: Optional[_arg_types.Bool] = None,
   ) -> Image:
     """Returns the spectral/spatial dilation of an image.
 
@@ -4125,7 +4104,7 @@ class Image(element.Element):
     )
 
   def spectralDistance(
-      self, image2: _ImageType, metric: Optional[_StringType] = None
+      self, image2: _arg_types.Image, metric: Optional[_arg_types.String] = None
   ) -> Image:
     """Computes the per-pixel spectral distance between two images.
 
@@ -4150,9 +4129,10 @@ class Image(element.Element):
 
   def spectralErosion(
       self,
-      metric: Optional[_StringType] = None,
-      kernel: Optional[_KernelType] = None,
-      useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+      metric: Optional[_arg_types.String] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
+      # pylint: disable-next=invalid-name
+      useCentroid: Optional[_arg_types.Bool] = None,
   ) -> Image:
     """Returns the spectral/spatial erosion of an image.
 
@@ -4180,9 +4160,10 @@ class Image(element.Element):
 
   def spectralGradient(
       self,
-      metric: Optional[_StringType] = None,
-      kernel: Optional[_KernelType] = None,
-      useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+      metric: Optional[_arg_types.String] = None,
+      kernel: Optional[_arg_types.Kernel] = None,
+      # pylint: disable-next=invalid-name
+      useCentroid: Optional[_arg_types.Bool] = None,
   ) -> Image:
     """Returns the spectral gradient of an image.
 
@@ -4214,17 +4195,21 @@ class Image(element.Element):
 
   def stratifiedSample(
       self,
-      numPoints: _IntegerType,  # pylint: disable=invalid-name
-      classBand: Optional[_StringType] = None,  # pylint: disable=invalid-name
-      region: Optional[_GeometryType] = None,
-      scale: Optional[_NumberType] = None,
-      projection: Optional[_ProjectionType] = None,
-      seed: Optional[_IntegerType] = None,
-      classValues: Optional[_ListType] = None,  # pylint: disable=invalid-name
-      classPoints: Optional[_ListType] = None,  # pylint: disable=invalid-name
-      dropNulls: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
-      tileScale: Optional[_NumberType] = None,  # pylint: disable=invalid-name
-      geometries: Optional[_EeBoolType] = None,
+      # pylint: disable=invalid-name
+      numPoints: _arg_types.Integer,
+      classBand: Optional[_arg_types.String] = None,
+      # pylint: endable=invalid-name
+      region: Optional[_arg_types.Geometry] = None,
+      scale: Optional[_arg_types.Number] = None,
+      projection: Optional[_arg_types.Projection] = None,
+      seed: Optional[_arg_types.Integer] = None,
+      # pylint: disable=invalid-name
+      classValues: Optional[_arg_types.List] = None,
+      classPoints: Optional[_arg_types.List] = None,
+      dropNulls: Optional[_arg_types.Bool] = None,
+      tileScale: Optional[_arg_types.Number] = None,
+      # pylint: enable=invalid-name
+      geometries: Optional[_arg_types.Bool] = None,
   ) -> featurecollection.FeatureCollection:
     """Extracts a stratified random sample of points from an image.
 
@@ -4282,7 +4267,7 @@ class Image(element.Element):
         geometries,
     )
 
-  def subtract(self, image2: _ImageType) -> Image:
+  def subtract(self, image2: _arg_types.Image) -> Image:
     """Returns image2 subtracted from this image.
 
     Subtracts the second value from the first for each matched pair of bands in
@@ -4311,7 +4296,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.tanh', self)
 
-  def toArray(self, axis: Optional[_IntegerType] = None) -> Image:
+  def toArray(self, axis: Optional[_arg_types.Integer] = None) -> Image:
     """Concatenates pixels from each band into a single array per pixel.
 
     The result will be masked if any input bands are masked.
@@ -4394,10 +4379,10 @@ class Image(element.Element):
 
   def translate(
       self,
-      x: _NumberType,
-      y: _NumberType,
-      units: Optional[_StringType] = None,
-      proj: Optional[_ProjectionType] = None,
+      x: _arg_types.Number,
+      y: _arg_types.Number,
+      units: Optional[_arg_types.String] = None,
+      proj: Optional[_arg_types.Projection] = None,
   ) -> Image:
     """Translate the input image.
 
@@ -4436,7 +4421,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.uint8', self)
 
-  def unitScale(self, low: _NumberType, high: _NumberType) -> Image:
+  def unitScale(self, low: _arg_types.Number, high: _arg_types.Number) -> Image:
     """Returns an ee.Image with input values [low, high] scaled to [0, 1].
 
     Scales the input so that the range of input values [low, high] becomes [0,
@@ -4457,9 +4442,9 @@ class Image(element.Element):
 
   def unmask(
       self,
-      value: Optional[_ImageType] = None,
+      value: Optional[_arg_types.Image] = None,
       # pylint: disable-next=invalid-name
-      sameFootprint: Optional[_EeBoolType] = None,
+      sameFootprint: Optional[_arg_types.Bool] = None,
   ) -> Image:
     """Returns an ee.Image with mask and value of the value image.
 
@@ -4486,9 +4471,11 @@ class Image(element.Element):
 
   def unmix(
       self,
-      endmembers: _ListType,
-      sumToOne: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
-      nonNegative: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+      endmembers: _arg_types.List,
+      # pylint: disable=invalid-name
+      sumToOne: Optional[_arg_types.Bool] = None,
+      nonNegative: Optional[_arg_types.Bool] = None,
+      # pylint: enable=invalid-name
   ) -> Image:
     """Returns an ee.Image with endmembers unmixing each pixel.
 
@@ -4509,7 +4496,7 @@ class Image(element.Element):
         self.name() + '.unmix', self, endmembers, sumToOne, nonNegative
     )
 
-  def updateMask(self, mask: _ImageType) -> Image:
+  def updateMask(self, mask: _arg_types.Image) -> Image:
     """Returns an ee.Image with mask of the mask image.
 
     Updates an image's mask at all positions where the existing mask is not
@@ -4532,16 +4519,16 @@ class Image(element.Element):
 
   def visualize(
       self,
-      bands: Optional[_EeAnyType] = None,
-      gain: Optional[_EeAnyType] = None,
-      bias: Optional[_EeAnyType] = None,
-      min: Optional[_EeAnyType] = None,  # pylint: disable=redefined-builtin
-      max: Optional[_EeAnyType] = None,  # pylint: disable=redefined-builtin
-      gamma: Optional[_EeAnyType] = None,
-      opacity: Optional[_NumberType] = None,
-      palette: Optional[_EeAnyType] = None,
+      bands: Optional[_arg_types.Any] = None,
+      gain: Optional[_arg_types.Any] = None,
+      bias: Optional[_arg_types.Any] = None,
+      min: Optional[_arg_types.Any] = None,  # pylint: disable=redefined-builtin
+      max: Optional[_arg_types.Any] = None,  # pylint: disable=redefined-builtin
+      gamma: Optional[_arg_types.Any] = None,
+      opacity: Optional[_arg_types.Number] = None,
+      palette: Optional[_arg_types.Any] = None,
       # pylint: disable-next=invalid-name
-      forceRgbOutput: Optional[_EeBoolType] = None,
+      forceRgbOutput: Optional[_arg_types.Bool] = None,
   ) -> Image:
     """Produces an RGB or grayscale visualization of an image.
 
@@ -4579,7 +4566,7 @@ class Image(element.Element):
         forceRgbOutput,
     )
 
-  def where(self, test: _ImageType, value: _ImageType) -> Image:
+  def where(self, test: _arg_types.Image, value: _arg_types.Image) -> Image:
     """Performs conditional replacement of values.
 
     For each pixel in each band of 'input', if the corresponding pixel in 'test'

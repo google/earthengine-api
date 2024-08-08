@@ -5,6 +5,7 @@ import datetime
 import math
 from typing import Any, Dict, Optional, Union
 
+from ee import _arg_types
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
@@ -14,13 +15,10 @@ from ee import ee_string
 from ee import ee_types as types
 from ee import serializer
 
-# TODO: Have a separate type when datetime.Datetime unavailable.
+# _arg_types.DateType does not have datetime.Datetime.
 _DateType = Union[
     datetime.datetime, float, str, 'Date', computedobject.ComputedObject
 ]
-_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
-_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Date(computedobject.ComputedObject):
@@ -32,7 +30,9 @@ class Date(computedobject.ComputedObject):
   _HAS_DYNAMIC_ATTRIBUTES = True
 
   @_utils.accept_opt_prefix('opt_tz')
-  def __init__(self, date: Union[_DateType], tz: Optional[_StringType] = None):
+  def __init__(
+      self, date: Union[_DateType], tz: Optional[_arg_types.String] = None
+  ):
     """Construct a date.
 
     This sends all inputs (except another Date) through the Date function.
@@ -105,9 +105,10 @@ class Date(computedobject.ComputedObject):
 
   def advance(
       self,
-      delta: _NumberType,
-      unit: _StringType,
-      timeZone: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      delta: _arg_types.Number,
+      unit: _arg_types.String,
+      # pylint: disable-next=invalid-name
+      timeZone: Optional[_arg_types.String] = None,
   ) -> 'Date':
     """Create a new Date by adding the specified units to the given Date.
 
@@ -125,7 +126,9 @@ class Date(computedobject.ComputedObject):
         self.name() + '.advance', self, delta, unit, timeZone
     )
 
-  def difference(self, start: _DateType, unit: _StringType) -> ee_number.Number:
+  def difference(
+      self, start: _DateType, unit: _arg_types.String
+  ) -> ee_number.Number:
     """Returns the difference between two Dates in the specified units.
 
     Args:
@@ -143,8 +146,10 @@ class Date(computedobject.ComputedObject):
 
   def format(
       self,
-      format: Optional[_StringType] = None,  # pylint: disable=redefined-builtin
-      timeZone: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      # pylint: disable-next=redefined-builtin
+      format: Optional[_arg_types.String] = None,
+      # pylint: disable-next=invalid-name
+      timeZone: Optional[_arg_types.String] = None,
   ) -> ee_string.String:
     """Convert a date to string.
 
@@ -166,11 +171,11 @@ class Date(computedobject.ComputedObject):
 
   @staticmethod
   def fromYMD(
-      year: _IntegerType,
-      month: _IntegerType,
-      day: _IntegerType,
+      year: _arg_types.Integer,
+      month: _arg_types.Integer,
+      day: _arg_types.Integer,
       # pylint: disable=invalid-name
-      timeZone: Optional[_StringType] = None,
+      timeZone: Optional[_arg_types.String] = None,
   ) -> 'Date':
     """Returns a Date given year, month, day.
 
@@ -186,7 +191,10 @@ class Date(computedobject.ComputedObject):
     )
 
   def get(
-      self, unit: _StringType, timeZone: Optional[_StringType] = None  # pylint: disable=invalid-name
+      self,
+      unit: _arg_types.String,
+      # pylint: disable-next=invalid-name
+      timeZone: Optional[_arg_types.String] = None,
   ) -> ee_number.Number:
     """Returns the specified unit of this date.
 
@@ -204,7 +212,10 @@ class Date(computedobject.ComputedObject):
     )
 
   def getFraction(
-      self, unit: _StringType, timeZone: Optional[_StringType] = None  # pylint: disable=invalid-name
+      self,
+      unit: _arg_types.String,
+      # pylint: disable-next=invalid-name
+      timeZone: Optional[_arg_types.String] = None,
   ) -> ee_number.Number:
     """Returns this date's elapsed fraction of the specified unit.
 
@@ -222,7 +233,10 @@ class Date(computedobject.ComputedObject):
     )
 
   def getRange(
-      self, unit: _StringType, timeZone: Optional[_StringType] = None  # pylint: disable=invalid-name
+      self,
+      unit: _arg_types.String,
+      # pylint: disable-next=invalid-name
+      timeZone: Optional[_arg_types.String] = None,
   ) -> daterange.DateRange:
     """Returns a DateRange covering the unit that contains this date.
 
@@ -249,9 +263,10 @@ class Date(computedobject.ComputedObject):
 
   def getRelative(
       self,
-      unit: _StringType,
-      inUnit: _StringType,  # pylint: disable=invalid-name
-      timeZone: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      unit: _arg_types.String,
+      inUnit: _arg_types.String,  # pylint: disable=invalid-name
+      # pylint: disable-next=invalid-name
+      timeZone: Optional[_arg_types.String] = None,
   ) -> ee_number.Number:
     """Returns the specified unit of this date relative to a larger unit.
 
@@ -277,9 +292,10 @@ class Date(computedobject.ComputedObject):
 
   @staticmethod
   def parse(
-      format: _StringType,
-      date: _StringType,
-      timeZone: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      format: _arg_types.String,  # pylint: disable=redefined-builtin
+      date: _arg_types.String,
+      # pylint: disable-next=invalid-name
+      timeZone: Optional[_arg_types.String] = None,
   ) -> 'Date':
     """Parse a date string, given a string describing its format.
 
@@ -297,7 +313,7 @@ class Date(computedobject.ComputedObject):
 
   @classmethod
   def unitRatio(
-      cls, numerator: _StringType, denominator: _StringType
+      cls, numerator: _arg_types.String, denominator: _arg_types.String
   ) -> ee_number.Number:
     """Returns the ratio of the length of one unit to the length of another.
 
@@ -320,13 +336,14 @@ class Date(computedobject.ComputedObject):
 
   def update(
       self,
-      year: Optional[_IntegerType] = None,
-      month: Optional[_IntegerType] = None,
-      day: Optional[_IntegerType] = None,
-      hour: Optional[_IntegerType] = None,
-      minute: Optional[_IntegerType] = None,
-      second: Optional[_NumberType] = None,
-      timeZone: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      year: Optional[_arg_types.Integer] = None,
+      month: Optional[_arg_types.Integer] = None,
+      day: Optional[_arg_types.Integer] = None,
+      hour: Optional[_arg_types.Integer] = None,
+      minute: Optional[_arg_types.Integer] = None,
+      second: Optional[_arg_types.Number] = None,
+      # pylint: disable-next=invalid-name
+      timeZone: Optional[_arg_types.String] = None,
   ) -> 'Date':
     """Create a new Date by setting one or more of the units of the given Date.
 
