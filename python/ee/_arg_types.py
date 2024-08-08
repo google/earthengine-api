@@ -69,6 +69,7 @@ Integer = Union[int, ee_number.Number, computedobject.ComputedObject]
 Kernel = Union[kernel.Kernel, computedobject.ComputedObject]
 List = Union[
     ListType[AnyType],
+    Tuple[()],
     Tuple[AnyType, AnyType],
     ee_list.List,
     computedobject.ComputedObject,
