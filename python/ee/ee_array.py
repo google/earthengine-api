@@ -11,6 +11,7 @@ from ee import ee_list
 from ee import ee_number
 # pylint: disable-next=unused-import
 from ee import ee_string
+from ee import reducer as ee_reducer
 
 _ArrayType = Union[
     Any, List[Any], 'Array', 'ee_list.List', computedobject.ComputedObject
@@ -22,6 +23,7 @@ _ListType = Union[
 ]
 _NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
+_ReducerType = Union[ee_reducer.Reducer, computedobject.ComputedObject]
 
 
 class Array(computedobject.ComputedObject):
@@ -102,9 +104,8 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.abs', self)
 
-  # TODO: Use _ReducerType for reducer.
   def accum(
-      self, axis: _IntegerType, reducer: Optional[_EeAnyType] = None
+      self, axis: _IntegerType, reducer: Optional[_ReducerType] = None
   ) -> Array:
     """Accumulates elements of an array along the given axis.
 
@@ -903,7 +904,7 @@ class Array(computedobject.ComputedObject):
 
   def reduce(
       self,
-      reducer: _EeAnyType,
+      reducer: _ReducerType,
       axes: _EeAnyType,
       # pylint: disable-next=invalid-name
       fieldAxis: Optional[_IntegerType] = None,
