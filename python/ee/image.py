@@ -688,7 +688,7 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.abs', self)
 
   def acos(self) -> Image:
-    """Computes the arc cosine in radians of the input."""
+    """Computes the arccosine in radians of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.acos', self)
 
@@ -1112,12 +1112,12 @@ class Image(element.Element):
     )
 
   def asin(self) -> Image:
-    """Computes the arc sine in radians of the input."""
+    """Computes the arcsine in radians of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.asin', self)
 
   def atan(self) -> Image:
-    """Computes the arc tangent in radians of the input."""
+    """Computes the arctangent in radians of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.atan', self)
 
