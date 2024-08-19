@@ -362,14 +362,17 @@ class Number(computedobject.ComputedObject):
     Args:
       pattern: A printf-style format string. For example, '%.2f' produces
         numbers formatted like '3.14', and '%05d' produces numbers formatted
-        like '00042'. The format string must satisfy the following criteria:  1.
-        Zero or more prefix characters. 2. Exactly one '%'. 3. Zero or more
-        modifier characters in the set [#-+ 0,(.\d]. 4. Exactly one conversion
-        character in the set [sdoxXeEfgGaA]. 5. Zero or more suffix characters
+        like '00042'. The format string must satisfy the following criteria:
+
+        1. Zero or more prefix characters.
+        2. Exactly one '%'.
+        3. Zero or more modifier characters in the set [#-+ 0,(.\d].
+        4. Exactly one conversion character in the set [sdoxXeEfgGaA].
+        5. Zero or more suffix characters.
 
     Returns:
       An ee.String with the number formatted based on the pattern.
-    """
+    """  # fmt: skip
 
     return apifunction.ApiFunction.call_(self.name() + '.format', self, pattern)
 
