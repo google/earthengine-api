@@ -5,6 +5,7 @@ This class is never intended to be instantiated by the user.
 
 from __future__ import annotations
 
+import datetime
 from typing import Any, Dict, Optional, Union
 
 from ee import _arg_types
@@ -120,7 +121,13 @@ class Element(computedobject.ComputedObject):
 
   def set(
       self,
-      *args: Union[Dict[str, Any], float, str, computedobject.ComputedObject],
+      *args: Union[
+          Dict[str, Any],
+          float,
+          str,
+          datetime.datetime,
+          computedobject.ComputedObject,
+      ],
   ) -> Element:
     """Overrides one or more metadata properties of an Element.
 

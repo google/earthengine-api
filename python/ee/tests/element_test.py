@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Test for the ee.element module."""
 
+import datetime
+
 import unittest
 import ee
 from ee import apitestcase
@@ -31,6 +33,8 @@ class ElementTestCase(apitestcase.ApiTestCase):
                      image.set({'properties': {'foo': 'bar'}, 'baz': 'quux'}))
     AssertProperties({'foo': 'bar', 'baz': 'quux'},
                      image.set('foo', 'bar', 'baz', 'quux'))
+    dt = datetime.datetime.fromtimestamp(12345)
+    AssertProperties({'foo': dt}, image.set('foo', dt))
 
     # Computed dictionary.
     computed_arg = ee.ComputedObject(None, None, 'foo')
