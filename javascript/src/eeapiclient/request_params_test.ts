@@ -172,6 +172,22 @@ describe('bypassCorsPreflight', () => {
     expect(params.queryParams).toEqual({});
   });
 
+  it('handles simple cors headers', () => {
+    const params: MakeRequestParams = {
+      path: 'v1/whatever',
+      httpMethod: 'GET',
+      methodId: 'someservice.whatever.get',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    };
+    bypassCorsPreflight(params);
+    expect(params.headers).toEqual({
+      'Content-Type': 'application/x-www-form-urlencoded',
+    });
+    expect(params.httpMethod).toEqual('GET');
+  });
+
   it('handles would-trigger-preflight cors headers', () => {
     const params: MakeRequestParams = {
       path: 'v1/whatever',

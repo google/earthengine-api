@@ -119,6 +119,12 @@ const simpleCorsAllowedHeaders: string[] = [
 
 const simpleCorsAllowedMethods: string[] = ['GET', 'HEAD', 'POST'];
 
+const simpleCorsAllowedContentTypes: readonly string[] = [
+  'application/x-www-form-urlencoded',
+  'multipart/form-data',
+  'text/plain',
+];
+
 /**
  * Note: This function only works for One Platform APIs.
  * Manipulates the request options such that it will not trigger a CORS
@@ -149,12 +155,19 @@ export function bypassCorsPreflight(params: MakeRequestParams) {
   const unsafeHeaders: {[key: string]: string} = {};
   let hasUnsafeHeaders = false;
   let hasContentType = false;
+  let hasSafeContentType = false;
 
   if (params.headers) {
     hasContentType = params.headers['Content-Type'] != null;
     for (const [key, value] of Object.entries(params.headers)) {
       if (simpleCorsAllowedHeaders.includes(key)) {
         safeHeaders[key] = value;
+      } else if (
+        key === 'Content-Type' &&
+        simpleCorsAllowedContentTypes.includes(value)
+      ) {
+        safeHeaders[key] = value;
+        hasSafeContentType = true;
       } else {
         unsafeHeaders[key] = value;
         hasUnsafeHeaders = true;
@@ -177,7 +190,9 @@ export function bypassCorsPreflight(params: MakeRequestParams) {
       unsafeHeaders['Content-Type'] = 'application/json';
       hasUnsafeHeaders = true;
     }
-    safeHeaders['Content-Type'] = 'text/plain';
+    if (!hasSafeContentType) {
+      safeHeaders['Content-Type'] = 'text/plain';
+    }
   }
 
   if (hasUnsafeHeaders) {
