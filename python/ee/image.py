@@ -3128,7 +3128,8 @@ class Image(element.Element):
 
   @staticmethod
   def random(
-      seed: _arg_types.Integer, distribution: Optional[_arg_types.String] = None
+      seed: Optional[_arg_types.Integer] = None,
+      distribution: Optional[_arg_types.String] = None,
   ) -> Image:
     """Returns an image with a random number at each pixel location.
 

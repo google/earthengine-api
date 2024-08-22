@@ -3319,6 +3319,15 @@ class SerializeTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_random_default_args(self):
+    expect = make_expression_graph({
+        'arguments': {},
+        'functionName': 'Image.random',
+    })
+    expression = ee.Image.random()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_random_visualizer(self):
     expect = make_expression_graph({
         'arguments': {
