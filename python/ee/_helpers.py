@@ -18,7 +18,12 @@ from google.oauth2 import service_account
 from ee import apifunction
 from ee import computedobject
 from ee import data
+from ee import ee_exception
 from ee import oauth
+
+
+# Number of times to retry fetching profile data.
+_PROFILE_RETRIES = 5
 
 
 def ServiceAccountCredentials(
@@ -123,12 +128,19 @@ def profilePrinting(destination: TextIO = sys.stderr) -> Iterator[None]:
 
   """
   # Profile.getProfiles is `hidden`, so call it explicitly.
-  getProfiles = apifunction.ApiFunction.lookup('Profile.getProfiles')
-
+  get_profiles = apifunction.ApiFunction.lookup('Profile.getProfiles').call
   profile_ids = []
   try:
     with data.profiling(profile_ids.append):
       yield
   finally:
-    profile_text = getProfiles.call(ids=profile_ids).getInfo()
-    destination.write(profile_text)
+    # Make several attempts in case of transient errors.
+    attempts = _PROFILE_RETRIES
+    for i in range(_PROFILE_RETRIES):
+      try:
+        profile_text = get_profiles(ids=profile_ids).getInfo()
+        destination.write(profile_text)
+        break
+      except ee_exception.EEException as exception:
+        if i == attempts - 1:
+          raise exception

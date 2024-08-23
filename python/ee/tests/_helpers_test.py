@@ -7,12 +7,14 @@ name since that is the name we want to ensure works.
 """
 
 import io
+import unittest
 
 import unittest
 import ee
 from ee import apifunction
 from ee import apitestcase
 from ee import computedobject
+from ee import ee_exception
 
 
 class ProfilingTest(apitestcase.ApiTestCase):
@@ -38,6 +40,17 @@ class ProfilingTest(apitestcase.ApiTestCase):
     ee.data.computeValue = self.MockValue
     with ee.profilePrinting():
       self.assertEqual('hooked=True getProfiles=False', ee.Number(1).getInfo())
+
+  def testProfilePrintingErrorGettingProfiles(self):
+    ee.data.computeValue = self.MockValue
+    mock = unittest.mock.Mock()
+    mock.call.side_effect = ee_exception.EEException('test')
+    apifunction.ApiFunction._api['Profile.getProfiles'] = mock
+
+    with self.assertRaises(ee_exception.EEException):
+      with ee.profilePrinting():
+        ee.Number(1).getInfo()
+    self.assertEqual(5, mock.call.call_count)
 
 
 if __name__ == '__main__':
