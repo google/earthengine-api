@@ -59,5 +59,21 @@ class OAuthTest(unittest.TestCase):
   def test_in_colab_shell(self):
     self.assertFalse(ee.oauth.in_colab_shell())
 
+  def test_is_sdk_credentials(self):
+    sdk_project = ee.oauth.SDK_PROJECTS[0]
+    self.assertFalse(ee.oauth.is_sdk_credentials(None))
+    self.assertFalse(ee.oauth.is_sdk_credentials(mock.MagicMock()))
+    self.assertFalse(
+        ee.oauth.is_sdk_credentials(mock.MagicMock(client_id='123'))
+    )
+    self.assertTrue(
+        ee.oauth.is_sdk_credentials(mock.MagicMock(client_id=sdk_project))
+    )
+    self.assertTrue(
+        ee.oauth.is_sdk_credentials(
+            mock.MagicMock(client_id=f'{sdk_project}-somethingelse')
+        )
+    )
+
 if __name__ == '__main__':
   unittest.main()

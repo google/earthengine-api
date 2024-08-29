@@ -100,8 +100,8 @@ def get_credentials_arguments() -> Dict[str, Any]:
 
 
 def is_sdk_credentials(credentials: Optional[Any]) -> bool:
-  client = (credentials and getattr(credentials, 'client_id', None)) or ''
-  return is_sdk_project(client.split('-')[0])
+  client_id = credentials and getattr(credentials, 'client_id', None)
+  return is_sdk_project(_project_number_from_client_id(client_id))
 
 
 def is_sdk_project(project: str) -> bool:
@@ -226,6 +226,14 @@ def _in_jupyter_shell() -> bool:
     return False
 
 
+def _project_number_from_client_id(client_id: Optional[str]) -> Optional[str]:
+  """Returns the project number associated with the given OAuth client ID."""
+  # Client IDs are of the form:
+  # PROJECTNUMBER-BASE32STUFF.apps.googleusercontent.com.
+  substrings = (client_id or '').split('-')
+  return substrings[0] if substrings else None
+
+
 def _obtain_and_write_token(
     auth_code: Optional[str] = None,
     code_verifier: Optional[str] = None,
@@ -259,6 +267,9 @@ def _obtain_and_write_token(
   token = request_token(auth_code.strip(), code_verifier, **client_info)
   client_info['refresh_token'] = token
   client_info['scopes'] = scopes
+  project = _project_number_from_client_id(client_info.get('client_id'))
+  if project:
+    client_info['project'] = project
   write_private_json(get_credentials_path(), client_info)
   print('\nSuccessfully saved authorization token.')
 
