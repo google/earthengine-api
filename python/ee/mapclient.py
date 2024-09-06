@@ -268,7 +268,7 @@ class MapClient(threading.Thread):
     if opt_zoom is not None:
       self.level = opt_zoom
 
-    # From maps/api/javascript/geometry/mercator_projection.js
+    # From maps/api/javascript/geometry/mercator_projection.ts
     mercator_range = 256.0
     scale = 2 ** self.level
     origin_x = (mercator_range / 2.0) * scale
