@@ -80,20 +80,7 @@ class Collection(element.Element):
         'AggregateFeatureCollection.array', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def count(self, property: _arg_types.String) -> ee_number.Number:
-    """Returns the number of non-null values of the selected property.
-
-    Aggregates over a given property of the objects in a collection, calculating
-    the number of non-null values of the property.
-
-    Args:
-      property: The property to use from each element of the collection.
-    """
-
-    return apifunction.ApiFunction.call_(
-        'AggregateFeatureCollection.count', self, property
-    )
+  # TODO: count removed due to behavior change.
 
   # pylint: disable-next=redefined-builtin
   def aggregate_count(self, property: _arg_types.String) -> ee_number.Number:
