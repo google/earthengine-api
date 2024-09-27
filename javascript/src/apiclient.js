@@ -1059,9 +1059,9 @@ apiclient.handleResponse_ = function(
       return {parsed: response};
     } catch (e) {
       if (body === '') {
-        // XHR returns an empty string for large responses (>100 MB).
-        return 'Response was too large to parse. ' +
-            'Hint: Use limit() to fetch less elements of a collection.';
+        // XHR returns an empty string for large responses (>100 MB) or when
+        // there is a network error. Handle this case in the caller.
+        return '';
       }
       return 'Invalid JSON: ' + body;
     }
@@ -1073,6 +1073,8 @@ apiclient.handleResponse_ = function(
     } else if (status < 200 || status >= 300) {
       return 'Server returned HTTP code: ' + status + ' for ' + method + ' ' +
           url;
+    } else {
+      return '';
     }
   };
 
@@ -1084,7 +1086,11 @@ apiclient.handleResponse_ = function(
     if (response.parsed) {
       data = response.parsed;
     } else {
-      errorMessage = response;
+      // Empty response bodies are handled here: return the status error if
+      // there is one, otherwise the long response error.
+      const responseTooLargeMessage = 'Response was too large to parse. ' +
+          'Hint: Use limit() to fetch less elements of a collection.';
+      errorMessage = response || statusError(status) || responseTooLargeMessage;
     }
   } else if (contentType === 'multipart/mixed') {
     data = {};
