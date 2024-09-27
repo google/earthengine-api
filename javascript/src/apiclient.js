@@ -1058,6 +1058,11 @@ apiclient.handleResponse_ = function(
       }
       return {parsed: response};
     } catch (e) {
+      if (body === '') {
+        // XHR returns an empty string for large responses (>100 MB).
+        return 'Response was too large to parse. ' +
+            'Hint: Use limit() to fetch less elements of a collection.';
+      }
       return 'Invalid JSON: ' + body;
     }
   };
