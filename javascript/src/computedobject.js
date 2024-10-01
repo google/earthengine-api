@@ -39,11 +39,13 @@ goog.requireType('ee.Function');
  *     and both 'func' and 'args' must be null. If all arguments are null, the
  *     object is considered an unnamed variable, and a name will be generated
  *     when it is included in an ee.CustomFunction.
+ * @param {?boolean=} opt_unbound Whether the object is unbound, i.e., called
+ *     from a mapped or iterated function.
  * @constructor
  * @extends {ee.Encodable}
  * @template T
  */
-ee.ComputedObject = function(func, args, opt_varName) {
+ee.ComputedObject = function(func, args, opt_varName, opt_unbound) {
   // Constructor safety.
   if (!(this instanceof ee.ComputedObject)) {
     return ee.ComputedObject.construct(ee.ComputedObject, arguments);
@@ -76,6 +78,12 @@ ee.ComputedObject = function(func, args, opt_varName) {
    * @protected
    */
   this.varName = opt_varName || null;
+
+  /**
+   * Whether the computed object is an unbound variable.
+   * @type {boolean}
+   */
+  this.unbound = !!opt_unbound;
 };
 goog.inherits(ee.ComputedObject, ee.Encodable);
 // Exporting manually to avoid marking the class public in the docs.
@@ -153,14 +161,20 @@ ee.ComputedObject.prototype.encodeCloudValue = function(serializer) {
   if (this.isVariable()) {
     const name = this.varName || serializer.unboundName;
     if (!name) {
-      // We are trying to call getInfo() or make some other server call inside a
-      // function passed to collection.map() or .iterate(), and the call uses
-      // one of the function arguments. The argument will be unbound outside of
-      // the map operation and cannot be evaluated. See the Count Functions case
-      // in customfunction.js for details on the unboundName mechanism.
-      // TODO(user): Report the name of the offending argument.
-      throw new Error(
-          'A mapped function\'s arguments cannot be used in client-side operations');
+      if (this.unbound) {
+        // We are trying to call getInfo() or make some other server call inside
+        // a function passed to collection.map() or .iterate(), and the call
+        // uses one of the function arguments. The argument will be unbound
+        // outside of the map operation and cannot be evaluated. See the Count
+        // Functions case in customfunction.js for details on the unboundName
+        // mechanism.
+        // TODO(user): Report the name of the offending argument.
+        throw new Error(`A mapped function's arguments (${
+            this.name()}) cannot be used in client-side operations.`);
+      } else {
+        throw new Error(
+            `Invalid cast to ${this.name()} from a client-side object.`);
+      }
     }
     return ee.rpc_node.argumentReference(name);
   } else {

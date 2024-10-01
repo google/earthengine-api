@@ -46,16 +46,19 @@ ee.Dictionary = function(opt_dict) {
   if (ee.Types.isRegularObject(opt_dict)) {
     // Cast to a dictionary.
     ee.Dictionary.base(this, 'constructor', null, null);
-    this.dict_ = /** @type {Object} */ (opt_dict);
+    this.dict_ = /** @type {!Object} */ (opt_dict);
   } else {
     if (opt_dict instanceof ee.ComputedObject && opt_dict.func &&
         opt_dict.func.getSignature()['returns'] == 'Dictionary') {
       // If it's a call that's already returning a Dictionary, just cast.
-      ee.Dictionary.base(this, 'constructor', opt_dict.func, opt_dict.args, opt_dict.varName);
+      ee.Dictionary.base(this, 'constructor', opt_dict.func, opt_dict.args, opt_dict.varName, opt_dict.unbound);
     } else {
+      const unbound =
+          opt_dict instanceof ee.ComputedObject ? opt_dict.unbound : null;
       // Delegate everything else to the server-side constructor.
       ee.Dictionary.base(
-          this, 'constructor', new ee.ApiFunction('Dictionary'), {'input': opt_dict}, null);
+          this, 'constructor', new ee.ApiFunction('Dictionary'),
+          {'input': opt_dict}, null, unbound);
     }
     this.dict_ = null;
   }

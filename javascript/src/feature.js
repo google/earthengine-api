@@ -57,7 +57,7 @@ ee.Feature = function(geometry, opt_properties) {
     });
   } else if (geometry instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a Feature.
-    ee.Feature.base(this, 'constructor', geometry.func, geometry.args, geometry.varName);
+    ee.Feature.base(this, 'constructor', geometry.func, geometry.args, geometry.varName, geometry.unbound);
   } else if (geometry['type'] == 'Feature') {
     // Try to convert a GeoJSON Feature.
     var properties = geometry['properties'] || {};
