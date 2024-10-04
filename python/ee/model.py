@@ -227,7 +227,8 @@ class Model(computedobject.ComputedObject):
       maxPayloadBytes: The prediction payload size limit in bytes. Defaults to
         1.5MB (1500000 bytes.)
       payloadFormat: The payload format of entries in prediction requests and
-        responses. One of: ['SERIALIZED_TF_TENSORS, 'RAW_JSON', 'ND_ARRAYS'].
+        responses. One of: ['SERIALIZED_TF_TENSORS, 'RAW_JSON', 'ND_ARRAYS',
+        'GRPC_TF_TENSORS', 'GRPC_SERIALIZED_TF_TENSORS', 'GRPC_TF_EXAMPLES'].
         Defaults to 'SERIALIZED_TF_TENSORS'.
 
     Returns:
