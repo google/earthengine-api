@@ -1433,6 +1433,29 @@ class BatchTestCase(apitestcase.ApiTestCase):
             task.config,
         )
 
+  def testExportTableToBigQueryBadTableName(self):
+    """Verifies a bad table name throws an exception."""
+    with apitestcase.UsingCloudApi():
+      with self.assertRaisesRegex(
+          ee.EEException,
+          'The BigQuery table reference must be a string of the form.*',
+      ):
+        ee.batch.Export.table.toBigQuery(
+            collection=ee.FeatureCollection('foo'),
+            table=['array.instead.of.string'],
+            description='foo',
+        )
+
+      with self.assertRaisesRegex(
+          ee.EEException,
+          'The BigQuery table reference must be a string of the form.*',
+      ):
+        ee.batch.Export.table.toBigQuery(
+            collection=ee.FeatureCollection('foo'),
+            table='not.the-correct-format',
+            description='foo',
+        )
+
   def testExportVideoCloudApi(self):
     """Verifies the task created by Export.video()."""
     with apitestcase.UsingCloudApi():

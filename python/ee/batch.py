@@ -832,6 +832,16 @@ class Export:
       Returns:
         An unstarted Task that exports the table.
       """
+      if table:
+        if (
+            not isinstance(table, str)
+            or re.fullmatch(r'.+\..+\..+', table) is None
+        ):
+          raise ee_exception.EEException(
+              'The BigQuery table reference must be a string of the form'
+              ' "project_id.dataset_id.table_id".'
+          )
+
       config = {
           'description': description,
           'table': table,
