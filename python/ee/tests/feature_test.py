@@ -215,6 +215,52 @@ class FeatureTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_closest_point(self):
+    right = ee.Feature(None, {'a': 'b'})
+    max_error = 10
+    proj = EPSG_4326
+    expect = make_expression_graph({
+        'arguments': {
+            'left': FEATURE_NONE_GRAPH,
+            'right': FEATURE_A_GRAPH,
+            'maxError': MAX_ERROR_GRAPH,
+            'proj': PROJ_GRAPH,
+        },
+        'functionName': 'Feature.closestPoint',
+    })
+    expression = ee.Feature(None).closestPoint(right, max_error, proj)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Feature(None).closestPoint(
+        right=right, maxError=max_error, proj=proj
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_closest_points(self):
+    right = ee.Feature(None, {'a': 'b'})
+    max_error = 10
+    proj = EPSG_4326
+    expect = make_expression_graph({
+        'arguments': {
+            'left': FEATURE_NONE_GRAPH,
+            'right': FEATURE_A_GRAPH,
+            'maxError': MAX_ERROR_GRAPH,
+            'proj': PROJ_GRAPH,
+        },
+        'functionName': 'Feature.closestPoints',
+    })
+    expression = ee.Feature(None).closestPoints(right, max_error, proj)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Feature(None).closestPoints(
+        right=right, maxError=max_error, proj=proj
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_contained_in(self):
     expect = right_maxerror_proj('containedIn')
 

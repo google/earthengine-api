@@ -131,6 +131,40 @@ class GeometryPointTest(apitestcase.ApiTestCase):
     )
     self.assertEqual(actual, expect)
 
+  def test_closest_point(self):
+    expect = make_expression_graph_geom(
+        'closestPoint',
+        {'left': POINT, 'right': POINT2, 'maxError': MAX_ERROR, 'proj': PROJ},
+    )
+    actual = json.loads(
+        self.point.closestPoint(self.point2, MAX_ERROR_VAL, EPSG).serialize()
+    )
+    self.assertEqual(actual, expect)
+
+    actual = json.loads(
+        self.point.closestPoint(
+            right=self.point2, maxError=MAX_ERROR_VAL, proj=EPSG
+        ).serialize()
+    )
+    self.assertEqual(actual, expect)
+
+  def test_closest_points(self):
+    expect = make_expression_graph_geom(
+        'closestPoints',
+        {'left': POINT, 'right': POINT2, 'maxError': MAX_ERROR, 'proj': PROJ},
+    )
+    actual = json.loads(
+        self.point.closestPoints(self.point2, MAX_ERROR_VAL, EPSG).serialize()
+    )
+    self.assertEqual(actual, expect)
+
+    actual = json.loads(
+        self.point.closestPoints(
+            right=self.point2, maxError=MAX_ERROR_VAL, proj=EPSG
+        ).serialize()
+    )
+    self.assertEqual(actual, expect)
+
   def test_contained_in(self):
     expect = make_expression_graph_geom(
         'containedIn',

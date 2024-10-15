@@ -975,6 +975,67 @@ class Geometry(computedobject.ComputedObject):
         self.name() + '.centroid', self, maxError, proj
     )
 
+  def closestPoint(
+      self,
+      right: _arg_types.Geometry,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
+  ) -> computedobject.ComputedObject:
+    """Returns the point on the right input that is nearest to the left input.
+
+    If either input is empty, null is returned. If both inputs are unbounded, an
+    arbitrary point is returned. If one input is unbounded, an arbitrary point
+    in the bounded input is returned.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+
+    Returns:
+      An ee.Object.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.closestPoint', self, right, maxError, proj
+    )
+
+  def closestPoints(
+      self,
+      right: _arg_types.Geometry,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
+  ) -> computedobject.ComputedObject:
+    """Returns the points on the right input that are nearest to the left input.
+
+    Returns a dictionary containing up to two entries representing a point on
+    each input geometry that is closest to the other input geometry. If either
+    geometry is empty, an empty dictionary is returned. If both geometries are
+    unbounded, the dictionary has an arbitrary point for both 'left' and
+    'right'. If one geometry is unbounded, the dictionary has an arbitrary point
+    contained in the bounded geometry for both 'left' and 'right'.
+
+    Args:
+      right: The geometry used as the right operand of the operation.
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: The projection in which to perform the operation. If not specified,
+        the operation will be performed in a spherical coordinate system, and
+        linear distances will be in meters on the sphere.
+
+    Returns:
+      An ee.Object.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.closestPoints', self, right, maxError, proj
+    )
+
   def containedIn(
       self,
       right: _arg_types.Geometry,
