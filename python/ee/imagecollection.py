@@ -18,6 +18,7 @@ from ee import image
 
 REDUCE_PREFIX = 'reduce'
 
+
 class ImageCollection(collection.Collection):
   """Representation for an Earth Engine ImageCollection."""
 
@@ -421,7 +422,7 @@ class ImageCollection(collection.Collection):
   def formaTrend(
       self,
       covariates: Optional[_arg_types.ImageCollection] = None,
-      # pylint: enable=invalid-name
+      # pylint: disable-next=invalid-name
       windowSize: Optional[_arg_types.Integer] = None,
   ) -> image.Image:
     """Returns an image with the forma trend of the collection.
@@ -486,6 +487,7 @@ class ImageCollection(collection.Collection):
 
   @staticmethod
   def load(
+      # pylint: disable-next=redefined-builtin
       id: _arg_types.String, version: Optional[_arg_types.Integer] = None
   ) -> ImageCollection:
     """Returns the image collection given its ID.
