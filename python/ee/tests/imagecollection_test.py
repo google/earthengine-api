@@ -480,6 +480,16 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_count(self):
+    expect = make_expression_graph({
+        'arguments': {'collection': IMAGES_A},
+        # Note that this is not ImageCollection.count or collection.count.
+        'functionName': 'reduce.count',
+    })
+    expression = ee.ImageCollection('a').count()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_distance(self):
     # Inherited from Collection.distance.
     features = ee.ImageCollection('a')
