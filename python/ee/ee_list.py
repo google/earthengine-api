@@ -14,7 +14,6 @@ from ee import ee_number
 from ee import ee_string
 from ee import filter as ee_filter
 from ee import geometry
-from ee import reducer as ee_reducer
 
 
 class List(computedobject.ComputedObject):
