@@ -615,7 +615,15 @@ class ImageCollection(collection.Collection):
 
     return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.and', self)
 
-  # count comes from Collection, not reduce.count.
+  def count(self) -> image.Image:
+    """Returns an image with the number of images in the collection.
+
+    Reduces an image collection by calculating the number of images with a valid
+    mask at each pixel across the stack of all matching bands. Bands are matched
+    by name.
+    """
+
+    return apifunction.ApiFunction.call_(REDUCE_PREFIX + '.count', self)
 
   def max(self) -> image.Image:
     """Returns an image with the maximum value of the collection.
