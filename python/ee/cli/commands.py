@@ -569,27 +569,29 @@ class AclChCommand:
     """Applies the given permission edits to the given acl."""
     for user, role in permissions.items():
       if self._is_all_users(user):
-        acl[ALL_USERS_CAN_READ] = (role == 'R')
+        acl[ALL_USERS_CAN_READ] = role == 'R'
       else:
+        readers = acl[READERS]
+        writers = acl[WRITERS]
         # Make pytype understand the types.
-        assert isinstance(acl[READERS], list)
-        assert isinstance(acl[WRITERS], list)
+        assert isinstance(readers, list)
+        assert isinstance(writers, list)
 
         if role == 'R':
-          if user not in acl[READERS]:
-            acl[READERS].append(user)
-          if user in acl[WRITERS]:
-            acl[WRITERS].remove(user)
+          if user not in readers:
+            readers.append(user)
+          if user in writers:
+            writers.remove(user)
         elif role == 'W':
-          if user in acl[READERS]:
-            acl[READERS].remove(user)
-          if user not in acl[WRITERS]:
-            acl[WRITERS].append(user)
+          if user in readers:
+            readers.remove(user)
+          if user not in writers:
+            writers.append(user)
         elif role == 'D':
-          if user in acl[READERS]:
-            acl[READERS].remove(user)
-          if user in acl[WRITERS]:
-            acl[WRITERS].remove(user)
+          if user in readers:
+            readers.remove(user)
+          if user in writers:
+            writers.remove(user)
 
   def _is_all_users(self, user: str) -> bool:
     """Determines if a user name represents the special "all users" entity."""
