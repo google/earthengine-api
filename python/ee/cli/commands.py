@@ -1261,6 +1261,22 @@ class TaskWaitCommand:
     utils.wait_for_tasks(task_ids, args.timeout, log_progress=args.verbose)
 
 
+def _using_v1alpha(func):
+  """Decorator that temporarily switches over to the v1alpha API."""
+
+  def inner(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    # pylint: disable=protected-access
+    original = ee._cloud_api_utils.VERSION
+    ee._cloud_api_utils.VERSION = 'v1alpha'
+    func(self, args, config)
+    ee._cloud_api_utils.VERSION = original
+    # pylint: enable=protected-access
+
+  return inner
+
+
 class TaskCommand(Dispatcher):
   """Prints information about or manages long-running tasks."""
 
@@ -1430,6 +1446,20 @@ class UploadImageCommand:
       manifest['maskBands'] = {'tilesetId': tileset['id']}
 
     return manifest
+
+
+class UploadExternalImageCommand(UploadImageCommand):
+  name = 'external_image'
+
+  @_using_v1alpha
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    """Creates an external image synchronously."""
+    config.ee_init()
+    manifest = self.manifest_from_args(args)
+    name = ee.data.startExternalImageIngestion(manifest, args.force)['name']
+    print('Created asset %s' % name)
 
 
 # TODO(user): update src_files help string when secondary files
@@ -1621,6 +1651,7 @@ class UploadCommand(Dispatcher):
 
   COMMANDS = [
       UploadImageCommand,
+      UploadExternalImageCommand,
       UploadTableCommand,
   ]
 
@@ -1935,22 +1966,6 @@ class ModelCommand(Dispatcher):
   name = 'model'
 
   COMMANDS = [PrepareModelCommand]
-
-
-def _using_v1alpha(func):
-  """Decorator that temporarily switches over to the v1alpha API."""
-
-  def inner(
-      self, args: argparse.Namespace, config: utils.CommandLineConfig
-  ) -> None:
-    # pylint: disable=protected-access
-    original = ee._cloud_api_utils.VERSION
-    ee._cloud_api_utils.VERSION = 'v1alpha'
-    func(self, args, config)
-    ee._cloud_api_utils.VERSION = original
-    # pylint: enable=protected-access
-
-  return inner
 
 
 class ProjectConfigGetCommand:

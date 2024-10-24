@@ -1908,9 +1908,62 @@ def _prepare_and_run_export(
       export_endpoint(project=_get_projects_path(), body=params),
       num_retries=num_retries)
 
+# TODO(user): use StrEnum when 3.11 is the min version
+_INTERNAL_IMPORT = 'INTERNAL_IMPORT'
+_EXTERNAL_IMPORT = 'EXTERNAL_IMPORT'
+
+
+def _startIngestion(
+    request_id: Any,
+    params: Dict[str, Any],
+    allow_overwrite: bool = False,
+    import_mode: Optional[str] = _INTERNAL_IMPORT,
+) -> Dict[str, Any]:
+  """Starts an ingestion task or creates an external image."""
+  request = {
+      'imageManifest':
+          _cloud_api_utils.convert_params_to_image_manifest(params),
+      'overwrite':
+          allow_overwrite
+  }
+
+  # It's only safe to retry the request if there's a unique ID to make it
+  # idempotent.
+  num_retries = _max_retries if request_id else 0
+
+  image = _get_cloud_projects().image()
+  if import_mode == _INTERNAL_IMPORT:
+    import_request = image.import_(project=_get_projects_path(), body=request)
+  elif import_mode == _EXTERNAL_IMPORT:
+    import_request = image.importExternal(
+        project=_get_projects_path(), body=request
+    )
+  else:
+    raise ee_exception.EEException(
+        '{} is not a valid import mode'.format(import_mode)
+    )
+
+  result = _execute_cloud_call(
+      import_request,
+      num_retries=num_retries,
+  )
+
+  if import_mode == _INTERNAL_IMPORT:
+    return {
+        'id': _cloud_api_utils.convert_operation_name_to_task_id(
+            result['name']
+        ),
+        'name': result['name'],
+        'started': 'OK',
+    }
+  else:
+    return {'name': request['imageManifest']['name']}
+
 
 def startIngestion(
-    request_id: Any, params: Dict[str, Any], allow_overwrite: bool = False
+    request_id: Any,
+    params: Dict[str, Any],
+    allow_overwrite: bool = False,
 ) -> Dict[str, Any]:
   """Creates an image asset import task.
 
@@ -1923,7 +1976,7 @@ def startIngestion(
     params: The object that describes the import task, which can
         have these fields:
           name (string) The destination asset id (e.g.,
-             "projects/earthengine-legacy/assets/users/foo/bar").
+             "projects/myproject/assets/foo/bar").
           tilesets (array) A list of Google Cloud Storage source file paths
             formatted like:
               [{'sources': [
@@ -1942,31 +1995,39 @@ def startIngestion(
     A dict with notes about the created task. This will include the ID for the
     import task (under 'id'), which may be different from request_id.
   """
-  request = {
-      'imageManifest':
-          _cloud_api_utils.convert_params_to_image_manifest(params),
-      'requestId':
-          request_id,
-      'overwrite':
-          allow_overwrite
-  }
+  return _startIngestion(request_id, params, allow_overwrite, _INTERNAL_IMPORT)
 
-  # It's only safe to retry the request if there's a unique ID to make it
-  # idempotent.
-  num_retries = _max_retries if request_id else 0
-  operation = _execute_cloud_call(
-      _get_cloud_projects()
-      .image()
-      .import_(project=_get_projects_path(), body=request),
-      num_retries=num_retries,
-  )
-  return {
-      'id':
-          _cloud_api_utils.convert_operation_name_to_task_id(
-              operation['name']),
-      'name': operation['name'],
-      'started': 'OK',
-  }
+
+def startExternalImageIngestion(
+    image_manifest: Dict[str, Any],
+    allow_overwrite: bool = False,
+) -> Dict[str, Any]:
+  """Creates an external image.
+
+  Args:
+    image_manifest: The object that describes the import task, which can
+        have these fields:
+          name (string) The destination asset id (e.g.,
+             "projects/myproject/assets/foo/bar").
+          tilesets (array) A list of Google Cloud Storage source file paths
+            formatted like:
+              [{'sources': [
+                  {'uris': ['foo.tif', 'foo.prj']},
+                  {'uris': ['bar.tif', 'bar.prj']},
+              ]}]
+            Where path values correspond to source files' Google Cloud Storage
+            object names, e.g., 'gs://bucketname/filename.tif'
+          bands (array) An optional list of band names formatted like:
+            [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
+        In general, this is a dict representation of an ImageManifest.
+    allow_overwrite: Whether the ingested image can overwrite an
+        existing version.
+
+  Returns:
+    The name of the created asset.
+  """
+  return _startIngestion(
+      'unused', image_manifest, allow_overwrite, _EXTERNAL_IMPORT)
 
 
 def startTableIngestion(
@@ -1983,7 +2044,7 @@ def startTableIngestion(
     params: The object that describes the import task, which can
         have these fields:
           name (string) The destination asset id (e.g.,
-             "projects/earthengine-legacy/assets/users/foo/bar").
+             "projects/myproject/assets/foo/bar").
           sources (array) A list of GCS (Google Cloud Storage) file paths
             with optional character encoding formatted like this:
             "sources":[{"uris":["gs://bucket/file.shp"],"charset":"UTF-8"}]
