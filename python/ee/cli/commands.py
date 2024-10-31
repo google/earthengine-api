@@ -1448,20 +1448,6 @@ class UploadImageCommand:
     return manifest
 
 
-class UploadExternalImageCommand(UploadImageCommand):
-  name = 'external_image'
-
-  @_using_v1alpha
-  def run(
-      self, args: argparse.Namespace, config: utils.CommandLineConfig
-  ) -> None:
-    """Creates an external image synchronously."""
-    config.ee_init()
-    manifest = self.manifest_from_args(args)
-    name = ee.data.startExternalImageIngestion(manifest, args.force)['name']
-    print('Created asset %s' % name)
-
-
 # TODO(user): update src_files help string when secondary files
 # can be uploaded.
 class UploadTableCommand:
@@ -1651,7 +1637,6 @@ class UploadCommand(Dispatcher):
 
   COMMANDS = [
       UploadImageCommand,
-      UploadExternalImageCommand,
       UploadTableCommand,
   ]
 
