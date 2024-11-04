@@ -35,8 +35,11 @@ class Blob(computedobject.ComputedObject):
     """Creates a Blob wrapper.
 
     Args:
-      url: Where to fetch the blob on GCS. Must start with "gs://". This must
-        be a python str or a ComputedObject that returns an ee.String.
+      url: Where to fetch the blob on GCS. Must start with "gs://". This must be
+        a python str or a ComputedObject that returns an ee.String. The bucket
+        metadata must be accessible (check the storage.buckets.get permission)
+        and the bucket must be located in the US multi-region, a dual-region
+        including US-CENTRAL1, or the US-CENTRAL1 region.
     """
     self.initialize()
 

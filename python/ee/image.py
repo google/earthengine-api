@@ -2520,7 +2520,10 @@ class Image(element.Element):
     """Returns an image from a GeoTIFF in Cloud Storage.
 
     Args:
-      uri: The Cloud Storage URI of the GeoTIFF to load.
+      uri: The Cloud Storage URI of the GeoTIFF to load. The bucket metadata
+        must be accessible (check the storage.buckets.get permission) and the
+        bucket metadata must be located in the US multi-region, a dual-region
+        including US-CENTRAL1, or the US-CENTRAL1 region.
     """
 
     return apifunction.ApiFunction.call_('Image.loadGeoTIFF', uri)
