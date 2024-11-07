@@ -2521,9 +2521,11 @@ class Image(element.Element):
 
     Args:
       uri: The Cloud Storage URI of the GeoTIFF to load. The bucket metadata
-        must be accessible (check the storage.buckets.get permission) and the
-        bucket metadata must be located in the US multi-region, a dual-region
-        including US-CENTRAL1, or the US-CENTRAL1 region.
+        must be accessible (requires the `storage.buckets.get` permission which
+        is provided by the role "Storage Legacy Bucket Reader" among others, see
+        https://cloud.google.com/storage/docs/access-control/iam-roles) and the
+          bucket metadata must be located in the US multi-region, a dual-region
+          including US-CENTRAL1, or the US-CENTRAL1 region.
     """
 
     return apifunction.ApiFunction.call_('Image.loadGeoTIFF', uri)
