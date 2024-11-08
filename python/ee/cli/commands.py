@@ -1640,7 +1640,6 @@ class UploadCommand(Dispatcher):
       UploadTableCommand,
   ]
 
-
 class _UploadManifestBase:
   """Uploads an asset to Earth Engine using the given manifest file."""
 
