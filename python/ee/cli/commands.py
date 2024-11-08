@@ -1448,6 +1448,43 @@ class UploadImageCommand:
     return manifest
 
 
+class UploadExternalImageCommand:
+  """Creates an asset backed by an external image.
+
+  See
+  https://developers.google.com/earth-engine/Earth_Engine_asset_from_cloud_geotiff
+  for more details on constructing the manifest.
+  """
+
+  name = 'external_image'
+
+  def __init__(self, parser: argparse.ArgumentParser):
+    _add_wait_arg(parser)
+    _add_overwrite_arg(parser)
+    parser.add_argument(
+        '--manifest',
+        help='Local path to a JSON asset manifest file.')
+
+  @_using_v1alpha
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    """Creates an external image synchronously."""
+    config.ee_init()
+    manifest = self.manifest_from_args(args)
+    name = ee.data.startExternalImageIngestion(manifest, args.force)['name']
+    print('Created asset %s' % name)
+
+  def manifest_from_args(self, args: argparse.Namespace) -> Dict[str, Any]:
+    """Constructs an upload manifest from the command-line flags."""
+
+    if args.manifest:
+      with open(args.manifest) as fh:
+        return json.loads(fh.read())
+
+    raise ValueError('Flag --manifest must be set.')
+
+
 # TODO(user): update src_files help string when secondary files
 # can be uploaded.
 class UploadTableCommand:
@@ -1639,6 +1676,17 @@ class UploadCommand(Dispatcher):
       UploadImageCommand,
       UploadTableCommand,
   ]
+
+
+class AlphaUploadCommand(Dispatcher):
+  """Uploads assets to Earth Engine."""
+
+  name = 'upload'
+
+  COMMANDS = [
+      UploadExternalImageCommand,
+  ]
+
 
 class _UploadManifestBase:
   """Uploads an asset to Earth Engine using the given manifest file."""
@@ -2016,6 +2064,7 @@ class AlphaCommand(Dispatcher):
 
   COMMANDS = [
       ProjectConfigCommand,
+      AlphaUploadCommand,
   ]
 
 

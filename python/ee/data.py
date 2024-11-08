@@ -1910,6 +1910,7 @@ def _prepare_and_run_export(
 
 # TODO(user): use StrEnum when 3.11 is the min version
 _INTERNAL_IMPORT = 'INTERNAL_IMPORT'
+_EXTERNAL_IMPORT = 'EXTERNAL_IMPORT'
 
 
 def _startIngestion(
@@ -1933,6 +1934,10 @@ def _startIngestion(
   image = _get_cloud_projects().image()
   if import_mode == _INTERNAL_IMPORT:
     import_request = image.import_(project=_get_projects_path(), body=request)
+  elif import_mode == _EXTERNAL_IMPORT:
+    import_request = image.importExternal(
+        project=_get_projects_path(), body=request
+    )
   else:
     raise ee_exception.EEException(
         '{} is not a valid import mode'.format(import_mode)
@@ -1991,6 +1996,38 @@ def startIngestion(
     import task (under 'id'), which may be different from request_id.
   """
   return _startIngestion(request_id, params, allow_overwrite, _INTERNAL_IMPORT)
+
+
+def startExternalImageIngestion(
+    image_manifest: Dict[str, Any],
+    allow_overwrite: bool = False,
+) -> Dict[str, Any]:
+  """Creates an external image.
+
+  Args:
+    image_manifest: The object that describes the import task, which can
+        have these fields:
+          name (string) The destination asset id (e.g.,
+             "projects/myproject/assets/foo/bar").
+          tilesets (array) A list of Google Cloud Storage source file paths
+            formatted like:
+              [{'sources': [
+                  {'uris': ['foo.tif', 'foo.prj']},
+                  {'uris': ['bar.tif', 'bar.prj']},
+              ]}]
+            Where path values correspond to source files' Google Cloud Storage
+            object names, e.g., 'gs://bucketname/filename.tif'
+          bands (array) An optional list of band names formatted like:
+            [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
+        In general, this is a dict representation of an ImageManifest.
+    allow_overwrite: Whether the ingested image can overwrite an
+        existing version.
+
+  Returns:
+    The name of the created asset.
+  """
+  return _startIngestion(
+      'unused', image_manifest, allow_overwrite, _EXTERNAL_IMPORT)
 
 
 def startTableIngestion(
