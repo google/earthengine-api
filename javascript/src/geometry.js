@@ -18,7 +18,7 @@ goog.require('ee.Serializer');
 goog.require('ee.Types');
 goog.require('ee.arguments');
 goog.require('goog.array');
-goog.require('goog.json.Serializer');
+goog.require('goog.json');
 goog.require('goog.object');
 goog.requireType('ee.Encodable');
 goog.requireType('ee.api');
