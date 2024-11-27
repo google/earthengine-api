@@ -1049,6 +1049,12 @@ class RmCommand:
   """Deletes the specified assets."""
 
   name = 'rm'
+  recursive_types = {
+      ee.data.ASSET_TYPE_FOLDER,
+      ee.data.ASSET_TYPE_IMAGE_COLL,
+      ee.data.ASSET_TYPE_FOLDER_CLOUD,
+      ee.data.ASSET_TYPE_IMAGE_COLL_CLOUD,
+  }
 
   def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
@@ -1069,22 +1075,29 @@ class RmCommand:
   ) -> None:
     config.ee_init()
     for asset in args.asset_id:
-      self._delete_asset(asset, args.recursive, args.verbose, args.dry_run)
+      recursive = args.recursive
+      if recursive:
+        info = self._safe_get_info(asset, args.verbose)
+        recursive = info and info['type'] in self.recursive_types
+      self._delete_asset(asset, recursive, args.verbose, args.dry_run)
+
+  def _safe_get_info(self, asset_id, verbose):
+    try:
+      return ee.data.getInfo(asset_id)
+    except ee.EEException as e:
+      if verbose:
+        print('Failed to get info for %s. %s' % (asset_id, e))
+      return None
 
   def _delete_asset(self, asset_id, recursive, verbose, dry_run):
     """Attempts to delete the specified asset or asset collection."""
     if recursive:
-      info = ee.data.getInfo(asset_id)
-      if info is None:
-        print('Asset does not exist or is not accessible: %s' % asset_id)
-        return
-      if info['type'] in (ee.data.ASSET_TYPE_FOLDER,
-                          ee.data.ASSET_TYPE_IMAGE_COLL,
-                          ee.data.ASSET_TYPE_FOLDER_CLOUD,
-                          ee.data.ASSET_TYPE_IMAGE_COLL_CLOUD):
-        children = ee.data.getList({'id': asset_id})
-        for child in children:
-          self._delete_asset(child['id'], True, verbose, dry_run)
+      if verbose:
+        print('Listing children of asset: %s' % asset_id)
+      children = ee.data.getList({'id': asset_id})
+      for child in children:
+        recursive = child['type'] in self.recursive_types
+        self._delete_asset(child['id'], recursive, verbose, dry_run)
     if dry_run:
       print('[dry-run] Deleting asset: %s' % asset_id)
     else:
