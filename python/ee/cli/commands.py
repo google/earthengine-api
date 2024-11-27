@@ -205,8 +205,10 @@ def _timestamp_ms_for_datetime(datetime_obj: datetime.datetime) -> int:
 def _cloud_timestamp_for_timestamp_ms(timestamp_ms: float) -> str:
   """Returns a Cloud-formatted date for the given millisecond timestamp."""
   # Desired format is like '2003-09-07T19:30:12.345Z'
-  return datetime.datetime.utcfromtimestamp(
-      timestamp_ms / 1000.0).isoformat() + 'Z'
+  return (
+    datetime.datetime.utcfromtimestamp(0)
+    + datetime.timedelta(seconds=timestamp_ms / 1000)
+).isoformat() + "Z"
 
 
 def _parse_millis(millis: float) -> datetime.datetime:
