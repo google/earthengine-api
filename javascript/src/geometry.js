@@ -3,14 +3,9 @@
  */
 
 goog.provide('ee.Geometry');
-goog.provide('ee.Geometry.LineString');
 goog.provide('ee.Geometry.LinearRing');
-goog.provide('ee.Geometry.MultiLineString');
-goog.provide('ee.Geometry.MultiPoint');
-goog.provide('ee.Geometry.MultiPolygon');
 goog.provide('ee.Geometry.Point');
 goog.provide('ee.Geometry.Polygon');
-goog.provide('ee.Geometry.Rectangle');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
