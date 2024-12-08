@@ -3,7 +3,7 @@ goog.module.declareLegacyNamespace();
 
 const AbstractTile = goog.require('ee.layers.AbstractTile');
 const AbstractTileSource = goog.require('ee.layers.AbstractTileSource');
-const FeatureViewTilesKey = goog.requireType('ee.data.FeatureViewTilesKey');
+const {FeatureViewTilesKey} = goog.requireType('ee.data');
 
 /**
  * A tile source for FeatureView tiles.
