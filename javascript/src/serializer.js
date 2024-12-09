@@ -10,7 +10,7 @@ goog.require('ee.apiclient');
 goog.require('ee.rpc_node');
 goog.require('goog.array');
 goog.require('goog.crypt.Md5');
-goog.require('goog.json.Serializer');
+goog.require('goog.json');
 goog.require('goog.object');
 
 
