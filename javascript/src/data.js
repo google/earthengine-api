@@ -6,26 +6,17 @@
  */
 
 goog.provide('ee.data');
-goog.provide('ee.data.AbstractTaskConfig');
-goog.provide('ee.data.AlgorithmArgument');
-goog.provide('ee.data.AssetDetailsProperty');
 goog.provide('ee.data.AssetType');
-goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.ClassifierTaskConfig');
 goog.provide('ee.data.ExportDestination');
 goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.FeatureViewTilesKey');
-goog.provide('ee.data.FeatureVisualizationParameters');
-goog.provide('ee.data.GeoJSONGeometry');
 goog.provide('ee.data.ImageCollectionDescription');
 goog.provide('ee.data.ImageDescription');
 goog.provide('ee.data.ImageTaskConfig');
 goog.provide('ee.data.ImageVisualizationParameters');
-goog.provide('ee.data.MapId');
 goog.provide('ee.data.MapTaskConfig');
-goog.provide('ee.data.MapZoomRange');
-goog.provide('ee.data.RawMapId');
 goog.provide('ee.data.TableTaskConfig');
 goog.provide('ee.data.VideoTaskConfig');
 goog.require('ee.Serializer');
