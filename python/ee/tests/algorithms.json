@@ -3845,6 +3845,12 @@
       "description": "The projection in which to perform the operation. If not specified, the operation will be performed in a spherical coordinate system, and linear distances will be in meters on the sphere.",
       "optional": true,
       "defaultValue": null
+    }, {
+      "argumentName": "spherical",
+      "type": "Boolean",
+      "description": "When proj is not specified, if true the calculation will be done on the unit sphere. If false the calculation will be elliptical, taking earth flattening into account. Ignored if proj is specified. Default is false.",
+      "optional": true,
+      "defaultValue": false
     }]
   }, {
     "name": "algorithms/Geometry.closestPoint",
@@ -4784,6 +4790,12 @@
       "description": "The projection in which to perform the operation. If not specified, the operation will be performed in a spherical coordinate system, and linear distances will be in meters on the sphere.",
       "optional": true,
       "defaultValue": null
+    }, {
+      "argumentName": "spherical",
+      "type": "Boolean",
+      "description": "When proj is not specified, if true the calculation will be done on the unit sphere. If false the calculation will be elliptical, taking earth flattening into account. Ignored if proj is specified. Default is false.",
+      "optional": true,
+      "defaultValue": false
     }]
   }, {
     "name": "algorithms/Feature.closestPoint",
@@ -5658,8 +5670,37 @@
     }],
     "hidden": true
   }, {
+    "name": "algorithms/Collection.bounds",
+    "description": "Constructs a bounding box around the geometries in a collection.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "collection",
+      "type": "FeatureCollection",
+      "description": "The collection whose bounds will be constructed."
+    }, {
+      "argumentName": "maxError",
+      "type": "ErrorMargin",
+      "description": "The maximum amount of error tolerated when performing any necessary reprojection.",
+      "optional": true,
+      "defaultValue": {
+        "type": "ErrorMargin",
+        "unit": "meters",
+        "value": 0.0
+      }
+    }, {
+      "argumentName": "proj",
+      "type": "Projection",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
+      "optional": true,
+      "defaultValue": {
+        "type": "Projection",
+        "crs": "EPSG:4326",
+        "transform": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+      }
+    }]
+  }, {
     "name": "algorithms/Collection.geometry",
-    "description": "Extracts and merges the geometries of a collection. Requires that all the geometries in the collection share the projection and edge interpretation.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well; use the smallest collection that is required to achieve the desired outcome.",
+    "description": "Extracts and merges the geometries of a collection. Requires that all the geometries in the collection share the projection and edge interpretation.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well; use the smallest collection that is required to achieve the desired outcome.\nNote: If only a bounding box around the collection is needed, consider using Collection.bounds instead.",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "collection",
@@ -9349,7 +9390,7 @@
     "arguments": [{
       "argumentName": "uri",
       "type": "String",
-      "description": "The Cloud Storage URI of the GeoTIFF to load."
+      "description": "The Cloud Storage URI of the GeoTIFF to load. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or theUS-CENTRAL1 region."
     }]
   }, {
     "name": "algorithms/Image.mask",
@@ -13301,7 +13342,7 @@
     "arguments": [{
       "argumentName": "url",
       "type": "String",
-      "description": "The Blob\u0027s Google Cloud Storage URL."
+      "description": "The Blob\u0027s Google Cloud Storage URL. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or theUS-CENTRAL1 region."
     }]
   }, {
     "name": "algorithms/Blob.string",
@@ -13319,7 +13360,7 @@
     }]
   }, {
     "name": "algorithms/Blob.url",
-    "description": "Returns the Blob\u0027s Google Cloud Storage URL.",
+    "description": "Returns the Blob\u0027s Google Cloud Storage URL. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or theUS-CENTRAL1 region.",
     "returnType": "String",
     "arguments": [{
       "argumentName": "blob",
