@@ -3,9 +3,7 @@
  */
 
 goog.provide('ee.Geometry');
-goog.provide('ee.Geometry.LinearRing');
 goog.provide('ee.Geometry.Point');
-goog.provide('ee.Geometry.Polygon');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
