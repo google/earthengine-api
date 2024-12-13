@@ -50,7 +50,9 @@ def _run_command(*argv):
 
   args = parser.parse_args()
   config = utils.CommandLineConfig(
-      args.ee_config, args.service_account_file, args.project_override
+      config_file=args.ee_config,
+      service_account_file=args.service_account_file,
+      project_override=args.project_override,
   )
 
   # Catch EEException errors, which wrap server-side Earth Engine

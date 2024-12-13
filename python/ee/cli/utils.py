@@ -13,7 +13,7 @@ import re
 import tempfile
 import threading
 import time
-from typing import AnyStr, Dict, Iterable, List, Tuple, Union
+from typing import Any, AnyStr, Dict, Iterable, List, Optional, Tuple, Union
 import urllib.parse
 
 from google.cloud import storage
@@ -71,8 +71,11 @@ class CommandLineConfig:
   url: str
 
   def __init__(
-      self, config_file=None, service_account_file=None,
-      project_override=None):
+      self,
+      config_file=None,
+      service_account_file=None,
+      project_override=None,
+  ):
     if not config_file:
       config_file = os.environ.get(EE_CONFIG_FILE, DEFAULT_EE_CONFIG_FILE)
     self.config_file = config_file
