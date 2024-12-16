@@ -1,5 +1,4 @@
 goog.module('ee.layers.FeatureViewTileSource');
-goog.module.declareLegacyNamespace();
 
 const AbstractTile = goog.require('ee.layers.AbstractTile');
 const AbstractTileSource = goog.require('ee.layers.AbstractTileSource');
