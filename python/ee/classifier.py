@@ -356,6 +356,9 @@ class Classifier(computedobject.ComputedObject):
     # pyformat: disable
     """Returns a classifier with the given output mode.
 
+    Refer to https://developers.google.com/earth-engine/guides/classification
+    for a list of supported modes for each classifier.
+
     Args:
       mode: The output mode. One of:
         * CLASSIFICATION (default): The output is the class number.
@@ -370,8 +373,6 @@ class Classifier(computedobject.ComputedObject):
         * RAW_REGRESSION: The output is an array of the internal representation
           of the regression process. For example, the raw predictions of
           multiple regression trees.
-
-        Not all classifiers support modes other than CLASSIFICATION.
     """
     # pyformat: enable
 
