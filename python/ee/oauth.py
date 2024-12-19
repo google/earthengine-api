@@ -27,6 +27,7 @@ import google.auth
 from google.auth import _cloud_sdk
 import google.auth.transport.requests
 
+from ee import _utils
 from ee import data as ee_data
 from ee import ee_exception
 
@@ -203,27 +204,6 @@ def write_private_json(json_path: str, info_dict: Dict[str, Any]) -> None:
   with os.fdopen(
       os.open(json_path, os.O_WRONLY | os.O_CREAT, 0o600), 'w') as f:
     f.write(file_content)
-
-
-def in_colab_shell() -> bool:
-  """Tests if the code is being executed within Google Colab."""
-  try:
-    import google.colab  # pylint: disable=unused-import,redefined-outer-name
-    return True
-  except ImportError:
-    return False
-
-
-def _in_jupyter_shell() -> bool:
-  """Tests if the code is being executed within Jupyter."""
-  try:
-    import ipykernel.zmqshell
-    return isinstance(IPython.get_ipython(),
-                      ipykernel.zmqshell.ZMQInteractiveShell)
-  except ImportError:
-    return False
-  except NameError:
-    return False
 
 
 def _project_number_from_client_id(client_id: Optional[str]) -> Optional[str]:
@@ -507,9 +487,9 @@ def authenticate(
     return True
 
   if not auth_mode:
-    if in_colab_shell():
+    if _utils.in_colab_shell():
       auth_mode = 'colab'
-    elif _in_jupyter_shell():
+    elif _utils.in_jupyter_shell():
       auth_mode = 'notebook'
     elif _localhost_is_viable() and _no_gcloud():
       auth_mode = 'localhost'
@@ -596,9 +576,9 @@ class Flow:
       return True
 
     coda = WAITING_CODA if self.server else None
-    if in_colab_shell():
+    if _utils.in_colab_shell():
       _display_auth_instructions_with_print(self.auth_url, coda)
-    elif _in_jupyter_shell():
+    elif _utils.in_jupyter_shell():
       _display_auth_instructions_with_html(self.auth_url, coda)
     else:
       _display_auth_instructions_with_print(self.auth_url, coda)
