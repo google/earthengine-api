@@ -1,7 +1,10 @@
 """General decorators and helper methods which should not import ee."""
 
 import functools
+import os
 from typing import Any, Callable
+
+from ee import oauth
 
 
 def accept_opt_prefix(*opt_args) -> Callable[..., Any]:
@@ -40,3 +43,29 @@ def accept_opt_prefix(*opt_args) -> Callable[..., Any]:
     return wrapper
 
   return opt_fixed
+
+
+def get_environment_variable(key: str) -> Any:
+  """Retrieves a Colab secret or environment variable for the given key.
+
+  Colab secrets have precedence over environment variables.
+
+  Args:
+      key (str): The key that's used to fetch the environment variable.
+
+  Returns:
+      Optional[str]: The retrieved key, or None if no environment variable was
+      found.
+  """
+  if oauth.in_colab_shell():
+    try:
+      from google.colab import userdata  # pylint: disable=g-import-not-at-top
+    except ImportError:
+      return None
+
+    try:
+      return userdata.get(key)
+    except (userdata.SecretNotFoundError, userdata.NotebookAccessError):
+      pass
+
+  return os.environ.get(key)

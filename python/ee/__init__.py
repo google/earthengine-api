@@ -69,6 +69,9 @@ _generatedClasses: ListType[str] = []
 NO_PROJECT_EXCEPTION = ('ee.Initialize: no project found. Call with project='
                         ' or see http://goo.gle/ee-auth.')
 
+# Environment variable used to set the project ID.
+_PROJECT_ENV_VAR = 'GOOGLE_CLOUD_PROJECT'
+
 
 class _AlgorithmsContainer(dict):
   """A lightweight class that is used as a dictionary with dot notation."""
@@ -148,14 +151,18 @@ def Initialize(
     url: The base url for the EarthEngine REST API to connect to.
     cloud_api_key: An optional API key to use the Cloud API.
     http_transport: The http transport method to use when making requests.
-    project: The client project ID or number to use when making API calls.
+    project: The client project ID or number to use when making API calls. If
+      None, project is inferred from credentials or environment variables.
   """
   if credentials == 'persistent':
     credentials = data.get_persistent_credentials()
   if not project and credentials and hasattr(credentials, 'quota_project_id'):
     project = credentials.quota_project_id
+  is_sdk_credentials = oauth.is_sdk_credentials(credentials)
+  if not project:
+    project = _utils.get_environment_variable(_PROJECT_ENV_VAR)
   # SDK credentials are not authorized for EE so a project must be given.
-  if not project and oauth.is_sdk_credentials(credentials):
+  if not project and is_sdk_credentials:
     raise EEException(NO_PROJECT_EXCEPTION)
 
   data.initialize(
