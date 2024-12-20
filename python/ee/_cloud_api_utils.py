@@ -341,8 +341,12 @@ def _convert_msec_to_timestamp(time_msec: float) -> str:
     A string formatted like '2003-09-07T19:30:12.345Z', which is the expected
     form of google.protobuf.Timestamp values.
   """
-  return datetime.datetime.utcfromtimestamp(
-      time_msec / 1000.0).isoformat() + 'Z'
+  return (
+      datetime.datetime.fromtimestamp(time_msec / 1000.0, datetime.timezone.utc)
+      .replace(tzinfo=None)
+      .isoformat()
+      + 'Z'
+  )
 
 
 def _convert_timestamp_to_msec(timestamp: str) -> int:
