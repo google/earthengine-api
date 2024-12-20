@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test for the ee.oauth module."""
+"""Test for the oauth module."""
 
 import json
 import sys
@@ -8,7 +8,7 @@ from unittest import mock
 import urllib.parse
 
 import unittest
-import ee
+from ee import oauth
 
 
 class OAuthTest(unittest.TestCase):
@@ -36,7 +36,7 @@ class OAuthTest(unittest.TestCase):
     with mock.patch('urllib.request.urlopen', new=mock_urlopen):
       auth_code = '123'
       verifier = 'xyz'
-      refresh_token = ee.oauth.request_token(auth_code, verifier)
+      refresh_token = oauth.request_token(auth_code, verifier)
       self.assertEqual('123456', refresh_token)
 
   def testWriteToken(self):
@@ -48,7 +48,7 @@ class OAuthTest(unittest.TestCase):
     with mock.patch(
         oauth_pkg + '.get_credentials_path', new=mock_credentials_path):
       client_info = dict(refresh_token='123')
-      ee.oauth.write_private_json(ee.oauth.get_credentials_path(), client_info)
+      oauth.write_private_json(oauth.get_credentials_path(), client_info)
 
     with open(mock_credentials_path()) as f:
       token = json.load(f)
@@ -56,23 +56,23 @@ class OAuthTest(unittest.TestCase):
 
   def test_in_colab_shell(self):
     with mock.patch.dict(sys.modules, {'google.colab': None}):
-      self.assertFalse(ee.oauth.in_colab_shell())
+      self.assertFalse(oauth.in_colab_shell())
 
     with mock.patch.dict(sys.modules, {'google.colab': mock.MagicMock()}):
-      self.assertTrue(ee.oauth.in_colab_shell())
+      self.assertTrue(oauth.in_colab_shell())
 
   def test_is_sdk_credentials(self):
-    sdk_project = ee.oauth.SDK_PROJECTS[0]
-    self.assertFalse(ee.oauth.is_sdk_credentials(None))
-    self.assertFalse(ee.oauth.is_sdk_credentials(mock.MagicMock()))
+    sdk_project = oauth.SDK_PROJECTS[0]
+    self.assertFalse(oauth.is_sdk_credentials(None))
+    self.assertFalse(oauth.is_sdk_credentials(mock.MagicMock()))
     self.assertFalse(
-        ee.oauth.is_sdk_credentials(mock.MagicMock(client_id='123'))
+        oauth.is_sdk_credentials(mock.MagicMock(client_id='123'))
     )
     self.assertTrue(
-        ee.oauth.is_sdk_credentials(mock.MagicMock(client_id=sdk_project))
+        oauth.is_sdk_credentials(mock.MagicMock(client_id=sdk_project))
     )
     self.assertTrue(
-        ee.oauth.is_sdk_credentials(
+        oauth.is_sdk_credentials(
             mock.MagicMock(client_id=f'{sdk_project}-somethingelse')
         )
     )
