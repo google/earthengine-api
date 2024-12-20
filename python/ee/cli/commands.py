@@ -319,14 +319,6 @@ def _decode_property_flags(args: argparse.Namespace) -> Dict[str, Any]:
     raise ee.EEException('Duplicate property name(s): %s.' % duplicates)
   return dict(property_list)
 
-
-def _check_valid_files(filenames: Sequence[str]) -> None:
-  """Returns true if the given filenames are valid upload file URIs."""
-  for filename in filenames:
-    if not filename.startswith('gs://'):
-      raise ee.EEException('Invalid Cloud Storage URL: ' + filename)
-
-
 def _pretty_print_json(json_obj: Any) -> None:
   """Pretty-prints a JSON object to standard output."""
   print(json.dumps(json_obj, sort_keys=True, indent=2, separators=(',', ': ')))
