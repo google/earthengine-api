@@ -90,6 +90,37 @@ class _AlgorithmsContainer(dict):
 # A dictionary of algorithms that are not bound to a specific class.
 Algorithms = _AlgorithmsContainer()
 
+# Dynamically-initialized classes. Order matters: base classes must come first.
+_DYNAMIC_CLASSES = [
+    Element,  # Must be before Collection.
+    Collection,  # Must be before FeatureCollection and ImageCollection.
+    Array,
+    Blob,
+    Classifier,
+    Clusterer,
+    ConfusionMatrix,
+    Date,
+    DateRange,
+    Dictionary,
+    ErrorMargin,
+    Feature,
+    FeatureCollection,
+    Filter,
+    Geometry,
+    Image,
+    ImageCollection,
+    Join,
+    Kernel,
+    List,
+    Model,
+    Number,
+    PixelType,
+    Projection,
+    Reducer,
+    String,
+    Terrain,
+]
+
 
 def Authenticate(
     authorization_code: Optional[str] = None,
@@ -180,33 +211,9 @@ def Initialize(
     if (adc_err in str(e)) or (matches and oauth.is_sdk_project(matches[1])):
       raise EEException(NO_PROJECT_EXCEPTION) from None
     raise e
-  Array.initialize()
-  Blob.initialize()
-  Classifier.initialize()
-  Clusterer.initialize()
-  Collection.initialize()
-  ConfusionMatrix.initialize()
-  Date.initialize()
-  DateRange.initialize()
-  Dictionary.initialize()
-  Element.initialize()
-  ErrorMargin.initialize()
-  Feature.initialize()
-  FeatureCollection.initialize()
-  Filter.initialize()
-  Geometry.initialize()
-  Image.initialize()
-  ImageCollection.initialize()
-  Join.initialize()
-  Kernel.initialize()
-  List.initialize()
-  Model.initialize()
-  Number.initialize()
-  PixelType.initialize()
-  Projection.initialize()
-  Reducer.initialize()
-  String.initialize()
-  Terrain.initialize()
+
+  for dynamic_class in _DYNAMIC_CLASSES:
+    dynamic_class.initialize()
 
   # These must happen last.
   _InitializeGeneratedClasses()
@@ -226,33 +233,8 @@ def Reset() -> None:
 
   # Must call reset on the base class before any of its derived classes.
   ApiFunction.reset()
-  Element.reset()  # Must be before Collection.
-  Collection.reset()  # Must be before FeatureCollection and ImageCollection.
-  Array.reset()
-  Blob.reset()
-  Classifier.reset()
-  Clusterer.reset()
-  ConfusionMatrix.reset()
-  Date.reset()
-  DateRange.reset()
-  Dictionary.reset()
-  ErrorMargin.reset()
-  Feature.reset()
-  FeatureCollection.reset()
-  Filter.reset()
-  Geometry.reset()
-  Image.reset()
-  ImageCollection.reset()
-  Join.reset()
-  Kernel.reset()
-  List.reset()
-  Model.reset()
-  Number.reset()
-  PixelType.reset()
-  Projection.reset()
-  Reducer.reset()
-  String.reset()
-  Terrain.reset()
+  for dynamic_class in _DYNAMIC_CLASSES:
+    dynamic_class.reset()
 
   _ResetGeneratedClasses()
   global Algorithms
