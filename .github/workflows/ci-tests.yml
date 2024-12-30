@@ -1,4 +1,3 @@
-# TODO(user): Fix or skip tests that fail on GitHub
 name: ci-tests
 on: [
   push,
