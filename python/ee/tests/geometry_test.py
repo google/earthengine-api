@@ -47,28 +47,24 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testValid_GeometryCollection(self):
     """Verifies GeometryCollection constructor behavior with valid arguments."""
     geometry = ee.Geometry({
-        'type':
-            'GeometryCollection',
-        'geometries': [{
-            'type': 'Polygon',
-            'coordinates': [[[-1, -1], [0, 1], [1, -1]]],
-            'geodesic': True,
-            'evenOdd': True
-        }, {
-            'type': 'Point',
-            'coordinates': [0, 0]
-        }, {
-            'type':
-                'GeometryCollection',
-            'geometries': [{
-                'type': 'Point',
-                'coordinates': [1, 2]
-            }, {
-                'type': 'Point',
-                'coordinates': [2, 1]
-            }]
-        }],
-        'coordinates': []
+        'type': 'GeometryCollection',
+        'geometries': [
+            {
+                'type': 'Polygon',
+                'coordinates': [[[-1, -1], [0, 1], [1, -1]]],
+                'geodesic': True,
+                'evenOdd': True,
+            },
+            {'type': 'Point', 'coordinates': [0, 0]},
+            {
+                'type': 'GeometryCollection',
+                'geometries': [
+                    {'type': 'Point', 'coordinates': [1, 2]},
+                    {'type': 'Point', 'coordinates': [2, 1]},
+                ],
+            },
+        ],
+        'coordinates': [],
     })
     self.assertIsInstance(geometry, ee.Geometry)
 
@@ -80,8 +76,7 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testInvalid_MultiPoint(self):
     """Verifies MultiPoint constructor behavior with invalid arguments."""
     f = ee.Geometry.MultiPoint
-    self.assertInvalid(
-        f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
     self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
@@ -90,8 +85,7 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testInvalid_LineString(self):
     """Verifies LineString constructor behavior with invalid arguments."""
     f = ee.Geometry.LineString
-    self.assertInvalid(
-        f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
     self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
@@ -100,8 +94,7 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testInvalid_LinearRing(self):
     """Verifies LinearRing constructor behavior with invalid arguments."""
     f = ee.Geometry.LinearRing
-    self.assertInvalid(
-        f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
     self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
@@ -110,8 +103,7 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testInvalid_MultiLineString(self):
     """Verifies MultiLineString constructor behavior with invalid arguments."""
     f = ee.Geometry.MultiLineString
-    self.assertInvalid(
-        f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
     self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
@@ -122,8 +114,7 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testInvalid_Polygon(self):
     """Verifies Polygon constructor behavior with invalid arguments."""
     f = ee.Geometry.Polygon
-    self.assertInvalid(
-        f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
     self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
@@ -165,16 +156,16 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertEqual(3, get_coordinates_count(ring))
 
     multiline = ee.Geometry.MultiLineString(
-        [[[1, 2], [3, 4]],
-         [[5, 6], [7, 8]]])
+        [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
+    )
     self.assertEqual(2, get_coordinates_count(multiline))
 
     polygon = ee.Geometry.Polygon([[[1, 2], [3, 4], [5, 6]]])
     self.assertEqual(1, get_coordinates_count(polygon))
 
     mpolygon = ee.Geometry.MultiPolygon(
-        [[[[1, 2], [3, 4], [5, 6]]],
-         [[[1, 2], [3, 4], [5, 6]]]])
+        [[[[1, 2], [3, 4], [5, 6]]], [[[1, 2], [3, 4], [5, 6]]]]
+    )
     self.assertEqual(2, get_coordinates_count(mpolygon))
 
   def testGeodesicFlag(self):
@@ -182,12 +173,12 @@ class GeometryTest(apitestcase.ApiTestCase):
     geodesic = ee.Geometry({
         'type': 'LineString',
         'coordinates': [[1, 2], [3, 4]],
-        'geodesic': True
+        'geodesic': True,
     })
     projected = ee.Geometry({
         'type': 'LineString',
         'coordinates': [[1, 2], [3, 4]],
-        'geodesic': False
+        'geodesic': False,
     })
     self.assertTrue(geodesic.toGeoJSON()['geodesic'])
     self.assertFalse(projected.toGeoJSON()['geodesic'])
@@ -214,9 +205,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     json_with_crs = line.toGeoJSON()
     json_with_crs['crs'] = {
         'type': 'name',
-        'properties': {
-            'name': 'SR-ORG:6974'
-        }
+        'properties': {'name': 'SR-ORG:6974'},
     }
     from_json_with_crs = ee.Geometry(json_with_crs)
     self.assertIsNone(from_json_with_crs.func)
@@ -256,7 +245,8 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     self.assertIsInstance(p, ee.Geometry)
     self.assertEqual(
-        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
+        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func
+    )
     self.assertEqual({'coordinates': ee.List(coords)}, p.args)
 
   def testComputedList(self):
@@ -266,7 +256,8 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     self.assertIsInstance(p, ee.Geometry)
     self.assertEqual(
-        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
+        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func
+    )
     self.assertEqual({'coordinates': lst}, p.args)
 
   def testComputedProjection(self):
@@ -275,10 +266,11 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     self.assertIsInstance(p, ee.Geometry)
     self.assertEqual(
-        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
+        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func
+    )
     expected_args = {
         'coordinates': ee.List([1, 2]),
-        'crs': ee.ApiFunction.lookup('Projection').call('epsg:4326')
+        'crs': ee.ApiFunction.lookup('Projection').call('epsg:4326'),
     }
     self.assertEqual(expected_args, p.args)
 
@@ -290,7 +282,8 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     self.assertIsInstance(line, ee.Geometry)
     self.assertEqual(
-        ee.ApiFunction.lookup('GeometryConstructors.LineString'), line.func)
+        ee.ApiFunction.lookup('GeometryConstructors.LineString'), line.func
+    )
     self.assertEqual({'coordinates': ee.List([p1, p2])}, line.args)
 
   def testOldPointKeywordArgs(self):
@@ -302,26 +295,29 @@ class GeometryTest(apitestcase.ApiTestCase):
     """Verifies that Rectangles still allow keyword xlo/ylo/xhi/yhi args."""
     self.assertEqual(
         ee.Geometry.Rectangle(1, 2, 3, 4),
-        ee.Geometry.Rectangle(xlo=1, ylo=2, xhi=3, yhi=4))
+        ee.Geometry.Rectangle(xlo=1, ylo=2, xhi=3, yhi=4),
+    )
     self.assertEqual(
         ee.Geometry.Rectangle(1, 2, 3, 4),
-        ee.Geometry.Rectangle(1, 2, xhi=3, yhi=4))
+        ee.Geometry.Rectangle(1, 2, xhi=3, yhi=4),
+    )
 
   def wgs84_rectangle(self, west, south, east, north):
     # If we call ee.Geometry.Rectangle with geodesic=False we would get a
     # computed call.
     return ee.Geometry({
-        'coordinates': [[[west, north],
-                         [west, south],
-                         [east, south],
-                         [east, north]]],
+        'coordinates': [
+            [[west, north], [west, south], [east, south], [east, north]]
+        ],
         'type': 'Polygon',
         'geodesic': False,
     })
 
   def testBBox_simple(self):
-    self.assertEqual(self.wgs84_rectangle(-10, -20, 10, 20),
-                     ee.Geometry.BBox(-10, -20, 10, 20))
+    self.assertEqual(
+        self.wgs84_rectangle(-10, -20, 10, 20),
+        ee.Geometry.BBox(-10, -20, 10, 20),
+    )
 
   def testBBox_computed(self):
     ten = ee.Number(5).add(5)
@@ -329,7 +325,8 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     self.assertIsInstance(box, ee.Geometry)
     self.assertEqual(
-        ee.ApiFunction.lookup('GeometryConstructors.BBox'), box.func)
+        ee.ApiFunction.lookup('GeometryConstructors.BBox'), box.func
+    )
     expected_args = {
         'west': ee.Number(-10),
         'south': ee.Number(-20),
@@ -341,10 +338,12 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testBBox_latitude_widerThanPolesIsClamped(self):
     self.assertEqual(
         self.wgs84_rectangle(-10, -90, 10, 73),
-        ee.Geometry.BBox(-10, -1000, 10, 73))
+        ee.Geometry.BBox(-10, -1000, 10, 73),
+    )
     self.assertEqual(
         self.wgs84_rectangle(-10, -34, 10, 90),
-        ee.Geometry.BBox(-10, -34, 10, 10000))
+        ee.Geometry.BBox(-10, -34, 10, 10000),
+    )
 
   def testBBox_latitude_notBeyondPoles(self):
     # Reject cases which, if we clamped them instead, would move a box whose
@@ -352,100 +351,147 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: north must be at least -90°, but was -95°',
-        -10, -100, 10, -95)
+        -10,
+        -100,
+        10,
+        -95,
+    )
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: south must be at most \+90°, but was 95°',
-        -10, 95, 10, 100)
+        -10,
+        95,
+        10,
+        100,
+    )
 
   def testBBox_latitude_zeroSpan(self):
     self.assertEqual(
-        self.wgs84_rectangle(-10, 20, 10, 20),
-        ee.Geometry.BBox(-10, 20, 10, 20))
+        self.wgs84_rectangle(-10, 20, 10, 20), ee.Geometry.BBox(-10, 20, 10, 20)
+    )
 
   def testBBox_longitude_crossingMeridianWithOppositeSigns(self):
     self.assertEqual(
         self.wgs84_rectangle(170, -20, 190, 20),
-        ee.Geometry.BBox(170, -20, -170, 20))
+        ee.Geometry.BBox(170, -20, -170, 20),
+    )
 
   def testBBox_longitude_crossingMeridianWithNegativeSigns(self):
     self.assertEqual(
         self.wgs84_rectangle(170, -20, 190, 20),
-        ee.Geometry.BBox(-190, -20, -170, 20))
+        ee.Geometry.BBox(-190, -20, -170, 20),
+    )
 
   def testBBox_longitude_crossingMeridianWithPositiveSigns(self):
     self.assertEqual(
         self.wgs84_rectangle(170, -20, 190, 20),
-        ee.Geometry.BBox(170, -20, 190, 20))
+        ee.Geometry.BBox(170, -20, 190, 20),
+    )
 
   def testBBox_longitude_exactlyGlobal(self):
     self.assertEqual(
         self.wgs84_rectangle(-180, -20, 180, 20),
-        ee.Geometry.BBox(-180, -20, 180, 20))
+        ee.Geometry.BBox(-180, -20, 180, 20),
+    )
 
   def testBBox_longitude_excessOfGlobalIsClamped(self):
     epsilon = 1e-5
     self.assertEqual(
         self.wgs84_rectangle(-180, -20, 180, 20),
-        ee.Geometry.BBox(-180 - epsilon, -20, 180 + epsilon, 20))
+        ee.Geometry.BBox(-180 - epsilon, -20, 180 + epsilon, 20),
+    )
 
   def testBBox_longitude_zeroSpan(self):
     self.assertEqual(
-        self.wgs84_rectangle(10, -20, 10, 20),
-        ee.Geometry.BBox(10, -20, 10, 20))
+        self.wgs84_rectangle(10, -20, 10, 20), ee.Geometry.BBox(10, -20, 10, 20)
+    )
 
   def testBBox_NaN_isRejected(self):
     nan = float('nan')
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: west must not be nan',
-        nan, -20, 10, 20)
+        nan,
+        -20,
+        10,
+        20,
+    )
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: south must be at most \+90°, but was nan°',
-        -10, nan, 10, 20)
+        -10,
+        nan,
+        10,
+        20,
+    )
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: east must not be nan',
-        -10, -20, nan, 20)
+        -10,
+        -20,
+        nan,
+        20,
+    )
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry.BBox: north must be at least -90°, but was nan°',
-        -10, -20, 10, nan)
+        -10,
+        -20,
+        10,
+        nan,
+    )
 
   def testBBox_infinities_invalidDirection_isRejected(self):
     inf = float('inf')
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: west must not be inf',
-        inf, -20, 10, 20)
+        inf,
+        -20,
+        10,
+        20,
+    )
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: east must not be -inf',
-        -10, -20, -inf, 20)
+        -10,
+        -20,
+        -inf,
+        20,
+    )
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: south must be at most \+90°, but was inf°',
-        -10, inf, 10, 20)
+        -10,
+        inf,
+        10,
+        20,
+    )
     self.assertInvalid(
         ee.Geometry.BBox,
         r'Geometry\.BBox: north must be at least -90°, but was -inf°',
-        -10, -20, 10, -inf)
+        -10,
+        -20,
+        10,
+        -inf,
+    )
 
   def testBBox_infinities_validDirection_isClamped(self):
     inf = float('inf')
     self.assertEqual(
         ee.Geometry.BBox(-180, -20, 180, 20),
-        ee.Geometry.BBox(-10, -20, inf, 20))
+        ee.Geometry.BBox(-10, -20, inf, 20),
+    )
     self.assertEqual(
         ee.Geometry.BBox(-180, -20, 180, 20),
-        ee.Geometry.BBox(-inf, -20, 10, 20))
+        ee.Geometry.BBox(-inf, -20, 10, 20),
+    )
     self.assertEqual(
-        ee.Geometry.BBox(-10, -20, 10, 90),
-        ee.Geometry.BBox(-10, -20, 10, inf))
+        ee.Geometry.BBox(-10, -20, 10, 90), ee.Geometry.BBox(-10, -20, 10, inf)
+    )
     self.assertEqual(
-        ee.Geometry.BBox(-10, -90, 10, 20),
-        ee.Geometry.BBox(-10, -inf, 10, 20))
+        ee.Geometry.BBox(-10, -90, 10, 20), ee.Geometry.BBox(-10, -inf, 10, 20)
+    )
 
   def testCrs_invalid_throws(self):
     geo_json = ee.Geometry.LineString(1, 2, 3, 4).toGeoJSON()
