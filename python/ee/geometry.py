@@ -269,11 +269,17 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a rectangular polygon.
     """
+    if (coords is _UNSPECIFIED):
+      coords = args
     init = Geometry._parseArgs(
-        'Rectangle', 2,
-        Geometry._GetSpecifiedArgs(
+        'Rectangle',
+        2,
+        Geometry._GetAllArgs(
             (coords, proj, geodesic, evenOdd) + args,
-            ('xlo', 'ylo', 'xhi', 'yhi'), **kwargs))
+            ('xlo', 'ylo', 'xhi', 'yhi'),
+            **kwargs,
+        ),
+    )
     if not isinstance(init, computedobject.ComputedObject):
       # GeoJSON does not have a Rectangle type, so expand to a Polygon.
       xy = init['coordinates']
@@ -419,8 +425,9 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a LineString.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError) +
-                                          args)
+    if (coords is _UNSPECIFIED):
+      coords = args
+    all_args = Geometry._GetAllArgs((coords, proj, geodesic, maxError) + args)
     return Geometry(Geometry._parseArgs('LineString', 2, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -459,8 +466,9 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       A dictionary representing a GeoJSON LinearRing.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError) +
-                                          args)
+    if (coords is _UNSPECIFIED):
+      coords = args
+    all_args = Geometry._GetAllArgs((coords, proj, geodesic, maxError) + args)
     return Geometry(Geometry._parseArgs('LinearRing', 2, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -500,8 +508,9 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a MultiLineString.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError) +
-                                          args)
+    if (coords is _UNSPECIFIED):
+      coords = args
+    all_args = Geometry._GetAllArgs((coords, proj, geodesic, maxError) + args)
     return Geometry(Geometry._parseArgs('MultiLineString', 3, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -544,8 +553,9 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a polygon.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError,
-                                           evenOdd) + args)
+    if (coords is _UNSPECIFIED):
+      coords = args
+    all_args = Geometry._GetAllArgs((coords, proj, geodesic, maxError, evenOdd) + args)
     return Geometry(Geometry._parseArgs('Polygon', 3, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -590,8 +600,9 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a MultiPolygon.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError,
-                                           evenOdd) + args)
+    if (coords is _UNSPECIFIED):
+      coords = args
+    all_args = Geometry._GetAllArgs((coords, proj, geodesic, maxError, evenOdd) + args)
     return Geometry(Geometry._parseArgs('MultiPolygon', 4, all_args))
 
   @_utils.accept_opt_prefix('opt_encoder')
@@ -775,7 +786,7 @@ class Geometry(computedobject.ComputedObject):
         raise ee_exception.EEException(
             'Geometry constructor given extra arguments.')
       for key, arg in zip(keys, args):
-        if arg is not None:
+        if arg is not None and arg != _UNSPECIFIED:
           result[key] = arg
 
     # Standardize the coordinates and test if they are simple enough for
@@ -869,13 +880,18 @@ class Geometry(computedobject.ComputedObject):
       args, keywords: Tuple[str, ...] = (), **kwargs
   ) -> List[Any]:
     """Returns args, filtering out _UNSPECIFIED and checking for keywords."""
+    all_args = Geometry._GetAllArgs(args, keywords, **kwargs)
+    return [i for i in all_args if i != _UNSPECIFIED]
+
+  @staticmethod
+  def _GetAllArgs(args, keywords: Tuple[str, ...] = (), **kwargs) -> List[Any]:
+    """Returns all args, specified or not, checking for keywords."""
+    args = list(args)
     if keywords:
-      args = list(args)
       for i, keyword in enumerate(keywords):
         if keyword in kwargs:
-          assert args[i] is _UNSPECIFIED
           args[i] = kwargs[keyword]
-    return [i for i in args if i != _UNSPECIFIED]
+    return args
 
   @staticmethod
   def name() -> str:

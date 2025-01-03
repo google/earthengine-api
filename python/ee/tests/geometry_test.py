@@ -552,6 +552,46 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertIn('"geodesic": {"constantValue": true}', result)
     self.assertIn('"evenOdd": {"constantValue": true}', result)
 
+  def testInitTypePolygon(self):
+    polygon2 = ee.Geometry.Polygon(coords=[0, 0, 0, 5, 5, 0], evenOdd=False)
+    self.assertIn('"evenOdd": {"constantValue": false}', polygon2.serialize())
+
+  def testInitTypeRectange(self):
+    rectangle2 = ee.Geometry.Rectangle(coords=[1, 2, 3, 4], evenOdd=False)
+    self.assertIn('"evenOdd": {"constantValue": false}', rectangle2.serialize())
+
+  def testInitTypeMultiPolygon(self):
+    multipolygon2 = ee.Geometry.MultiPolygon(
+        coords=[[0, 0, 0, 5, 5, 0]], evenOdd=False
+    )
+    self.assertIn(
+        '"evenOdd": {"constantValue": false}', multipolygon2.serialize()
+    )
+
+  def testInitTypeLineString(self):
+    line_string = ee.Geometry.LineString(
+        coords=[0, 0, 0, 5, 5, 0], geodesic=False
+    )
+    self.assertIn(
+        '"geodesic": {"constantValue": false}', line_string.serialize()
+    )
+
+  def testInitTypeLinearRing(self):
+    linear_ring = ee.Geometry.LinearRing(
+        coords=[0, 0, 0, 5, 5, 0], geodesic=False
+    )
+    self.assertIn(
+        '"geodesic": {"constantValue": false}', linear_ring.serialize()
+    )
+
+  def testInitMultiLineString(self):
+    multi_line_string = ee.Geometry.MultiLineString(
+        coords=[[0, 0, 0, 5, 5, 0], [1, 1, 1, 6, 6, 1]], geodesic=False
+    )
+    self.assertIn(
+        '"geodesic": {"constantValue": false}', multi_line_string.serialize()
+    )
+
 
 if __name__ == '__main__':
   unittest.main()
