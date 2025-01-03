@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Tests for _utils decorators."""
 
+import sys
+from unittest import mock
+
 import unittest
 from ee import _utils
 
@@ -83,6 +86,13 @@ class UtilsTest(unittest.TestCase):
     )
     # pylint: enable=unexpected-keyword-arg
     # pytype: enable=wrong-keyword-args
+
+  def test_in_colab_shell(self):
+    with mock.patch.dict(sys.modules, {'google.colab': None}):
+      self.assertFalse(_utils.in_colab_shell())
+
+    with mock.patch.dict(sys.modules, {'google.colab': mock.MagicMock()}):
+      self.assertTrue(_utils.in_colab_shell())
 
 
 if __name__ == '__main__':

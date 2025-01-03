@@ -54,13 +54,6 @@ class OAuthTest(unittest.TestCase):
       token = json.load(f)
       self.assertEqual({'refresh_token': '123'}, token)
 
-  def test_in_colab_shell(self):
-    with mock.patch.dict(sys.modules, {'google.colab': None}):
-      self.assertFalse(oauth.in_colab_shell())
-
-    with mock.patch.dict(sys.modules, {'google.colab': mock.MagicMock()}):
-      self.assertTrue(oauth.in_colab_shell())
-
   def test_is_sdk_credentials(self):
     sdk_project = oauth.SDK_PROJECTS[0]
     self.assertFalse(oauth.is_sdk_credentials(None))
