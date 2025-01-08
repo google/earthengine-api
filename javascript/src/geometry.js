@@ -3,7 +3,6 @@
  */
 
 goog.provide('ee.Geometry');
-goog.provide('ee.Geometry.Point');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
