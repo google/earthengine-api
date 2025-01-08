@@ -5,6 +5,7 @@ from typing import Optional
 from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
+from ee import deprecation
 from ee import featurecollection
 from ee import image as ee_image
 
@@ -61,6 +62,10 @@ class Model(computedobject.ComputedObject):
   def name() -> str:
     return 'Model'
 
+  @deprecation.Deprecated(
+      'Migrate to Vertex AI Prediction: \n'
+      'https://developers.google.com/earth-engine/guides/ee-vertex-hosting-a-model'
+  )
   @staticmethod
   def fromAiPlatformPredictor(
       # pylint: disable=invalid-name
