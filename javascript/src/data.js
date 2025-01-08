@@ -11,7 +11,6 @@ goog.provide('ee.data.ClassifierTaskConfig');
 goog.provide('ee.data.ExportDestination');
 goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
-goog.provide('ee.data.FeatureViewTilesKey');
 goog.provide('ee.data.ImageCollectionDescription');
 goog.provide('ee.data.ImageDescription');
 goog.provide('ee.data.ImageTaskConfig');
