@@ -7,17 +7,12 @@
 
 goog.provide('ee.data');
 goog.provide('ee.data.AssetType');
-goog.provide('ee.data.ClassifierTaskConfig');
 goog.provide('ee.data.ExportDestination');
 goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.ImageCollectionDescription');
 goog.provide('ee.data.ImageDescription');
-goog.provide('ee.data.ImageTaskConfig');
 goog.provide('ee.data.ImageVisualizationParameters');
-goog.provide('ee.data.MapTaskConfig');
-goog.provide('ee.data.TableTaskConfig');
-goog.provide('ee.data.VideoTaskConfig');
 goog.require('ee.Serializer');
 goog.require('ee.api');
 goog.require('ee.apiclient');
