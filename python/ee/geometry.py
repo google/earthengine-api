@@ -187,18 +187,19 @@ class Geometry(computedobject.ComputedObject):
       coords: A list of two [x,y] coordinates in the given projection.
       proj: The projection of this geometry, or EPSG:4326 if unspecified.
       *args: For convenience, varargs may be used when all arguments are
-          numbers. This allows creating EPSG:4326 points, e.g.,
-          ee.Geometry.Point(lng, lat).
+        numbers. This allows creating EPSG:4326 points, e.g.,
+        ee.Geometry.Point(lng, lat).
       **kwargs: Keyword args that accept "lon" and "lat" for backward-
-          compatibility.
+        compatibility.
 
     Returns:
       An ee.Geometry describing a point.
     """
     init = Geometry._parseArgs(
-        'Point', 1,
-        Geometry._GetSpecifiedArgs((coords, proj) + args, ('lon', 'lat'),
-                                   **kwargs))
+        'Point',
+        1,
+        Geometry._GetArgs((coords, proj) + args, ('lon', 'lat'), **kwargs),
+    )
     if not isinstance(init, computedobject.ComputedObject):
       xy = init['coordinates']
       if not isinstance(xy, (list, tuple)) or len(xy) != 2:
@@ -226,7 +227,7 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a MultiPoint.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj) + args)
+    all_args = Geometry._GetArgs((coords, proj) + args)
     return Geometry(Geometry._parseArgs('MultiPoint', 2, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -270,10 +271,14 @@ class Geometry(computedobject.ComputedObject):
       An ee.Geometry describing a rectangular polygon.
     """
     init = Geometry._parseArgs(
-        'Rectangle', 2,
-        Geometry._GetSpecifiedArgs(
+        'Rectangle',
+        2,
+        Geometry._GetArgs(
             (coords, proj, geodesic, evenOdd) + args,
-            ('xlo', 'ylo', 'xhi', 'yhi'), **kwargs))
+            ('xlo', 'ylo', 'xhi', 'yhi'),
+            **kwargs,
+        ),
+    )
     if not isinstance(init, computedobject.ComputedObject):
       # GeoJSON does not have a Rectangle type, so expand to a Polygon.
       xy = init['coordinates']
@@ -419,8 +424,7 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a LineString.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError) +
-                                          args)
+    all_args = Geometry._GetArgs((coords, proj, geodesic, maxError) + args)
     return Geometry(Geometry._parseArgs('LineString', 2, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -459,8 +463,7 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       A dictionary representing a GeoJSON LinearRing.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError) +
-                                          args)
+    all_args = Geometry._GetArgs((coords, proj, geodesic, maxError) + args)
     return Geometry(Geometry._parseArgs('LinearRing', 2, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -500,8 +503,7 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a MultiLineString.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError) +
-                                          args)
+    all_args = Geometry._GetArgs((coords, proj, geodesic, maxError) + args)
     return Geometry(Geometry._parseArgs('MultiLineString', 3, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -544,8 +546,9 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a polygon.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError,
-                                           evenOdd) + args)
+    all_args = Geometry._GetArgs(
+        (coords, proj, geodesic, maxError, evenOdd) + args
+    )
     return Geometry(Geometry._parseArgs('Polygon', 3, all_args))
 
   # pylint: disable=keyword-arg-before-vararg
@@ -590,8 +593,10 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a MultiPolygon.
     """
-    all_args = Geometry._GetSpecifiedArgs((coords, proj, geodesic, maxError,
-                                           evenOdd) + args)
+
+    all_args = Geometry._GetArgs(
+        (coords, proj, geodesic, maxError, evenOdd) + args
+    )
     return Geometry(Geometry._parseArgs('MultiPolygon', 4, all_args))
 
   @_utils.accept_opt_prefix('opt_encoder')
@@ -766,16 +771,16 @@ class Geometry(computedobject.ComputedObject):
       keys.append('maxError')
     keys.append('evenOdd')
 
-    if all(ee_types.isNumber(i) for i in args):
+    if all(ee_types.isNumber(i) or i == _UNSPECIFIED for i in args):
       # All numbers, so convert them to a true array.
-      result['coordinates'] = args
+      result['coordinates'] = [i for i in args if i != _UNSPECIFIED]
     else:
       # Parse parameters by position.
       if len(args) > len(keys):
         raise ee_exception.EEException(
             'Geometry constructor given extra arguments.')
       for key, arg in zip(keys, args):
-        if arg is not None:
+        if arg is not None and arg != _UNSPECIFIED:
           result[key] = arg
 
     # Standardize the coordinates and test if they are simple enough for
@@ -865,17 +870,14 @@ class Geometry(computedobject.ComputedObject):
     return coords
 
   @staticmethod
-  def _GetSpecifiedArgs(
-      args, keywords: Tuple[str, ...] = (), **kwargs
-  ) -> List[Any]:
-    """Returns args, filtering out _UNSPECIFIED and checking for keywords."""
+  def _GetArgs(args, keywords: Tuple[str, ...] = (), **kwargs) -> List[Any]:
+    """Returns all args, specified or not, checking for keywords."""
+    args = list(args)
     if keywords:
-      args = list(args)
       for i, keyword in enumerate(keywords):
         if keyword in kwargs:
-          assert args[i] is _UNSPECIFIED
           args[i] = kwargs[keyword]
-    return [i for i in args if i != _UNSPECIFIED]
+    return args
 
   @staticmethod
   def name() -> str:

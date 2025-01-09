@@ -192,9 +192,8 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
     geometry = ee.Geometry.LineString(coords, geodesic=True)
     self.assertEqual(func, geometry.func)
-    # TODO: Should be geodesic=True, not crs.
     self.assertEqual(
-        {'coordinates': ee.List(coords), 'crs': ee.Projection(True)},
+        {'coordinates': ee.List(coords), 'geodesic': True},
         geometry.args,
     )
 
@@ -246,9 +245,8 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
     geometry = ee.Geometry.LinearRing(coords, geodesic=geodesic)
     self.assertEqual(func, geometry.func)
-    # TODO: Should be geodesic=True, not crs.
     self.assertEqual(
-        {'coordinates': ee.List(coords), 'crs': ee.Projection(geodesic)},
+        {'coordinates': ee.List(coords), 'geodesic': geodesic},
         geometry.args,
     )
 
@@ -300,9 +298,8 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
     geometry = ee.Geometry.MultiLineString(coords, geodesic=geodesic)
     self.assertEqual(func, geometry.func)
-    # TODO: Should be geodesic=True, not crs.
     self.assertEqual(
-        {'coordinates': ee.List(coords), 'crs': ee.Projection(geodesic)},
+        {'coordinates': ee.List(coords), 'geodesic': geodesic},
         geometry.args,
     )
 
@@ -409,9 +406,8 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
     geometry = ee.Geometry.MultiPolygon(coords, geodesic=geodesic)
     self.assertEqual(func, geometry.func)
-    # TODO: Should be geodesic=True, not crs.
     self.assertEqual(
-        {'coordinates': ee.List(coords), 'crs': ee.Projection(geodesic)},
+        {'coordinates': ee.List(coords), 'geodesic': geodesic},
         geometry.args,
     )
 
@@ -518,9 +514,8 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
     geometry = ee.Geometry.Polygon(coords, geodesic=geodesic)
     self.assertEqual(func, geometry.func)
-    # TODO: Should be geodesic=True, not crs.
     self.assertEqual(
-        {'coordinates': ee.List(coords), 'crs': ee.Projection(geodesic)},
+        {'coordinates': ee.List(coords), 'geodesic': geodesic},
         geometry.args,
     )
 
@@ -582,9 +577,8 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
     geometry = ee.Geometry.Rectangle(coords, geodesic=geodesic)
     self.assertEqual(func, geometry.func)
-    # TODO: Should be geodesic=True, not crs.
     self.assertEqual(
-        {'coordinates': ee.List(coords), 'crs': ee.Projection(geodesic)},
+        {'coordinates': ee.List(coords), 'geodesic': geodesic},
         geometry.args,
     )
 
