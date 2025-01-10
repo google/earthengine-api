@@ -481,8 +481,8 @@ def authenticate(
         "localhost" - sends credentials to the Python environment on the same
           localhost as the browser. Does not work for remote shells. Default
           port is 8085; use localhost:N set port or localhost:0 to auto-select.
-        "gcloud-legacy" - use less convenient gcloud mode, for users without
-          cloud projects.
+        "gcloud-legacy" - included for legacy compatibility but not materially
+          different from "gcloud".
         "appdefault" - included for legacy compatibility but not necessary.
           ee.Initialize() will always check for application default credentials.
         None - a default mode is chosen based on your environment.

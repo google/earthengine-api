@@ -99,7 +99,7 @@ class ApiTestCase(unittest.TestCase):
     ee.data.getTableDownloadId = self._MockTableDownload
     # pylint: disable-next=protected-access
     ee.deprecation._FetchDataCatalogStac = self._MockFetchDataCatalogStac
-    ee.Initialize(None, '')
+    ee.Initialize(None, '', project='my-project')
 
   # We are mocking the url here so the unit tests are happy.
   def _MockMapId(self, params: Dict[str, Any]) -> Dict[str, str]:
