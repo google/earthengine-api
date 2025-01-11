@@ -381,14 +381,14 @@ class AuthenticateCommand:
     parser.add_argument(
         '--quiet',
         action='store_true',
-        help='Do not prompt for input.')
+        help='Do not prompt for input, run gcloud-legacy in no-browser mode.')
     parser.add_argument(
         '--code-verifier',
         help='PKCE verifier to prevent auth code stealing.')
     parser.add_argument(
         '--auth_mode',
         help='One of: notebook - use notebook authenticator; colab - use Colab'
-        ' authenticator; gcloud - use gcloud;'
+        ' authenticator; gcloud / gcloud-legacy - use gcloud;'
         ' localhost[:PORT|:0] - use local browser')
     parser.add_argument(
         '--scopes', help='Optional comma-separated list of scopes.')
