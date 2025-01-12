@@ -409,7 +409,7 @@ class AuthenticateCommand:
     if args.scopes:
       args_auth['scopes'] = args.scopes.split(',')
 
-    if ee.oauth.in_colab_shell():
+    if ee._utils.in_colab_shell():  # pylint: disable=protected-access
       print(
           'Authenticate: Limited support in Colab. Use ee.Authenticate()'
           ' or --auth_mode=notebook instead.'

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Test for the ee.__init__ file."""
 
+import os
 from unittest import mock
 
 import google.auth
@@ -87,8 +88,22 @@ class EETestCase(apitestcase.ApiTestCase):
       google_creds = google_creds.with_quota_project(None)
       expected_project = None
       ee.Initialize()
-      self.assertEqual(5, inits.call_count)
 
+      expected_project = 'qp3'
+      with mock.patch.dict(
+          os.environ,
+          {'EE_PROJECT_ID': expected_project, 'GOOGLE_CLOUD_PROJECT': 'qp4'},
+      ):
+        ee.Initialize()
+
+      expected_project = 'qp4'
+      with mock.patch.dict(
+          os.environ, {'GOOGLE_CLOUD_PROJECT': expected_project}
+      ):
+        ee.Initialize()
+      self.assertEqual(7, inits.call_count)
+
+      expected_project = None
       msg = 'Earth Engine API has not been used in project 764086051850 before'
       with moc(ee.ApiFunction, 'initialize', side_effect=ee.EEException(msg)):
         with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
@@ -98,7 +113,7 @@ class EETestCase(apitestcase.ApiTestCase):
       cred_args['refresh_token'] = 'rt'
       with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
         ee.Initialize()
-      self.assertEqual(6, inits.call_count)
+      self.assertEqual(8, inits.call_count)
 
   def testCallAndApply(self):
     """Verifies library initialization."""
