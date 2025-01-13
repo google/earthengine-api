@@ -5,8 +5,6 @@ goog.module.declareLegacyNamespace();
 
 const ComputedObject = goog.require('ee.ComputedObject');
 const Element = goog.require('ee.Element');
-const ExportDestination = goog.require('ee.data.ExportDestination');
-const ExportType = goog.require('ee.data.ExportType');
 const FeatureCollection = goog.require('ee.FeatureCollection');
 const Geometry = goog.require('ee.Geometry');
 const GoogPromise = goog.require('goog.Promise');
@@ -137,7 +135,7 @@ Export.image.toAsset = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.ASSET, ExportType.IMAGE);
+      clientConfig, data.ExportDestination.ASSET, data.ExportType.IMAGE);
   return ExportTask.create(serverConfig);
 };
 
@@ -170,7 +168,7 @@ Export.image.toCloudStorage = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.GCS, ExportType.IMAGE);
+      clientConfig, data.ExportDestination.GCS, data.ExportType.IMAGE);
   return ExportTask.create(serverConfig);
 };
 
@@ -203,7 +201,7 @@ Export.image.toDrive = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toDrive, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.DRIVE, ExportType.IMAGE);
+      clientConfig, data.ExportDestination.DRIVE, data.ExportType.IMAGE);
   return ExportTask.create(serverConfig);
 };
 
@@ -233,7 +231,7 @@ Export.map.toCloudStorage = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.map.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.GCS, ExportType.MAP);
+      clientConfig, data.ExportDestination.GCS, data.ExportType.MAP);
   return ExportTask.create(serverConfig);
 };
 
@@ -256,7 +254,7 @@ Export.table.toCloudStorage = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.GCS, ExportType.TABLE);
+      clientConfig, data.ExportDestination.GCS, data.ExportType.TABLE);
   return ExportTask.create(serverConfig);
 };
 
@@ -278,9 +276,9 @@ Export.table.toDrive = function(
     opt_selectors, opt_maxVertices, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toDrive, arguments);
-  clientConfig['type'] = ExportType.TABLE;
+  clientConfig['type'] = data.ExportType.TABLE;
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.DRIVE, ExportType.TABLE);
+      clientConfig, data.ExportDestination.DRIVE, data.ExportType.TABLE);
   return ExportTask.create(serverConfig);
 };
 
@@ -299,7 +297,7 @@ Export.table.toAsset = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.ASSET, ExportType.TABLE);
+      clientConfig, data.ExportDestination.ASSET, data.ExportType.TABLE);
   return ExportTask.create(serverConfig);
 };
 
@@ -323,7 +321,7 @@ Export.table.toFeatureView = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toFeatureView, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.FEATURE_VIEW, ExportType.TABLE);
+      clientConfig, data.ExportDestination.FEATURE_VIEW, data.ExportType.TABLE);
   return ExportTask.create(serverConfig);
 };
 
@@ -346,7 +344,7 @@ Export.table.toBigQuery = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toBigQuery, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.BIGQUERY, ExportType.TABLE);
+      clientConfig, data.ExportDestination.BIGQUERY, data.ExportType.TABLE);
   return ExportTask.create(serverConfig);
 };
 
@@ -375,7 +373,7 @@ Export.video.toCloudStorage = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.video.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.GCS, ExportType.VIDEO);
+      clientConfig, data.ExportDestination.GCS, data.ExportType.VIDEO);
   return ExportTask.create(serverConfig);
 };
 
@@ -404,7 +402,7 @@ Export.video.toDrive = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.video.toDrive, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.DRIVE, ExportType.VIDEO);
+      clientConfig, data.ExportDestination.DRIVE, data.ExportType.VIDEO);
   return ExportTask.create(serverConfig);
 };
 
@@ -421,7 +419,7 @@ Export.classifier.toAsset = function(
   const clientConfig =
       eeArguments.extractFromFunction(Export.classifier.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
-      clientConfig, ExportDestination.ASSET, ExportType.CLASSIFIER);
+      clientConfig, data.ExportDestination.ASSET, data.ExportType.CLASSIFIER);
   return ExportTask.create(serverConfig);
 };
 
@@ -507,7 +505,7 @@ Export.resolveRegionParam = function(params) {
         if (error) {
           reject(error);
         } else {
-          if (params['type'] === ExportType.IMAGE) {
+          if (params['type'] === data.ExportType.IMAGE) {
             params['region'] = new Geometry(regionInfo);
           } else {
             params['region'] = Export.serializeRegion(regionInfo);
@@ -517,7 +515,7 @@ Export.resolveRegionParam = function(params) {
       });
     });
   }
-  if (params['type'] === ExportType.IMAGE) {
+  if (params['type'] === data.ExportType.IMAGE) {
     params['region'] = new Geometry(region);
   } else {
     params['region'] = Export.serializeRegion(region);
@@ -580,22 +578,22 @@ Export.convertToServerParams = function(
   Object.assign(taskConfig, originalArgs);
 
   switch (exportType) {
-    case ExportType.IMAGE:
+    case data.ExportType.IMAGE:
       taskConfig = Export.image.prepareTaskConfig_(taskConfig, destination);
       break;
-    case ExportType.MAP:
+    case data.ExportType.MAP:
       taskConfig = Export.map.prepareTaskConfig_(taskConfig, destination);
       break;
-    case ExportType.TABLE:
+    case data.ExportType.TABLE:
       taskConfig = Export.table.prepareTaskConfig_(taskConfig, destination);
       break;
-    case ExportType.VIDEO:
+    case data.ExportType.VIDEO:
       taskConfig = Export.video.prepareTaskConfig_(taskConfig, destination);
       break;
-    case ExportType.VIDEO_MAP:
+    case data.ExportType.VIDEO_MAP:
       taskConfig = Export.videoMap.prepareTaskConfig_(taskConfig, destination);
       break;
-    case ExportType.CLASSIFIER:
+    case data.ExportType.CLASSIFIER:
       taskConfig =
           Export.classifier.prepareTaskConfig_(taskConfig, destination);
       break;
@@ -620,7 +618,7 @@ Export.convertToServerParams = function(
 Export.prepareDestination_ = function(taskConfig, destination) {
   // Convert to deprecated backend keys or fill with empty strings.
   switch (destination) {
-    case ExportDestination.GCS:
+    case data.ExportDestination.GCS:
       taskConfig['outputBucket'] = taskConfig['bucket'] || '';
       taskConfig['outputPrefix'] =
           (taskConfig['fileNamePrefix'] || taskConfig['path'] || '');
@@ -628,17 +626,17 @@ Export.prepareDestination_ = function(taskConfig, destination) {
       delete taskConfig['path'];
       delete taskConfig['bucket'];
       break;
-    case ExportDestination.ASSET:
+    case data.ExportDestination.ASSET:
       taskConfig['assetId'] = taskConfig['assetId'] || '';
       break;
-    case ExportDestination.FEATURE_VIEW:
+    case data.ExportDestination.FEATURE_VIEW:
       taskConfig['mapName'] = taskConfig['mapName'] || '';
       break;
-    case ExportDestination.BIGQUERY:
+    case data.ExportDestination.BIGQUERY:
       taskConfig['table'] = taskConfig['table'] || '';
       break;
     // The default is to drive.
-    case ExportDestination.DRIVE:
+    case data.ExportDestination.DRIVE:
     default:
       // Catch legacy function signature for toDrive calls.
       const allowedFolderType = ['string', 'undefined'];
