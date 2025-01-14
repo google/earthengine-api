@@ -6,9 +6,6 @@
  */
 
 goog.provide('ee.data');
-goog.provide('ee.data.AssetType');
-goog.provide('ee.data.ExportDestination');
-goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.ImageCollectionDescription');
 goog.provide('ee.data.ImageDescription');
