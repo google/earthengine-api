@@ -3199,7 +3199,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.setOutputMode",
-    "description": "Sets the output mode.",
+    "description": "Sets a classifier\u0027s output format.\nRefer to https://developers.google.com/earth-engine/guides/classification for a list of supported modes for each classifier.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "classifier",
@@ -3208,7 +3208,7 @@
     }, {
       "argumentName": "mode",
       "type": "String",
-      "description": "The output mode. One of:\n\u003cul\u003e  \u003cli\u003eCLASSIFICATION (default): The output is the class number.\u003c/li\u003e  \u003cli\u003eREGRESSION: The output is the result of standard regression.\u003c/li\u003e  \u003cli\u003ePROBABILITY: The output is the probability that the classification     is correct.\u003c/li\u003e  \u003cli\u003eMULTIPROBABILITY: The output is an array of probabilities that each    class is correct ordered by classes seen.\u003c/li\u003e  \u003cli\u003eRAW: The output is an array of the internal representation of the    classification process. For example, the raw votes in multi-decision tree    models.\u003c/li\u003e  \u003cli\u003eRAW_REGRESSION: The output is an array of the internal representation of the    regression process. For example, the raw predictions of multiple regression    trees.\u003c/li\u003e\u003c/ul\u003eNot all classifiers support modes other than CLASSIFICATION."
+      "description": "The output mode. One of:\n\u003cul\u003e  \u003cli\u003eCLASSIFICATION (default): The output is the class number.\u003c/li\u003e  \u003cli\u003eREGRESSION: The output is the result of standard regression.\u003c/li\u003e  \u003cli\u003ePROBABILITY: The output is the probability that the classification     is correct.\u003c/li\u003e  \u003cli\u003eMULTIPROBABILITY: The output is an array of probabilities that each    class is correct ordered by classes seen.\u003c/li\u003e  \u003cli\u003eRAW: The output is an array of the internal representation of the    classification process. For example, the raw votes in multi-decision tree    models.\u003c/li\u003e  \u003cli\u003eRAW_REGRESSION: The output is an array of the internal representation of the    regression process. For example, the raw predictions of multiple regression    trees.\u003c/li\u003e\u003c/ul\u003e"
     }]
   }, {
     "name": "algorithms/Classifier.train",
