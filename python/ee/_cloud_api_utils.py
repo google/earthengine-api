@@ -146,6 +146,7 @@ def build_cloud_resource(
     api_key: Optional[str] = None,
     credentials: Optional[Any] = None,
     timeout: Optional[float] = None,
+    num_retries: int = 1,
     headers_supplier: Optional[Callable[[], Dict[str, Any]]] = None,
     response_inspector: Optional[Callable[[Any], None]] = None,
     http_transport: Optional[Any] = None,
@@ -160,6 +161,8 @@ def build_cloud_resource(
     api_key: An API key that's enabled for use with the Earth Engine Cloud API.
     credentials: OAuth2 credentials to use when authenticating to the API.
     timeout: How long a timeout to set on requests, in seconds.
+    num_retries: The number of times to retry discovery with randomized
+      exponential backoff, in case of intermittent/connection issues.
     headers_supplier: A callable that will return a set of headers to be applied
       to a request. Will be called once for each request.
     response_inspector: A callable that will be invoked with the raw
@@ -199,6 +202,7 @@ def build_cloud_resource(
         requestBuilder=request_builder,
         model=alt_model,
         cache_discovery=False,
+        num_retries=num_retries,
         **kwargs)  # pytype: disable=wrong-keyword-args
 
   resource = None
