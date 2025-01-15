@@ -3,8 +3,6 @@
  */
 
 goog.provide('ee');
-goog.provide('ee.Algorithms');
-goog.provide('ee.InitState');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.Collection');
