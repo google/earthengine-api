@@ -40,8 +40,8 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertTrue(ee.Image._initialized)
 
-    # Verify that ee.Initialize(None) does not override custom URLs.
-    ee.Initialize(None)
+    # Verify that ee.Initialize() without a URL does not override custom URLs.
+    ee.Initialize(None, project='my-project')
     self.assertTrue(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, 'foo/api')
 
@@ -85,20 +85,25 @@ class EETestCase(apitestcase.ApiTestCase):
       ee.Initialize()
 
       google_creds = google_creds.with_quota_project(None)
-      expected_project = None
-      ee.Initialize()
-      self.assertEqual(5, inits.call_count)
+      with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
+        ee.Initialize()
+      self.assertEqual(4, inits.call_count)
 
       msg = 'Earth Engine API has not been used in project 764086051850 before'
       with moc(ee.ApiFunction, 'initialize', side_effect=ee.EEException(msg)):
         with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
           ee.Initialize()
 
-      cred_args['client_id'] = '764086051850-xxx'  # dummy usable-auth client
+      cred_args['client_id'] = '123456789-xxx'
       cred_args['refresh_token'] = 'rt'
+      expected_project = '123456789'
+      ee.Initialize()
+      self.assertEqual(5, inits.call_count)
+
+      cred_args['client_id'] = '764086051850-xxx'  # dummy usable-auth client
       with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
         ee.Initialize()
-      self.assertEqual(6, inits.call_count)
+      self.assertEqual(5, inits.call_count)
 
   def testCallAndApply(self):
     """Verifies library initialization."""
@@ -122,7 +127,7 @@ class EETestCase(apitestcase.ApiTestCase):
 
     ee.data.getAlgorithms = MockAlgorithms
 
-    ee.Initialize(None)
+    ee.Initialize(None, project='my-project')
     image1 = ee.Image(1)
     image2 = ee.Image(2)
     expected = ee.Image(
@@ -227,7 +232,7 @@ class EETestCase(apitestcase.ApiTestCase):
 
     ee.data.getAlgorithms = MockAlgorithms
 
-    ee.Initialize(None)
+    ee.Initialize(None, project='my-project')
 
     # Verify that the expected classes got generated.
     self.assertTrue(hasattr(ee, 'Array'))
@@ -312,7 +317,7 @@ class EETestCase(apitestcase.ApiTestCase):
       }
 
     ee.data.getAlgorithms = MockAlgorithms
-    ee.Initialize(None)
+    ee.Initialize(None, project='my-project')
 
     # Try to cast something that's already of the right class.
     x = ee.Foo('argument')
@@ -488,7 +493,7 @@ class EETestCase(apitestcase.ApiTestCase):
 
     ee.data.getAlgorithms = MockAlgorithms
 
-    ee.Initialize(None)
+    ee.Initialize(None, project='my-project')
 
     # The initialisation shouldn't blow up.
     self.assertTrue(callable(ee.Algorithms.Foo))

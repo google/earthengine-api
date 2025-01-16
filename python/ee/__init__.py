@@ -134,15 +134,13 @@ def Authenticate(
 
   Args:
     authorization_code: An optional authorization code.
-    quiet: If true, do not require interactive prompts and force --no-browser
-      mode for gcloud-legacy. If false, never supply --no-browser. Default is
-      None, which autodetects the --no-browser setting.
+    quiet: If true, do not require interactive prompts. If false, never supply
+      --no-browser. Default is None, which autodetects the --no-browser setting.
     code_verifier: PKCE verifier to prevent auth code stealing.
     auth_mode: The authentication mode. One of:
       "colab" - use the Colab authentication flow;
       "notebook" - send user to notebook authenticator page;
       "gcloud" - use gcloud to obtain credentials;
-      "gcloud-legacy" - use legacy gcloud flow to obtain credentials;
       "localhost" - runs auth flow in local browser only;
       None - a default mode is chosen based on your environment.
     scopes: List of scopes to use for authentication. Defaults to [
@@ -185,8 +183,13 @@ def Initialize(
     credentials = data.get_persistent_credentials()
   if not project and credentials and hasattr(credentials, 'quota_project_id'):
     project = credentials.quota_project_id
-  # SDK credentials are not authorized for EE so a project must be given.
-  if not project and oauth.is_sdk_credentials(credentials):
+  if not project:
+    project = oauth.project_number_from_credentials(credentials)
+  # Convert falsey values to None.
+  project = project or None
+  # A project must be given, but SDK projects are not authorized for EE.
+  is_valid_project = project and not oauth.is_sdk_project(project)
+  if not is_valid_project:
     raise EEException(NO_PROJECT_EXCEPTION)
 
   data.initialize(

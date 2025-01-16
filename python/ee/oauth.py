@@ -100,8 +100,14 @@ def get_credentials_arguments() -> Dict[str, Any]:
 
 
 def is_sdk_credentials(credentials: Optional[Any]) -> bool:
+  return is_sdk_project(project_number_from_credentials(credentials))
+
+
+def project_number_from_credentials(
+    credentials: Optional[Any],
+) -> Optional[str]:
   client_id = credentials and getattr(credentials, 'client_id', None)
-  return is_sdk_project(_project_number_from_client_id(client_id))
+  return _project_number_from_client_id(client_id)
 
 
 def is_sdk_project(project: str) -> bool:
@@ -481,8 +487,8 @@ def authenticate(
         "localhost" - sends credentials to the Python environment on the same
           localhost as the browser. Does not work for remote shells. Default
           port is 8085; use localhost:N set port or localhost:0 to auto-select.
-        "gcloud-legacy" - use less convenient gcloud mode, for users without
-          cloud projects.
+        "gcloud-legacy" - included for legacy compatibility but not materially
+          different from "gcloud".
         "appdefault" - included for legacy compatibility but not necessary.
           ee.Initialize() will always check for application default credentials.
         None - a default mode is chosen based on your environment.

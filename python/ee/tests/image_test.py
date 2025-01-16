@@ -306,7 +306,7 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
               )
           ),
       )
-      self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
+      self.assertEqual('projects/my-project', kwargs['parent'])
 
   def test_thumb_with_dimensions_region_json(self):
     # Try it with the region as a GeoJSON string.
@@ -330,7 +330,7 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
               )
           ),
       )
-      self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
+      self.assertEqual('projects/my-project', kwargs['parent'])
 
   def test_thumb_with_dimensions_list_coords(self):
     # Try it with the region as a list of coordinates.
@@ -356,7 +356,7 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
               )
           ),
       )
-      self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
+      self.assertEqual('projects/my-project', kwargs['parent'])
 
   def test_thumb_with_dimensions_list_min_max(self):
     # Try it with the region as a list of coordinates.
@@ -382,7 +382,7 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
               )
           ),
       )
-      self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
+      self.assertEqual('projects/my-project', kwargs['parent'])
 
   def test_thumb_with_visualization_params(self):
     cloud_api_resource = mock.MagicMock()
@@ -603,7 +603,7 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
           kwargs['body']['expression'],
       )
       self.assertEqual('ZIPPED_GEO_TIFF_PER_BAND', kwargs['body']['fileFormat'])
-      self.assertEqual('projects/earthengine-legacy', kwargs['parent'])
+      self.assertEqual('projects/my-project', kwargs['parent'])
       self.assertEqual(
           '/%s/thumbName:getPixels' % _cloud_api_utils.VERSION, url
       )
