@@ -4294,6 +4294,12 @@
       "description": "If false, edges are straight in the projection. If true, edges are curved to follow the shortest path on the surface of the Earth. The default is the geodesic state of the inputs, or true if the inputs are numbers.",
       "optional": true,
       "defaultValue": null
+    }, {
+      "argumentName": "maxError",
+      "type": "ErrorMargin",
+      "description": "Max error when input geometry must be reprojected to an explicitly requested result projection or geodesic state.",
+      "optional": true,
+      "defaultValue": null
     }]
   }, {
     "name": "algorithms/GeometryConstructors.LinearRing",
@@ -4313,6 +4319,12 @@
       "argumentName": "geodesic",
       "type": "Boolean",
       "description": "If false, edges are straight in the projection. If true, edges are curved to follow the shortest path on the surface of the Earth. The default is the geodesic state of the inputs, or true if the inputs are numbers.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "maxError",
+      "type": "ErrorMargin",
+      "description": "Max error when input geometry must be reprojected to an explicitly requested result projection or geodesic state.",
       "optional": true,
       "defaultValue": null
     }]
@@ -15392,7 +15404,9 @@
       "description": "An approximation to the increase in data volume for the model outputs over the model inputs. If specified this must be \u003e\u003d 1. This is only needed if the model produces more data than it consumes, e.g., a model that takes 5 bands and produces 10 outputs per pixel.",
       "optional": true,
       "defaultValue": null
-    }]
+    }],
+    "deprecated": true,
+    "deprecationReason": "Cloud AI Platform is deprecated migrate to Vertex AI: https://developers.google.com/earth-engine/guides/ee-vertex-migrate"
   }, {
     "name": "algorithms/Model.fromVertexAi",
     "description": "Returns an ee.Model from a description of a Vertex AI model endpoint. (See https://cloud.google.com/vertex-ai).\nWarning: This method is in public preview and may undergo breaking changes.",
