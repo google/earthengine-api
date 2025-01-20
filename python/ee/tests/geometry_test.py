@@ -169,19 +169,19 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ee.Geometry.BBox(*coords)
 
   def testLineString(self):
-    # TODO: maxError isn't supported in the Python API, but is
-    # documented.
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
+    max_error = 1000
     func = ee.ApiFunction.lookup('GeometryConstructors.LineString')
 
-    geometry = ee.Geometry.LineString(coords, proj, True)
+    geometry = ee.Geometry.LineString(coords, proj, True, max_error)
     self.assertEqual(func, geometry.func)
     self.assertEqual(
         {
             'coordinates': ee.List(coords),
             'crs': ee.Projection(proj),
             'geodesic': True,
+            'maxError': ee.ErrorMargin(max_error),
         },
         geometry.args,
     )
@@ -220,20 +220,20 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ee.Geometry.LineString(*coords)
 
   def testLinearRing(self):
-    # TODO: maxError isn't supported in the Python API but is
-    # documented.
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     geodesic = True
+    max_error = 1000
     func = ee.ApiFunction.lookup('GeometryConstructors.LinearRing')
 
-    geometry = ee.Geometry.LinearRing(coords, proj, geodesic)
+    geometry = ee.Geometry.LinearRing(coords, proj, geodesic, max_error)
     self.assertEqual(func, geometry.func)
     self.assertEqual(
         {
             'coordinates': ee.List(coords),
             'crs': ee.Projection(proj),
             'geodesic': geodesic,
+            'maxError': ee.ErrorMargin(max_error),
         },
         geometry.args,
     )
