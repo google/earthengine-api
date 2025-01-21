@@ -211,7 +211,16 @@ def Initialize(
     adc_err = 'authenticating by using local Application Default Credentials'
     api_err = 'Earth Engine API has not been used in project ([0-9]+) before'
     matches = re.search(api_err, str(e))
-    if (adc_err in str(e)) or (matches and oauth.is_sdk_project(matches[1])):
+    oauth_project = '517222506229'
+    oauth_project_err = (
+        'Caller does not have required permission to use project ' +
+        oauth_project
+    )
+    if (
+        (adc_err in str(e))
+        or (matches and oauth.is_sdk_project(matches[1]))
+        or (oauth_project_err in str(e))
+    ):
       raise EEException(NO_PROJECT_EXCEPTION) from None
     raise e
 

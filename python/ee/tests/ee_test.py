@@ -83,6 +83,7 @@ class EETestCase(apitestcase.ApiTestCase):
       cred_args['quota_project_id'] = None
       expected_project = 'qp2'
       ee.Initialize()
+      self.assertEqual(4, inits.call_count)
 
       google_creds = google_creds.with_quota_project(None)
       with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
@@ -93,17 +94,29 @@ class EETestCase(apitestcase.ApiTestCase):
       with moc(ee.ApiFunction, 'initialize', side_effect=ee.EEException(msg)):
         with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
           ee.Initialize()
+      self.assertEqual(4, inits.call_count)
+
+      oauth_project = '517222506229'
+      expected_project = oauth_project
+      msg = (
+          'Caller does not have required permission to use project ' +
+          oauth_project
+      )
+      with moc(ee.ApiFunction, 'initialize', side_effect=ee.EEException(msg)):
+        with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
+          ee.Initialize(project=oauth_project)
+      self.assertEqual(5, inits.call_count)
 
       cred_args['client_id'] = '123456789-xxx'
       cred_args['refresh_token'] = 'rt'
       expected_project = '123456789'
       ee.Initialize()
-      self.assertEqual(5, inits.call_count)
+      self.assertEqual(6, inits.call_count)
 
       cred_args['client_id'] = '764086051850-xxx'  # dummy usable-auth client
       with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
         ee.Initialize()
-      self.assertEqual(5, inits.call_count)
+      self.assertEqual(6, inits.call_count)
 
   def testCallAndApply(self):
     """Verifies library initialization."""
