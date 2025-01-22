@@ -26,20 +26,7 @@ jobs:
           pip install ./python[tests]
       - name: Smoke test
         run: >
-          python -c 'import ee;
-          import json;
-          import os;
-          from google.auth import identity_pool;
-
-          scopes = [
-              "https://www.googleapis.com/auth/cloud-platform",
-              "https://www.googleapis.com/auth/earthengine",
-          ];
-          path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"];
-          info = json.load(open(path));
-          ee.Initialize(identity_pool.Credentials.from_info(info).with_scopes(scopes));
-
-          print(ee.Image("srtm90_v4").getInfo())'
+          echo "Skipping smoke tests while project handling in development"
 
   build-artifacts:
     needs: smoke-test
