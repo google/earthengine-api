@@ -6,10 +6,6 @@
  */
 
 goog.provide('ee.data');
-goog.provide('ee.data.FeatureCollectionDescription');
-goog.provide('ee.data.ImageCollectionDescription');
-goog.provide('ee.data.ImageDescription');
-goog.provide('ee.data.ImageVisualizationParameters');
 goog.require('ee.Serializer');
 goog.require('ee.api');
 goog.require('ee.apiclient');
