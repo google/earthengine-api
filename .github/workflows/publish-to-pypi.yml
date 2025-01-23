@@ -37,7 +37,8 @@ jobs:
           ];
           path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"];
           info = json.load(open(path));
-          ee.Initialize(identity_pool.Credentials.from_info(info).with_scopes(scopes));
+          credentials = identity_pool.Credentials.from_info(info).with_scopes(scopes);
+          ee.Initialize(credentials, project=credentials.project_number);
 
           print(ee.Image("srtm90_v4").getInfo())'
 
