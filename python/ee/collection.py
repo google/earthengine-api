@@ -423,7 +423,7 @@ class Collection(element.Element):
         'Collection.errorMatrix', self, actual, predicted, order
     )
 
-  def filter(self, new_filter: Union[str, ee_filter.Filter]) -> Any:
+  def filter(self, new_filter: Union[str, ee_filter.Filter]) -> Collection:
     """Apply a filter to this collection.
 
     Args:
@@ -441,7 +441,7 @@ class Collection(element.Element):
   @deprecation.CanUseDeprecated
   def filterMetadata(
       self, name: str, operator: str, value: Union[int, str]
-  ) -> Any:
+  ) -> Collection:
     """Shortcut to add a metadata filter to a collection.
 
     This is equivalent to self.filter(Filter().metadata(...)).
@@ -462,7 +462,7 @@ class Collection(element.Element):
 
   def filterBounds(
       self, geometry: Union[Dict[str, Any], ee_geometry.Geometry]
-  ) -> Any:
+  ) -> Collection:
     """Shortcut to add a geometry filter to a collection.
 
     Items in the collection with a footprint that fails to intersect
@@ -491,7 +491,7 @@ class Collection(element.Element):
       end: Optional[
           Union[datetime.datetime, ee_date.Date, int, str, Any]
       ] = None,
-  ) -> Any:
+  ) -> Collection:
     """Shortcut to filter a collection with a date range.
 
     Items in the collection with a system:time_start property that doesn't
@@ -644,7 +644,7 @@ class Collection(element.Element):
       self,
       algorithm: Callable[[Any], Any],
       dropNulls: Optional[bool] = None,  # pylint: disable=invalid-name
-  ) -> Any:
+  ) -> Collection:
     """Maps an algorithm over a collection.
 
     Args:
@@ -798,7 +798,7 @@ class Collection(element.Element):
 
   # TODO(user): Make ascending default to True
   @_utils.accept_opt_prefix('opt_ascending')
-  def sort(self, prop: str, ascending: Optional[bool] = None) -> Any:
+  def sort(self, prop: str, ascending: Optional[bool] = None) -> Collection:
     """Sort a collection by the specified property.
 
     Args:

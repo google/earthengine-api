@@ -32,7 +32,7 @@ Array = Union[
     ee_list.List,
     computedobject.ComputedObject,
 ]
-Bool = Union[AnyType, computedobject.ComputedObject]
+Bool = Union[bool, AnyType, computedobject.ComputedObject]
 Classifier = Union[classifier.Classifier, computedobject.ComputedObject]
 Clusterer = Union[clusterer.Clusterer, computedobject.ComputedObject]
 ConfusionMatrix = Union[

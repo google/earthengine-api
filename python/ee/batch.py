@@ -307,7 +307,8 @@ class Export:
         crsTransform=None,
         maxPixels=None,
         priority=None,
-        **kwargs):
+        **kwargs,
+    ) -> Task:
       """Creates a task to export an EE Image to an EE Asset.
 
       Args:
@@ -356,23 +357,25 @@ class Export:
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(image,
-                       description='myExportImageTask',
-                       bucket=None,
-                       fileNamePrefix=None,
-                       dimensions=None,
-                       region=None,
-                       scale=None,
-                       crs=None,
-                       crsTransform=None,
-                       maxPixels=None,
-                       shardSize=None,
-                       fileDimensions=None,
-                       skipEmptyTiles=None,
-                       fileFormat=None,
-                       formatOptions=None,
-                       priority=None,
-                       **kwargs):
+    def toCloudStorage(
+        image,
+        description='myExportImageTask',
+        bucket=None,
+        fileNamePrefix=None,
+        dimensions=None,
+        region=None,
+        scale=None,
+        crs=None,
+        crsTransform=None,
+        maxPixels=None,
+        shardSize=None,
+        fileDimensions=None,
+        skipEmptyTiles=None,
+        fileFormat=None,
+        formatOptions=None,
+        priority=None,
+        **kwargs,
+    ) -> Task:
       """Creates a task to export an EE Image to Google Cloud Storage.
 
       Args:
@@ -428,23 +431,25 @@ class Export:
       return _create_export_task(config, Task.Type.EXPORT_IMAGE)
 
     @staticmethod
-    def toDrive(image,
-                description='myExportImageTask',
-                folder=None,
-                fileNamePrefix=None,
-                dimensions=None,
-                region=None,
-                scale=None,
-                crs=None,
-                crsTransform=None,
-                maxPixels=None,
-                shardSize=None,
-                fileDimensions=None,
-                skipEmptyTiles=None,
-                fileFormat=None,
-                formatOptions=None,
-                priority=None,
-                **kwargs):
+    def toDrive(
+        image,
+        description='myExportImageTask',
+        folder=None,
+        fileNamePrefix=None,
+        dimensions=None,
+        region=None,
+        scale=None,
+        crs=None,
+        crsTransform=None,
+        maxPixels=None,
+        shardSize=None,
+        fileDimensions=None,
+        skipEmptyTiles=None,
+        fileFormat=None,
+        formatOptions=None,
+        priority=None,
+        **kwargs,
+    ) -> Task:
       """Creates a task to export an EE Image to Drive.
 
       Args:
@@ -511,21 +516,23 @@ class Export:
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(image,
-                       description='myExportMapTask',
-                       bucket=None,
-                       fileFormat=None,
-                       path=None,
-                       writePublicTiles=None,
-                       maxZoom=None,
-                       scale=None,
-                       minZoom=None,
-                       region=None,
-                       skipEmptyTiles=None,
-                       mapsApiKey=None,
-                       bucketCorsUris=None,
-                       priority=None,
-                       **kwargs):
+    def toCloudStorage(
+        image,
+        description='myExportMapTask',
+        bucket=None,
+        fileFormat=None,
+        path=None,
+        writePublicTiles=None,
+        maxZoom=None,
+        scale=None,
+        minZoom=None,
+        region=None,
+        skipEmptyTiles=None,
+        mapsApiKey=None,
+        bucketCorsUris=None,
+        priority=None,
+        **kwargs,
+    ) -> Task:
       """Creates a task to export an Image as a pyramid of map tiles.
 
       Exports a rectangular pyramid of map tiles for use with web map
@@ -640,15 +647,17 @@ class Export:
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(collection,
-                       description='myExportTableTask',
-                       bucket=None,
-                       fileNamePrefix=None,
-                       fileFormat=None,
-                       selectors=None,
-                       maxVertices=None,
-                       priority=None,
-                       **kwargs):
+    def toCloudStorage(
+        collection,
+        description='myExportTableTask',
+        bucket=None,
+        fileNamePrefix=None,
+        fileFormat=None,
+        selectors=None,
+        maxVertices=None,
+        priority=None,
+        **kwargs,
+    ) -> Task:
       """Creates a task to export a FeatureCollection to Google Cloud Storage.
 
       Args:
@@ -680,15 +689,17 @@ class Export:
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
     @staticmethod
-    def toDrive(collection,
-                description='myExportTableTask',
-                folder=None,
-                fileNamePrefix=None,
-                fileFormat=None,
-                selectors=None,
-                maxVertices=None,
-                priority=None,
-                **kwargs):
+    def toDrive(
+        collection,
+        description='myExportTableTask',
+        folder=None,
+        fileNamePrefix=None,
+        fileFormat=None,
+        selectors=None,
+        maxVertices=None,
+        priority=None,
+        **kwargs,
+    ) -> Task:
       """Creates a task to export a FeatureCollection to Drive.
 
       Args:
@@ -727,7 +738,8 @@ class Export:
         assetId=None,
         maxVertices=None,
         priority=None,
-        **kwargs):
+        **kwargs,
+    ) -> Task:
       """Creates a task to export a FeatureCollection to an EE table asset.
 
       Args:
@@ -763,7 +775,8 @@ class Export:
         assetId=None,
         ingestionTimeParameters=None,
         priority=None,
-        **kwargs):
+        **kwargs,
+    ) -> Task:
       """Creates a task to export a FeatureCollection to a FeatureView.
 
       Args:
@@ -801,7 +814,7 @@ class Export:
         maxVertices=None,
         priority=None,
         **kwargs,
-    ):
+    ) -> Task:
       """Creates a task to export a FeatureCollection to a BigQuery table.
 
       This feature is in Preview, and the API and behavior may change
@@ -930,20 +943,22 @@ class Export:
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(collection,
-                       description='myExportVideoTask',
-                       bucket=None,
-                       fileNamePrefix=None,
-                       framesPerSecond=None,
-                       dimensions=None,
-                       region=None,
-                       scale=None,
-                       crs=None,
-                       crsTransform=None,
-                       maxPixels=None,
-                       maxFrames=None,
-                       priority=None,
-                       **kwargs):
+    def toCloudStorage(
+        collection,
+        description='myExportVideoTask',
+        bucket=None,
+        fileNamePrefix=None,
+        framesPerSecond=None,
+        dimensions=None,
+        region=None,
+        scale=None,
+        crs=None,
+        crsTransform=None,
+        maxPixels=None,
+        maxFrames=None,
+        priority=None,
+        **kwargs,
+    ) -> Task:
       """Creates a task to export an ImageCollection video to Cloud Storage.
 
       Args:
@@ -992,20 +1007,22 @@ class Export:
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
 
     @staticmethod
-    def toDrive(collection,
-                description='myExportVideoTask',
-                folder=None,
-                fileNamePrefix=None,
-                framesPerSecond=None,
-                dimensions=None,
-                region=None,
-                scale=None,
-                crs=None,
-                crsTransform=None,
-                maxPixels=None,
-                maxFrames=None,
-                priority=None,
-                **kwargs):
+    def toDrive(
+        collection,
+        description='myExportVideoTask',
+        folder=None,
+        fileNamePrefix=None,
+        framesPerSecond=None,
+        dimensions=None,
+        region=None,
+        scale=None,
+        crs=None,
+        crsTransform=None,
+        maxPixels=None,
+        maxFrames=None,
+        priority=None,
+        **kwargs,
+    ) -> Task:
       """Creates a task to export an ImageCollection as a video to Drive.
 
       Args:
@@ -1084,12 +1101,14 @@ class Export:
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toAsset(classifier,
-                description='myExportClassifierTask',
-                assetId=None,
-                overwrite=False,
-                priority=None,
-                **kwargs):
+    def toAsset(
+        classifier,
+        description='myExportClassifierTask',
+        assetId=None,
+        overwrite=False,
+        priority=None,
+        **kwargs,
+    ) -> Task:
       """Creates a task to export an EE Image to an EE Asset.
 
       Args:
