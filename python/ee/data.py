@@ -2337,10 +2337,10 @@ def create_assets(
       continue
     if mk_parents:
       parts = asset_id.split('/')
-      # We don't need to create the namespace and the user's/project's folder.
-      if len(parts) > 2:
-        path = parts[0] + '/' + parts[1] + '/'
-        for part in parts[2:-1]:
+      # skip the base folder "projects/<project_id>/assets/"
+      if len(parts) > 3:
+        path = '/'.join(parts[:3]) + '/'
+        for part in parts[3:-1]:
           path += part
           if getInfo(path) is None:
             createAsset({'type': ASSET_TYPE_FOLDER_CLOUD}, path)
