@@ -94,33 +94,36 @@ _STAC_JSON = {
 _EXPECTED_WARNINGS = {
     'deprecated_asset': (
         r'Attention required for deprecated_asset! You are using a deprecated'
-        r' asset.\nTo ensure continued functionality, please update it.'
+        r' asset.\nTo make sure your code keeps working, please update it.'
     ),
     'date_and_learn_more': (
         r'Attention required for date_and_learn_more! You are using a'
-        r' deprecated asset.\nTo ensure continued functionality, please update'
+        r' deprecated asset.\nTo make sure your code keeps working, please'
+        r' update'
         r' it by July 1, 2024.\nLearn more: learn_more_url'
     ),
     'date_only': (
         r'Attention required for date_only! You are using a deprecated asset.\n'
-        r'To ensure continued functionality, please update it by July 1, 2024.'
+        r'To make sure your code keeps working, please update it by July 1,'
+        r' 2024.'
     ),
     'two_digit_date': (
         r'Attention required for two_digit_date! You are using a deprecated'
-        r' asset.\nTo ensure continued functionality, please update it by'
+        r' asset.\nTo make sure your code keeps working, please update it by'
         r' July 1, 2024.'
     ),
     'invalid_date': (
         r'Attention required for invalid_date! You are using a deprecated'
-        r' asset.\nTo ensure continued functionality, please update it\.'
+        r' asset.\nTo make sure your code keeps working, please update it\.'
     ),
     'past_date': (
         r'Attention required for past_date! You are using a deprecated'
-        r' asset.\nTo ensure continued functionality, please update it\.'
+        r' asset.\nTo make sure your code keeps working, please update it\.'
     ),
     'learn_more_url_only': (
         r'Attention required for learn_more_url_only! You are using a'
-        r' deprecated asset.\nTo ensure continued functionality, please update'
+        r' deprecated asset.\nTo make sure your code keeps working, please'
+        r' update'
         r' it.\nLearn more: learn_more_url'
     ),
 }
