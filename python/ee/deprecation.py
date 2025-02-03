@@ -189,7 +189,7 @@ def _IssueAssetDeprecationWarning(asset: DeprecatedAsset) -> None:
 
   warning = (
       f'\n\nAttention required for {asset.id}! You are using a deprecated'
-      ' asset.\nTo ensure continued functionality, please update it'
+      ' asset.\nTo make sure your code keeps working, please update it'
   )
   removal_date = asset.removal_date
   today = datetime.datetime.now()

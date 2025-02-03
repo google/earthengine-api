@@ -12,6 +12,8 @@ import os
 import re
 from typing import Any, Hashable, List as ListType, Optional, Sequence, Tuple, Type, Union
 
+from google.oauth2 import service_account
+
 from ee import _utils
 from ee import batch
 from ee import data
@@ -189,7 +191,10 @@ def Initialize(
   project = project or None
   # A project must be given, but SDK projects are not authorized for EE.
   is_valid_project = project and not oauth.is_sdk_project(project)
-  if not is_valid_project:
+  is_sa_creds = isinstance(credentials, service_account.Credentials)
+  # An explicit project is not required for service accounts, since they use
+  # their containing project by default.
+  if not is_valid_project and not is_sa_creds:
     raise EEException(NO_PROJECT_EXCEPTION)
 
   data.initialize(
