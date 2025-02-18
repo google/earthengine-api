@@ -1,6 +1,6 @@
 [project]
 name = "earthengine-api"
-version = "1.5.3rc0"
+version = "1.5.3"
 description = "Earth Engine Python API"
 readme = "README.md"
 requires-python = ">=3.9"
