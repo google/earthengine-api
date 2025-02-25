@@ -9547,6 +9547,12 @@
       "argumentName": "vars",
       "type": "List\u003cString\u003e",
       "description": "The parameters the resulting algorithm should have, which must be a superset of the free variables in the expression, including the default image argument if it is used."
+    }, {
+      "argumentName": "mapFreeVarsToDefaultImageBands",
+      "type": "Boolean",
+      "description": "If true, the resulting algorithm will map free variables to the default image\u0027s bands instead of throwing an error.",
+      "optional": true,
+      "defaultValue": false
     }],
     "hidden": true
   }, {
