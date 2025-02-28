@@ -1090,7 +1090,11 @@ class Export:
                 overwrite=False,
                 priority=None,
                 **kwargs):
-      """Creates a task to export an EE Image to an EE Asset.
+      """Creates a task to export an ee.Classifier as an Earth Engine asset.
+
+      Only supported for ee.Classifier.smileRandomForest,
+      ee.Classifier.smileCart, ee.Classifier.DecisionTree and
+      ee.Classifier.DecisionTreeEnsemble.
 
       Args:
         classifier: The classifier to be exported.
@@ -1101,6 +1105,7 @@ class Export:
           tasks are scheduled sooner. Must be an integer between 0 and 9999.
           Defaults to 100.
         **kwargs: Holds other keyword arguments.
+
       Returns:
         An unstarted Task that exports the image as an Earth Engine Asset.
       """
