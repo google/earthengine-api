@@ -40,6 +40,10 @@ def _run_command(*argv):
       '--project',
       help='Specifies a Google Cloud Platform Project id to override the call.',
       dest='project_override')
+  version = ee.__version__
+  parser.add_argument(
+      '--version', action='version', version=f'%(prog)s {version}'
+  )
 
   dispatcher = CommandDispatcher(parser)
 
