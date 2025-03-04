@@ -86,7 +86,7 @@ var setImageByIndex = function(index) {
   image.get('system:id').evaluate(function(id) {
     idLabel.setValue('ID: ' + id);
   });
-  image.date().format("YYYY-MM-dd").evaluate(function(date) {
+  image.date().format("yyyy-MM-dd").evaluate(function(date) {
     dateLabel.setValue('Date: ' + date);
   });
 };
