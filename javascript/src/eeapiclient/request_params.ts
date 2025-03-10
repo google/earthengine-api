@@ -73,7 +73,7 @@ export interface MakeRequestParams {
 /**
  * Filters out undefined query parameters.
  */
-export function processParams(params: MakeRequestParams) {
+export function processParams(params: MakeRequestParams): void {
   if (params.queryParams != null) {
     // tslint:disable-next-line:no-any
     const filteredQueryParams: {[key: string]: any} = {};
@@ -150,7 +150,7 @@ const simpleCorsAllowedContentTypes: readonly string[] = [
  * by the browser.
  */
 // TODO(user): Return a changed copy of params.
-export function bypassCorsPreflight(params: MakeRequestParams) {
+export function bypassCorsPreflight(params: MakeRequestParams): void {
   const safeHeaders: {[key: string]: string} = {};
   const unsafeHeaders: {[key: string]: string} = {};
   let hasUnsafeHeaders = false;

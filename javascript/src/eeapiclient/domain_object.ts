@@ -53,7 +53,7 @@ class NullClass {}
 /**
  * A special "primitive" value that will be serialized to null.
  */
-export const NULL_VALUE = new NullClass();
+export const NULL_VALUE: NullClass = new NullClass();
 
 // tslint:disable-next-line:interface-name
 export interface ISerializable {
@@ -254,7 +254,7 @@ function deserializeInstanciator(ctor: CopyConstructor) {
 export function strictDeserialize<T extends ISerializable>(
   type: SerializableCtor<T>,
   raw: DeepPartialISerializable<T>,
-) {
+): T {
   return deserialize(type, raw);
 }
 
