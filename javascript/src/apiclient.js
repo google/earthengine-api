@@ -19,7 +19,7 @@ const jsloader = goog.require('goog.net.jsloader');
 const {MakeRequestParams, processParams} = goog.require('eeapiclient.request_params');
 const {NULL_VALUE, Serializable, SerializableCtor, deserialize, serialize} = goog.require('eeapiclient.domain_object');
 const {PromiseRequestService} = goog.require('eeapiclient.promise_request_service');
-const {trustedResourceUrl} = goog.require('safevalues');
+const {trustedResourceUrl} = goog.require('safevalues.index');
 
 /** @namespace */
 const apiclient = {};
