@@ -1,5 +1,6 @@
 goog.provide('ee.layers.BinaryOverlay');
 goog.provide('ee.layers.BinaryTile');
+goog.provide('earthengine_api.javascript.layers.binaryoverlay');
 
 goog.require('ee.layers.AbstractOverlay');
 goog.require('ee.layers.AbstractTile');
@@ -12,7 +13,8 @@ goog.require('goog.structs.Map');
  * @export
  * @ignore
  */
-ee.layers.BinaryOverlay = class extends ee.layers.AbstractOverlay {
+earthengine_api.javascript.layers.binaryoverlay
+    .BinaryOverlay = class extends ee.layers.AbstractOverlay {
   /**
    * @param {!ee.layers.AbstractTileSource} tileSource The source of tiles
    *     for this map layer.
@@ -40,7 +42,9 @@ ee.layers.BinaryOverlay = class extends ee.layers.AbstractOverlay {
 
   /** @override */
   createTile(coord, zoom, ownerDocument, uniqueId) {
-    var tile = new ee.layers.BinaryTile(coord, zoom, ownerDocument, uniqueId);
+    var tile =
+        new earthengine_api.javascript.layers.binaryoverlay
+            .BinaryTile(coord, zoom, ownerDocument, uniqueId);
 
     // Store the binary buffer and div in Maps when the tile loads.
     this.handler.listen(
@@ -84,7 +88,8 @@ ee.layers.BinaryOverlay = class extends ee.layers.AbstractOverlay {
  * A wrapper class for binary data tiles.
  * @ignore
  */
-ee.layers.BinaryTile = class extends ee.layers.AbstractTile {
+earthengine_api.javascript.layers.binaryoverlay.BinaryTile =
+    class extends ee.layers.AbstractTile {
   /**
    * @param {!google.maps.Point} coord The position of the tile.
    * @param {number} zoom The zoom level of the tile.
@@ -110,3 +115,11 @@ ee.layers.BinaryTile = class extends ee.layers.AbstractTile {
     reader.readAsArrayBuffer(this.sourceData);
   }
 };
+
+/** @const */
+ee.layers.BinaryOverlay = earthengine_api.javascript.layers
+                              .binaryoverlay.BinaryOverlay;
+
+/** @const */
+ee.layers.BinaryTile = earthengine_api.javascript.layers
+                           .binaryoverlay.BinaryTile;
