@@ -1,5 +1,6 @@
 goog.provide('ee.layers.ImageOverlay');
 goog.provide('ee.layers.ImageTile');
+goog.provide('earthengine_api.javascript.layers.imageoverlay');
 
 goog.require('ee.layers.AbstractOverlay');
 goog.require('ee.layers.AbstractTile');
@@ -18,7 +19,8 @@ goog.require('safevalues');
  * @export
  * @ignore
  */
-ee.layers.ImageOverlay = class extends ee.layers.AbstractOverlay {
+earthengine_api.javascript.layers.imageoverlay
+    .ImageOverlay = class extends ee.layers.AbstractOverlay {
   /**
    * @param {!ee.layers.AbstractTileSource} tileSource The source of tiles
    *     for this map layer.
@@ -31,7 +33,8 @@ ee.layers.ImageOverlay = class extends ee.layers.AbstractOverlay {
 
   /** @override */
   createTile(coord, zoom, ownerDocument, uniqueId) {
-    return new ee.layers.ImageTile(coord, zoom, ownerDocument, uniqueId);
+    return new earthengine_api.javascript.layers
+        .imageoverlay.ImageTile(coord, zoom, ownerDocument, uniqueId);
   }
 };
 
@@ -40,7 +43,8 @@ ee.layers.ImageOverlay = class extends ee.layers.AbstractOverlay {
  * A wrapper class for image map tiles.
  * @ignore
  */
-ee.layers.ImageTile = class extends ee.layers.AbstractTile {
+earthengine_api.javascript.layers.imageoverlay.ImageTile =
+    class extends ee.layers.AbstractTile {
   /**
    * @param {!google.maps.Point} coord The position of the tile.
    * @param {number} zoom The zoom level of the tile.
@@ -54,7 +58,8 @@ ee.layers.ImageTile = class extends ee.layers.AbstractTile {
      * The default image tile renderer.
      * @type {function(!ee.layers.AbstractTile):undefined}
      */
-    this.renderer = ee.layers.ImageTile.defaultRenderer_;
+    this.renderer = earthengine_api.javascript.layers
+                        .imageoverlay.ImageTile.defaultRenderer_;
 
     /** @type {?HTMLImageElement} The image element.*/
     this.imageEl = null;
@@ -96,7 +101,9 @@ ee.layers.ImageTile = class extends ee.layers.AbstractTile {
     this.imageLoader_.addImage(this.div.id + '-image', imageUrl);
     this.imageLoaderListenerKey_ = goog.events.listenOnce(
         this.imageLoader_,
-        ee.layers.ImageTile.IMAGE_LOADER_EVENTS_, function(event) {
+        earthengine_api.javascript.layers.imageoverlay
+            .ImageTile.IMAGE_LOADER_EVENTS_,
+        function(event) {
           if (event.type == goog.events.EventType.LOAD) {
             this.imageEl = event.target;
             // Note: We cannot use .base() here because this happens inside
@@ -105,7 +112,8 @@ ee.layers.ImageTile = class extends ee.layers.AbstractTile {
           } else {
             this.retryLoad();
           }
-        }, undefined, this);
+        },
+        undefined, this);
     this.imageLoader_.start();
   }
 
@@ -139,8 +147,15 @@ ee.layers.ImageTile = class extends ee.layers.AbstractTile {
 
 
 /** @private @const {!Array<string>} The image loader events. */
-ee.layers.ImageTile.IMAGE_LOADER_EVENTS_ = [
-  goog.events.EventType.LOAD,
-  goog.net.EventType.ABORT,
-  goog.net.EventType.ERROR
+earthengine_api.javascript.layers.imageoverlay.ImageTile
+    .IMAGE_LOADER_EVENTS_ = [
+  goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR
 ];
+
+/** @const */
+ee.layers.ImageOverlay = earthengine_api.javascript.layers
+                             .imageoverlay.ImageOverlay;
+
+/** @const */
+ee.layers.ImageTile = earthengine_api.javascript.layers
+                          .imageoverlay.ImageTile;
