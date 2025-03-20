@@ -2049,6 +2049,9 @@ class ProjectConfigSetCommand:
   def run(
       self, args: argparse.Namespace, config: utils.CommandLineConfig
   ) -> None:
+    if not args.max_concurrent_exports:
+      raise ValueError('Flag --max_concurrent_exports must be set.')
+
     if args.max_concurrent_exports < 0:
       raise ValueError('"max_concurrent_exports" must be >= 0.')
 
