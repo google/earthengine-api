@@ -2331,16 +2331,17 @@ def create_assets(
     asset_ids: Sequence[str], asset_type: str, mk_parents: bool
 ) -> None:
   """Creates the specified assets if they do not exist."""
-  for asset_id in asset_ids:
+  ids = [convert_asset_id_to_asset_name(asset_id) for asset_id in asset_ids]
+  for asset_id in ids:
     if getInfo(asset_id):
       print('Asset %s already exists.' % asset_id)
       continue
     if mk_parents:
       parts = asset_id.split('/')
       # We don't need to create the namespace and the user's/project's folder.
-      if len(parts) > 2:
-        path = parts[0] + '/' + parts[1] + '/'
-        for part in parts[2:-1]:
+      if len(parts) > 3:
+        path = '/'.join(parts[0:3]) + '/'
+        for part in parts[3:-1]:
           path += part
           if getInfo(path) is None:
             createAsset({'type': ASSET_TYPE_FOLDER_CLOUD}, path)

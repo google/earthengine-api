@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Test for the ee.data module."""
 
+import json
+from typing import Any, Optional
 from unittest import mock
 
+import googleapiclient
 import httplib2
 import requests
 
@@ -12,6 +15,25 @@ from ee import _cloud_api_utils
 from ee import apitestcase
 from ee import featurecollection
 from ee import image
+
+
+def NotFoundError() -> googleapiclient.errors.HttpError:
+  """Creates a mock HttpError with a 404 status code."""
+  resp = httplib2.Response({'status': '404', 'reason': 'Not Found'})
+  content = json.dumps({'error': {'code': 404, 'message': 'Not Found'}}).encode(
+      'utf-8'
+  )
+  return googleapiclient.errors.HttpError(resp, content)
+
+
+def NewFolderAsset(
+    name: str, quota: Optional[dict[str, int]] = None
+) -> dict[str, Any]:
+  return {
+      'type': 'FOLDER',
+      'name': name,
+      'quota': quota or {},
+  }
 
 
 class DataTest(unittest.TestCase):
@@ -182,6 +204,66 @@ class DataTest(unittest.TestCase):
       self.assertEqual(asset_id, 'users/foo/xyz123')
       asset = mock_create_asset.call_args.kwargs['body']
       self.assertEqual(asset, {'type': 'FOLDER'})
+
+  def testCreateAssets(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      asset_name = 'projects/some-project/assets/some-asset'
+      cloud_api_resource.projects().assets().get().execute.side_effect = (
+          NotFoundError()
+      )
+      ee.data.create_assets([asset_name], 'FOLDER', False)
+      mock_create_asset = cloud_api_resource.projects().assets().create
+      mock_create_asset.assert_called_once_with(
+          parent='projects/some-project',
+          assetId='some-asset',
+          body={'type': 'FOLDER'},
+          prettyPrint=False,
+      )
+
+  def testCreateAssets_empty(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data.create_assets([], 'FOLDER', False)
+      mock_create_asset = cloud_api_resource.projects().assets().create
+      mock_create_asset.assert_not_called()
+
+  def testCreateAssets_noOpIfAssetExists(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      asset_name = 'projects/some-project/assets/some-asset'
+      cloud_api_resource.projects().assets().get.execute.return_value = (
+          NewFolderAsset(asset_name)
+      )
+      ee.data.create_assets([asset_name], 'FOLDER', False)
+      mock_create_asset = cloud_api_resource.projects().assets().create
+      mock_create_asset.assert_not_called()
+
+  def testCreateAssets_withParents(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      asset_name = 'projects/some-project/assets/foo/bar'
+      cloud_api_resource.projects().assets().get().execute.side_effect = (
+          NotFoundError()
+      )
+      ee.data.create_assets([asset_name], 'FOLDER', True)
+      mock_create_asset = cloud_api_resource.projects().assets().create
+      mock_create_asset.assert_has_calls([
+          mock.call(
+              parent='projects/some-project',
+              assetId='foo',
+              body={'type': 'FOLDER'},
+              prettyPrint=False,
+          ),
+          mock.call().execute(num_retries=5),
+          mock.call(
+              parent='projects/some-project',
+              assetId='foo/bar',
+              body={'type': 'FOLDER'},
+              prettyPrint=False,
+          ),
+          mock.call().execute(num_retries=5),
+      ])
 
   def testStartIngestion(self):
     cloud_api_resource = mock.MagicMock()
