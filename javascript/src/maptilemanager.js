@@ -43,7 +43,7 @@ goog.require('goog.net.XhrIo');
 goog.require('goog.singleton');
 goog.require('goog.structs.Map');
 goog.require('goog.structs.PriorityPool');
-goog.require('safevalues');
+goog.require('safevalues.index');
 
 /**
  * A manager of a TokenPool.
@@ -521,9 +521,20 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
         var objectUrl, ok;
         if (xhrIo.getStatus() >= 200 && xhrIo.getStatus() < 300) {
           try {
-            objectUrl = safevalues.unwrapUrl(safevalues.objectUrlFromSafeSource(
-                /** @type {!Blob} */ (xhrIo.getResponse())));
-            ok = (objectUrl !== safevalues.INNOCUOUS_URL.toString());
+            objectUrl =
+                goog.module
+                    .get('safevalues.index')
+                    .unwrapUrl(
+                        goog.module
+                            .get(
+                                'safevalues.index')
+                            .objectUrlFromSafeSource(
+                                /** @type {!Blob} */ (xhrIo.getResponse())));
+            ok =
+                (objectUrl !==
+                 goog.module
+                     .get('safevalues.index')
+                     .INNOCUOUS_URL.toString());
           } catch (e) {
             // Browser did not support blob response, or we made a mistake. We
             // will fall back to re-requesting the tile as an image since ok is
