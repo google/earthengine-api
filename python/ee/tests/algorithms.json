@@ -614,6 +614,51 @@
       "defaultValue": 25000.0
     }]
   }, {
+    "name": "algorithms/TemporalSegmentation.C2c",
+    "description": "An implementation of the Composite 2 Change (C2C) algorithm. This algorithm segments a time series using a piecewise linear fit with the minimum of segments required to fit the data within the given maximum root mean squared error (RMSE).  For every band given the algorithm will return the following bands:\n    changeDate:A 1D array of doubles representing pairs of start and end dates for each fitted segment. The date format is determined by the dateFormat argument.\n    value: A 1D array of doubles of the value of the band at the changeDate.\n    magnitude: A 1D array of doubles providing the absolute difference between the values before and after a change date.  The first magnitude is always NaN.\n    duration: A 1D array of doubles of the duration of the segment preceding the change date.  The first duration is always NaN.\n    rate: A 1D array of doubles of the rate of change of the data preceding the. change date. The first rate is always NaN.\n    postMagnitude: A 1D array of doubles of the absolute difference between the values after the change date and the value at the change date.  The last postMagnitude is always NaN.\n    postDuration: The duration of the segment following the change date. The last postDuration is always NaN.\n    postRate: The rate of change of the data following the change date. The last postRate is always NaN.\n See Hermosilla et al. (2015) dx.doi.org/10.1016/j.rse.2014.11.005 for further details on the original algorithm.\n This algorithm is in preview and is subject to change.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "collection",
+      "type": "ImageCollection",
+      "description": "Collection of images on which to run C2C."
+    }, {
+      "argumentName": "dateFormat",
+      "type": "Integer",
+      "description": "The time representation to use during fitting: 0 \u003d jDays, 1 \u003d fractional years, 2 \u003d unix time in milliseconds. The start, end and break times for each temporal segment will be encoded this way.",
+      "optional": true,
+      "defaultValue": 0.0
+    }, {
+      "argumentName": "maxError",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": 75.0
+    }, {
+      "argumentName": "maxSegments",
+      "type": "Integer",
+      "optional": true,
+      "defaultValue": 6.0
+    }, {
+      "argumentName": "startYear",
+      "type": "Integer",
+      "optional": true,
+      "defaultValue": 1984.0
+    }, {
+      "argumentName": "endYear",
+      "type": "Integer",
+      "optional": true,
+      "defaultValue": 2019.0
+    }, {
+      "argumentName": "infill",
+      "type": "Boolean",
+      "optional": true,
+      "defaultValue": true
+    }, {
+      "argumentName": "spikesTolerance",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": 0.85
+    }]
+  }, {
     "name": "algorithms/TemporalSegmentation.StructuralChangeBreakpoints",
     "description": "Runs breakpoint detection, similar to R\u0027s strucchange::breakpoints function.\nEach pixel is fit by a piecewise linear/harmonic model, of the form\nY \u003d A + B * t + C * cos(2 * pi * season(t)) + D * sin(2 * pi * season(t)) + E * cos(4 * pi * season(t)) + F * sin(4 * pi * season(t)) + ...\nIn this equation, \u0027t\u0027 is the start time of the image in the format specified by \u0027dateFormat\u0027, and \u0027season(t)\u0027 is the fractional year of that start time (see the description of dateFormat for details). The maximum order of the harmonic terms is determined by \u0027seasonalModelOrder\u0027.\nThe result is an image containing two bands, plus two bands per band in the input:\n`tStart`, `tEnd`: each of these holds a 1D array, with one entry per segment in the piecewise linear fit; each entry contains the start time of the first or last images in that segment. By default the values here are in fractional years, for easy use with the coefficients.\n`coefs_BANDNAME`: there will be one such output band per input band. Each of these holds a 2D array, with one row per segment. The values in that row are the coefficients of the linear fit for that segment - that is, the values of A, B, C, ... for that segment. As described above, the values here are affected by \u0027dateFormat\u0027\n.`rmse_BANDNAME`: there will be one such output band per input band. This holds a 1D array, with one entry per segment. The value for each segment is the RMSE for the linear fit residuals for that segment.",
     "returnType": "Image\u003cunknown bands\u003e",
@@ -779,6 +824,11 @@
     }, {
       "argumentName": "tileScale",
       "type": "Float"
+    }, {
+      "argumentName": "maxPixelsPerRegion",
+      "type": "Long",
+      "optional": true,
+      "defaultValue": null
     }],
     "hidden": true
   }, {
@@ -2203,6 +2253,42 @@
       "argumentName": "kernel",
       "type": "Kernel",
       "description": "The kernel to have its entries inverted."
+    }]
+  }, {
+    "name": "algorithms/FeatureCollection.loadBigQueryTable",
+    "description": "Reads data from a BigQuery table and presents the results as a FeatureCollection.",
+    "returnType": "FeatureCollection",
+    "arguments": [{
+      "argumentName": "table",
+      "type": "String",
+      "description": "Path to BigQuery table in a `project.dataset.table` format."
+    }, {
+      "argumentName": "geometryColumn",
+      "type": "String",
+      "description": "The name of the column to use as the main feature geometry. If not specified, all features will have null geometry.",
+      "optional": true,
+      "defaultValue": null
+    }]
+  }, {
+    "name": "algorithms/FeatureCollection.runBigQuery",
+    "description": "Runs a BigQuery query, fetches the results and presents the them as a FeatureCollection.",
+    "returnType": "FeatureCollection",
+    "arguments": [{
+      "argumentName": "query",
+      "type": "String",
+      "description": "GoogleSQL query to perform on the BigQuery resources."
+    }, {
+      "argumentName": "geometryColumn",
+      "type": "String",
+      "description": "The name of the column to use as the main feature geometry. If not specified, all features will have null geometry.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "maxBytesBilled",
+      "type": "Long",
+      "description": "Maximum number of bytes billed while processing the query. Any BigQuery job that exceeds this limit will fail and won\u0027t be billed.",
+      "optional": true,
+      "defaultValue": 1.0E11
     }]
   }, {
     "name": "algorithms/Classifier.naiveBayes",
@@ -9402,7 +9488,7 @@
     "arguments": [{
       "argumentName": "uri",
       "type": "String",
-      "description": "The Cloud Storage URI of the GeoTIFF to load. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or theUS-CENTRAL1 region."
+      "description": "The Cloud Storage URI of the GeoTIFF to load. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or the US-CENTRAL1 region."
     }]
   }, {
     "name": "algorithms/Image.mask",
@@ -9763,6 +9849,12 @@
       "description": "A scaling factor used to reduce aggregation tile size; using a larger tileScale (e.g., 2 or 4) may enable computations that run out of memory with the default.",
       "optional": true,
       "defaultValue": 1.0
+    }, {
+      "argumentName": "maxPixelsPerRegion",
+      "type": "Long",
+      "description": "The maximum number of pixels to reduce per region.",
+      "optional": true,
+      "defaultValue": null
     }]
   }, {
     "name": "algorithms/Image.reduceResolution",
