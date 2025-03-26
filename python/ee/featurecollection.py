@@ -331,6 +331,25 @@ class FeatureCollection(collection.Collection):
         reducer,
     )
 
+  @staticmethod
+  def loadBigQueryTable(
+      table: _arg_types.String,
+      geometryColumn: Optional[_arg_types.String] = None,
+  ) -> FeatureCollection:
+    """Returns a FeatureCollection containing data read from a BigQuery table.
+
+    Args:
+      table: Path to BigQuery table in a project.dataset.table format.
+      geometryColumn: The name of the column to use as the main feature
+        geometry. If not specified, all features will have null geometry.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'FeatureCollection.loadBigQueryTable',
+        table,
+        geometryColumn,
+    )
+
   def makeArray(
       self,
       properties: _arg_types.List,
@@ -383,4 +402,28 @@ class FeatureCollection(collection.Collection):
 
     return apifunction.ApiFunction.call_(
         'FeatureCollection.randomPoints', region, points, seed, maxError
+    )
+
+  @staticmethod
+  def runBigQuery(
+      query: _arg_types.String,
+      geometryColumn: Optional[_arg_types.String] = None,
+      maxBytesBilled: Optional[_arg_types.Integer] = int(1e11),
+  ) -> FeatureCollection:
+    """Returns a FeatureCollection containing result of a BigQuery query.
+
+    Args:
+      query: GoogleSQL query to perform on the BigQuery resources.
+      geometryColumn: The name of the column to use as the main feature
+        geometry. If not specified, all features will have null geometry.
+      maxBytesBilled: Maximum number of bytes billed while processing the query.
+        Any BigQuery job that exceeds this limit will fail and won't be billed.
+        Defaults to 100GB.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'FeatureCollection.runBigQuery',
+        query,
+        geometryColumn,
+        maxBytesBilled
     )

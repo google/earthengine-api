@@ -770,6 +770,26 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_load_big_query_table(self):
+    table = 'bigquery-public-data.new_york_subway.stations'
+    geometry_column = 'geometry'
+    expect = make_expression_graph({
+        'arguments': {
+            'table': {'constantValue': table},
+            'geometryColumn': {'constantValue': geometry_column},
+        },
+        'functionName': 'FeatureCollection.loadBigQueryTable',
+    })
+    expression = ee.FeatureCollection.loadBigQueryTable(table, geometry_column)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection.loadBigQueryTable(
+        table=table, geometryColumn=geometry_column
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_make_array(self):
     properties = ['a', 'b']
     name = 'name string'
@@ -951,7 +971,32 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
     expression = collection.remap(
-        lookupIn=lookup_in, lookupOut=lookup_out, columnName=column_name
+        lookupIn=lookup_in, lookupOut=lookup_out, columnName=column_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_run_big_query(self):
+    query = 'SELECT * FROM `bigquery-public-data.new_york_subway.stations`'
+    geometry_column = 'geometry'
+    max_bytes_billed = 1000
+    expect = make_expression_graph({
+        'arguments': {
+            'query': {'constantValue': query},
+            'geometryColumn': {'constantValue': geometry_column},
+            'maxBytesBilled': {'constantValue': max_bytes_billed},
+        },
+        'functionName': 'FeatureCollection.runBigQuery',
+    })
+    expression = ee.FeatureCollection.runBigQuery(
+        query, geometry_column, max_bytes_billed
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection.runBigQuery(
+        query=query,
+        geometryColumn=geometry_column,
+        maxBytesBilled=max_bytes_billed,
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
