@@ -1048,7 +1048,7 @@ Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
     if (!(googArray.contains(validOptionKeys, key))) {
       const validKeysMsg = validOptionKeys.join(', ');
       throw new Error(
-          `"${key}" is not a valid option, the image format "${imageFormat}"` +
+          `"${key}" is not a valid option, the image format "${imageFormat}" ` +
           `"may have the following options: ${validKeysMsg}".`);
     }
     const prefixedKey = prefix + key[0].toUpperCase() + key.substring(1);
