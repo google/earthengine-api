@@ -2027,6 +2027,41 @@ ee.data.getAssetAcl = function(assetId, opt_callback) {
 
 
 /**
+ * Tests whether the caller has the specified permissions on a Cloud asset ID.
+ * If the asset ID does not exist, this will return an empty object, not a
+ * NOT_FOUND error.
+ *
+ * Example permissions:
+ *
+ *  - earthengine.assets.create
+ *  - earthengine.assets.delete
+ *  - earthengine.assets.get
+ *  - earthengine.assets.getIamPolicy
+ *  - earthengine.assets.list
+ *  - earthengine.assets.setIamPolicy
+ *  - earthengine.assets.update
+ *
+ * @param {string} assetId The ID of the Cloud asset to check (e.g.
+ *     projects/project-id/assets/asset-id).
+ * @param {!Array<string>} permissions The list of permissions to check on the
+ *     asset.
+ * @param {function(?ee.api.TestIamPermissionsResponse, string=)=} opt_callback
+ *     An optional callback with two parameters: the response object containing
+ *     "permissions" or empty if none found, and an error message. If not
+ *     supplied, the call is made synchronously.
+ * @return {?ee.api.TestIamPermissionsResponse}
+ * @export
+ */
+ee.data.testIamPermissions = function(assetId, permissions, opt_callback) {
+  const resource = ee.rpc_convert.assetIdToAssetName(assetId);
+  const request = new ee.api.TestIamPermissionsRequest({permissions});
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(call.assets().testIamPermissions(
+      resource, request, {prettyPrint: false}));
+};
+
+
+/**
  * Returns the access control list of the asset with the given ID.
  *
  * The authenticated user must be a writer or owner of an asset to see its ACL.
