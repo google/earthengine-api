@@ -64,6 +64,7 @@ class DataTest(unittest.TestCase):
 
   def testSetMaxRetries(self):
     mock_result = {'result': 5}
+    original_max_retries = ee.data._max_retries
     ee.data.setMaxRetries(3)
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
@@ -78,6 +79,7 @@ class DataTest(unittest.TestCase):
           .compute()
           .execute.call_args.kwargs['num_retries'],
       )
+    ee.data._max_retries = original_max_retries
 
   def testListOperations(self):
     mock_http = mock.MagicMock(httplib2.Http)
