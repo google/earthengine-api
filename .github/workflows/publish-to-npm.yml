@@ -7,7 +7,6 @@ on:
 
 jobs:
   smoke-test:
-    if: "!github.event.release.prerelease"  # Only run if not a prerelease.
     runs-on: ubuntu-latest
     permissions:
       id-token: write
