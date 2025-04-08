@@ -3075,7 +3075,7 @@ class Image(element.Element):
     Creates a two-band image containing the x and y coordinates of each pixel in
     the given projection.
 
-    args:
+    Args:
       projection: The projection in which to provide pixels.
     """
 
@@ -3329,6 +3329,7 @@ class Image(element.Element):
       # pylint: disable=invalid-name
       crsTransform: Optional[_arg_types.List] = None,
       tileScale: Optional[_arg_types.Number] = None,
+      maxPixelsPerRegion: Optional[_arg_types.Integer] = None,
       # pylint: enable=invalid-name
   ) -> featurecollection.FeatureCollection:
     """Apply a reducer over the area of each feature in the given collection.
@@ -3350,6 +3351,7 @@ class Image(element.Element):
       tileScale: A scaling factor used to reduce aggregation tile size; using a
         larger tileScale (e.g., 2 or 4) may enable computations that run out of
         memory with the default.
+      maxPixelsPerRegion: The maximum number of pixels to reduce per region.
 
     Returns:
       Returns the input ee.FeatureCollection, each augmented with the
@@ -3365,6 +3367,7 @@ class Image(element.Element):
         crs,
         crsTransform,
         tileScale,
+        maxPixelsPerRegion,
     )
 
   def reduceResolution(
@@ -4204,7 +4207,7 @@ class Image(element.Element):
       # pylint: disable=invalid-name
       numPoints: _arg_types.Integer,
       classBand: Optional[_arg_types.String] = None,
-      # pylint: endable=invalid-name
+      # pylint: enable=invalid-name
       region: Optional[_arg_types.Geometry] = None,
       scale: Optional[_arg_types.Number] = None,
       projection: Optional[_arg_types.Projection] = None,

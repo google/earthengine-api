@@ -3505,6 +3505,7 @@ class SerializeTest(apitestcase.ApiTestCase):
     crs = EPSG_4326
     crs_transform = [3, 4, 5, 6, 7, 8]
     tile_scale = 10
+    maxPixelsPerRegion = 11
     expect = make_expression_graph({
         'arguments': {
             'image': IMAGE,
@@ -3540,11 +3541,18 @@ class SerializeTest(apitestcase.ApiTestCase):
             },
             'crsTransform': {'constantValue': crs_transform},
             'tileScale': {'constantValue': tile_scale},
+            'maxPixelsPerRegion': {'constantValue': maxPixelsPerRegion},
         },
         'functionName': 'Image.reduceRegions',
     })
     expression = ee.Image('a').reduceRegions(
-        featurecollection, reducer, scale, crs, crs_transform, tile_scale
+        featurecollection,
+        reducer,
+        scale,
+        crs,
+        crs_transform,
+        tile_scale,
+        maxPixelsPerRegion,
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
@@ -3556,6 +3564,7 @@ class SerializeTest(apitestcase.ApiTestCase):
         crs=crs,
         crsTransform=crs_transform,
         tileScale=tile_scale,
+        maxPixelsPerRegion=maxPixelsPerRegion,
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
