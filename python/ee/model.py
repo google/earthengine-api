@@ -5,6 +5,7 @@ from typing import Optional
 from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
+from ee import deprecation
 from ee import featurecollection
 from ee import image as ee_image
 
@@ -62,6 +63,7 @@ class Model(computedobject.ComputedObject):
     return 'Model'
 
   @staticmethod
+  @deprecation.Deprecated('Migrate to Vertex AI')
   def fromAiPlatformPredictor(
       # pylint: disable=invalid-name
       projectName: Optional[_arg_types.Any] = None,
@@ -87,6 +89,9 @@ class Model(computedobject.ComputedObject):
       # pylint: enable=invalid-name
   ) -> 'Model':
     """Returns an ee.Model from a description of an AI Platform prediction model.
+
+    DEPRECATED: Cloud AI Platform is deprecated migrate to Vertex AI:
+    https://developers.google.com/earth-engine/guides/ee-vertex-migrate
 
     (See https://cloud.google.com/ml-engine/).
 
