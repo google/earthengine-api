@@ -694,10 +694,12 @@ class Collection(element.Element):
 
   def randomColumn(
       self,
-      # pylint: disable=next=invalid-name
+      # pylint: disable-next=invalid-name
       columnName: Optional[_arg_types.String] = None,
       seed: Optional[_arg_types.Integer] = None,
       distribution: Optional[_arg_types.String] = None,
+      # pylint: disable-next=invalid-name
+      rowKeys: Optional[_arg_types.List] = None,
   ) -> featurecollection.FeatureCollection:
     """Returns a collection with a random column added to each feature.
 
@@ -712,10 +714,13 @@ class Collection(element.Element):
       seed: A seed used when generating the random numbers.
       distribution: The distribution type of random numbers to produce; one of
         'uniform' or 'normal'.
+      rowKeys: A list of properties that should uniquely and repeatably identify
+        an element of the collection, used to generate the random number.
+        Defaults to [system:index].
     """
 
     return apifunction.ApiFunction.call_(
-        'Collection.randomColumn', self, columnName, seed, distribution
+        'Collection.randomColumn', self, columnName, seed, distribution, rowKeys
     )
 
   def reduceColumns(

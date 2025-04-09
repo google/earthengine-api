@@ -1180,7 +1180,7 @@
     }, {
       "argumentName": "unit",
       "type": "String",
-      "description": "One of \u0027year\u0027, \u0027month\u0027 \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
+      "description": "One of \u0027year\u0027, \u0027month\u0027, \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
     }, {
       "argumentName": "timeZone",
       "type": "String",
@@ -1201,7 +1201,7 @@
     }, {
       "argumentName": "unit",
       "type": "String",
-      "description": "One of \u0027year\u0027, \u0027month\u0027 \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
+      "description": "One of \u0027year\u0027, \u0027month\u0027, \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
     }]
   }, {
     "name": "algorithms/Date.format",
@@ -1274,7 +1274,7 @@
     }, {
       "argumentName": "unit",
       "type": "String",
-      "description": "One of \u0027year\u0027, \u0027month\u0027 \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
+      "description": "One of \u0027year\u0027, \u0027month\u0027, \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
     }, {
       "argumentName": "timeZone",
       "type": "String",
@@ -1292,7 +1292,7 @@
     }, {
       "argumentName": "unit",
       "type": "String",
-      "description": "One of \u0027year\u0027, \u0027month\u0027 \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
+      "description": "One of \u0027year\u0027, \u0027month\u0027, \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
     }, {
       "argumentName": "timeZone",
       "type": "String",
@@ -1310,11 +1310,11 @@
     }, {
       "argumentName": "unit",
       "type": "String",
-      "description": "One of \u0027month\u0027 \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
+      "description": "One of \u0027month\u0027, \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027."
     }, {
       "argumentName": "inUnit",
       "type": "String",
-      "description": "One of \u0027year\u0027, \u0027month\u0027 \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, or \u0027minute\u0027."
+      "description": "One of \u0027year\u0027, \u0027month\u0027, \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, or \u0027minute\u0027."
     }, {
       "argumentName": "timeZone",
       "type": "String",
@@ -1351,7 +1351,7 @@
     }]
   }, {
     "name": "algorithms/Date.unitRatio",
-    "description": "Returns the ratio of the length of one unit to the length of another, e.g., unitRatio(\u0027day\u0027, \u0027minute\u0027) returns 1440. Valid units are \u0027year\u0027, \u0027month\u0027 \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, and \u0027second\u0027.",
+    "description": "Returns the ratio of the length of one unit to the length of another, e.g., unitRatio(\u0027day\u0027, \u0027minute\u0027) returns 1440. Valid units are \u0027year\u0027, \u0027month\u0027, \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, and \u0027second\u0027.",
     "returnType": "Float",
     "arguments": [{
       "argumentName": "numerator",
@@ -1597,7 +1597,7 @@
     }, {
       "argumentName": "unit",
       "type": "String",
-      "description": "The units in which \u0027delta\u0027 is specified:One of \u0027year\u0027, \u0027month\u0027 \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027.",
+      "description": "The units in which \u0027delta\u0027 is specified:One of \u0027year\u0027, \u0027month\u0027, \u0027week\u0027, \u0027day\u0027, \u0027hour\u0027, \u0027minute\u0027, or \u0027second\u0027.",
       "optional": true,
       "defaultValue": "day"
     }, {
@@ -6116,6 +6116,12 @@
       "description": "The distribution type of random numbers to produce; one of \u0027uniform\u0027 or \u0027normal\u0027.",
       "optional": true,
       "defaultValue": "uniform"
+    }, {
+      "argumentName": "rowKeys",
+      "type": "List\u003cString\u003e",
+      "description": "A list of properties that should uniquely and repeatably identify an element of the collection, used to generate the random number. Defaults to [system:index].",
+      "optional": true,
+      "defaultValue": ["system:index"]
     }]
   }, {
     "name": "algorithms/Collection.reduceToImage",

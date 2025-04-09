@@ -833,21 +833,28 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     column_name = 'column a'
     seed = 1
     distribution = 'uniform'
+    row_keys = ['system:index']
     expect = make_expression_graph({
         'arguments': {
             'collection': FEATURES_A,
             'columnName': {'constantValue': column_name},
             'seed': {'constantValue': seed},
             'distribution': {'constantValue': distribution},
+            'rowKeys': {'constantValue': row_keys},
         },
         'functionName': 'Collection.randomColumn',
     })
-    expression = collection.randomColumn(column_name, seed, distribution)
+    expression = collection.randomColumn(
+        column_name, seed, distribution, row_keys
+    )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
     expression = collection.randomColumn(
-        columnName=column_name, seed=seed, distribution=distribution
+        columnName=column_name,
+        seed=seed,
+        distribution=distribution,
+        rowKeys=row_keys,
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
