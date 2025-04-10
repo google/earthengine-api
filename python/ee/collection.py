@@ -317,6 +317,25 @@ class Collection(element.Element):
         'AggregateFeatureCollection.total_var', self, property
     )
 
+  def bounds(
+      self,
+      # pylint: disable-next=invalid-name
+      maxError: Optional[_arg_types.ErrorMargin] = None,
+      proj: Optional[_arg_types.Projection] = None,
+  ) -> ee_geometry.Geometry:
+    """Returns the bounding rectangle of the geometry.
+
+    Args:
+      maxError: The maximum amount of error tolerated when performing any
+        necessary reprojection.
+      proj: If specified, the result will be in this projection. Otherwise it
+        will be in EPSG:4326.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Collection.bounds', self, maxError, proj
+    )
+
   def distance(
       self,
       # pylint: disable=invalid-name

@@ -412,6 +412,38 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_bounds(self):
+    # Inherited from Collection.bounds.
+    collection = ee.ImageCollection('a')
+    max_error = 1.1
+    proj = 'EPSG:4326'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'maxError': {
+                'functionInvocationValue': {
+                    'functionName': 'ErrorMargin',
+                    'arguments': {'value': {'constantValue': max_error}},
+                }
+            },
+            'proj': {
+                'functionInvocationValue': {
+                    'arguments': {'crs': {'constantValue': proj}},
+                    'functionName': 'Projection',
+                }
+            },
+        },
+        # Not an ImageCollection.
+        'functionName': 'Collection.bounds',
+    })
+    expression = collection.bounds(max_error, proj)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.bounds(maxError=max_error, proj=proj)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_cast(self):
     band_types = {'a': 'int8'}
     band_order = ['a']
@@ -501,7 +533,7 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
             'searchRadius': {'constantValue': search_radius},
             'maxError': {'constantValue': max_error},
         },
-        # Not FeatureCollection.
+        # Not an ImageCollection.
         'functionName': 'Collection.distance',
     })
     expression = features.distance(search_radius, max_error)
@@ -632,7 +664,7 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
             'maxError': {
                 'functionInvocationValue': {
                     'functionName': 'ErrorMargin',
-                    'arguments': {'value': {'constantValue': 1.1}},
+                    'arguments': {'value': {'constantValue': max_error}},
                 }
             },
         },

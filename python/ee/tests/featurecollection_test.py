@@ -476,6 +476,38 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_bounds(self):
+    # Inherited from Collection.bounds.
+    collection = ee.FeatureCollection('a')
+    max_error = 1.1
+    proj = 'EPSG:4326'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'maxError': {
+                'functionInvocationValue': {
+                    'functionName': 'ErrorMargin',
+                    'arguments': {'value': {'constantValue': max_error}},
+                }
+            },
+            'proj': {
+                'functionInvocationValue': {
+                    'arguments': {'crs': {'constantValue': proj}},
+                    'functionName': 'Projection',
+                }
+            },
+        },
+        # Not a FeatureCollection.
+        'functionName': 'Collection.bounds',
+    })
+    expression = collection.bounds(max_error, proj)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.bounds(maxError=max_error, proj=proj)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_classify(self):
     output_name = 'output name'
     expect = make_expression_graph({
