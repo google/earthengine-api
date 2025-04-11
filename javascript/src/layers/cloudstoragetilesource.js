@@ -3,9 +3,9 @@ goog.module.declareLegacyNamespace();
 
 const AbstractTile = goog.require('ee.layers.AbstractTile');
 const AbstractTileSource = goog.require('ee.layers.AbstractTileSource');
-const ImageTile = goog.require('ee.layers.ImageTile');
 const googString = goog.require('goog.string');
 const stringPath = goog.require('goog.string.path');
+const {ImageTile} = goog.require('earthengine_api.javascript.layers.imageoverlay');
 
 /**
  * A layer tile source for tiles served by Google Cloud Storage.
