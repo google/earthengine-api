@@ -44,6 +44,7 @@ CLIENT_SECRET = 'RUP0RZ6e0pPhDzsqIJ7KlNd1'
 SCOPES = [
     'https://www.googleapis.com/auth/earthengine',
     'https://www.googleapis.com/auth/cloud-platform',
+    'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/devstorage.full_control'
 ]
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'  # Prompts user to copy-paste code
@@ -494,6 +495,8 @@ def authenticate(
         None - a default mode is chosen based on your environment.
    scopes: List of scopes to use for authorization. Defaults to [
      'https://www.googleapis.com/auth/earthengine',
+     'https://www.googleapis.com/auth/cloud-platform',
+     'https://www.googleapis.com/auth/drive',
      'https://www.googleapis.com/auth/devstorage.full_control' ].
    force: Will force authentication even if valid credentials already exist.
 

@@ -147,6 +147,8 @@ def Authenticate(
       None - a default mode is chosen based on your environment.
     scopes: List of scopes to use for authentication. Defaults to [
         'https://www.googleapis.com/auth/earthengine',
+        'https://www.googleapis.com/auth/cloud-platform',
+        'https://www.googleapis.com/auth/drive',
         'https://www.googleapis.com/auth/devstorage.full_control' ].
     force: Will force authentication even if valid credentials already exist.
 

@@ -1547,12 +1547,20 @@ apiclient.CLOUD_PLATFORM_SCOPE_ =
     'https://www.googleapis.com/auth/cloud-platform';
 
 /**
+ * The OAuth scope for Google Drive.
+ * @private @const {string}
+ */
+apiclient.GOOGLE_DRIVE_SCOPE_ = 'https://www.googleapis.com/auth/drive';
+
+/**
  * The OAuth scopes automatically requested unless explicitly suppressed via the
  * relevant API auth call.
  * @private @const {!Array<string>}
  */
-apiclient.DEFAULT_AUTH_SCOPES_ =
-    [apiclient.AUTH_SCOPE_, apiclient.CLOUD_PLATFORM_SCOPE_];
+apiclient.DEFAULT_AUTH_SCOPES_ = [
+  apiclient.AUTH_SCOPE_, apiclient.CLOUD_PLATFORM_SCOPE_,
+  apiclient.GOOGLE_DRIVE_SCOPE_
+];
 
 
 /**
@@ -1752,6 +1760,7 @@ exports.send = apiclient.send;
 exports.AUTH_SCOPE = apiclient.AUTH_SCOPE_;
 exports.READ_ONLY_AUTH_SCOPE = apiclient.READ_ONLY_AUTH_SCOPE_;
 exports.CLOUD_PLATFORM_SCOPE = apiclient.CLOUD_PLATFORM_SCOPE_;
+exports.GOOGLE_DRIVE_SCOPE = apiclient.GOOGLE_DRIVE_SCOPE_;
 exports.STORAGE_SCOPE = apiclient.STORAGE_SCOPE_;
 exports.DEFAULT_AUTH_SCOPES = apiclient.DEFAULT_AUTH_SCOPES_;
 
