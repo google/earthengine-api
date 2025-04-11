@@ -300,18 +300,30 @@ class GeometryPointTest(apitestcase.ApiTestCase):
     self.assertEqual(actual, expect)
 
   def test_distance(self):
+    spherical = True
     expect = make_expression_graph_geom(
         'distance',
-        {'left': POINT, 'right': POINT2, 'maxError': MAX_ERROR, 'proj': PROJ},
+        {
+            'left': POINT,
+            'right': POINT2,
+            'maxError': MAX_ERROR,
+            'proj': PROJ,
+            'spherical': {'constantValue': spherical},
+        },
     )
     actual = json.loads(
-        self.point.distance(self.point2, MAX_ERROR_VAL, EPSG).serialize()
+        self.point.distance(
+            self.point2, MAX_ERROR_VAL, EPSG, spherical
+        ).serialize()
     )
     self.assertEqual(actual, expect)
 
     actual = json.loads(
         self.point.distance(
-            right=self.point2, maxError=MAX_ERROR_VAL, proj=EPSG
+            right=self.point2,
+            maxError=MAX_ERROR_VAL,
+            proj=EPSG,
+            spherical=spherical,
         ).serialize()
     )
     self.assertEqual(actual, expect)

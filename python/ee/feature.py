@@ -474,6 +474,7 @@ class Feature(element.Element):
       # pylint: disable-next=invalid-name
       maxError: Optional[_arg_types.ErrorMargin] = None,
       proj: Optional[_arg_types.Projection] = None,
+      spherical: Optional[_arg_types.Bool] = None,
   ) -> ee_number.Number:
     """Returns the minimum distance between the geometries of two features.
 
@@ -485,10 +486,13 @@ class Feature(element.Element):
       proj: The projection in which to perform the operation. If not specified,
         the operation will be performed in a spherical coordinate system, and
         linear distances will be in meters on the sphere.
+      spherical: If true, the calculation will be done on the unit sphere. If
+        false, the calculation will be elliptical, taking earth flattening into
+        account. Ignored if proj is specified. Default is false.
     """
 
     return apifunction.ApiFunction.call_(
-        self.name() + '.distance', self, right, maxError, proj
+        self.name() + '.distance', self, right, maxError, proj, spherical
     )
 
   def geometry(

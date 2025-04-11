@@ -392,13 +392,23 @@ class FeatureTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
   def test_distance(self):
+    max_error = 10
+    spherical = True
     expect = right_maxerror_proj('distance')
-    expression = ee.Feature(None).distance(ee.Feature(None), 10, EPSG_4326)
+    argugments = expect['values']['0']['functionInvocationValue']['arguments']
+    argugments['spherical'] = {'constantValue': spherical}
+
+    expression = ee.Feature(None).distance(
+        ee.Feature(None), max_error, EPSG_4326, spherical
+    )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
     expression = ee.Feature(None).distance(
-        right=ee.Feature(None), maxError=10, proj=EPSG_4326
+        right=ee.Feature(None),
+        maxError=max_error,
+        proj=EPSG_4326,
+        spherical=spherical,
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
