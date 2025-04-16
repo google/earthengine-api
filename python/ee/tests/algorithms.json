@@ -3934,7 +3934,7 @@
     }, {
       "argumentName": "spherical",
       "type": "Boolean",
-      "description": "When proj is not specified, if true the calculation will be done on the unit sphere. If false the calculation will be elliptical, taking earth flattening into account. Ignored if proj is specified. Default is false.",
+      "description": "If true, the calculation will be done on the unit sphere. If false, the calculation will be elliptical, taking earth flattening into account. Ignored if proj is specified. Default is false.",
       "optional": true,
       "defaultValue": false
     }]
@@ -4891,7 +4891,7 @@
     }, {
       "argumentName": "spherical",
       "type": "Boolean",
-      "description": "When proj is not specified, if true the calculation will be done on the unit sphere. If false the calculation will be elliptical, taking earth flattening into account. Ignored if proj is specified. Default is false.",
+      "description": "If true, the calculation will be done on the unit sphere. If false, the calculation will be elliptical, taking earth flattening into account. Ignored if proj is specified. Default is false.",
       "optional": true,
       "defaultValue": false
     }]
