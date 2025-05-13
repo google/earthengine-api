@@ -1,12 +1,11 @@
 goog.provide('ee.FloatTileOverlay');
 
-goog.require('ee.AbstractOverlay');
-goog.require('ee.TileEvent');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.net.XmlHttp');
 goog.require('goog.structs.Map');
+goog.require('earthengine_api.javascript.abstractoverlay');
 
 
 /**
@@ -16,7 +15,9 @@ goog.require('goog.structs.Map');
  * @ignore
  * @deprecated Use ee.layers.BinaryOverlay instead.
  */
-ee.FloatTileOverlay = class extends ee.AbstractOverlay {
+ee.FloatTileOverlay =
+    class extends earthengine_api.javascript.abstractoverlay
+                      .AbstractOverlay {
   /**
    * @param {string} url The URL for fetching floating point tiles.
    * @param {string} mapId The map ID for fetching floating point tiles.
@@ -137,7 +138,9 @@ ee.FloatTileOverlay = class extends ee.AbstractOverlay {
    * @private
    */
   dispatchTileEvent_() {
-    this.dispatchEvent(new ee.TileEvent(this.tilesLoading.length));
+    this.dispatchEvent(
+        new earthengine_api.javascript.abstractoverlay
+            .TileEvent(this.tilesLoading.length));
   }
 
   /** @override */
