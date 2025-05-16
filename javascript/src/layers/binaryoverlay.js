@@ -1,5 +1,3 @@
-goog.provide('ee.layers.BinaryOverlay');
-goog.provide('ee.layers.BinaryTile');
 goog.provide('earthengine_api.javascript.layers.binaryoverlay');
 
 goog.require('ee.layers.AbstractOverlay');
@@ -116,10 +114,4 @@ earthengine_api.javascript.layers.binaryoverlay.BinaryTile =
   }
 };
 
-/** @const */
-ee.layers.BinaryOverlay = earthengine_api.javascript.layers
-                              .binaryoverlay.BinaryOverlay;
 
-/** @const */
-ee.layers.BinaryTile = earthengine_api.javascript.layers
-                           .binaryoverlay.BinaryTile;
