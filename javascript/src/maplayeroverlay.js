@@ -1,8 +1,6 @@
 goog.provide('ee.MapLayerOverlay');
 
-goog.require('ee.AbstractOverlay');
 goog.require('ee.MapTileManager');
-goog.require('ee.TileEvent');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
@@ -12,6 +10,7 @@ goog.require('goog.iter');
 goog.require('goog.net.EventType');
 goog.require('goog.structs.Set');
 goog.require('goog.style');
+goog.require('earthengine_api.javascript.abstractoverlay');
 goog.requireType('ee.data.Profiler');
 goog.requireType('goog.events.Event');
 
@@ -24,7 +23,9 @@ goog.requireType('goog.events.Event');
  * @ignore
  * @deprecated Use ee.layers.ImageOverlay instead.
  */
-ee.MapLayerOverlay = class extends ee.AbstractOverlay {
+ee.MapLayerOverlay =
+    class extends earthengine_api.javascript.abstractoverlay
+                      .AbstractOverlay {
   /**
    * @param {string} url The url for fetching this layer's tiles.
    * @param {string} mapId The map ID for fetching this layer's tiles.
@@ -66,15 +67,18 @@ ee.MapLayerOverlay = class extends ee.AbstractOverlay {
 
   /**
    * Adds a callback to be fired each time a tile is loaded.
-   * @param {function(ee.TileEvent)} callback The function to call when a
-   *     tile has loaded.
+   * @param {function(!earthengine_api.javascript.abstractoverlay.TileEvent)}
+   *     callback The function to call when a tile has loaded.
    * @return {!Object} An ID which can be passed to removeTileCallback() to
    *     remove the callback.
    * @export
    */
   addTileCallback(callback) {
     return /** @type {!Object} */ (goog.events.listen(
-        this, ee.AbstractOverlay.EventType.TILE_LOADED, callback));
+        this,
+        earthengine_api.javascript.abstractoverlay
+            .AbstractOverlay.EventType.TILE_LOADED,
+        callback));
   }
 
   /**
@@ -92,7 +96,9 @@ ee.MapLayerOverlay = class extends ee.AbstractOverlay {
    * @private
    */
   dispatchTileEvent_() {
-    this.dispatchEvent(new ee.TileEvent(this.tilesLoading.length));
+    this.dispatchEvent(
+        new earthengine_api.javascript.abstractoverlay
+            .TileEvent(this.tilesLoading.length));
   }
 
   /**
