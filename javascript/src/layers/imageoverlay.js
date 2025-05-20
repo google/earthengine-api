@@ -1,5 +1,3 @@
-goog.provide('ee.layers.ImageOverlay');
-goog.provide('ee.layers.ImageTile');
 goog.provide('earthengine_api.javascript.layers.imageoverlay');
 
 goog.require('ee.layers.AbstractOverlay');
@@ -152,10 +150,4 @@ earthengine_api.javascript.layers.imageoverlay.ImageTile
   goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR
 ];
 
-/** @const */
-ee.layers.ImageOverlay = earthengine_api.javascript.layers
-                             .imageoverlay.ImageOverlay;
 
-/** @const */
-ee.layers.ImageTile = earthengine_api.javascript.layers
-                          .imageoverlay.ImageTile;
