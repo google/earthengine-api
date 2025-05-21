@@ -1,10 +1,7 @@
 goog.provide('ee.layers.AbstractOverlay');
 goog.provide('ee.layers.AbstractTile');
-goog.provide('ee.layers.TileAbortEvent');
 goog.provide('ee.layers.TileFailEvent');
 goog.provide('ee.layers.TileLoadEvent');
-goog.provide('ee.layers.TileStartEvent');
-goog.provide('ee.layers.TileThrottleEvent');
 
 goog.forwardDeclare('ee.data.PROFILE_REQUEST_HEADER');
 goog.require('ee.data');
