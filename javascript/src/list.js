@@ -45,7 +45,7 @@ ee.List = function(list) {
     ee.List.base(this, 'constructor', null, null);
     this.list_ = /** @type {IArrayLike} */ (list);
   } else if (list instanceof ee.ComputedObject) {
-    ee.List.base(this, 'constructor', list.func, list.args, list.varName);
+    ee.List.base(this, 'constructor', list.func, list.args, list.varName, list.unbound);
     this.list_ = null;
   } else {
     throw Error('Invalid argument specified for ee.List(): ' + list);
