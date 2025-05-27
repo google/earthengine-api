@@ -193,10 +193,10 @@ def Initialize(
   project = project or None
   # A project must be given, but SDK projects are not authorized for EE.
   is_valid_project = project and not oauth.is_sdk_project(project)
-  is_sa_creds = isinstance(credentials, service_account.Credentials)
   # An explicit project is not required for service accounts, since they use
   # their containing project by default.
-  if not is_valid_project and not is_sa_creds:
+  empty_project_ok = isinstance(credentials, service_account.Credentials)
+  if not is_valid_project and not empty_project_ok:
     raise EEException(NO_PROJECT_EXCEPTION)
 
   data.initialize(
