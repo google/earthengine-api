@@ -1,5 +1,3 @@
-goog.provide('ee.AbstractOverlay');
-goog.provide('ee.TileEvent');
 goog.provide('earthengine_api.javascript.abstractoverlay');
 
 goog.require('goog.events.Event');
@@ -122,10 +120,4 @@ goog.inherits(
     earthengine_api.javascript.abstractoverlay.TileEvent,
     goog.events.Event);
 
-/** @const */
-ee.AbstractOverlay = earthengine_api.javascript
-                         .abstractoverlay.AbstractOverlay;
 
-/** @const */
-ee.TileEvent =
-    earthengine_api.javascript.abstractoverlay.TileEvent;
