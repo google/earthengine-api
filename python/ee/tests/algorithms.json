@@ -2265,7 +2265,7 @@
     }, {
       "argumentName": "geometryColumn",
       "type": "String",
-      "description": "The name of the column to use as the main feature geometry. If not specified, all features will have null geometry.",
+      "description": "The name of the column to use as the main feature geometry. If not specified, the first column with GEOGRAPHY type will be used.",
       "optional": true,
       "defaultValue": null
     }]
@@ -2280,7 +2280,7 @@
     }, {
       "argumentName": "geometryColumn",
       "type": "String",
-      "description": "The name of the column to use as the main feature geometry. If not specified, all features will have null geometry.",
+      "description": "The name of the column to use as the main feature geometry. If not specified, the first geometry column will be used.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -11111,6 +11111,33 @@
       "optional": true,
       "defaultValue": null
     }]
+  }, {
+    "name": "algorithms/SerializableZarrV2ArrayImage",
+    "description": "INTERNAL",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "uri",
+      "type": "String"
+    }, {
+      "argumentName": "proj",
+      "type": "Projection"
+    }, {
+      "argumentName": "starts",
+      "type": "List\u003cInteger\u003e"
+    }, {
+      "argumentName": "ends",
+      "type": "List\u003cInteger\u003e"
+    }, {
+      "argumentName": "arrayName",
+      "type": "String"
+    }, {
+      "argumentName": "arrayAsSerializableDictionary",
+      "type": "Dictionary\u003cObject\u003e"
+    }, {
+      "argumentName": "dimensionNames",
+      "type": "List\u003cString\u003e"
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/ImageCollection.cast",
     "description": "Casts some or all bands of each image in an ImageCollection to the specified types.",
