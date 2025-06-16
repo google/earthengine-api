@@ -9497,6 +9497,31 @@
       "description": "The Cloud Storage URI of the GeoTIFF to load. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or the US-CENTRAL1 region."
     }]
   }, {
+    "name": "algorithms/Image.loadZarrV2Array",
+    "description": "Loads a Zarr v2 array as an Image. The array attributes (.zattrs) must contain the field \u0027_ARRAY_DIMENSIONS\u0027, which is a list of the names of each dimension (e.g., [\u0027time\u0027, \u0027y\u0027, \u0027x\u0027]). There must be at least two dimensions, with the final two representing Y and X respectively (e.g., [\u0027lat\u0027, \u0027lon\u0027]). The supported compression codecs are \u0027blosc\u0027, \u0027gzip\u0027, \u0027lz4\u0027, \u0027zlib\u0027, and \u0027zstd\u0027. The supported blosc meta-compression codecs are \u0027lz4\u0027, lz4hc\u0027, \u0027zlib\u0027, and \u0027zstd\u0027 (\u0027blosclz\u0027 is not supported).",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "uri",
+      "type": "String",
+      "description": "The Cloud Storage URI of the .zarray file to load. A .zmetadata file must be present in the parent directory of the array\u0027s directory (e.g., for \u0027gs://b/o/.zarray\u0027, \u0027gs://b/.zmetadata\u0027 must be present). The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or the US-CENTRAL1 region."
+    }, {
+      "argumentName": "proj",
+      "type": "Projection",
+      "description": "The projection of the array."
+    }, {
+      "argumentName": "starts",
+      "type": "List\u003cObject\u003e",
+      "description": "The indices (inclusive) at which to start taking slices along each non-spatial dimension. If null, slices will start at index 0 for all non-spatial dimensions. If specified, this list must have a length equal to the number of non-spatial dimensions (total dimensions - 2). An individual element within the list may be null, which defaults to 0 for that dimension. Negative indices are counted from the end of the dimension (e.g., -1 is the last element).",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "ends",
+      "type": "List\u003cObject\u003e",
+      "description": "The indices (exclusive) at which to stop taking slices along each non-spatial dimension. If null, slices will extend to the end of each corresponding non-spatial dimension (i.e., defaults to the length of the dimension). If specified, this list must have a length equal to the number of non-spatial dimensions (total dimensions - 2). An individual element within the list may be null, which also defaults to the length of that dimension. Negative indices are counted from the end of the dimension (e.g., -1 is the last element).",
+      "optional": true,
+      "defaultValue": null
+    }]
+  }, {
     "name": "algorithms/Image.mask",
     "description": "Gets or sets an image\u0027s mask. The output image retains the metadata and footprint of the input image. Pixels where the mask changes from zero to another value will be filled with zeros, or the values closest to zero within the range of the pixel type.\nNote: the version that sets a mask will be deprecated. To set a mask from an image on previously unmasked pixels, use Image.updateMask. To unmask previously masked pixels, use Image.unmask.",
     "returnType": "Image\u003cunknown bands\u003e",
@@ -11108,6 +11133,37 @@
       "argumentName": "version",
       "type": "Long",
       "description": "The version of the asset. -1 signifies the latest version.",
+      "optional": true,
+      "defaultValue": null
+    }]
+  }, {
+    "name": "algorithms/ImageCollection.loadZarrV2Array",
+    "description": "Loads a Zarr v2 array with 3 or more dimensions (i.e., 1 or more non-spatial dimensions) as an ImageCollection by slicing along a specified non-spatial axis. The array attributes (.zattrs) must contain the field \u0027_ARRAY_DIMENSIONS\u0027, which is a list of the names of each dimension (e.g., [\u0027time\u0027, \u0027y\u0027, \u0027x\u0027]). There must be at least two dimensions, with the final two representing Y and X respectively (e.g., [\u0027lat\u0027, \u0027lon\u0027]). The supported compression codecs are \u0027blosc\u0027, \u0027gzip\u0027, \u0027lz4\u0027, \u0027zlib\u0027, and \u0027zstd\u0027. The supported blosc meta-compression codecs are \u0027lz4\u0027, lz4hc\u0027, \u0027zlib\u0027, and \u0027zstd\u0027 (\u0027blosclz\u0027 is not supported).",
+    "returnType": "ImageCollection",
+    "arguments": [{
+      "argumentName": "uri",
+      "type": "String",
+      "description": "The Cloud Storage URI of the .zarray file to load. A .zmetadata file must be present in the parent directory of the array\u0027s directory (e.g., for \u0027gs://b/o/.zarray\u0027, \u0027gs://b/.zmetadata\u0027 must be present). The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or the US-CENTRAL1 region."
+    }, {
+      "argumentName": "proj",
+      "type": "Projection",
+      "description": "The projection of the array."
+    }, {
+      "argumentName": "axis",
+      "type": "Integer",
+      "description": "The non-spatial axis (0-indexed) along which to slice the array to create an ImageCollection. Each image in the collection represents a single slice (length 1) along this axis. If null, defaults to 0. The value must be in the range [0, N-1], where N is the number of non-spatial dimensions (i.e., total dimensions - 2). The array must have at least one non-spatial dimension (i.e., be at least 3 dimensional).",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "starts",
+      "type": "List\u003cObject\u003e",
+      "description": "The indices (inclusive) at which to start taking slices along each non-spatial dimension. If null, slices will start at index 0 for all non-spatial dimensions. If specified, this list must have a length equal to the number of non-spatial dimensions (total dimensions - 2). An individual element within the list may be null, which defaults to 0 for that dimension. Negative indices are counted from the end of the dimension (e.g., -1 is the last element).",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "ends",
+      "type": "List\u003cObject\u003e",
+      "description": "The indices (exclusive) at which to stop taking slices along each non-spatial dimension. If null, slices will extend to the end of each corresponding non-spatial dimension (i.e., defaults to the length of the dimension). If specified, this list must have a length equal to the number of non-spatial dimensions (total dimensions - 2). An individual element within the list may be null, which also defaults to the length of that dimension. Negative indices are counted from the end of the dimension (e.g., -1 is the last element).",
       "optional": true,
       "defaultValue": null
     }]
