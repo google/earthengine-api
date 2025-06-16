@@ -12,7 +12,7 @@ from ee import serializer
 
 class DeserializerTest(apitestcase.ApiTestCase):
 
-  def testLegacyRoundTrip(self):
+  def test_legacy_roundtrip(self):
     """Verifies a round trip of a comprehensive serialization case."""
     encoded = apitestcase.ENCODED_JSON_SAMPLE
     decoded = deserializer.decode(encoded)
@@ -25,7 +25,7 @@ class DeserializerTest(apitestcase.ApiTestCase):
         serializer.toJSON(cloud_decoded, for_cloud_api=True))
     self.assertEqual(cloud_encoded, cloud_re_encoded)
 
-  def testCloudRoundTrip(self):
+  def test_cloud_roundtrip(self):
     """Verifies a round trip of a comprehensive serialization case."""
     cloud_encoded = apitestcase.ENCODED_CLOUD_API_JSON_SAMPLE
     cloud_decoded = deserializer.decode(cloud_encoded)  # Supports both formats
@@ -38,7 +38,7 @@ class DeserializerTest(apitestcase.ApiTestCase):
     re_encoded = json.loads(serializer.toJSON(decoded, for_cloud_api=False))
     self.assertEqual(encoded, re_encoded)
 
-  def testCast(self):
+  def test_cast(self):
     """Verifies that decoding casts the result to the right class."""
     input_image = ee.Image(13).addBands(42)
     output = deserializer.fromJSON(serializer.toJSON(input_image))
@@ -47,7 +47,7 @@ class DeserializerTest(apitestcase.ApiTestCase):
         serializer.toJSON(input_image, for_cloud_api=True))
     self.assertIsInstance(cloud_output, ee.Image)
 
-  def testReuse(self):
+  def test_reuse(self):
     """Verifies that decoding results can be used and re-encoded."""
     input_image = ee.Image(13)
     output = deserializer.fromJSON(serializer.toJSON(input_image))
@@ -60,7 +60,7 @@ class DeserializerTest(apitestcase.ApiTestCase):
         cloud_output.addBands(42).serialize(),
         input_image.addBands(42).serialize())
 
-  def testImageExpression(self):
+  def test_image_expression(self):
     """Verifies that ee.Image.expression results can be re-encoded."""
     image = ee.Image(13)
     expression = image.expression('x', {'x': image})
@@ -68,6 +68,18 @@ class DeserializerTest(apitestcase.ApiTestCase):
     expression_decoded = deserializer.decode(json.loads(expression_encoded))
     expression_re_encoded = serializer.toJSON(expression_decoded)
     self.assertEqual(expression_encoded, expression_re_encoded)
+
+  def test_unknown_value_ref(self):
+    """Verifies raising Unknown ValueRef in _decodeValue()."""
+    encoded = {
+        'type': 'CompoundValue',
+        'scope': [['key', {'type': 'ValueRef', 'value': 'bar'}]],
+    }
+    with self.assertRaisesRegex(
+        ee.EEException, "Unknown ValueRef: {'type': 'ValueRef', 'value': 'bar'}"
+    ):
+      deserializer.decode(encoded)
+
 
 if __name__ == '__main__':
   unittest.main()
