@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 
 from ee import computedobject
 from ee import ee_exception
@@ -20,9 +20,9 @@ from ee import serializer
 class CustomFunction(function.Function, encodable.Encodable):
   """An object representing a custom EE Function."""
   _body: Any
-  _signature: Dict[str, Any]
+  _signature: dict[str, Any]
 
-  def __init__(self, signature: Dict[str, Any], body: Any):
+  def __init__(self, signature: dict[str, Any], body: Any):
     """Creates a function defined by a given expression with unbound variables.
 
     The expression is created by evaluating the given function
@@ -47,14 +47,14 @@ class CustomFunction(function.Function, encodable.Encodable):
     # The expression to evaluate.
     self._body = body(*variables)
 
-  def encode(self, encoder: Callable[[Any], Any]) -> Dict[str, Any]:
+  def encode(self, encoder: Callable[[Any], Any]) -> dict[str, Any]:
     return {
         'type': 'Function',
         'argumentNames': [x['name'] for x in self._signature['args']],
         'body': encoder(self._body)
     }
 
-  def encode_cloud_value(self, encoder: Callable[[Any], Any]) -> Dict[str, Any]:
+  def encode_cloud_value(self, encoder: Callable[[Any], Any]) -> dict[str, Any]:
     return {
         'functionDefinitionValue': {
             'argumentNames': [x['name'] for x in self._signature['args']],
@@ -62,15 +62,15 @@ class CustomFunction(function.Function, encodable.Encodable):
         }
     }
 
-  def encode_invocation(self, encoder: Callable[[Any], Any]) -> Dict[str, Any]:
+  def encode_invocation(self, encoder: Callable[[Any], Any]) -> dict[str, Any]:
     return self.encode(encoder)
 
   def encode_cloud_invocation(
       self, encoder: Callable[[Any], Any]
-  ) -> Dict[str, Any]:
+  ) -> dict[str, Any]:
     return {'functionReference': encoder(self)}
 
-  def getSignature(self) -> Dict[str, Any]:
+  def getSignature(self) -> dict[str, Any]:
     """Returns a description of the interface provided by this function."""
     return self._signature
 

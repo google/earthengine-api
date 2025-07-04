@@ -3,7 +3,7 @@
 import contextlib
 import json
 import os
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Iterable, Optional
 
 from googleapiclient import discovery
 
@@ -13,10 +13,10 @@ from ee import _cloud_api_utils
 
 
 # Cached algorithms list
-_algorithms_cache: Optional[Dict[str, Any]] = None
+_algorithms_cache: Optional[dict[str, Any]] = None
 
 
-def GetAlgorithms() -> Dict[str, Any]:
+def GetAlgorithms() -> dict[str, Any]:
   """Returns a static version of the ListAlgorithms call.
 
   After ApiTestCase.setUp is called, ee.data.getAlgorithms() is patched to use
@@ -102,30 +102,30 @@ class ApiTestCase(unittest.TestCase):
     ee.Initialize(None, '', project='my-project')
 
   # We are mocking the url here so the unit tests are happy.
-  def _MockMapId(self, params: Dict[str, Any]) -> Dict[str, str]:
+  def _MockMapId(self, params: dict[str, Any]) -> dict[str, str]:
     self.last_mapid_call = {'url': '/mapid', 'data': params}
     return {'mapid': 'fakeMapId', 'token': 'fakeToken'}
 
-  def _MockDownloadUrl(self, params: Dict[str, Any]) -> Dict[str, str]:
+  def _MockDownloadUrl(self, params: dict[str, Any]) -> dict[str, str]:
     self.last_download_call = {'url': '/download', 'data': params}
     return {'docid': '1', 'token': '2'}
 
   def _MockThumbUrl(
       self,
-      params: Dict[str, Any],
+      params: dict[str, Any],
       # pylint: disable-next=invalid-name
       thumbType: Optional[str] = None,
-  ) -> Dict[str, str]:
+  ) -> dict[str, str]:
     del thumbType  # Unused.
     # Hang on to the call arguments.
     self.last_thumb_call = {'url': '/thumb', 'data': params}
     return {'thumbid': '3', 'token': '4'}
 
-  def _MockTableDownload(self, params: Dict[str, Any]) -> Dict[str, str]:
+  def _MockTableDownload(self, params: dict[str, Any]) -> dict[str, str]:
     self.last_table_call = {'url': '/table', 'data': params}
     return {'docid': '5', 'token': '6'}
 
-  def _MockFetchDataCatalogStac(self) -> Dict[str, Any]:
+  def _MockFetchDataCatalogStac(self) -> dict[str, Any]:
     return {}
 
 

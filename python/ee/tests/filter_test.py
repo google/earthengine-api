@@ -3,7 +3,7 @@
 
 import datetime
 import json
-from typing import Any, Dict
+from typing import Any
 
 import unittest
 import ee
@@ -11,15 +11,15 @@ from ee import apitestcase
 
 
 def make_expression_graph(
-    function_invocation_value: Dict[str, Any],
-) -> Dict[str, Any]:
+    function_invocation_value: dict[str, Any],
+) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {'0': {'functionInvocationValue': function_invocation_value}},
   }
 
 
-def max_error_expression(max_error: float) -> Dict[str, Any]:
+def max_error_expression(max_error: float) -> dict[str, Any]:
   return {
       'functionInvocationValue': {
           'functionName': 'ErrorMargin',

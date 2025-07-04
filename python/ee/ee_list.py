@@ -1,8 +1,7 @@
 """A wrapper for lists."""
 from __future__ import annotations
 
-# List clashes with the class List, so call it ListType
-from typing import Any, List as ListType, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -19,7 +18,7 @@ from ee import geometry
 class List(computedobject.ComputedObject):
   """An object to represent lists."""
   _list: Optional[
-      Union[ListType[Any], Tuple[Any, Any]]
+      Union[list[Any], tuple[Any, Any]]
   ]
 
   _initialized = False

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tests for the table_converter module."""
 
-from typing import Any, Dict, Optional, Type
+from typing import Any, Optional, Type
 
 from absl.testing import parameterized
 import geopandas
@@ -15,8 +15,8 @@ from ee import table_converter
 class TableConverterTest(parameterized.TestCase):
 
   def _make_feature(
-      self, geometry: Dict[str, Any], properties: Dict[str, Any]
-  ) -> Dict[str, Any]:
+      self, geometry: dict[str, Any], properties: dict[str, Any]
+  ) -> dict[str, Any]:
     return {'type': 'Feature', 'geometry': geometry, 'properties': properties}
 
   @parameterized.named_parameters(

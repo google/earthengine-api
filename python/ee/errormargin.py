@@ -1,7 +1,7 @@
 """A wrapper for ErrorMargins."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from ee import _arg_types
 from ee import apifunction
@@ -64,7 +64,7 @@ class ErrorMargin(computedobject.ComputedObject):
     ):
       raise TypeError('value must be provided if unit is not infinite')
 
-    args: Dict[str, Any] = {}
+    args: dict[str, Any] = {}
     if value is not None:
       args['value'] = value
     if unit is not None:

@@ -3,7 +3,7 @@
 
 import json
 import sys
-from typing import Any, Dict
+from typing import Any
 import unittest
 
 import unittest
@@ -28,8 +28,8 @@ _WEKA_COBWEB_SERIALIZED = {
 
 
 def make_expression_graph(
-    function_invocation_value: Dict[str, Any],
-) -> Dict[str, Any]:
+    function_invocation_value: dict[str, Any],
+) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {'0': {'functionInvocationValue': function_invocation_value}},

@@ -13,7 +13,7 @@ import re
 import tempfile
 import threading
 import time
-from typing import Any, AnyStr, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, AnyStr, Iterable, Optional, Union
 import urllib.parse
 
 from google.cloud import storage
@@ -31,7 +31,7 @@ DEFAULT_EE_CONFIG_FILE_RELATIVE = os.path.join(
 DEFAULT_EE_CONFIG_FILE = os.path.join(
     HOMEDIR, DEFAULT_EE_CONFIG_FILE_RELATIVE)
 
-CONFIG_PARAMS: Dict[str, Union[str, List[str], None]] = {
+CONFIG_PARAMS: dict[str, Union[str, list[str], None]] = {
     'account': None,
     'cloud_api_key': None,
     'private_key': None,
@@ -39,7 +39,7 @@ CONFIG_PARAMS: Dict[str, Union[str, List[str], None]] = {
     'url': 'https://earthengine.googleapis.com',
 }
 
-TASK_FINISHED_STATES: Tuple[str, str, str] = (
+TASK_FINISHED_STATES: tuple[str, str, str] = (
     ee.batch.Task.State.COMPLETED,
     ee.batch.Task.State.FAILED,
     ee.batch.Task.State.CANCELLED,
@@ -278,7 +278,7 @@ def wait_for_task(
 
 
 def wait_for_tasks(
-    task_id_list: List[str], timeout: float, log_progress: bool = False
+    task_id_list: list[str], timeout: float, log_progress: bool = False
 ) -> None:
   """For each task specified in task_id_list, wait for that task or timeout."""
 
@@ -309,7 +309,7 @@ def wait_for_tasks(
   print('  %d tasks are still incomplete (timed-out)' % num_incomplete)
 
 
-def expand_gcs_wildcards(source_files: List[str]) -> Iterable[str]:
+def expand_gcs_wildcards(source_files: list[str]) -> Iterable[str]:
   """Implements glob-like '*' wildcard completion for cloud storage objects.
 
   Args:

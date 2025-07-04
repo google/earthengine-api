@@ -1,7 +1,7 @@
 """A base class for EE Functions."""
 
 import textwrap
-from typing import Any, Dict, Set
+from typing import Any
 
 from ee import computedobject
 from ee import ee_exception
@@ -31,7 +31,7 @@ class Function(encodable.EncodableFunction):
     """
     Function._promoter = staticmethod(promoter)
 
-  def getSignature(self) -> Dict[str, Any]:
+  def getSignature(self) -> dict[str, Any]:
     """Returns a description of the interface provided by this function.
 
     Returns:
@@ -75,7 +75,7 @@ class Function(encodable.EncodableFunction):
     result = computedobject.ComputedObject(self, self.promoteArgs(named_args))
     return Function._promoter(result, self.getReturnType())
 
-  def promoteArgs(self, args: Dict[str, Any]) -> Dict[str, Any]:
+  def promoteArgs(self, args: dict[str, Any]) -> dict[str, Any]:
     """Promotes arguments to their types based on the function's signature.
 
     Verifies that all required arguments are provided and no unknown arguments
@@ -95,8 +95,8 @@ class Function(encodable.EncodableFunction):
     arg_specs = signature['args']
 
     # Promote all recognized args.
-    promoted_args: Dict[str, Any] = {}
-    known: Set[str] = set()
+    promoted_args: dict[str, Any] = {}
+    known: set[str] = set()
     for arg_spec in arg_specs:
       name = arg_spec['name']
       if name in args:

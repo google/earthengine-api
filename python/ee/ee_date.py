@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import datetime
 import math
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -50,7 +50,7 @@ class Date(computedobject.ComputedObject):
     self.initialize()
 
     func = apifunction.ApiFunction(self.name())
-    args: Dict[str, Any]
+    args: dict[str, Any]
     var_name = None
     if isinstance(date, datetime.datetime):
       args = {'value':

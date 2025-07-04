@@ -1,7 +1,7 @@
 """An object representing EE Features."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -32,12 +32,12 @@ class Feature(element.Element):
           Union[
               Feature,
               geometry.Geometry,
-              Dict[str, Any],
+              dict[str, Any],
               computedobject.ComputedObject,
           ]
       ],
       properties: Optional[
-          Union[Dict[str, Any], computedobject.ComputedObject]
+          Union[dict[str, Any], computedobject.ComputedObject]
       ] = None,
   ):
     """Creates a feature a geometry or computed object.
@@ -113,8 +113,8 @@ class Feature(element.Element):
     cls._initialized = False
 
   def getMapId(
-      self, vis_params: Optional[Dict[str, Any]] = None
-  ) -> Dict[str, Any]:
+      self, vis_params: Optional[dict[str, Any]] = None
+  ) -> dict[str, Any]:
     """Fetch and return a map id and token, suitable for use in a Map overlay.
 
     Args:

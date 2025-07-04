@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Optional, Type, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -36,8 +36,8 @@ class FeatureCollection(collection.Collection):
       self,
       args: Optional[
           Union[
-              Dict[str, Any],
-              List[Any],
+              dict[str, Any],
+              list[Any],
               str,
               feature.Feature,
               geometry.Geometry,
@@ -116,8 +116,8 @@ class FeatureCollection(collection.Collection):
     cls._initialized = False
 
   def getMapId(
-      self, vis_params: Optional[Dict[str, Any]] = None
-  ) -> Dict[str, Any]:
+      self, vis_params: Optional[dict[str, Any]] = None
+  ) -> dict[str, Any]:
     """Fetch and return a map id and token, suitable for use in a Map overlay.
 
     Args:

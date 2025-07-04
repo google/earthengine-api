@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 
 from ee import _utils
 from ee import data
@@ -48,7 +48,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
      mapping calls do not use the same variable name.
   """
   func: Optional[Any]
-  args: Optional[Dict[str, Any]]
+  args: Optional[dict[str, Any]]
   varName: Optional[str]  # pylint: disable=g-bad-name
 
   # Tell pytype not to worry about dynamic attributes.
@@ -61,7 +61,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
   def __init__(
       self,
       func: Optional[Any],
-      args: Optional[Dict[str, Any]],
+      args: Optional[dict[str, Any]],
       varName: Optional[str] = None,  # pylint: disable=g-bad-name
   ):
     """Creates a computed object.
@@ -106,7 +106,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     """
     return data.computeValue(self)
 
-  def encode(self, encoder: Optional[Callable[..., Any]]) -> Dict[str, Any]:
+  def encode(self, encoder: Optional[Callable[..., Any]]) -> dict[str, Any]:
     """Encodes the object in a format compatible with Serializer."""
     if self.isVariable():
       return {
@@ -135,7 +135,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
           key: func
       }
 
-  def encode_cloud_value(self, encoder: Any) -> Dict[str, Any]:
+  def encode_cloud_value(self, encoder: Any) -> dict[str, Any]:
     if self.isVariable():
       ref = self.varName
       if ref is None and isinstance(
@@ -160,7 +160,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
         invocation = self.func.encode_cloud_invocation(encoder)
 
       # Encode all arguments recursively.
-      encoded_args: Dict[str, Any] = {}
+      encoded_args: dict[str, Any] = {}
       for name in sorted(self.args):
         value = self.args[name]
         if value is not None:

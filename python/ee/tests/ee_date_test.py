@@ -3,7 +3,7 @@
 
 import datetime
 import json
-from typing import Any, Dict
+from typing import Any
 
 import unittest
 import ee
@@ -16,15 +16,15 @@ UTC = 'UTC'
 
 
 def make_expression_graph(
-    function_invocation_value: Dict[str, Any]
-) -> Dict[str, Any]:
+    function_invocation_value: dict[str, Any]
+) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {'0': {'functionInvocationValue': function_invocation_value}},
   }
 
 
-def date_function_expr(value: int) -> Dict[str, Any]:
+def date_function_expr(value: int) -> dict[str, Any]:
   return {
       'functionInvocationValue': {
           'functionName': 'Date',

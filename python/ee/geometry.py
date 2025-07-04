@@ -5,7 +5,7 @@ from __future__ import annotations
 import collections.abc
 import json
 import math
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Optional, Sequence, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -36,7 +36,7 @@ class Geometry(computedobject.ComputedObject):
   @_utils.accept_opt_prefix('opt_proj', 'opt_geodesic', 'opt_evenOdd')
   def __init__(
       self,
-      geo_json: Union[Dict[str, Any], computedobject.ComputedObject, Geometry],
+      geo_json: Union[dict[str, Any], computedobject.ComputedObject, Geometry],
       proj: Optional[Any] = None,
       geodesic: Optional[bool] = None,
       evenOdd: Optional[bool] = None,  # pylint: disable=g-bad-name
@@ -147,7 +147,7 @@ class Geometry(computedobject.ComputedObject):
     self._computed_equivalent = apifunction.ApiFunction.lookup(
         'GeometryConstructors.' + ctor_name).apply(ctor_args)
 
-  def _get_name_from_crs(self, crs: Dict[str, Any]) -> str:
+  def _get_name_from_crs(self, crs: dict[str, Any]) -> str:
     """Returns projection name from a CRS."""
     if isinstance(crs, dict) and crs.get('type') == 'name':
       properties = crs.get('properties')
@@ -600,7 +600,7 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(Geometry._parseArgs('MultiPolygon', 4, all_args))
 
   @_utils.accept_opt_prefix('opt_encoder')
-  def encode(self, encoder: Optional[Any] = None) -> Dict[str, Any]:
+  def encode(self, encoder: Optional[Any] = None) -> dict[str, Any]:
     """Returns a GeoJSON-compatible representation of the geometry."""
     if not getattr(self, '_type', None):
       return super().encode(encoder)
@@ -629,7 +629,7 @@ class Geometry(computedobject.ComputedObject):
 
     return self._computed_equivalent.encode_cloud_value(encoder)
 
-  def toGeoJSON(self) -> Dict[str, Any]:
+  def toGeoJSON(self) -> dict[str, Any]:
     """Returns a GeoJSON representation of the geometry."""
     if self.func:
       raise ee_exception.EEException(
@@ -659,7 +659,7 @@ class Geometry(computedobject.ComputedObject):
     return self.__str__()
 
   @staticmethod
-  def _isValidGeometry(geometry: Dict[str, Any]) -> bool:
+  def _isValidGeometry(geometry: dict[str, Any]) -> bool:
     """Check if a geometry looks valid.
 
     Args:
@@ -752,7 +752,7 @@ class Geometry(computedobject.ComputedObject):
     return line
 
   @staticmethod
-  def _parseArgs(ctor_name: str, depth: int, args: Any) -> Dict[str, Any]:
+  def _parseArgs(ctor_name: str, depth: int, args: Any) -> dict[str, Any]:
     """Parses arguments into a GeoJSON dictionary or a ComputedObject.
 
     Args:
@@ -870,7 +870,7 @@ class Geometry(computedobject.ComputedObject):
     return coords
 
   @staticmethod
-  def _GetArgs(args, keywords: Tuple[str, ...] = (), **kwargs) -> List[Any]:
+  def _GetArgs(args, keywords: tuple[str, ...] = (), **kwargs) -> list[Any]:
     """Returns all args, specified or not, checking for keywords."""
     args = list(args)
     if keywords:

@@ -1,7 +1,7 @@
 """A wrapper for DateRanges."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from ee import _arg_types
 from ee import apifunction
@@ -58,7 +58,7 @@ class DateRange(computedobject.ComputedObject):
         super().__init__(start.func, start.args, start.varName)
         return
 
-    args: Dict[str, Any] = {'start': start}
+    args: dict[str, Any] = {'start': start}
     if end is not None:
       args['end'] = end
     if timeZone is not None:

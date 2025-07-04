@@ -17,7 +17,7 @@ import os
 import shutil
 import subprocess
 import sys
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -87,7 +87,7 @@ def get_credentials_path() -> str:
   return cred_path
 
 
-def get_credentials_arguments() -> Dict[str, Any]:
+def get_credentials_arguments() -> dict[str, Any]:
   with open(get_credentials_path()) as creds:
     stored = json.load(creds)
     args = {}
@@ -191,7 +191,7 @@ def request_token(
   return json.loads(response)['refresh_token']
 
 
-def write_private_json(json_path: str, info_dict: Dict[str, Any]) -> None:
+def write_private_json(json_path: str, info_dict: dict[str, Any]) -> None:
   """Attempts to write the passed token to the given user directory."""
 
   dirname = os.path.dirname(json_path)
@@ -339,7 +339,7 @@ def _base64param(byte_string: bytes) -> bytes:
   return base64.urlsafe_b64encode(byte_string).rstrip(b'=')
 
 
-def _nonce_table(*nonce_keys: str) -> Dict[str, str]:
+def _nonce_table(*nonce_keys: str) -> dict[str, str]:
   """Makes random nonces, and adds PKCE challenges for each _verifier nonce."""
   table = {}
   for key in nonce_keys:

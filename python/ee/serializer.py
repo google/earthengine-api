@@ -4,7 +4,7 @@ import collections
 import datetime
 import hashlib
 import json
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Optional
 
 from ee import _cloud_api_utils
 from ee import _utils
@@ -38,11 +38,11 @@ class Serializer:
   _is_compound: bool
   _for_cloud_api: bool
   # A list of shared subtrees as [name, value] pairs.
-  _scope: List[str]
+  _scope: list[str]
   # A lookup table from object hash to subtree names as stored in self._scope
-  _encoded: Dict[Any, Any]
+  _encoded: dict[Any, Any]
   # A lookup table from object ID as retrieved by id() to md5 hash values.
-  _hashcache: Dict[Any, Any]
+  _hashcache: dict[Any, Any]
 
   def __init__(
       self,
@@ -380,7 +380,7 @@ class _ExpressionOptimizer:
   def _is_compound(self) -> bool:
     return self._values is not None
 
-  def _find_single_uses(self) -> Set[Any]:
+  def _find_single_uses(self) -> set[Any]:
     """Finds the names of all named values that are referred to only once."""
     reference_counts = collections.defaultdict(int)
     reference_counts[self._result] += 1

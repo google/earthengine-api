@@ -1,7 +1,7 @@
 """A wrapper for Projections."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 
 from ee import _arg_types
 from ee import apifunction
@@ -80,7 +80,7 @@ class Projection(computedobject.ComputedObject):
         super().__init__(crs.func, crs.args, crs.varName)
         return
 
-    args: Dict[str, Any] = {'crs': crs}
+    args: dict[str, Any] = {'crs': crs}
     if transform is not None:
       args['transform'] = transform
     if transformWkt is not None:

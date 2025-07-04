@@ -1,7 +1,7 @@
 """A wrapper for ConfusionMatrices."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from ee import _arg_types
 from ee import apifunction
@@ -57,7 +57,7 @@ class ConfusionMatrix(computedobject.ComputedObject):
         super().__init__(array.func, array.args, array.varName)
         return
 
-    args: Dict[str, Any] = {'array': array}
+    args: dict[str, Any] = {'array': array}
     if order is not None:
       args['order'] = order
 

@@ -7,7 +7,7 @@ import datetime
 import functools
 import inspect
 import json
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 import urllib
 import warnings
 
@@ -15,7 +15,7 @@ _DEPRECATED_OBJECT = 'earthengine-stac/catalog/catalog_deprecated.json'
 _DEPRECATED_ASSETS_URL = f'https://storage.googleapis.com/{_DEPRECATED_OBJECT}'
 
 # Deprecation warnings are per-asset, per-initialization.
-deprecated_assets: Dict[str, DeprecatedAsset] = None
+deprecated_assets: dict[str, DeprecatedAsset] = None
 
 
 def Deprecated(message: str):
@@ -83,7 +83,7 @@ class DeprecatedAsset:
       return None
 
   @classmethod
-  def FromStacLink(cls, stac_link: Dict[str, Any]) -> DeprecatedAsset:
+  def FromStacLink(cls, stac_link: dict[str, Any]) -> DeprecatedAsset:
     removal_date = stac_link.get('gee:removal_date')
     if removal_date is not None:
       removal_date = cls._ParseDateString(removal_date)
@@ -156,7 +156,7 @@ def Reset() -> None:
   deprecated_assets = None
 
 
-def _FetchDataCatalogStac() -> Dict[str, Any]:
+def _FetchDataCatalogStac() -> dict[str, Any]:
   try:
     response = urllib.request.urlopen(_DEPRECATED_ASSETS_URL).read()
   except (urllib.error.HTTPError, urllib.error.URLError):

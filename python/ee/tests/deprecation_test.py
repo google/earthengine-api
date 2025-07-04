@@ -3,7 +3,7 @@
 
 import contextlib
 import datetime
-from typing import Any, Dict
+from typing import Any
 from unittest import mock
 import warnings
 
@@ -173,7 +173,7 @@ class DeprecationTest(apitestcase.ApiTestCase, parameterized.TestCase):
       yield
 
   # Overridden from apitestcase.ApiTestCase.
-  def _MockFetchDataCatalogStac(self) -> Dict[str, Any]:
+  def _MockFetchDataCatalogStac(self) -> dict[str, Any]:
     return _STAC_JSON
 
   def test_no_warnings_thrown(self):

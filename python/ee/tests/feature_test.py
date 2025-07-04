@@ -2,7 +2,7 @@
 """Test for the ee.feature module."""
 
 import json
-from typing import Any, Dict
+from typing import Any
 from unittest import mock
 
 import unittest
@@ -40,7 +40,7 @@ FEATURE_A_GRAPH = {
 }
 
 
-def right_maxerror_proj(function_name: str) -> Dict[str, Any]:
+def right_maxerror_proj(function_name: str) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {
@@ -61,8 +61,8 @@ def right_maxerror_proj(function_name: str) -> Dict[str, Any]:
 
 
 def make_expression_graph(
-    function_invocation_value: Dict[str, Any],
-) -> Dict[str, Any]:
+    function_invocation_value: dict[str, Any],
+) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {'0': {'functionInvocationValue': function_invocation_value}},

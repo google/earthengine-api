@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any as AnyType, Dict, List as ListType, Sequence, Tuple, Union
+from typing import Any as AnyType, Sequence, Union
 
 from ee import classifier
 from ee import clusterer
@@ -27,7 +27,7 @@ from ee import reducer
 
 Array = Union[
     AnyType,
-    ListType[AnyType],
+    list[AnyType],
     ee_array.Array,
     ee_list.List,
     computedobject.ComputedObject,
@@ -43,7 +43,7 @@ Date = Union[
 ]
 DateRange = Union[daterange.DateRange, computedobject.ComputedObject]
 Dictionary = Union[
-    Dict[AnyType, AnyType],
+    dict[AnyType, AnyType],
     Sequence[AnyType],
     dictionary.Dictionary,
     computedobject.ComputedObject,
@@ -68,9 +68,9 @@ ImageCollection = Union[
 Integer = Union[int, ee_number.Number, computedobject.ComputedObject]
 Kernel = Union[kernel.Kernel, computedobject.ComputedObject]
 List = Union[
-    ListType[AnyType],
-    Tuple[()],
-    Tuple[AnyType, AnyType],
+    list[AnyType],
+    tuple[()],
+    tuple[AnyType, AnyType],
     ee_list.List,
     computedobject.ComputedObject,
 ]

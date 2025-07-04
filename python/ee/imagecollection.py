@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple
+from typing import Any, Callable, Optional, Sequence
 
 from ee import _arg_types
 from ee import _utils
@@ -87,7 +87,7 @@ class ImageCollection(collection.Collection):
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def getMapId(self, vis_params: Optional[Any] = None) -> Dict[str, Any]:
+  def getMapId(self, vis_params: Optional[Any] = None) -> dict[str, Any]:
     """Fetch and return a Map ID.
 
     This mosaics the collection to a single image and return a map ID suitable
@@ -188,7 +188,7 @@ class ImageCollection(collection.Collection):
   def elementType():
     return image.Image
 
-  def getVideoThumbURL(self, params: Optional[Dict[str, Any]] = None) -> str:
+  def getVideoThumbURL(self, params: Optional[dict[str, Any]] = None) -> str:
     """Get the URL for an animated video thumbnail of the given collection.
 
     Note: Videos can only be created when the image visualization
@@ -252,7 +252,7 @@ class ImageCollection(collection.Collection):
   def _getThumbURL(
       self,
       valid_formats: Sequence[str],
-      # TODO(user): Need to drop the default None and use Dict[str, Any]]
+      # TODO(user): Need to drop the default None and use dict[str, Any]]
       params: Optional[Any] = None,
       thumbType: Optional[str] = None,  # pylint: disable=g-bad-name
   ) -> str:
@@ -314,7 +314,7 @@ class ImageCollection(collection.Collection):
   def _apply_preparation_function(
       self,
       preparation_function: Callable[[Any, Any], Any],
-      params: Dict[str, Any],
+      params: dict[str, Any],
   ) -> Any:
     """Applies a preparation function to an ImageCollection.
 
@@ -350,8 +350,8 @@ class ImageCollection(collection.Collection):
     return self.map(apply_params), remaining_params
 
   def prepare_for_export(
-      self, params: Dict[str, Any]
-  ) -> Tuple[ImageCollection, Dict[str, Any]]:
+      self, params: dict[str, Any]
+  ) -> tuple[ImageCollection, dict[str, Any]]:
     """Applies all relevant export parameters to an ImageCollection.
 
     Args:

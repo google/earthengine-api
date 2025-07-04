@@ -7,7 +7,7 @@ details.
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Optional, Sequence
 
 from ee import _arg_types
 from ee import _utils
@@ -142,7 +142,7 @@ class Image(element.Element):
     """
     return super().getInfo()
 
-  def getMapId(self, vis_params: Optional[Any] = None) -> Dict[str, Any]:
+  def getMapId(self, vis_params: Optional[Any] = None) -> dict[str, Any]:
     """Fetch and return a map ID dictionary, suitable for use in a Map overlay.
 
     Args:
@@ -158,8 +158,8 @@ class Image(element.Element):
     return response
 
   def _apply_crs_and_affine(
-      self, params: Dict[str, Any]
-  ) -> Tuple[Any, Any, Any]:
+      self, params: dict[str, Any]
+  ) -> tuple[Any, Any, Any]:
     """Applies any CRS and affine parameters to an image.
 
     Wraps the image in a call to Reproject() if the request includes
@@ -246,8 +246,8 @@ class Image(element.Element):
     return image, request, dimensions_consumed
 
   def _apply_selection_and_scale(
-      self, params: Dict[str, Any], dimensions_consumed: bool
-  ) -> Tuple[Any, Dict[str, Any]]:
+      self, params: dict[str, Any], dimensions_consumed: bool
+  ) -> tuple[Any, dict[str, Any]]:
     """Applies region selection and scaling parameters to an image.
 
     Wraps the image in a call to clipToBoundsAndScale() if there are any
@@ -266,8 +266,8 @@ class Image(element.Element):
     """
     keys_to_extract = set(['region', 'dimensions', 'scale'])
     scale_keys = ['maxDimension', 'height', 'width', 'scale']
-    request: Dict[str, Any] = {}
-    selection_params: Dict[str, Any] = {}
+    request: dict[str, Any] = {}
+    selection_params: dict[str, Any] = {}
     if params:
       for key in params:
         if key not in keys_to_extract:
@@ -322,8 +322,8 @@ class Image(element.Element):
     return image, request
 
   def _apply_spatial_transformations(
-      self, params: Dict[str, Any]
-  ) -> Tuple[Any, Dict[str, Any]]:
+      self, params: dict[str, Any]
+  ) -> tuple[Any, dict[str, Any]]:
     """Applies spatial transformation and clipping.
 
     Args:
@@ -340,8 +340,8 @@ class Image(element.Element):
     return image._apply_selection_and_scale(params, dimensions_consumed)
 
   def _apply_visualization(
-      self, params: Dict[str, Any]
-  ) -> Tuple[Any, Dict[str, Any]]:
+      self, params: dict[str, Any]
+  ) -> tuple[Any, dict[str, Any]]:
     """Applies visualization parameters to an image.
 
     Wraps the image in a call to visualize() if there are any recognized
@@ -373,7 +373,7 @@ class Image(element.Element):
       image = apifunction.ApiFunction.apply_('Image.visualize', vis_params)
     return image, request
 
-  def _build_download_id_image(self, params: Dict[str, Any]) -> Any:
+  def _build_download_id_image(self, params: dict[str, Any]) -> Any:
     """Processes the getDownloadId parameters and returns the built image.
 
     Given transformation parameters (crs, crs_transform, dimensions, scale, and
@@ -395,7 +395,7 @@ class Image(element.Element):
     """
     params = params.copy()
 
-    def _extract_and_validate_transforms(obj: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_and_validate_transforms(obj: dict[str, Any]) -> dict[str, Any]:
       """Takes a parameter dictionary and extracts the transformation keys."""
       extracted = {}
       for key in ['crs', 'crs_transform', 'dimensions', 'region']:
@@ -407,7 +407,7 @@ class Image(element.Element):
         extracted['scale'] = obj['scale']
       return extracted
 
-    def _build_image_per_band(band_params: Dict[str, Any]) -> Any:
+    def _build_image_per_band(band_params: dict[str, Any]) -> Any:
       """Takes a band dictionary and builds an image for it."""
       if 'id' not in band_params:
         raise ee_exception.EEException('Each band dictionary must have an id.')
@@ -435,7 +435,7 @@ class Image(element.Element):
       del copy_params  # Unused.
     return image
 
-  def prepare_for_export(self, params: Dict[str, Any]) -> Any:
+  def prepare_for_export(self, params: dict[str, Any]) -> Any:
     """Applies all relevant export parameters to an image.
 
     Args:
@@ -449,7 +449,7 @@ class Image(element.Element):
     """
     return self._apply_spatial_transformations(params)
 
-  def getDownloadURL(self, params: Optional[Dict[str, Any]] = None) -> str:
+  def getDownloadURL(self, params: Optional[dict[str, Any]] = None) -> str:
     """Get a download URL for an image chunk.
 
     Generates a download URL for small chunks of image data in GeoTIFF or NumPy
@@ -509,7 +509,7 @@ class Image(element.Element):
     request['image'] = self
     return data.makeDownloadUrl(data.getDownloadId(request))
 
-  def getThumbId(self, params: Dict[str, Any]) -> Dict[str, str]:
+  def getThumbId(self, params: dict[str, Any]) -> dict[str, str]:
     """Applies transformations and returns the thumbId.
 
     Args:
@@ -534,7 +534,7 @@ class Image(element.Element):
     params['image'] = image
     return data.getThumbId(params)
 
-  def getThumbURL(self, params: Optional[Dict[str, Any]] = None) -> str:
+  def getThumbURL(self, params: Optional[dict[str, Any]] = None) -> str:
     """Get a thumbnail URL for this image.
 
     Args:

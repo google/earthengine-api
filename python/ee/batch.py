@@ -12,7 +12,7 @@ from __future__ import annotations
 import enum
 import json
 import re
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 
 from ee import _cloud_api_utils
 from ee import data
@@ -20,7 +20,7 @@ from ee import ee_exception
 from ee import geometry
 
 
-def _transform_operation_to_task(operation: Dict[str, Any]) -> Task:
+def _transform_operation_to_task(operation: dict[str, Any]) -> Task:
   """Converts an operation to a task."""
   status = _cloud_api_utils.convert_operation_to_task(operation)
   return Task(
@@ -74,7 +74,7 @@ class Task:
     FEATURE_VIEW = 'FEATURE_VIEW'
     BIGQUERY = 'BIGQUERY'
 
-  config: Optional[Dict[str, Any]]
+  config: Optional[dict[str, Any]]
   id: Optional[str]
   name: Optional[str]
   state: State
@@ -88,7 +88,7 @@ class Task:
       task_id: Optional[str],
       task_type: Type,
       state: State,
-      config: Optional[Dict[str, Any]] = None,
+      config: Optional[dict[str, Any]] = None,
       name: Optional[str] = None,
   ):
     """Creates a Task with the given ID and configuration.
@@ -159,7 +159,7 @@ class Task:
           result['name'])
       self.name = result['name']
 
-  def status(self) -> Dict[str, Any]:
+  def status(self) -> dict[str, Any]:
     """Fetches the current status of the task.
 
     Returns:
@@ -190,7 +190,7 @@ class Task:
     data.cancelOperation(self.operation_name)
 
   @staticmethod
-  def list() -> List[Task]:
+  def list() -> list[Task]:
     """Returns the tasks submitted to EE by the current user.
 
     These include all currently running tasks as well as recently canceled or
@@ -231,7 +231,7 @@ class Export:
         cls,
         image: Any,
         description: str = 'myExportImageTask',
-        config: Optional[Dict[str, Any]] = None,
+        config: Optional[dict[str, Any]] = None,
     ):
       """Creates a task to export an EE Image to Google Drive or Cloud Storage.
 
@@ -1152,8 +1152,8 @@ NON_FILE_DESTINATIONS = frozenset([
 
 
 def _prepare_image_export_config(
-    image: Any, config: Dict[str, Any], export_destination: str
-) -> Dict[str, Any]:
+    image: Any, config: dict[str, Any], export_destination: str
+) -> dict[str, Any]:
   """Performs all preparation steps for an image export.
 
   Args:
@@ -1238,8 +1238,8 @@ def _prepare_image_export_config(
 
 
 def _prepare_map_export_config(
-    image: Any, config: Dict[str, Any]
-) -> Dict[str, Any]:
+    image: Any, config: dict[str, Any]
+) -> dict[str, Any]:
   """Performs all preparation steps for a map export.
 
   Args:
@@ -1285,8 +1285,8 @@ def _prepare_map_export_config(
 
 
 def _prepare_table_export_config(
-    collection: Any, config: Dict[str, Any], export_destination
-) -> Dict[str, Any]:
+    collection: Any, config: dict[str, Any], export_destination
+) -> dict[str, Any]:
   """Performs all preparation steps for a table export.
 
   Args:
@@ -1357,8 +1357,8 @@ def _prepare_table_export_config(
 
 
 def _prepare_video_export_config(
-    collection: Any, config: Dict[str, Any], export_destination: str
-) -> Dict[str, Any]:
+    collection: Any, config: dict[str, Any], export_destination: str
+) -> dict[str, Any]:
   """Performs all preparation steps for a video export.
 
   Args:
@@ -1400,8 +1400,8 @@ def _prepare_video_export_config(
 
 
 def _build_image_file_export_options(
-    config: Dict[str, Any], export_destination: str
-) -> Dict[str, Any]:
+    config: dict[str, Any], export_destination: str
+) -> dict[str, Any]:
   """Builds an ImageFileExportOptions from values in a config dict.
 
   Args:
@@ -1505,8 +1505,8 @@ def _build_image_file_export_options(
 
 
 def _build_table_file_export_options(
-    config: Dict[str, Any], export_destination: str
-) -> Dict[str, Any]:
+    config: dict[str, Any], export_destination: str
+) -> dict[str, Any]:
   """Builds a TableFileExportOptions from values in a config dict.
 
   Args:
@@ -1535,7 +1535,7 @@ def _build_table_file_export_options(
   return file_export_options
 
 
-def _build_video_options(config: Dict[str, Any]) -> Dict[str, Any]:
+def _build_video_options(config: dict[str, Any]) -> dict[str, Any]:
   """Builds a VideoOptions from values in a config dict.
 
   Args:
@@ -1558,8 +1558,8 @@ def _build_video_options(config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _build_video_file_export_options(
-    config: Dict[str, Any], export_destination: str
-) -> Dict[str, Any]:
+    config: dict[str, Any], export_destination: str
+) -> dict[str, Any]:
   """Builds a VideoFileExportOptions from values in a config dict.
 
   Args:
@@ -1589,8 +1589,8 @@ def _build_video_file_export_options(
 
 
 def _prepare_classifier_export_config(
-    classifier: Any, config: Dict[str, Any], export_destination: str
-) -> Dict[str, Any]:
+    classifier: Any, config: dict[str, Any], export_destination: str
+) -> dict[str, Any]:
   """Performs all preparation steps for a classifier export.
 
   Args:
@@ -1620,7 +1620,7 @@ def _prepare_classifier_export_config(
   return request
 
 
-def _build_drive_destination(config: Dict[str, Any]) -> Dict[str, Any]:
+def _build_drive_destination(config: dict[str, Any]) -> dict[str, Any]:
   """Builds a DriveDestination from values in a config dict.
 
   Args:
@@ -1639,7 +1639,7 @@ def _build_drive_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   return drive_destination
 
 
-def _build_cloud_storage_destination(config: Dict[str, Any]) -> Dict[str, Any]:
+def _build_cloud_storage_destination(config: dict[str, Any]) -> dict[str, Any]:
   """Builds a CloudStorageDestination from values in a config dict.
 
   Args:
@@ -1660,7 +1660,7 @@ def _build_cloud_storage_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   return destination
 
 
-def _build_bigquery_destination(config: Dict[str, Any]) -> Dict[str, Any]:
+def _build_bigquery_destination(config: dict[str, Any]) -> dict[str, Any]:
   """Builds a BigqueryDestination from values in a config dict.
 
   Args:
@@ -1679,7 +1679,7 @@ def _build_bigquery_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   return destination
 
 
-def _build_tile_options(config: Dict[str, Any]) -> Dict[str, Any]:
+def _build_tile_options(config: dict[str, Any]) -> dict[str, Any]:
   """Builds a TileOptions from values in a config dict.
 
   Args:
@@ -1722,7 +1722,7 @@ def _build_tile_options(config: Dict[str, Any]) -> Dict[str, Any]:
   return tile_options
 
 
-def _build_earth_engine_destination(config: Dict[str, Any]) -> Dict[str, Any]:
+def _build_earth_engine_destination(config: dict[str, Any]) -> dict[str, Any]:
   """Builds an EarthEngineDestination from values in a config dict.
 
   Args:
@@ -1740,7 +1740,7 @@ def _build_earth_engine_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   }
 
 
-def _build_feature_view_destination(config: Dict[str, Any]) -> Dict[str, Any]:
+def _build_feature_view_destination(config: dict[str, Any]) -> dict[str, Any]:
   """Builds a FeatureViewDestination from values in a config dict.
 
   Args:
@@ -1758,7 +1758,7 @@ def _build_feature_view_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   return feature_view_destination
 
 
-def _get_rank_by_one_thing_rule(rule_str: str) -> Dict[str, Any]:
+def _get_rank_by_one_thing_rule(rule_str: str) -> dict[str, Any]:
   """Returns a RankByOneThingRule dict created from the rank-by-one-thing rule.
 
   Args:
@@ -1796,8 +1796,8 @@ def _get_rank_by_one_thing_rule(rule_str: str) -> Dict[str, Any]:
 
 
 def _get_ranking_rule(
-    rules: Optional[Union[str, List[str]]]
-) -> Optional[Dict[str, List[Dict[str, Any]]]]:
+    rules: Optional[Union[str, list[str]]]
+) -> Optional[dict[str, list[dict[str, Any]]]]:
   """Returns a RankingRule dict created from the rank-by-one-thing rules.
 
   Args:
@@ -1823,7 +1823,7 @@ def _get_ranking_rule(
        'either be a comma-separated string or list of strings.'))
 
 
-def _build_thinning_options(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def _build_thinning_options(config: dict[str, Any]) -> Optional[dict[str, Any]]:
   """Returns a ThinningOptions dict created from the config.
 
   Args:
@@ -1843,7 +1843,7 @@ def _build_thinning_options(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
   return output
 
 
-def _build_ranking_options(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def _build_ranking_options(config: dict[str, Any]) -> Optional[dict[str, Any]]:
   """Returns a RankingOptions dict created from the config.
 
   Args:
@@ -1869,8 +1869,8 @@ def _build_ranking_options(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 
 def build_ingestion_time_parameters(
-    input_params: Dict[str, Any]
-) -> Dict[str, Any]:
+    input_params: dict[str, Any]
+) -> dict[str, Any]:
   """Builds a FeatureViewIngestionTimeParameters from values in a params dict.
 
   Args:
@@ -1898,7 +1898,7 @@ def build_ingestion_time_parameters(
   return output_params
 
 
-def _create_export_task(config: Dict[str, Any], task_type: Task.Type) -> Task:
+def _create_export_task(config: dict[str, Any], task_type: Task.Type) -> Task:
   """Creates an export task.
 
   Args:
@@ -1913,7 +1913,7 @@ def _create_export_task(config: Dict[str, Any], task_type: Task.Type) -> Task:
 
 def _capture_parameters(
     all_locals, parameters_to_exclude: Sequence[str]
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
   """Creates a parameter dict by copying all non-None locals.
 
   This is generally invoked as the first part of call processing, via

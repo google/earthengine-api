@@ -3,7 +3,7 @@
 
 import enum
 import json
-from typing import Any, Dict
+from typing import Any
 
 import unittest
 import ee
@@ -25,15 +25,15 @@ PIXELTYPE = 'PixelType'
 
 
 def make_expression_graph(
-    function_invocation_value: Dict[str, Any]
-) -> Dict[str, Any]:
+    function_invocation_value: dict[str, Any]
+) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {'0': {'functionInvocationValue': function_invocation_value}},
   }
 
 
-def pixeltype_function_expr(value: Type) -> Dict[str, Any]:
+def pixeltype_function_expr(value: Type) -> dict[str, Any]:
   return {
       'functionInvocationValue': {
           'functionName': 'PixelType',
@@ -42,7 +42,7 @@ def pixeltype_function_expr(value: Type) -> Dict[str, Any]:
   }
 
 
-def pixeltype_noargs_expr(type_name: str) -> Dict[str, Any]:
+def pixeltype_noargs_expr(type_name: str) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {

@@ -2,7 +2,7 @@
 """Test for the ee.geometry module Point methods."""
 
 import json
-from typing import Any, Dict
+from typing import Any
 from unittest import mock
 
 import unittest
@@ -45,8 +45,8 @@ PROJ = {
 
 
 def make_expression_graph_geom(
-    function_name: str, args: Dict[str, Any]
-) -> Dict[str, Any]:
+    function_name: str, args: dict[str, Any]
+) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {

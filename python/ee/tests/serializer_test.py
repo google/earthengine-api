@@ -3,7 +3,7 @@
 
 import datetime
 import json
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Union
 
 import unittest
 import ee
@@ -11,7 +11,7 @@ from ee import apitestcase
 from ee import serializer
 
 
-def _max_depth(x: Union[Dict[str, Any], List[Any], str]) -> int:
+def _max_depth(x: Union[dict[str, Any], list[Any], str]) -> int:
   """Computes the maximum nesting level of some dict, list, or str."""
   if isinstance(x, dict):
     return 1 + max(_max_depth(v) for v in x.values())
@@ -103,13 +103,13 @@ class SerializerTest(apitestcase.ApiTestCase):
         self._value = value
 
       # pylint: disable-next=g-bad-name
-      def encode(self, encoder: Callable[[Any], Any]) -> Dict[str, Any]:
+      def encode(self, encoder: Callable[[Any], Any]) -> dict[str, Any]:
         del encoder  # Unused.
         return {'type': 'Bytes', 'value': self._value}
 
       def encode_cloud_value(
           self, encoder: Callable[[Any], Any]
-      ) -> Dict[str, str]:
+      ) -> dict[str, str]:
         del encoder  # Unused.
         # Proto3 JSON embedding of "bytes" values uses base64 encoding, which
         # this already is.

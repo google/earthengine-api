@@ -1,7 +1,7 @@
 """A wrapper for Arrays."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from ee import _arg_types
 from ee import apifunction
@@ -60,7 +60,7 @@ class Array(computedobject.ComputedObject):
         super().__init__(values.func, values.args, values.varName)
         return
 
-    args: Dict[str, Any] = {'values': values}
+    args: dict[str, Any] = {'values': values}
     if pixelType is not None:
       args['pixelType'] = pixelType
 

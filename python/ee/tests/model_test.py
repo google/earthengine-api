@@ -2,7 +2,7 @@
 """Tests for the ee.Model module."""
 
 import json
-from typing import Any, Dict
+from typing import Any
 
 import unittest
 import ee
@@ -12,15 +12,15 @@ MODEL = 'Model'
 
 
 def make_expression_graph(
-    function_invocation_value: Dict[str, Any],
-) -> Dict[str, Any]:
+    function_invocation_value: dict[str, Any],
+) -> dict[str, Any]:
   return {
       'result': '0',
       'values': {'0': {'functionInvocationValue': function_invocation_value}},
   }
 
 
-def make_override_expression(key: str, pixel_type: str) -> Dict[str, Any]:
+def make_override_expression(key: str, pixel_type: str) -> dict[str, Any]:
   return {
       'dictionaryValue': {
           'values': {
@@ -44,7 +44,7 @@ def make_override_expression(key: str, pixel_type: str) -> Dict[str, Any]:
 
 def make_type_expression(
     key: str, pixel_type: str, dimensions: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
   return {
       'dictionaryValue': {
           'values': {

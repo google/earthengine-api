@@ -6,7 +6,7 @@ This class is never intended to be instantiated by the user.
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, Dict, Optional, Type, Union
+from typing import Any, Callable, Optional, Type, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -37,7 +37,7 @@ class Collection(element.Element):
   def __init__(
       self,
       func: function.Function,
-      args: Dict[str, Any],
+      args: dict[str, Any],
       varName: Optional[str] = None,  # pylint: disable=invalid-name
   ):
     """Constructs a collection by initializing its ComputedObject."""
@@ -480,7 +480,7 @@ class Collection(element.Element):
     return self.filter(ee_filter.Filter.metadata_(name, operator, value))
 
   def filterBounds(
-      self, geometry: Union[Dict[str, Any], ee_geometry.Geometry]
+      self, geometry: Union[dict[str, Any], ee_geometry.Geometry]
   ) -> Any:
     """Shortcut to add a geometry filter to a collection.
 

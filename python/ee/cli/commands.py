@@ -16,7 +16,7 @@ import re
 import shutil
 import sys
 import tempfile
-from typing import Any, Dict, List, Sequence, Tuple, Type, Union
+from typing import Any, Sequence, Type, Union
 import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
@@ -129,7 +129,7 @@ def _add_overwrite_arg(parser: argparse.ArgumentParser) -> None:
 
 
 def _upload(
-    args: argparse.Namespace, request: Dict[str, Any], ingestion_function: Any
+    args: argparse.Namespace, request: dict[str, Any], ingestion_function: Any
 ) -> None:
   if 0 <= args.wait < 10:
     raise ee.EEException('Wait time should be at least 10 seconds.')
@@ -142,7 +142,7 @@ def _upload(
 
 
 # Argument types
-def _comma_separated_strings(string: str) -> List[str]:
+def _comma_separated_strings(string: str) -> list[str]:
   """Parses an input consisting of comma-separated strings."""
   error_msg = 'Argument should be a comma-separated list of strings: {}'
   values = string.split(',')
@@ -151,7 +151,7 @@ def _comma_separated_strings(string: str) -> List[str]:
   return values
 
 
-def _comma_separated_numbers(string: str) -> List[float]:
+def _comma_separated_numbers(string: str) -> list[float]:
   """Parses an input consisting of comma-separated numbers."""
   error_msg = 'Argument should be a comma-separated list of numbers: {}'
   values = string.split(',')
@@ -170,7 +170,7 @@ def _comma_separated_numbers(string: str) -> List[float]:
   return numbervalues
 
 
-def _comma_separated_pyramiding_policies(string: str) -> List[str]:
+def _comma_separated_pyramiding_policies(string: str) -> list[str]:
   """Parses an input consisting of comma-separated pyramiding policies."""
   error_msg = ('Argument should be a comma-separated list of: '
                '{{"mean", "sample", "min", "max", "mode"}}: {}')
@@ -248,7 +248,7 @@ def _decode_date(string: str) -> Union[float, str]:
       'Invalid value for property of type "date": "%s".' % string)
 
 
-def _decode_property(string: str) -> Tuple[str, Any]:
+def _decode_property(string: str) -> tuple[str, Any]:
   """Decodes a general key-value property from a command-line argument.
 
   Args:
@@ -311,7 +311,7 @@ def _add_property_flags(parser: argparse.ArgumentParser) -> None:
       type=_decode_date)
 
 
-def _decode_property_flags(args: argparse.Namespace) -> Dict[str, Any]:
+def _decode_property_flags(args: argparse.Namespace) -> dict[str, Any]:
   """Decodes metadata properties from args as a name->value dict."""
   property_list = list(args.property or [])
   names = [name for name, _ in property_list]
@@ -336,8 +336,8 @@ def _pretty_print_json(json_obj: Any) -> None:
 
 class Dispatcher:
   """Dispatches to a set of commands implemented as command classes."""
-  COMMANDS: List[Any]
-  command_dict: Dict[str, Any]
+  COMMANDS: list[Any]
+  command_dict: dict[str, Any]
   dest: str
   name: str
 
@@ -509,7 +509,7 @@ class AclChCommand:
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
 
   def _set_permission(
-      self, permissions: Dict[str, str], grant: str, prefix: str
+      self, permissions: dict[str, str], grant: str, prefix: str
   ) -> None:
     """Sets the permission for a given user/group."""
     parts = grant.rsplit(':', 1)
@@ -526,7 +526,7 @@ class AclChCommand:
     permissions[prefixed_user] = role
 
   def _remove_permission(
-      self, permissions: Dict[str, str], user: str, prefix: str
+      self, permissions: dict[str, str], user: str, prefix: str
   ) -> None:
     """Removes permissions for a given user/group."""
     prefixed_user = user
@@ -546,7 +546,7 @@ class AclChCommand:
     else:
       return 'user:'
 
-  def _parse_permissions(self, args: argparse.Namespace) -> Dict[str, str]:
+  def _parse_permissions(self, args: argparse.Namespace) -> dict[str, str]:
     """Decodes and sanity-checks the permissions in the arguments."""
     # A dictionary mapping from user ids to one of 'R', 'W', or 'D'.
     permissions = {}
@@ -566,7 +566,7 @@ class AclChCommand:
     return permissions
 
   def _apply_permissions(
-      self, acl: Dict[str, Union[bool, List[str]]], permissions: Dict[str, str]
+      self, acl: dict[str, Union[bool, list[str]]], permissions: dict[str, str]
   ) -> None:
     """Applies the given permission edits to the given acl."""
     for user, role in permissions.items():
@@ -1375,7 +1375,7 @@ class UploadImageCommand:
     manifest = self.manifest_from_args(args)
     _upload(args, manifest, ee.data.startIngestion)
 
-  def manifest_from_args(self, args: argparse.Namespace) -> Dict[str, Any]:
+  def manifest_from_args(self, args: argparse.Namespace) -> dict[str, Any]:
     """Constructs an upload manifest from the command-line flags."""
 
     def is_tf_record(path: str) -> bool:
@@ -1490,7 +1490,7 @@ class UploadExternalImageCommand:
     name = ee.data.startExternalImageIngestion(manifest, args.force)['name']
     print('Created asset %s' % name)
 
-  def manifest_from_args(self, args: argparse.Namespace) -> Dict[str, Any]:
+  def manifest_from_args(self, args: argparse.Namespace) -> dict[str, Any]:
     """Constructs an upload manifest from the command-line flags."""
 
     if args.manifest:

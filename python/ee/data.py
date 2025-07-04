@@ -9,7 +9,7 @@ import platform
 import re
 import sys
 import threading
-from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union
+from typing import Any, Callable, Iterator, Optional, Sequence, Union
 import uuid
 import warnings
 
@@ -359,10 +359,10 @@ def _get_cloud_projects_raw() -> Any:
   return _cloud_api_resource_raw.projects()
 
 
-def _make_request_headers() -> Optional[Dict[str, Any]]:
+def _make_request_headers() -> Optional[dict[str, Any]]:
   """Adds headers based on client context."""
-  headers: Dict[str, Any] = {}
-  client_version_header_values: List[Any] = []
+  headers: dict[str, Any] = {}
+  client_version_header_values: list[Any] = []
   if _cloud_api_client_version is not None:
     client_version_header_values.append('ee-py/' + _cloud_api_client_version)
   if _user_agent is not None:
@@ -426,7 +426,7 @@ def _translate_cloud_exception(
   return ee_exception.EEException(http_error._get_reason())  # pylint: disable=protected-access
 
 
-def _maybe_populate_workload_tag(body: Dict[str, Any]) -> None:
+def _maybe_populate_workload_tag(body: dict[str, Any]) -> None:
   """Populates the workload tag on the request body passed in if applicable.
 
   Defaults to the workload tag set by ee.data.setWorkloadTag() or related
@@ -556,7 +556,7 @@ def getAsset(asset_id: str) -> Any:
 
 
 @deprecation.Deprecated('Use listAssets or listImages')
-def getList(params: Dict[str, Any]) -> Any:
+def getList(params: dict[str, Any]) -> Any:
   """Get a list of contents for a collection asset.
 
   Args:
@@ -577,8 +577,8 @@ def getList(params: Dict[str, Any]) -> Any:
 
 
 def listImages(
-    params: Union[str, Dict[str, Any]],
-) -> Dict[str, Optional[List[Any]]]:
+    params: Union[str, dict[str, Any]],
+) -> dict[str, Optional[list[Any]]]:
   """Returns the images in an image collection or folder.
 
   Args:
@@ -615,7 +615,7 @@ def listImages(
   return images
 
 
-def listAssets(params: Union[str, Dict[str, Any]]) -> Dict[str, List[Any]]:
+def listAssets(params: Union[str, dict[str, Any]]) -> dict[str, list[Any]]:
   """Returns the assets in a folder.
 
   Args:
@@ -687,7 +687,7 @@ def listBuckets(project: Optional[str] = None) -> Any:
   return _execute_cloud_call(_get_cloud_projects().listAssets(parent=project))
 
 
-def getMapId(params: Dict[str, Any]) -> Dict[str, Any]:
+def getMapId(params: dict[str, Any]) -> dict[str, Any]:
   """Get a Map ID for a given asset.
 
   Args:
@@ -762,7 +762,7 @@ def getMapId(params: Dict[str, Any]) -> Dict[str, Any]:
           'tile_fetcher': TileFetcher(url_format, map_name=map_name)}
 
 
-def getFeatureViewTilesKey(params: Dict[str, Any]) -> Dict[str, Any]:
+def getFeatureViewTilesKey(params: dict[str, Any]) -> dict[str, Any]:
   """Get a tiles key for a given map or asset.
 
   Args:
@@ -801,7 +801,7 @@ def getFeatureViewTilesKey(params: Dict[str, Any]) -> Dict[str, Any]:
   }
 
 
-def _extract_table_converter(params: Dict[str, Any]) -> Optional[Any]:
+def _extract_table_converter(params: dict[str, Any]) -> Optional[Any]:
   if 'fileFormat' in params:
     file_format = params.get('fileFormat')
     converter = table_converter.from_file_format(file_format)
@@ -812,7 +812,7 @@ def _extract_table_converter(params: Dict[str, Any]) -> Optional[Any]:
 
 
 def _extract_image_converter(
-    params: Dict[str, Any]
+    params: dict[str, Any]
 ) -> image_converter.ImageConverter:
   file_format = params.get('fileFormat')
   converter = image_converter.from_file_format(file_format)
@@ -833,7 +833,7 @@ def _generate(func, list_key: str, **kwargs) -> Iterator[Any]:
     args['params'].update({'pageToken': response[_NEXT_PAGE_TOKEN_KEY]})
 
 
-def listFeatures(params: Dict[str, Any]) -> Any:
+def listFeatures(params: dict[str, Any]) -> Any:
   """List features for a given table or FeatureView asset.
 
   Args:
@@ -878,7 +878,7 @@ def listFeatures(params: Dict[str, Any]) -> Any:
   return call(params)
 
 
-def getPixels(params: Dict[str, Any]) -> Any:
+def getPixels(params: dict[str, Any]) -> Any:
   """Fetches pixels from an image asset.
 
   Args:
@@ -921,7 +921,7 @@ def getPixels(params: Dict[str, Any]) -> Any:
   return data
 
 
-def computePixels(params: Dict[str, Any]) -> Any:
+def computePixels(params: dict[str, Any]) -> Any:
   """Computes a tile by performing an arbitrary computation on image data.
 
   Args:
@@ -961,7 +961,7 @@ def computePixels(params: Dict[str, Any]) -> Any:
   return data
 
 
-def computeImages(params: Dict[str, Any]) -> Any:
+def computeImages(params: dict[str, Any]) -> Any:
   """Computes a list of images by applying a computation to features.
 
   Args:
@@ -987,7 +987,7 @@ def computeImages(params: Dict[str, Any]) -> Any:
   )
 
 
-def computeFeatures(params: Dict[str, Any]) -> Any:
+def computeFeatures(params: dict[str, Any]) -> Any:
   """Computes a list of features by applying a computation to features.
 
   Args:
@@ -1033,7 +1033,7 @@ def computeFeatures(params: Dict[str, Any]) -> Any:
   return call(params)
 
 
-def getTileUrl(mapid: Dict[str, Any], x: float, y: float, z: float) -> str:
+def getTileUrl(mapid: dict[str, Any], x: float, y: float, z: float) -> str:
   """Generate a URL for map tiles from a Map ID and coordinates.
 
   Args:
@@ -1134,7 +1134,7 @@ def computeValue(obj: computedobject.ComputedObject) -> Any:
 
 @deprecation.Deprecated('Use getThumbId and makeThumbUrl')
 def getThumbnail(
-    params: Dict[str, Any], thumbType: Optional[str] = None
+    params: dict[str, Any], thumbType: Optional[str] = None
 ) -> Any:
   """Get a Thumbnail for a given asset.
 
@@ -1169,8 +1169,8 @@ def getThumbnail(
 
 
 def getThumbId(
-    params: Dict[str, Any], thumbType: Optional[str] = None
-) -> Dict[str, str]:
+    params: dict[str, Any], thumbType: Optional[str] = None
+) -> dict[str, str]:
   """Get a Thumbnail ID for a given asset.
 
   Args:
@@ -1253,7 +1253,7 @@ def getThumbId(
   return {'thumbid': result['name'], 'token': ''}
 
 
-def makeThumbUrl(thumbId: Dict[str, str]) -> str:
+def makeThumbUrl(thumbId: dict[str, str]) -> str:
   """Create a thumbnail URL from the given thumbid.
 
   Args:
@@ -1269,7 +1269,7 @@ def makeThumbUrl(thumbId: Dict[str, str]) -> str:
   return url
 
 
-def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
+def getDownloadId(params: dict[str, Any]) -> dict[str, str]:
   """Get a Download ID.
 
   Args:
@@ -1385,7 +1385,7 @@ def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
   return {'docid': result['name'], 'token': ''}
 
 
-def makeDownloadUrl(downloadId: Dict[str, str]) -> str:
+def makeDownloadUrl(downloadId: dict[str, str]) -> str:
   """Create a download URL from the given docid.
 
   Args:
@@ -1398,7 +1398,7 @@ def makeDownloadUrl(downloadId: Dict[str, str]) -> str:
                                  downloadId['docid'])
 
 
-def getTableDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
+def getTableDownloadId(params: dict[str, Any]) -> dict[str, str]:
   """Get a Download ID.
 
   Args:
@@ -1447,7 +1447,7 @@ def getTableDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
   return {'docid': result['name'], 'token': ''}
 
 
-def makeTableDownloadUrl(downloadId: Dict[str, str]) -> str:
+def makeTableDownloadUrl(downloadId: dict[str, str]) -> str:
   """Create a table download URL from a docid.
 
   Args:
@@ -1501,10 +1501,10 @@ def getAlgorithms() -> Any:
 
 @_utils.accept_opt_prefix('opt_path', 'opt_force', 'opt_properties')
 def createAsset(
-    value: Dict[str, Any],
+    value: dict[str, Any],
     path: Optional[str] = None,
-    properties: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    properties: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
   """Creates an asset from a JSON value.
 
   To create an empty image collection or folder, pass in a "value" object
@@ -1560,7 +1560,7 @@ def createAsset(
   )
 
 
-def createFolder(path: str) -> Dict[str, Any]:
+def createFolder(path: str) -> dict[str, Any]:
   """Creates an asset folder.
 
   Returns a description of the newly created folder.
@@ -1624,7 +1624,7 @@ def deleteAsset(assetId: str) -> None:
   _execute_cloud_call(_get_cloud_projects().assets().delete(name=name))
 
 
-def newTaskId(count: int = 1) -> List[str]:
+def newTaskId(count: int = 1) -> list[str]:
   """Generate an ID for a long-running task.
 
   Args:
@@ -1637,7 +1637,7 @@ def newTaskId(count: int = 1) -> List[str]:
 
 
 @deprecation.Deprecated('Use listOperations')
-def getTaskList() -> List[Any]:
+def getTaskList() -> list[Any]:
   """Retrieves a list of the user's tasks.
 
   Returns:
@@ -1649,7 +1649,7 @@ def getTaskList() -> List[Any]:
           for o in listOperations()]
 
 
-def listOperations(project: Optional[str] = None) -> List[Any]:
+def listOperations(project: Optional[str] = None) -> list[Any]:
   """Retrieves a list of the user's tasks.
 
   Args:
@@ -1676,7 +1676,7 @@ def listOperations(project: Optional[str] = None) -> List[Any]:
 
 
 @deprecation.Deprecated('Use getOperation')
-def getTaskStatus(taskId: Union[List[str], str]) -> List[Any]:
+def getTaskStatus(taskId: Union[list[str], str]) -> list[Any]:
   """Retrieve status of one or more long-running tasks.
 
   Args:
@@ -1740,7 +1740,7 @@ def cancelOperation(operation_name: str) -> None:
   )
 
 
-def exportImage(request_id: str, params: Dict[str, Any]) -> Any:
+def exportImage(request_id: str, params: dict[str, Any]) -> Any:
   """Starts an image export task running.
 
   This is a low-level method. The higher-level ee.batch.Export.image object
@@ -1767,7 +1767,7 @@ def exportImage(request_id: str, params: Dict[str, Any]) -> Any:
   )
 
 
-def exportTable(request_id: str, params: Dict[str, Any]) -> Any:
+def exportTable(request_id: str, params: dict[str, Any]) -> Any:
   """Starts a table export task running.
 
   This is a low-level method. The higher-level ee.batch.Export.table object
@@ -1794,7 +1794,7 @@ def exportTable(request_id: str, params: Dict[str, Any]) -> Any:
   )
 
 
-def exportVideo(request_id: str, params: Dict[str, Any]) -> Any:
+def exportVideo(request_id: str, params: dict[str, Any]) -> Any:
   """Starts a video export task running.
 
   This is a low-level method. The higher-level ee.batch.Export.video object
@@ -1821,7 +1821,7 @@ def exportVideo(request_id: str, params: Dict[str, Any]) -> Any:
   )
 
 
-def exportMap(request_id: str, params: Dict[str, Any]) -> Any:
+def exportMap(request_id: str, params: dict[str, Any]) -> Any:
   """Starts a map export task running.
 
   This is a low-level method. The higher-level ee.batch.Export.map object
@@ -1848,7 +1848,7 @@ def exportMap(request_id: str, params: Dict[str, Any]) -> Any:
   )
 
 
-def exportClassifier(request_id: str, params: Dict[str, Any]) -> Any:
+def exportClassifier(request_id: str, params: dict[str, Any]) -> Any:
   """Starts a classifier export task.
 
   This is a low-level method. The higher-level ee.batch.Export.classifier
@@ -1876,7 +1876,7 @@ def exportClassifier(request_id: str, params: Dict[str, Any]) -> Any:
 
 
 def _prepare_and_run_export(
-    request_id: str, params: Dict[str, Any], export_endpoint: Any
+    request_id: str, params: dict[str, Any], export_endpoint: Any
 ) -> Any:
   """Starts an export task running.
 
@@ -1917,10 +1917,10 @@ _EXTERNAL_IMPORT = 'EXTERNAL_IMPORT'
 
 def _startIngestion(
     request_id: Any,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     allow_overwrite: bool = False,
     import_mode: Optional[str] = _INTERNAL_IMPORT,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
   """Starts an ingestion task or creates an external image."""
   request = {
       'imageManifest':
@@ -1964,9 +1964,9 @@ def _startIngestion(
 
 def startIngestion(
     request_id: Any,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     allow_overwrite: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
   """Creates an image asset import task.
 
   Args:
@@ -2001,9 +2001,9 @@ def startIngestion(
 
 
 def startExternalImageIngestion(
-    image_manifest: Dict[str, Any],
+    image_manifest: dict[str, Any],
     allow_overwrite: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
   """Creates an external image.
 
   Args:
@@ -2033,8 +2033,8 @@ def startExternalImageIngestion(
 
 
 def startTableIngestion(
-    request_id: str, params: Dict[str, Any], allow_overwrite: bool = False
-) -> Dict[str, Any]:
+    request_id: str, params: dict[str, Any], allow_overwrite: bool = False
+) -> dict[str, Any]:
   """Creates a table asset import task.
 
   Args:
@@ -2103,7 +2103,7 @@ def getAssetRoots() -> Any:
       listBuckets())
 
 
-def getAssetRootQuota(rootId: str) -> Dict[str, Any]:
+def getAssetRootQuota(rootId: str) -> dict[str, Any]:
   """Returns quota usage details for the asset root with the given ID.
 
   Usage notes:
@@ -2179,7 +2179,7 @@ def getIamPolicy(asset_id: str) -> Any:
 
 
 @deprecation.Deprecated('Use setIamPolicy')
-def setAssetAcl(assetId: str, aclUpdate: Union[str, Dict[str, Any]]) -> None:
+def setAssetAcl(assetId: str, aclUpdate: Union[str, dict[str, Any]]) -> None:
   """Sets the access control list of the asset with the given ID.
 
   The owner ACL cannot be changed, and the final ACL of the asset
@@ -2215,7 +2215,7 @@ def setIamPolicy(asset_id: str, policy: Any) -> None:
   )
 
 @deprecation.Deprecated('Use ee.data.updateAsset().')
-def setAssetProperties(assetId: str, properties: Dict[str, Any]) -> None:
+def setAssetProperties(assetId: str, properties: dict[str, Any]) -> None:
   """Sets metadata properties of the asset with the given ID.
 
   To delete a property, set its value to None.
@@ -2280,7 +2280,7 @@ def _get_config_path() -> str:
   return f'{_get_projects_path()}/config'
 
 
-def getProjectConfig() -> Dict[str, Any]:
+def getProjectConfig() -> dict[str, Any]:
   """Gets the project config for the current project.
 
   Returns:
@@ -2292,8 +2292,8 @@ def getProjectConfig() -> Dict[str, Any]:
 
 
 def updateProjectConfig(
-    project_config: Dict[str, Any], update_mask: Optional[Sequence[str]] = None
-) -> Dict[str, Any]:
+    project_config: dict[str, Any], update_mask: Optional[Sequence[str]] = None
+) -> dict[str, Any]:
   """Updates the project config for the current project.
 
   Args:

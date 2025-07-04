@@ -1,7 +1,7 @@
 """A wrapper for Blobs."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from ee import _arg_types
 from ee import apifunction
@@ -46,7 +46,7 @@ class Blob(computedobject.ComputedObject):
     """
     self.initialize()
 
-    args: Dict[str, Any] = {'url': url}
+    args: dict[str, Any] = {'url': url}
     func = apifunction.ApiFunction(self.name())
 
     if isinstance(url, str):

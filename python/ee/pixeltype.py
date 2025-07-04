@@ -1,7 +1,7 @@
 """A wrapper for PixelTypes."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from ee import _arg_types
 from ee import apifunction
@@ -72,7 +72,7 @@ class PixelType(computedobject.ComputedObject):
     """
     self.initialize()
 
-    args: Dict[str, Any] = {'precision': precision}
+    args: dict[str, Any] = {'precision': precision}
     if minValue is not None:
       args['minValue'] = minValue
     if maxValue is not None:

@@ -6,7 +6,7 @@ This class is never intended to be instantiated by the user.
 from __future__ import annotations
 
 import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -30,7 +30,7 @@ class Element(computedobject.ComputedObject):
   def __init__(
       self,
       func: Optional[apifunction.ApiFunction],
-      args: Optional[Dict[str, Any]],
+      args: Optional[dict[str, Any]],
       varName: Optional[str] = None,  # pylint: disable=g-bad-name
   ):
     """Constructs a collection by initializing its ComputedObject."""
@@ -122,7 +122,7 @@ class Element(computedobject.ComputedObject):
   def set(
       self,
       *args: Union[
-          Dict[str, Any],
+          dict[str, Any],
           float,
           str,
           datetime.datetime,

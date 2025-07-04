@@ -1,7 +1,7 @@
 """A wrapper for dictionaries."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -26,7 +26,7 @@ _StringListType = Union[Any, computedobject.ComputedObject]
 class Dictionary(computedobject.ComputedObject):
   """An object to represent dictionaries."""
 
-  _dictionary: Optional[Dict[Any, Any]]
+  _dictionary: Optional[dict[Any, Any]]
 
   _initialized = False
 
