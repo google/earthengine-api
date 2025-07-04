@@ -17,7 +17,7 @@ from ee import ee_number
 from ee import ee_string
 from ee import ee_types
 from ee import featurecollection
-from ee import projection
+from ee import projection as ee_projection
 from ee import serializer
 
 
@@ -1417,7 +1417,7 @@ class Geometry(computedobject.ComputedObject):
         self.name() + '.perimeter', self, maxError, proj
     )
 
-  def projection(self) -> projection.Projection:
+  def projection(self) -> ee_projection.Projection:
     """Returns the projection of the geometry."""
 
     return apifunction.ApiFunction.call_(self.name() + '.projection', self)
