@@ -460,9 +460,9 @@ class EETestCase(apitestcase.ApiTestCase):
 
   def testNonAsciiDocumentation(self):
     """Verifies that non-ASCII characters in documentation work."""
-    foo = u'\uFB00\u00F6\u01EB'
-    bar = u'b\u00E4r'
-    baz = u'b\u00E2\u00DF'
+    foo = '\uFB00\u00F6\u01EB'
+    bar = 'b\u00E4r'
+    baz = 'b\u00E2\u00DF'
 
     def MockAlgorithms():
       return {
