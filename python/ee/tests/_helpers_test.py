@@ -25,7 +25,7 @@ class ProfilingTest(apitestcase.ApiTestCase):
     is_get_profiles = isinstance(
         value, computedobject.ComputedObject
     ) and value.func == apifunction.ApiFunction.lookup('Profile.getProfiles')
-    return 'hooked=%s getProfiles=%s' % (hooked, is_get_profiles)
+    return f'hooked={hooked} getProfiles={is_get_profiles}'
 
   def testProfilePrinting(self):
     ee.data.computeValue = self.MockValue

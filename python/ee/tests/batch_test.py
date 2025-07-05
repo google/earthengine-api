@@ -59,7 +59,7 @@ class TaskTest(unittest.TestCase):
 
   def testStartWithoutConfig(self):
     task = batch.Task('an id', 'a task type', 'a state')
-    self.assertIsNone((task.config))
+    self.assertIsNone(task.config)
     with self.assertRaisesRegex(ee.EEException, 'Task config'):
       task.start()
 

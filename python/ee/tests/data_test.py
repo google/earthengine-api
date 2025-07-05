@@ -315,8 +315,8 @@ class DataTest(unittest.TestCase):
       update_mask = mock_update_asset.call_args[0][2]
       self.assertSetEqual(
           set(update_mask),
-          set(['properties.\"mYPropErTy\"',
-               'properties.\"system:time_start\"']))
+          {'properties.\"mYPropErTy\"',
+               'properties.\"system:time_start\"'})
 
   def testListAssets(self):
     cloud_api_resource = mock.MagicMock()
