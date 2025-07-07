@@ -26,6 +26,7 @@ jobs:
         pip install pyright
         pip install pytype
         pip install mypy
+        pip install pandas-stubs types-httplib2 types-requests types-tensorflow
     - name: pyright ee type verification
       run: |
         pyright --verifytypes ee
