@@ -15,7 +15,7 @@ _DEPRECATED_OBJECT = 'earthengine-stac/catalog/catalog_deprecated.json'
 _DEPRECATED_ASSETS_URL = f'https://storage.googleapis.com/{_DEPRECATED_OBJECT}'
 
 # Deprecation warnings are per-asset, per-initialization.
-deprecated_assets: dict[str, DeprecatedAsset] = None
+deprecated_assets: dict[str, DeprecatedAsset] = dict()
 
 
 def Deprecated(message: str):
@@ -87,8 +87,10 @@ class DeprecatedAsset:
     removal_date = stac_link.get('gee:removal_date')
     if removal_date is not None:
       removal_date = cls._ParseDateString(removal_date)
+    title = stac_link.get('title')
+    assert isinstance(title, str)
     return DeprecatedAsset(
-        id=stac_link.get('title'),
+        id=title,
         replacement_id=stac_link.get('gee:replacement_id'),
         removal_date=removal_date,
         learn_more_url=stac_link.get('gee:learn_more_url'),
@@ -139,7 +141,7 @@ def InitializeDeprecatedAssets() -> None:
 
 def _InitializeDeprecatedAssetsInternal() -> None:
   global deprecated_assets
-  if deprecated_assets is not None:
+  if deprecated_assets:
     return
   _UnfilterDeprecationWarnings()
 
@@ -153,7 +155,7 @@ def _InitializeDeprecatedAssetsInternal() -> None:
 
 def Reset() -> None:
   global deprecated_assets
-  deprecated_assets = None
+  deprecated_assets = dict()
 
 
 def _FetchDataCatalogStac() -> dict[str, Any]:
