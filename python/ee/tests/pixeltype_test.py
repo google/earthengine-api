@@ -78,7 +78,7 @@ class PixelTypeTest(apitestcase.ApiTestCase):
 
     self.assertFalse(pixeltype.isVariable())
     self.assertEqual(
-        set([DIMENSIONS_KEY, MAX_VALUE_KEY, MIN_VALUE_KEY, PRECISION_KEY]),
+        {DIMENSIONS_KEY, MAX_VALUE_KEY, MIN_VALUE_KEY, PRECISION_KEY},
         set(pixeltype.args),
     )
     expected_dimensions = {'result': '0', 'values': {'0': {'constantValue': 2}}}

@@ -26,7 +26,7 @@ class ErrorMarginTest(apitestcase.ApiTestCase):
     self.assertEqual(errormargin_func, errormargin.func)
 
     self.assertFalse(errormargin.isVariable())
-    self.assertEqual(set([UNIT, VALUE]), set(errormargin.args))
+    self.assertEqual({UNIT, VALUE}, set(errormargin.args))
     expected_unit = {
         'result': '0',
         'values': {'0': {'constantValue': 'projected'}},
