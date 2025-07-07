@@ -169,7 +169,6 @@ class ProjectionTest(apitestcase.ApiTestCase):
     })
     expression = ee.Projection(EPSG_4326).nominalScale()
     result = json.loads(expression.serialize())
-    print(result)
     self.assertEqual(expect, result)
 
   def test_scale(self):

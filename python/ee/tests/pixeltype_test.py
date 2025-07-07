@@ -294,7 +294,6 @@ class PixelTypeTest(apitestcase.ApiTestCase):
     expect = pixeltype_noargs_expr('int16')
     expression = ee.PixelType.int16()
     result = json.loads(expression.serialize())
-    print(json.dumps(result, indent=2))
     self.assertEqual(expect, result)
 
   def test_int32(self):
