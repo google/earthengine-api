@@ -8,6 +8,7 @@ the actions to be taken when the command is executed.
 import argparse
 import calendar
 import collections
+from collections.abc import Sequence
 import datetime
 import json
 import logging
@@ -16,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from typing import Any, Sequence, Type, Union
+from typing import Any, Union
 import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
@@ -1088,7 +1089,7 @@ class RmCommand:
       return ee.data.getInfo(asset_id)
     except ee.EEException as e:
       if verbose:
-        print('Failed to get info for %s. %s' % (asset_id, e))
+        print(f'Failed to get info for {asset_id}. {e}')
       return None
 
   def _delete_asset(self, asset_id, recursive, verbose, dry_run):
@@ -1108,7 +1109,7 @@ class RmCommand:
       try:
         ee.data.deleteAsset(asset_id)
       except ee.EEException as e:
-        print('Failed to delete %s. %s' % (asset_id, e))
+        print(f'Failed to delete {asset_id}. {e}')
 
 
 class TaskCancelCommand:
@@ -1141,7 +1142,7 @@ class TaskCancelCommand:
         print('Canceling task "%s"' % task_id)
         ee.data.cancelTask(task_id)
       elif not cancel_all:
-        print('Task "%s" already in state "%s".' % (status['id'], state))
+        print('Task "{}" already in state "{}".'.format(status['id'], state))
 
 
 class TaskInfoCommand:
@@ -1862,8 +1863,7 @@ def _make_rpc_friendly(model_dir, tag, in_map, out_map, vars_path):
 
   # Create new input placeholders to receive RPC TensorProto payloads
   in_op_map = {
-      k: tf.placeholder(
-          tf.string, shape=[None], name='earthengine_in_{}'.format(i))
+      k: tf.placeholder(tf.string, shape=[None], name=f'earthengine_in_{i}')
       for (i, k) in enumerate(input_new_keys)
   }
 
@@ -1888,7 +1888,9 @@ def _make_rpc_friendly(model_dir, tag, in_map, out_map, vars_path):
     out_tensor = saved_model_utils.build_tensor_info(
         _encode_op(
             tf.get_default_graph().get_tensor_by_name(k),
-            name='earthengine_out_{}'.format(index)))
+            name=f'earthengine_out_{index}',
+        )
+    )
 
     sig_out[_strip_index(v)] = out_tensor
 

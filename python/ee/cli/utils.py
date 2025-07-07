@@ -6,6 +6,7 @@ the classes for configuration and runtime context management.
 """
 
 import collections
+from collections.abc import Iterable
 import datetime
 import json
 import os
@@ -13,7 +14,7 @@ import re
 import tempfile
 import threading
 import time
-from typing import Any, AnyStr, Iterable, Optional, Union
+from typing import Any, AnyStr, Optional, Union
 import urllib.parse
 
 from google.cloud import storage
@@ -152,7 +153,7 @@ class CommandLineConfig:
 def _split_gcs_path(path):
   m = re.search('gs://([a-z0-9-_.]*)/(.*)', path, re.IGNORECASE)
   if not m:
-    raise ValueError('\'{}\' is not a valid GCS path'.format(path))
+    raise ValueError(f"'{path}' is not a valid GCS path")
 
   return m.groups()
 
@@ -182,7 +183,7 @@ class GcsHelper:
         raise ValueError('Size of files in \'{}\' exceeds allowed size: '
                          '{} > {}.'.format(path, total_bytes, max_bytes))
     if total_bytes == 0:
-      raise ValueError('No files found at \'{}\'.'.format(path))
+      raise ValueError(f"No files found at '{path}'.")
 
   def download_dir_to_temp(self, path: str) -> str:
     """Downloads recursively the contents at a GCS path to a temp directory."""
@@ -252,7 +253,7 @@ def wait_for_task(
 ) -> None:
   """Waits for the specified task to finish, or a timeout to occur."""
   start = time.time()
-  elapsed = 0
+  elapsed: float
   last_check = 0
   while True:
     elapsed = time.time() - start
@@ -274,7 +275,9 @@ def wait_for_task(
       time.sleep(min(10, remaining))
     else:
       break
-  print('Wait for task %s timed out after %.2f seconds' % (task_id, elapsed))
+  print(
+      f'Wait for task {task_id} timed out after {elapsed:.2f} seconds'
+  )
 
 
 def wait_for_tasks(
@@ -385,9 +388,10 @@ def _gcs_ls(bucket: str, prefix: str = '') -> Iterable[str]:
       raise ee.ee_exception.EEException('Unexpected HTTP error: %s' % str(e))
 
     if response.status < 100 or response.status >= 300:
-      raise ee.ee_exception.EEException(('Error retrieving bucket %s;'
-                                         ' Server returned HTTP code: %d' %
-                                         (bucket, response.status)))
+      raise ee.ee_exception.EEException(
+          'Error retrieving bucket %s; Server returned HTTP code: %d'
+          % (bucket, response.status)
+      )
 
     json_content = json.loads(content)
     if 'error' in json_content:
@@ -402,7 +406,7 @@ def _gcs_ls(bucket: str, prefix: str = '') -> Iterable[str]:
     object_names = [str(gc_object['name']) for gc_object in objects]
 
     for name in object_names:
-      yield 'gs://%s/%s' % (bucket, name)
+      yield f'gs://{bucket}/{name}'
 
     # GCS indicates no more results
     if 'nextPageToken' not in json_content:
