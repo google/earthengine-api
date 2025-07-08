@@ -7,10 +7,11 @@ referenced from there (e.g., "ee.profilePrinting").
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from collections.abc import Iterator
 import contextlib
 import json
 import sys
-from typing import Any, Iterator, Optional, TextIO, Union
+from typing import Any, Optional, TextIO, Union
 
 from google.auth import crypt
 from google.oauth2 import service_account
@@ -59,7 +60,7 @@ def ServiceAccountCredentials(
 
   # Probably a PEM key - just read the file into 'key_data'.
   if key_file:
-    with open(key_file, 'r') as file_:
+    with open(key_file) as file_:
       key_data = file_.read()
 
   # Raw PEM key.

@@ -1,7 +1,7 @@
 """A wrapper for Blobs."""
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from ee import _arg_types
 from ee import apifunction
@@ -84,7 +84,7 @@ class Blob(computedobject.ComputedObject):
     return 'Blob'
 
   def string(
-      self, encoding: Optional[_arg_types.String] = None
+      self, encoding: _arg_types.String | None = None
   ) -> ee_string.String:
     """Returns the contents of the blob as a String.
 

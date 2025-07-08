@@ -1,7 +1,7 @@
 """A wrapper for numbers."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from ee import _arg_types
 from ee import _cloud_api_utils
@@ -15,7 +15,7 @@ from ee import ee_string
 class Number(computedobject.ComputedObject):
   """An object to represent numbers."""
 
-  _number: Optional[float]
+  _number: float | None
 
   _initialized = False
 
@@ -299,7 +299,7 @@ class Number(computedobject.ComputedObject):
   def expression(
       expression: _arg_types.String,
       # pylint: disable-next=redefined-builtin
-      vars: Optional[_arg_types.Dictionary] = None,
+      vars: _arg_types.Dictionary | None = None,
   ) -> Number:
     """Returns a number from computing a numeric expression.
 
@@ -351,7 +351,7 @@ class Number(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.floor', self)
 
   def format(
-      self, pattern: Optional[_arg_types.String] = None
+      self, pattern: _arg_types.String | None = None
   ) -> ee_string.String:
     r"""Convert a number to a string using printf-style formatting.
 
@@ -589,7 +589,7 @@ class Number(computedobject.ComputedObject):
   def parse(
       # pylint: disable=redefined-builtin
       input: _arg_types.String,
-      radix: Optional[_arg_types.Integer] = None,
+      radix: _arg_types.Integer | None = None,
   ) -> Number:
     """Returns a number from a string.
 

@@ -6,11 +6,12 @@ __version__ = '0.0.0'
 # pylint: disable=g-bad-name
 
 import collections
+from collections.abc import Hashable, Sequence
 import datetime
 import inspect
 import os
 import re
-from typing import Any, Hashable, Optional, Sequence, Type, Union
+from typing import Any, Optional, Type, Union
 
 from google.oauth2 import service_account
 
@@ -311,7 +312,7 @@ def _Promote(arg: Optional[Any], a_class: str) -> Optional[Any]:
       return Element(arg.func, arg.args, arg.varName)
     else:
       # No way to convert.
-      raise EEException('Cannot convert {0} to Element.'.format(arg))
+      raise EEException(f'Cannot convert {arg} to Element.')
   elif a_class == 'Geometry':
     if isinstance(arg, Collection):
       return ApiFunction.call_('Collection.geometry', arg)
@@ -340,7 +341,7 @@ def _Promote(arg: Optional[Any], a_class: str) -> Optional[Any]:
       # Image.parseExpression().
       return arg
     else:
-      raise EEException('Argument is not a function: {0}'.format(arg))
+      raise EEException(f'Argument is not a function: {arg}')
   elif a_class == 'Dictionary':
     if isinstance(arg, dict):
       return arg
@@ -372,7 +373,7 @@ def _Promote(arg: Optional[Any], a_class: str) -> Optional[Any]:
         # arg is the name of a method in a_class.
         return getattr(cls, arg)()
       else:
-        raise EEException('Unknown algorithm: {0}.{1}'.format(a_class, arg))
+        raise EEException(f'Unknown algorithm: {a_class}.{arg}')
     else:
       # Client-side cast.
       return cls(arg)
@@ -419,9 +420,9 @@ def _InitializeGeneratedClasses() -> None:
   """Generate classes for extra types that appear in the web API."""
   signatures = ApiFunction.allSignatures()
   # Collect the first part of all function names.
-  names = set([name.split('.')[0] for name in signatures])
+  names = {name.split('.')[0] for name in signatures}
   # Collect the return types of all functions.
-  returns = set([signatures[sig]['returns'] for sig in signatures])
+  returns = {signatures[sig]['returns'] for sig in signatures}
 
   want = [name for name in names.intersection(returns) if name not in globals()]
 
@@ -435,7 +436,7 @@ def _InitializeGeneratedClasses() -> None:
   types._registerClasses(globals())     # pylint: disable=protected-access
 
 
-def _MakeClass(name: str) -> Type[Any]:
+def _MakeClass(name: str) -> type[Any]:
   """Generates a dynamic API class for a given name."""
 
   def init(self, *args, **kwargs):
@@ -480,11 +481,11 @@ def _MakeClass(name: str) -> Type[Any]:
         if not onlyOneArg:
           # We don't know what to do with multiple args.
           raise EEException(
-              'Too many arguments for ee.{0}(): {1}'.format(name, args))
+              f'Too many arguments for ee.{name}(): {args}')
         elif firstArgIsPrimitive:
           # Can't cast a primitive.
           raise EEException(
-              'Invalid argument for ee.{0}(): {1}.  '
+              'Invalid argument for ee.{}(): {}.  '
               'Must be a ComputedObject.'.format(name, args))
 
         result = args[0]

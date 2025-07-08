@@ -1,7 +1,7 @@
 """A wrapper for lists."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any
 
 from ee import _arg_types
 from ee import _utils
@@ -17,16 +17,16 @@ from ee import geometry
 
 class List(computedobject.ComputedObject):
   """An object to represent lists."""
-  _list: Optional[
-      Union[list[Any], tuple[Any, Any]]
-  ]
+  _list: None | (
+      list[Any] | tuple[Any, Any]
+  )
 
   _initialized = False
 
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, arg: Optional[_arg_types.List]):
+  def __init__(self, arg: _arg_types.List | None):
     """Construct a list wrapper.
 
     This constructor accepts the following args:
@@ -64,9 +64,9 @@ class List(computedobject.ComputedObject):
   @staticmethod
   def sequence(
       start: _arg_types.Number,
-      end: Optional[_arg_types.Number] = None,
-      step: Optional[_arg_types.Number] = None,
-      count: Optional[_arg_types.Integer] = None,
+      end: _arg_types.Number | None = None,
+      step: _arg_types.Number | None = None,
+      count: _arg_types.Integer | None = None,
   ) -> List:
     """Returns a List of numbers from start to end (inclusive).
 
@@ -104,7 +104,7 @@ class List(computedobject.ComputedObject):
     return 'List'
 
   @_utils.accept_opt_prefix('opt_encoder')
-  def encode(self, encoder: Optional[Any] = None) -> Any:
+  def encode(self, encoder: Any | None = None) -> Any:
     if isinstance(self._list, (list, tuple)):
       assert self._list is not None
       return [encoder(elem) for elem in self._list]
@@ -112,7 +112,7 @@ class List(computedobject.ComputedObject):
       return super().encode(encoder)
 
   @_utils.accept_opt_prefix('opt_encoder')
-  def encode_cloud_value(self, encoder: Optional[Any] = None) -> Any:
+  def encode_cloud_value(self, encoder: Any | None = None) -> Any:
     if isinstance(self._list, (list, tuple)):
       return {'valueReference': encoder(self._list)}
     else:
@@ -557,7 +557,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.set', self, index, element
     )
 
-  def shuffle(self, seed: Optional[_arg_types.Integer] = None) -> List:
+  def shuffle(self, seed: _arg_types.Integer | None = None) -> List:
     """Randomly permute the specified list.
 
     Note that the permutation order will always be the same for any given seed,
@@ -582,8 +582,8 @@ class List(computedobject.ComputedObject):
   def slice(
       self,
       start: _arg_types.Integer,
-      end: Optional[_arg_types.Integer] = None,
-      step: Optional[_arg_types.Integer] = None,
+      end: _arg_types.Integer | None = None,
+      step: _arg_types.Integer | None = None,
   ) -> List:
     """Returns a range of elements from a list.
 
@@ -607,7 +607,7 @@ class List(computedobject.ComputedObject):
         self.name() + '.slice', self, start, end, step
     )
 
-  def sort(self, keys: Optional[_arg_types.List] = None) -> List:
+  def sort(self, keys: _arg_types.List | None = None) -> List:
     """Sorts the list into ascending order.
 
     If the keys argument is provided, then it is sorted first, and the
@@ -627,7 +627,7 @@ class List(computedobject.ComputedObject):
       self,
       start: _arg_types.Integer,
       count: _arg_types.Integer,
-      other: Optional[_arg_types.List] = None,
+      other: _arg_types.List | None = None,
   ) -> List:
     """Removes elements from list and replaces with elements from other.
 

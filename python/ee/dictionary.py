@@ -1,7 +1,7 @@
 """A wrapper for dictionaries."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from ee import _arg_types
 from ee import _utils
@@ -26,14 +26,14 @@ _StringListType = Union[Any, computedobject.ComputedObject]
 class Dictionary(computedobject.ComputedObject):
   """An object to represent dictionaries."""
 
-  _dictionary: Optional[dict[Any, Any]]
+  _dictionary: dict[Any, Any] | None
 
   _initialized = False
 
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, arg: Optional[_arg_types.Dictionary] = None):
+  def __init__(self, arg: _arg_types.Dictionary | None = None):
     """Construct a dictionary.
 
     Args:
@@ -91,7 +91,7 @@ class Dictionary(computedobject.ComputedObject):
   def combine(
       self,
       second: _arg_types.Dictionary,
-      overwrite: Optional[_arg_types.Bool] = None,
+      overwrite: _arg_types.Bool | None = None,
   ) -> Dictionary:
     """Combines two dictionaries.
 
@@ -140,7 +140,7 @@ class Dictionary(computedobject.ComputedObject):
       self,
       key: _EeKeyType,
       # pylint: disable-next=invalid-name
-      defaultValue: Optional[_arg_types.Any] = None,
+      defaultValue: _arg_types.Any | None = None,
   ) -> computedobject.ComputedObject:
     """Extracts a named value from a dictionary.
 
@@ -237,7 +237,7 @@ class Dictionary(computedobject.ComputedObject):
       self,
       selectors: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      ignoreMissing: Optional[_arg_types.Bool] = None,
+      ignoreMissing: _arg_types.Bool | None = None,
   ) -> Dictionary:
     """Returns a dictionary with the specified keys removed.
 
@@ -278,7 +278,7 @@ class Dictionary(computedobject.ComputedObject):
       self,
       selectors: _arg_types.Any,
       # pylint: disable-next=invalid-name
-      ignoreMissing: Optional[_arg_types.Bool] = None,
+      ignoreMissing: _arg_types.Bool | None = None,
   ) -> Dictionary:
     """Returns a dictionary with only the specified keys.
 
@@ -315,8 +315,8 @@ class Dictionary(computedobject.ComputedObject):
 
   def toArray(
       self,
-      keys: Optional[_EeKeyListType] = None,
-      axis: Optional[_arg_types.Integer] = None,
+      keys: _EeKeyListType | None = None,
+      axis: _arg_types.Integer | None = None,
   ) -> ee_array.Array:
     """Returns numeric values of a dictionary as an array.
 
@@ -335,7 +335,7 @@ class Dictionary(computedobject.ComputedObject):
         self.name() + '.toArray', self, keys, axis
     )
 
-  def toImage(self, names: Optional[_arg_types.Any] = None) -> image.Image:
+  def toImage(self, names: _arg_types.Any | None = None) -> image.Image:
     """Creates an image of constants from values in a dictionary.
 
     The bands of the image are ordered and named according to the names
@@ -351,7 +351,7 @@ class Dictionary(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.toImage', self, names)
 
-  def values(self, keys: Optional[_EeKeyListType] = None) -> ee_list.List:
+  def values(self, keys: _EeKeyListType | None = None) -> ee_list.List:
     """Returns the values of a dictionary as a list.
 
     If no keys are specified, all values are returned in the natural ordering of

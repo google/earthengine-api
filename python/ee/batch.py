@@ -9,10 +9,11 @@ The public function styling uses camelCase to match the JavaScript names.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import enum
 import json
 import re
-from typing import Any, Optional, Sequence, Union
+from typing import Any
 
 from ee import _cloud_api_utils
 from ee import data
@@ -54,14 +55,14 @@ class Task:
     CANCELLED = 'CANCELLED'
 
     @classmethod
-    def active(cls, state: Union[str, Task.State]) -> bool:
+    def active(cls, state: str | Task.State) -> bool:
       """Returns True if the given state is an active one."""
       if isinstance(state, str):
         state = cls(state)
       return state in (cls.READY, cls.RUNNING, cls.CANCEL_REQUESTED)
 
     @classmethod
-    def success(cls, state: Union[str, Task.State]) -> bool:
+    def success(cls, state: str | Task.State) -> bool:
       """Returns True if the given state indicates a completed task."""
       if isinstance(state, str):
         state = cls(state)
@@ -74,22 +75,22 @@ class Task:
     FEATURE_VIEW = 'FEATURE_VIEW'
     BIGQUERY = 'BIGQUERY'
 
-  config: Optional[dict[str, Any]]
-  id: Optional[str]
-  name: Optional[str]
+  config: dict[str, Any] | None
+  id: str | None
+  name: str | None
   state: State
   task_type: Type
-  workload_tag: Optional[Union[int, str]]
+  workload_tag: int | str | None
 
-  _request_id: Optional[str]
+  _request_id: str | None
 
   def __init__(
       self,
-      task_id: Optional[str],
+      task_id: str | None,
       task_type: Type,
       state: State,
-      config: Optional[dict[str, Any]] = None,
-      name: Optional[str] = None,
+      config: dict[str, Any] | None = None,
+      name: str | None = None,
   ):
     """Creates a Task with the given ID and configuration.
 
@@ -121,7 +122,7 @@ class Task:
     self.name = name
 
   @property
-  def operation_name(self) -> Optional[str]:
+  def operation_name(self) -> str | None:
     if self.name:
       return self.name
     if self.id:
@@ -152,8 +153,7 @@ class Task:
     elif self.task_type == Task.Type.EXPORT_CLASSIFIER:
       result = data.exportClassifier(self._request_id, self.config)
     else:
-      raise ee_exception.EEException(
-          'Unknown Task type "{}"'.format(self.task_type))
+      raise ee_exception.EEException(f'Unknown Task type "{self.task_type}"')
     if not self.id:
       self.id = _cloud_api_utils.convert_operation_name_to_task_id(
           result['name'])
@@ -204,11 +204,13 @@ class Task:
   def __repr__(self) -> str:
     """Returns a string representation of the task."""
     if self.config and self.id:
-      return '<Task %s %s: %s (%s)>' % (self.id, self.task_type,
-                                        self.config['description'], self.state)
+      return '<Task {} {}: {} ({})>'.format(
+          self.id, self.task_type, self.config['description'], self.state
+      )
     elif self.config:
-      return '<Task %s: %s (%s)>' % (self.task_type, self.config['description'],
-                                     self.state)
+      return '<Task {}: {} ({})>'.format(
+          self.task_type, self.config['description'], self.state
+      )
     else:
       return '<Task "%s">' % self.id
 
@@ -231,7 +233,7 @@ class Export:
         cls,
         image: Any,
         description: str = 'myExportImageTask',
-        config: Optional[dict[str, Any]] = None,
+        config: dict[str, Any] | None = None,
     ):
       """Creates a task to export an EE Image to Google Drive or Cloud Storage.
 
@@ -1231,8 +1233,7 @@ def _prepare_image_export_config(
   if config:
     if 'skipEmptyTiles' in config:
       raise ValueError('skipEmptyTiles is only supported for GeoTIFF exports.')
-    raise ee_exception.EEException(
-        'Unknown configuration options: {}.'.format(config))
+    raise ee_exception.EEException(f'Unknown configuration options: {config}.')
 
   return request
 
@@ -1279,8 +1280,7 @@ def _prepare_map_export_config(
     # for JSON encoding.
     request['priority'] = {'value': int(config.pop('priority'))}
   if config:
-    raise ee_exception.EEException(
-        'Unknown configuration options: {}.'.format(config))
+    raise ee_exception.EEException(f'Unknown configuration options: {config}.')
   return request
 
 
@@ -1351,8 +1351,7 @@ def _prepare_table_export_config(
     request['priority'] = {'value': int(config.pop('priority'))}
 
   if config:
-    raise ee_exception.EEException(
-        'Unknown configuration options: {}.'.format(config))
+    raise ee_exception.EEException(f'Unknown configuration options: {config}.')
   return request
 
 
@@ -1394,8 +1393,7 @@ def _prepare_video_export_config(
     request['priority'] = {'value': int(config.pop('priority'))}
 
   if config:
-    raise ee_exception.EEException(
-        'Unknown configuration options: {}.'.format(config))
+    raise ee_exception.EEException(f'Unknown configuration options: {config}.')
   return request
 
 
@@ -1427,7 +1425,8 @@ def _build_image_file_export_options(
             config)
   else:
     raise ee_exception.EEException(
-        '"{}" is not a valid export destination'.format(export_destination))
+        f'"{export_destination}" is not a valid export destination'
+    )
 
   file_format_options = config.pop(IMAGE_FORMAT_OPTIONS_FIELD, {})
 
@@ -1499,7 +1498,8 @@ def _build_image_file_export_options(
 
   if file_format_options:
     raise ee_exception.EEException(
-        'Unknown file format options: {}.'.format(file_format_options))
+        f'Unknown file format options: {file_format_options}.'
+    )
 
   return file_export_options
 
@@ -1531,7 +1531,8 @@ def _build_table_file_export_options(
             config)
   else:
     raise ee_exception.EEException(
-        '"{}" is not a valid export destination'.format(export_destination))
+        f'"{export_destination}" is not a valid export destination'
+    )
   return file_export_options
 
 
@@ -1584,7 +1585,8 @@ def _build_video_file_export_options(
             config)
   else:
     raise ee_exception.EEException(
-        '"{}" is not a valid export destination'.format(export_destination))
+        f'"{export_destination}" is not a valid export destination'
+    )
   return file_export_options
 
 
@@ -1773,10 +1775,11 @@ def _get_rank_by_one_thing_rule(rule_str: str) -> dict[str, Any]:
   matches = re.findall(r'^([\S]+.*)\s+(ASC|DESC)$', rule_str.strip())
   if not matches:
     raise ee_exception.EEException(
-        ('Ranking rule format is invalid. Each rule should be defined by a '
-         'rule type and a direction (ASC or DESC), separated by a space. '
-         'Valid rule types are: .geometryType, .minZoomLevel, or a feature '
-         'property name.'))
+        'Ranking rule format is invalid. Each rule should be defined by a '
+        'rule type and a direction (ASC or DESC), separated by a space. '
+        'Valid rule types are: .geometryType, .minZoomLevel, or a feature '
+        'property name.'
+    )
 
   output = {}
   rule_type, rule_dir = matches[0]
@@ -1796,8 +1799,8 @@ def _get_rank_by_one_thing_rule(rule_str: str) -> dict[str, Any]:
 
 
 def _get_ranking_rule(
-    rules: Optional[Union[str, list[str]]]
-) -> Optional[dict[str, list[dict[str, Any]]]]:
+    rules: str | list[str] | None,
+) -> dict[str, list[dict[str, Any]]] | None:
   """Returns a RankingRule dict created from the rank-by-one-thing rules.
 
   Args:
@@ -1819,11 +1822,12 @@ def _get_ranking_rule(
     return {'rankByOneThingRule': rank_by_one_thing_rules}
 
   raise ee_exception.EEException(
-      ('Unable to build ranking rule from rules. Rules should '
-       'either be a comma-separated string or list of strings.'))
+      'Unable to build ranking rule from rules. Rules should '
+      'either be a comma-separated string or list of strings.'
+  )
 
 
-def _build_thinning_options(config: dict[str, Any]) -> Optional[dict[str, Any]]:
+def _build_thinning_options(config: dict[str, Any]) -> dict[str, Any] | None:
   """Returns a ThinningOptions dict created from the config.
 
   Args:
@@ -1843,7 +1847,7 @@ def _build_thinning_options(config: dict[str, Any]) -> Optional[dict[str, Any]]:
   return output
 
 
-def _build_ranking_options(config: dict[str, Any]) -> Optional[dict[str, Any]]:
+def _build_ranking_options(config: dict[str, Any]) -> dict[str, Any] | None:
   """Returns a RankingOptions dict created from the config.
 
   Args:
@@ -2027,7 +2031,7 @@ def _canonicalize_parameters(config, destination):
 
 
 def _canonicalize_region(
-    region: Union[str, geometry.Geometry, Any]
+    region: str | geometry.Geometry | Any,
 ) -> geometry.Geometry:
   """Converts a region parameter to a form appropriate for export."""
   region_error = ee_exception.EEException(

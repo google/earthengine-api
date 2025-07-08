@@ -12,8 +12,6 @@ Example usage:
 
 from __future__ import annotations
 
-from typing import Optional
-
 from ee import _arg_types
 from ee import _utils
 from ee import apifunction
@@ -178,8 +176,8 @@ class Filter(computedobject.ComputedObject):
       min: _arg_types.Number,  # pylint: disable=redefined-builtin
       max: _arg_types.Number,  # pylint: disable=redefined-builtin
       # pylint: disable=invalid-name
-      maxError: Optional[_arg_types.ErrorMargin] = None,
-      geometrySelector: Optional[_arg_types.String] = None,
+      maxError: _arg_types.ErrorMargin | None = None,
+      geometrySelector: _arg_types.String | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns an area filter of the geometry.
@@ -202,10 +200,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def dateRangeContains(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if a date range contains a date.
@@ -233,7 +231,7 @@ class Filter(computedobject.ComputedObject):
   def bounds(
       geometry: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      errorMargin: Optional[_arg_types.ErrorMargin] = None,
+      errorMargin: _arg_types.ErrorMargin | None = None,
   ) -> Filter:
     """Returns a filter on intersection with geometry.
 
@@ -256,8 +254,8 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def calendarRange(
       start: _arg_types.Integer,
-      end: Optional[_arg_types.Integer] = None,
-      field: Optional[_arg_types.String] = None,
+      end: _arg_types.Integer | None = None,
+      field: _arg_types.String | None = None,
   ) -> Filter:
     """Returns a filter that passes if a timestamp is in a range.
 
@@ -284,11 +282,11 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def contains(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
-      maxError: Optional[_arg_types.ErrorMargin] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
+      maxError: _arg_types.ErrorMargin | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if the left contains the right geometry.
@@ -321,7 +319,7 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   @_utils.accept_opt_prefix('opt_end')
   def date(
-      start: _arg_types.Date, end: Optional[_arg_types.Date] = None
+      start: _arg_types.Date, end: _arg_types.Date | None = None
   ) -> Filter:
     """Filter images by date.
 
@@ -360,11 +358,11 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def disjoint(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
-      maxError: Optional[_arg_types.ErrorMargin] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
+      maxError: _arg_types.ErrorMargin | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter.
@@ -402,10 +400,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def equals(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if the two operands are equals.
@@ -442,7 +440,7 @@ class Filter(computedobject.ComputedObject):
   def geometry(
       geometry: _arg_types.Geometry,
       # pylint: disable-next=invalid-name
-      errorMargin: Optional[_arg_types.ErrorMargin] = None,
+      errorMargin: _arg_types.ErrorMargin | None = None,
   ):
     """Filter on intersection with geometry.
 
@@ -470,10 +468,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def greaterThan(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if value is greater than the right operand.
@@ -496,10 +494,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def greaterThanOrEquals(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns filter that passes if value is greater than the right operand.
@@ -536,10 +534,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def hasType(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if the left has the type.
@@ -568,11 +566,11 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def intersects(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
-      maxError: Optional[_arg_types.ErrorMargin] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
+      maxError: _arg_types.ErrorMargin | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if left intersects the right geometry.
@@ -602,11 +600,11 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def isContained(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
-      maxError: Optional[_arg_types.ErrorMargin] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
+      maxError: _arg_types.ErrorMargin | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns filter that passes if the right geometry contains the geometry.
@@ -641,10 +639,10 @@ class Filter(computedobject.ComputedObject):
   )
   def inList(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Filter on metadata contained in a list.
@@ -678,10 +676,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def lessThan(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns filter that passes if the value is less than the right operand.
@@ -704,10 +702,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def lessThanOrEquals(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns filter that passes if the value is less than the right operand.
@@ -730,10 +728,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def listContains(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns filter that passes if the left, contains the right.
@@ -770,10 +768,10 @@ class Filter(computedobject.ComputedObject):
   def maxDifference(
       difference: _arg_types.Number,
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if the fields are within a given difference.
@@ -813,10 +811,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def notEquals(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes unless the two operands are equal.
@@ -881,10 +879,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def stringContains(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if it contains the right string.
@@ -910,10 +908,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def stringEndsWith(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if the string ends with the right string.
@@ -939,10 +937,10 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def stringStartsWith(
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if the string starts with the right string.
@@ -969,11 +967,11 @@ class Filter(computedobject.ComputedObject):
   def withinDistance(
       distance: _arg_types.Number,
       # pylint: disable=invalid-name
-      leftField: Optional[_arg_types.String] = None,
-      rightValue: Optional[_arg_types.Any] = None,
-      rightField: Optional[_arg_types.String] = None,
-      leftValue: Optional[_arg_types.Any] = None,
-      maxError: Optional[_arg_types.ErrorMargin] = None,
+      leftField: _arg_types.String | None = None,
+      rightValue: _arg_types.Any | None = None,
+      rightField: _arg_types.String | None = None,
+      leftValue: _arg_types.Any | None = None,
+      maxError: _arg_types.ErrorMargin | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
     """Returns a filter that passes if the geometry is within a distance.

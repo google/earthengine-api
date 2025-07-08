@@ -142,9 +142,9 @@ class Function(encodable.EncodableFunction):
           'Too many (%d) arguments to function: %s'
           % (len(args), signature.get('name'))
       )
-    named_args = dict(
-        [(arg_spec['name'], value) for arg_spec, value in zip(arg_specs, args)]
-    )
+    named_args = {
+        arg_spec['name']: value for arg_spec, value in zip(arg_specs, args)
+    }
 
     # Handle keyword arguments.
     if extra_keyword_args:

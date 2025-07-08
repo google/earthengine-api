@@ -6,7 +6,7 @@ This class is never intended to be instantiated by the user.
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, Optional, Type, Union
+from typing import Any, Callable
 
 from ee import _arg_types
 from ee import _utils
@@ -38,7 +38,7 @@ class Collection(element.Element):
       self,
       func: function.Function,
       args: dict[str, Any],
-      varName: Optional[str] = None,  # pylint: disable=invalid-name
+      varName: str | None = None,  # pylint: disable=invalid-name
   ):
     """Constructs a collection by initializing its ComputedObject."""
     super().__init__(func, args, varName)
@@ -320,8 +320,8 @@ class Collection(element.Element):
   def bounds(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_arg_types.ErrorMargin] = None,
-      proj: Optional[_arg_types.Projection] = None,
+      maxError: _arg_types.ErrorMargin | None = None,
+      proj: _arg_types.Projection | None = None,
   ) -> ee_geometry.Geometry:
     """Returns the bounding rectangle of the geometry.
 
@@ -339,8 +339,8 @@ class Collection(element.Element):
   def distance(
       self,
       # pylint: disable=invalid-name
-      searchRadius: Optional[_arg_types.Number] = None,
-      maxError: Optional[_arg_types.Number] = None,
+      searchRadius: _arg_types.Number | None = None,
+      maxError: _arg_types.Number | None = None,
       # pylint: enable=invalid-name
   ) -> image.Image:
     """Returns a distance image for the collection.
@@ -368,7 +368,7 @@ class Collection(element.Element):
     )
 
   def distinct(
-      self, properties: Union[_arg_types.String, _arg_types.List]
+      self, properties: _arg_types.String | _arg_types.List
   ) -> featurecollection.FeatureCollection:
     """Returns a collection with duplicates removed.
 
@@ -389,8 +389,8 @@ class Collection(element.Element):
       self,
       color: _arg_types.String,
       # pylint: disable=invalid-name
-      pointRadius: Optional[_arg_types.Integer] = None,
-      strokeWidth: Optional[_arg_types.Integer] = None,
+      pointRadius: _arg_types.Integer | None = None,
+      strokeWidth: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
   ) -> image.Image:
     """Returns a painted image of a vector collection for visualization.
@@ -409,7 +409,7 @@ class Collection(element.Element):
     )
 
   @staticmethod
-  def elementType() -> Type[element.Element]:
+  def elementType() -> type[element.Element]:
     """Returns the type of the collection's elements."""
     return element.Element
 
@@ -417,7 +417,7 @@ class Collection(element.Element):
       self,
       actual: _arg_types.String,
       predicted: _arg_types.String,
-      order: Optional[_arg_types.List] = None,
+      order: _arg_types.List | None = None,
   ) -> confusionmatrix.ConfusionMatrix:
     """Returns a 2D error matrix for a collection.
 
@@ -442,7 +442,7 @@ class Collection(element.Element):
         'Collection.errorMatrix', self, actual, predicted, order
     )
 
-  def filter(self, new_filter: Union[str, ee_filter.Filter]) -> Any:
+  def filter(self, new_filter: str | ee_filter.Filter) -> Any:
     """Apply a filter to this collection.
 
     Args:
@@ -459,7 +459,7 @@ class Collection(element.Element):
 
   @deprecation.CanUseDeprecated
   def filterMetadata(
-      self, name: str, operator: str, value: Union[int, str]
+      self, name: str, operator: str, value: int | str
   ) -> Any:
     """Shortcut to add a metadata filter to a collection.
 
@@ -480,7 +480,7 @@ class Collection(element.Element):
     return self.filter(ee_filter.Filter.metadata_(name, operator, value))
 
   def filterBounds(
-      self, geometry: Union[dict[str, Any], ee_geometry.Geometry]
+      self, geometry: dict[str, Any] | ee_geometry.Geometry
   ) -> Any:
     """Shortcut to add a geometry filter to a collection.
 
@@ -506,10 +506,10 @@ class Collection(element.Element):
   @_utils.accept_opt_prefix('opt_end')
   def filterDate(
       self,
-      start: Union[datetime.datetime, ee_date.Date, int, str, Any],
-      end: Optional[
-          Union[datetime.datetime, ee_date.Date, int, str, Any]
-      ] = None,
+      start: datetime.datetime | ee_date.Date | int | str | Any,
+      end: None | (
+          datetime.datetime | ee_date.Date | int | str | Any
+      ) = None,
   ) -> Any:
     """Shortcut to filter a collection with a date range.
 
@@ -542,7 +542,7 @@ class Collection(element.Element):
   def geometry(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_arg_types.ErrorMargin] = None,
+      maxError: _arg_types.ErrorMargin | None = None,
   ) -> ee_geometry.Geometry:
     """Returns the geometry of a collection.
 
@@ -563,7 +563,7 @@ class Collection(element.Element):
     )
 
   # pylint: disable-next=useless-parent-delegation
-  def getInfo(self) -> Optional[Any]:
+  def getInfo(self) -> Any | None:
     """Returns all the known information about this collection.
 
     This function makes a REST call to to retrieve all the known information
@@ -579,7 +579,7 @@ class Collection(element.Element):
     return super().getInfo()
 
   def iterate(
-      self, algorithm: Callable[[Any, Any], Any], first: Optional[Any] = None
+      self, algorithm: Callable[[Any, Any], Any], first: Any | None = None
   ) -> Any:
     """Iterates over a collection with an algorithm.
 
@@ -610,8 +610,8 @@ class Collection(element.Element):
   def limit(
       self,
       maximum: int,
-      prop: Optional[str] = None,
-      ascending: Optional[bool] = None,
+      prop: str | None = None,
+      ascending: bool | None = None,
   ) -> Collection:
     """Limit a collection to the specified number of elements.
 
@@ -639,9 +639,9 @@ class Collection(element.Element):
   def loadTable(
       # pylint: disable=invalid-name
       tableId: _arg_types.String,
-      geometryColumn: Optional[_arg_types.String] = None,
+      geometryColumn: _arg_types.String | None = None,
       # pylint: enable=invalid-name
-      version: Optional[_arg_types.Integer] = None,
+      version: _arg_types.Integer | None = None,
   ) -> featurecollection.FeatureCollection:
     """Returns a Collection of features from a specified table.
 
@@ -662,7 +662,7 @@ class Collection(element.Element):
   def map(
       self,
       algorithm: Callable[[Any], Any],
-      dropNulls: Optional[bool] = None,  # pylint: disable=invalid-name
+      dropNulls: bool | None = None,  # pylint: disable=invalid-name
   ) -> Any:
     """Maps an algorithm over a collection.
 
@@ -714,11 +714,11 @@ class Collection(element.Element):
   def randomColumn(
       self,
       # pylint: disable-next=invalid-name
-      columnName: Optional[_arg_types.String] = None,
-      seed: Optional[_arg_types.Integer] = None,
-      distribution: Optional[_arg_types.String] = None,
+      columnName: _arg_types.String | None = None,
+      seed: _arg_types.Integer | None = None,
+      distribution: _arg_types.String | None = None,
       # pylint: disable-next=invalid-name
-      rowKeys: Optional[_arg_types.List] = None,
+      rowKeys: _arg_types.List | None = None,
   ) -> featurecollection.FeatureCollection:
     """Returns a collection with a random column added to each feature.
 
@@ -747,7 +747,7 @@ class Collection(element.Element):
       reducer: _arg_types.Reducer,
       selectors: _arg_types.List,
       # pylint: disable=invalid-name
-      weightSelectors: Optional[_arg_types.List] = None,
+      weightSelectors: _arg_types.List | None = None,
   ) -> dictionary.Dictionary:
     """Returns a dictionary of results, keyed with the output names.
 
@@ -822,7 +822,7 @@ class Collection(element.Element):
 
   # TODO(user): Make ascending default to True
   @_utils.accept_opt_prefix('opt_ascending')
-  def sort(self, prop: str, ascending: Optional[bool] = None) -> Any:
+  def sort(self, prop: str, ascending: bool | None = None) -> Any:
     """Sort a collection by the specified property.
 
     Args:
@@ -841,19 +841,19 @@ class Collection(element.Element):
 
   def style(
       self,
-      color: Optional[_arg_types.String] = None,
+      color: _arg_types.String | None = None,
       # pylint: disable=invalid-name
-      pointSize: Optional[_arg_types.Integer] = None,
-      pointShape: Optional[_arg_types.String] = None,
+      pointSize: _arg_types.Integer | None = None,
+      pointShape: _arg_types.String | None = None,
       # pylint: enable=invalid-name
-      width: Optional[_arg_types.Number] = None,
+      width: _arg_types.Number | None = None,
       # pylint: disable=invalid-name
-      fillColor: Optional[_arg_types.String] = None,
-      styleProperty: Optional[_arg_types.String] = None,
+      fillColor: _arg_types.String | None = None,
+      styleProperty: _arg_types.String | None = None,
       # pylint: enable=invalid-name
-      neighborhood: Optional[_arg_types.Integer] = None,
+      neighborhood: _arg_types.Integer | None = None,
       # pylint: disable-next=invalid-name
-      lineType: Optional[_arg_types.String] = None,
+      lineType: _arg_types.String | None = None,
   ) -> image.Image:
     """Draw a vector collection for visualization using a simple style language.
 
@@ -900,7 +900,7 @@ class Collection(element.Element):
   def toList(
       self,
       count: _arg_types.Integer,
-      offset: Optional[_arg_types.Integer] = None,
+      offset: _arg_types.Integer | None = None,
   ) -> ee_list.List:
     """Returns the elements of a collection as a list.
 
@@ -918,7 +918,7 @@ class Collection(element.Element):
   def union(
       self,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_arg_types.ErrorMargin] = None,
+      maxError: _arg_types.ErrorMargin | None = None,
   ) -> featurecollection.FeatureCollection:
     """Returns a collection containing a single feature with a unioned geometry.
 

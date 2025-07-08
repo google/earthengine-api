@@ -1,7 +1,8 @@
 """A wrapper for Projections."""
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import Any, Union
 
 from ee import _arg_types
 from ee import apifunction
@@ -45,9 +46,9 @@ class Projection(computedobject.ComputedObject):
   def __init__(
       self,
       crs: _arg_types.String,
-      transform: Optional[_NumberSequenceType] = None,
+      transform: _NumberSequenceType | None = None,
       # pylint: disable-next=invalid-name
-      transformWkt: Optional[_arg_types.String] = None,
+      transformWkt: _arg_types.String | None = None,
   ):
     """Creates a Projection wrapper.
 

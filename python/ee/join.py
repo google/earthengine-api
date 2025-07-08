@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
@@ -91,9 +89,9 @@ class Join(computedobject.ComputedObject):
   @staticmethod
   def inner(
       # pylint: disable=invalid-name
-      primaryKey: Optional[_arg_types.String] = None,
-      secondaryKey: Optional[_arg_types.String] = None,
-      measureKey: Optional[_arg_types.String] = None,
+      primaryKey: _arg_types.String | None = None,
+      secondaryKey: _arg_types.String | None = None,
+      measureKey: _arg_types.String | None = None,
       # pylint: enable=invalid-name
   ) -> Join:
     """Returns a join with matching pairs of elements.
@@ -131,12 +129,12 @@ class Join(computedobject.ComputedObject):
   @staticmethod
   def saveAll(
       # pylint: disable-next=invalid-name
-      matchesKey: Optional[_arg_types.String] = None,
-      ordering: Optional[_arg_types.String] = None,
-      ascending: Optional[_arg_types.Bool] = None,
+      matchesKey: _arg_types.String | None = None,
+      ordering: _arg_types.String | None = None,
+      ascending: _arg_types.Bool | None = None,
       # pylint: disable-next=invalid-name
-      measureKey: Optional[_arg_types.String] = None,
-      outer: Optional[_arg_types.Bool] = None,
+      measureKey: _arg_types.String | None = None,
+      outer: _arg_types.Bool | None = None,
   ) -> Join:
     """Returns a join that returns all pairs of elements.
 
@@ -166,7 +164,7 @@ class Join(computedobject.ComputedObject):
   def saveBest(
       matchKey: _arg_types.String,  # pylint: disable=invalid-name
       measureKey: _arg_types.String,  # pylint: disable=invalid-name
-      outer: Optional[_arg_types.Bool] = None,
+      outer: _arg_types.Bool | None = None,
   ) -> Join:
     """Returns a join that returns the best match pairs.
 
@@ -191,11 +189,11 @@ class Join(computedobject.ComputedObject):
   @staticmethod
   def saveFirst(
       matchKey: _arg_types.String,  # pylint: disable=invalid-name
-      ordering: Optional[_arg_types.String] = None,
-      ascending: Optional[_arg_types.Bool] = None,
+      ordering: _arg_types.String | None = None,
+      ascending: _arg_types.Bool | None = None,
       # pylint: disable-next=invalid-name
-      measureKey: Optional[_arg_types.String] = None,
-      outer: Optional[_arg_types.Bool] = None,
+      measureKey: _arg_types.String | None = None,
+      outer: _arg_types.Bool | None = None,
   ) -> Join:
     """Returns a join that returns the first match pairs.
 

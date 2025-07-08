@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any, Callable
 
 from ee import _arg_types
 from ee import _utils
@@ -87,7 +88,7 @@ class ImageCollection(collection.Collection):
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def getMapId(self, vis_params: Optional[Any] = None) -> dict[str, Any]:
+  def getMapId(self, vis_params: Any | None = None) -> dict[str, Any]:
     """Fetch and return a Map ID.
 
     This mosaics the collection to a single image and return a map ID suitable
@@ -105,7 +106,7 @@ class ImageCollection(collection.Collection):
   @_utils.accept_opt_prefix('opt_names')
   # pylint: disable-next=keyword-arg-before-vararg
   def select(
-      self, selectors: Any, names: Optional[Any] = None, *args
+      self, selectors: Any, names: Any | None = None, *args
   ) -> ImageCollection:
     """Select bands from each image in a collection.
 
@@ -125,10 +126,10 @@ class ImageCollection(collection.Collection):
   # pylint: disable=unused-argument,g-bad-name
   def linkCollection(
       self,
-      imageCollection: 'ImageCollection',
-      linkedBands: Optional[Sequence[str]] = None,
-      linkedProperties: Optional[Sequence[str]] = None,
-      matchPropertyName: Optional[str] = None,
+      imageCollection: ImageCollection,
+      linkedBands: Sequence[str] | None = None,
+      linkedProperties: Sequence[str] | None = None,
+      matchPropertyName: str | None = None,
   ) -> ImageCollection:
     """Links images in this collection to matching images from imageCollection.
 
@@ -170,6 +171,7 @@ class ImageCollection(collection.Collection):
           'Image.linkCollection', {'input': img, **kwargs})
 
     return self.map(_linkCollection)
+
   # pylint: enable=g-bad-name,unused-argument
 
   def first(self) -> image.Image:
@@ -188,7 +190,7 @@ class ImageCollection(collection.Collection):
   def elementType():
     return image.Image
 
-  def getVideoThumbURL(self, params: Optional[dict[str, Any]] = None) -> str:
+  def getVideoThumbURL(self, params: dict[str, Any] | None = None) -> str:
     """Get the URL for an animated video thumbnail of the given collection.
 
     Note: Videos can only be created when the image visualization
@@ -221,7 +223,7 @@ class ImageCollection(collection.Collection):
     """
     return self._getThumbURL(['gif'], params, thumbType='video')
 
-  def getFilmstripThumbURL(self, params: Optional[Any] = None) -> str:
+  def getFilmstripThumbURL(self, params: Any | None = None) -> str:
     """Get the URL for a "filmstrip" thumbnail of the given collection.
 
     Args:
@@ -253,8 +255,8 @@ class ImageCollection(collection.Collection):
       self,
       valid_formats: Sequence[str],
       # TODO(user): Need to drop the default None and use dict[str, Any]]
-      params: Optional[Any] = None,
-      thumbType: Optional[str] = None,  # pylint: disable=g-bad-name
+      params: Any | None = None,
+      thumbType: str | None = None,  # pylint: disable=g-bad-name
   ) -> str:
     """Get the URL for a thumbnail of this collection.
 
@@ -397,7 +399,7 @@ class ImageCollection(collection.Collection):
   def combine(
       self,
       secondary: _arg_types.ImageCollection,
-      overwrite: Optional[_arg_types.Bool] = None,
+      overwrite: _arg_types.Bool | None = None,
   ) -> ImageCollection:
     """Returns a collection adding all the bands from the image in secondary.
 
@@ -421,9 +423,9 @@ class ImageCollection(collection.Collection):
 
   def formaTrend(
       self,
-      covariates: Optional[_arg_types.ImageCollection] = None,
+      covariates: _arg_types.ImageCollection | None = None,
       # pylint: disable-next=invalid-name
-      windowSize: Optional[_arg_types.Integer] = None,
+      windowSize: _arg_types.Integer | None = None,
   ) -> image.Image:
     """Returns an image with the forma trend of the collection.
 
@@ -457,10 +459,10 @@ class ImageCollection(collection.Collection):
   def getRegion(
       self,
       geometry: _arg_types.Geometry,
-      scale: Optional[_arg_types.Number] = None,
-      crs: Optional[_arg_types.Projection] = None,
+      scale: _arg_types.Number | None = None,
+      crs: _arg_types.Projection | None = None,
       # pylint: disable-next=invalid-name
-      crsTransform: Optional[_arg_types.List] = None,
+      crsTransform: _arg_types.List | None = None,
   ) -> ee_list.List:
     """Returns a list of values for each [pixel, band, image] tuple.
 
@@ -488,7 +490,8 @@ class ImageCollection(collection.Collection):
   @staticmethod
   def load(
       # pylint: disable-next=redefined-builtin
-      id: _arg_types.String, version: Optional[_arg_types.Integer] = None
+      id: _arg_types.String,
+      version: _arg_types.Integer | None = None,
   ) -> ImageCollection:
     """Returns the image collection given its ID.
 
@@ -537,7 +540,7 @@ class ImageCollection(collection.Collection):
       self,
       reducer: _arg_types.Reducer,
       # pylint: disable-next=invalid-name
-      parallelScale: Optional[_arg_types.Number] = None,
+      parallelScale: _arg_types.Number | None = None,
   ) -> image.Image:
     """Returns a reduced image from the collection.
 
@@ -576,7 +579,7 @@ class ImageCollection(collection.Collection):
     return apifunction.ApiFunction.call_(self.name() + '.toArray', self)
 
   def toArrayPerBand(
-      self, axis: Optional[_arg_types.Integer] = None
+      self, axis: _arg_types.Integer | None = None
   ) -> image.Image:
     """Returns an image of an image collection converted into 2D arrays.
 

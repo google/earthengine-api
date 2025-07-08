@@ -1,7 +1,7 @@
 """A wrapper for PixelTypes."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any
 
 from ee import _arg_types
 from ee import apifunction
@@ -52,12 +52,12 @@ class PixelType(computedobject.ComputedObject):
 
   def __init__(
       self,
-      precision: Union[_arg_types.String],
+      precision: _arg_types.String,
       # pylint: disable=invalid-name
-      minValue: Optional[_arg_types.Number] = None,
-      maxValue: Optional[_arg_types.Number] = None,
+      minValue: _arg_types.Number | None = None,
+      maxValue: _arg_types.Number | None = None,
       # pylint: enable=invalid-name
-      dimensions: Optional[_arg_types.Integer] = None,
+      dimensions: _arg_types.Integer | None = None,
   ):
     """Creates a PixelType wrapper.
 

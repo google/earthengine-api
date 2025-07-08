@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from ee import _utils
 from ee import data
@@ -47,9 +47,9 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
      deterministic variable names for mapped functions, ensuring that nested
      mapping calls do not use the same variable name.
   """
-  func: Optional[Any]
-  args: Optional[dict[str, Any]]
-  varName: Optional[str]  # pylint: disable=g-bad-name
+  func: Any | None
+  args: dict[str, Any] | None
+  varName: str | None  # pylint: disable=g-bad-name
 
   # Tell pytype not to worry about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES: bool = True
@@ -60,9 +60,9 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
   @_utils.accept_opt_prefix('opt_varName')
   def __init__(
       self,
-      func: Optional[Any],
-      args: Optional[dict[str, Any]],
-      varName: Optional[str] = None,  # pylint: disable=g-bad-name
+      func: Any | None,
+      args: dict[str, Any] | None,
+      varName: str | None = None,  # pylint: disable=g-bad-name
   ):
     """Creates a computed object.
 
@@ -98,7 +98,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     return hash(ComputedObject.freeze(self.__dict__))
 
   # pylint: disable-next=useless-parent-delegation
-  def getInfo(self) -> Optional[Any]:
+  def getInfo(self) -> Any | None:
     """Fetch and return information about this object.
 
     Returns:
@@ -106,7 +106,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     """
     return data.computeValue(self)
 
-  def encode(self, encoder: Optional[Callable[..., Any]]) -> dict[str, Any]:
+  def encode(self, encoder: Callable[..., Any] | None) -> dict[str, Any]:
     """Encodes the object in a format compatible with Serializer."""
     if self.isVariable():
       return {
@@ -184,7 +184,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
 
   def __str__(self) -> str:
     """Writes out the object in a human-readable form."""
-    return 'ee.%s(%s)' % (self.name(), serializer.toReadableJSON(self))
+    return 'ee.{}({})'.format(self.name(), serializer.toReadableJSON(self))
 
   def isVariable(self) -> bool:
     """Returns whether this computed object is a variable reference."""

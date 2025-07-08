@@ -7,7 +7,7 @@ import datetime
 import functools
 import inspect
 import json
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 import urllib
 import warnings
 
@@ -36,7 +36,7 @@ def Deprecated(message: str):
     @functools.wraps(func)
     def Wrapper(*args, **kwargs):
       warnings.warn_explicit(
-          '%s() is deprecated: %s' % (func.__name__, message),
+          '{}() is deprecated: {}'.format(func.__name__, message),
           category=DeprecationWarning,
           filename=func.__code__.co_filename,
           lineno=func.__code__.co_firstlineno + 1,
@@ -67,14 +67,14 @@ class DeprecatedAsset:
   """Class for keeping track of a single deprecated asset."""
 
   id: str
-  replacement_id: Optional[str]
-  removal_date: Optional[datetime.datetime]
-  learn_more_url: Optional[str]
+  replacement_id: str | None
+  removal_date: datetime.datetime | None
+  learn_more_url: str | None
 
   has_warning_been_issued: bool = False
 
   @classmethod
-  def _ParseDateString(cls, date_str: str) -> Optional[datetime.datetime]:
+  def _ParseDateString(cls, date_str: str) -> datetime.datetime | None:
     try:
       # We can't use `datetime.datetime.fromisoformat` because it's behavior
       # changes by Python version.
@@ -166,7 +166,7 @@ def _FetchDataCatalogStac() -> dict[str, Any]:
   return json.loads(response)
 
 
-def _GetStringFromObject(obj: Any) -> Optional[str]:
+def _GetStringFromObject(obj: Any) -> str | None:
   if isinstance(obj, str):
     return obj
   return None

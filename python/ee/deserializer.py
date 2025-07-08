@@ -107,14 +107,14 @@ def _decodeValue(json_obj: Any, named_values: dict[str, Any]) -> Any:
     else:
       func = _decodeValue(json_obj['function'], named_values)
     if 'arguments' in json_obj:
-      args = dict((key, _decodeValue(value, named_values))
-                  for (key, value) in json_obj['arguments'].items())
+      args = {key: _decodeValue(value, named_values)
+                  for (key, value) in json_obj['arguments'].items()}
     else:
       args = {}
     return _invocation(func, args)
   elif type_name == 'Dictionary':
-    return dict((key, _decodeValue(value, named_values))
-                for (key, value) in json_obj['value'].items())
+    return {key: _decodeValue(value, named_values)
+                for (key, value) in json_obj['value'].items()}
   elif type_name == 'Function':
     body = _decodeValue(json_obj['body'], named_values)
     signature = {
@@ -180,7 +180,7 @@ def decodeCloudApi(json_obj: dict[str, Any]) -> Any:
   def lookup(reference, kind):
     if reference not in decoded:
       if reference not in json_obj['values']:
-        raise ee_exception.EEException('Cannot find %s %s' % (reference, kind))
+        raise ee_exception.EEException('Cannot find {} {}'.format(reference, kind))
       decoded[reference] = decode_node(json_obj['values'][reference])
     return decoded[reference]
 

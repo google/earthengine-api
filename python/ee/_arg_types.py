@@ -1,8 +1,9 @@
 """Internal types used to represent arguments to the API."""
 from __future__ import annotations
 
+from collections.abc import Sequence
 import datetime
-from typing import Any as AnyType, Sequence, Union
+from typing import Any as AnyType, Union
 
 from ee import classifier
 from ee import clusterer

@@ -1,9 +1,10 @@
 """A TestCase that initializes the library with standard API methods."""
 
+from collections.abc import Iterable
 import contextlib
 import json
 import os
-from typing import Any, Iterable, Optional
+from typing import Any, Optional
 
 from googleapiclient import discovery
 

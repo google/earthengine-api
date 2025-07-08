@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Type, Union
+from typing import Any
 
 from ee import _arg_types
 from ee import _utils
@@ -34,17 +34,15 @@ class FeatureCollection(collection.Collection):
   @deprecation.WarnForDeprecatedAsset('args')
   def __init__(
       self,
-      args: Optional[
-          Union[
-              dict[str, Any],
-              list[Any],
-              str,
-              feature.Feature,
-              geometry.Geometry,
-              computedobject.ComputedObject,
-          ]
-      ],
-      column: Optional[Any] = None,
+      args: None | (
+              dict[str, Any] |
+              list[Any] |
+              str |
+              feature.Feature |
+              geometry.Geometry |
+              computedobject.ComputedObject
+      ),
+      column: Any | None = None,
   ):
     """Constructs a collection features.
 
@@ -116,7 +114,7 @@ class FeatureCollection(collection.Collection):
     cls._initialized = False
 
   def getMapId(
-      self, vis_params: Optional[dict[str, Any]] = None
+      self, vis_params: dict[str, Any] | None = None
   ) -> dict[str, Any]:
     """Fetch and return a map id and token, suitable for use in a Map overlay.
 
@@ -137,9 +135,9 @@ class FeatureCollection(collection.Collection):
 
   def getDownloadURL(
       self,
-      filetype: Optional[str] = None,
-      selectors: Optional[Any] = None,
-      filename: Optional[str] = None,
+      filetype: str | None = None,
+      selectors: Any | None = None,
+      filename: str | None = None,
   ) -> str:
     """Gets a download URL.
 
@@ -179,8 +177,8 @@ class FeatureCollection(collection.Collection):
   def select(
       self,
       propertySelectors: Any,
-      newProperties: Optional[Any] = None,
-      retainGeometry: Union[bool, str] = True,
+      newProperties: Any | None = None,
+      retainGeometry: bool | str = True,
       *args,
   ) -> FeatureCollection:
     """Select properties from each feature in a collection.
@@ -218,14 +216,14 @@ class FeatureCollection(collection.Collection):
     return 'FeatureCollection'
 
   @staticmethod
-  def elementType() -> Type[feature.Feature]:
+  def elementType() -> type[feature.Feature]:
     return feature.Feature
 
   def classify(
       self,
       classifier: _arg_types.Classifier,
       # pylint: disable-next=invalid-name
-      outputName: Optional[_arg_types.String] = None,
+      outputName: _arg_types.String | None = None,
   ) -> FeatureCollection:
     """Returns the result of classifying each feature in a collection.
 
@@ -246,7 +244,7 @@ class FeatureCollection(collection.Collection):
       self,
       clusterer: _arg_types.Clusterer,
       # pylint: disable-next=invalid-name
-      outputName: Optional[_arg_types.String] = None,
+      outputName: _arg_types.String | None = None,
   ) -> FeatureCollection:
     """Returns the results of clustering each feature in a collection.
 
@@ -268,8 +266,8 @@ class FeatureCollection(collection.Collection):
       propertyName: _arg_types.String,  # pylint: disable=invalid-name
       mean: _arg_types.Number,
       stdDev: _arg_types.Number,  # pylint: disable=invalid-name
-      gamma: Optional[_arg_types.Number] = None,
-      reducer: Optional[_arg_types.Reducer] = None,
+      gamma: _arg_types.Number | None = None,
+      reducer: _arg_types.Reducer | None = None,
   ) -> image.Image:
     """Returns an inverse-distance weighted estimate of the value at each pixel.
 
@@ -302,8 +300,8 @@ class FeatureCollection(collection.Collection):
       sill: _arg_types.Number,
       nugget: _arg_types.Number,
       # pylint: disable-next=invalid-name
-      maxDistance: Optional[_arg_types.Number] = None,
-      reducer: Optional[_arg_types.Reducer] = None,
+      maxDistance: _arg_types.Number | None = None,
+      reducer: _arg_types.Reducer | None = None,
   ) -> image.Image:
     """Returns the results of sampling a Kriging estimator at each pixel.
 
@@ -334,7 +332,7 @@ class FeatureCollection(collection.Collection):
   @staticmethod
   def loadBigQueryTable(
       table: _arg_types.String,
-      geometryColumn: Optional[_arg_types.String] = None,
+      geometryColumn: _arg_types.String | None = None,
   ) -> FeatureCollection:
     """Returns a FeatureCollection containing data read from a BigQuery table.
 
@@ -353,7 +351,7 @@ class FeatureCollection(collection.Collection):
   def makeArray(
       self,
       properties: _arg_types.List,
-      name: Optional[_arg_types.String] = None,
+      name: _arg_types.String | None = None,
   ) -> FeatureCollection:
     """Returns a collection with a 1-D Array property for each feature.
 
@@ -376,10 +374,10 @@ class FeatureCollection(collection.Collection):
   @staticmethod
   def randomPoints(
       region: geometry.Geometry,
-      points: Optional[_arg_types.Integer] = None,
-      seed: Optional[_arg_types.Integer] = None,
+      points: _arg_types.Integer | None = None,
+      seed: _arg_types.Integer | None = None,
       # pylint: disable-next=invalid-name
-      maxError: Optional[_arg_types.ErrorMargin] = None,
+      maxError: _arg_types.ErrorMargin | None = None,
   ) -> FeatureCollection:
     """Returns a collection of random points.
 
@@ -407,8 +405,8 @@ class FeatureCollection(collection.Collection):
   @staticmethod
   def runBigQuery(
       query: _arg_types.String,
-      geometryColumn: Optional[_arg_types.String] = None,
-      maxBytesBilled: Optional[_arg_types.Integer] = int(1e11),
+      geometryColumn: _arg_types.String | None = None,
+      maxBytesBilled: _arg_types.Integer | None = int(1e11),
   ) -> FeatureCollection:
     """Returns a FeatureCollection containing result of a BigQuery query.
 

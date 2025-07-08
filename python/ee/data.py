@@ -3,13 +3,14 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from collections.abc import Iterator, Sequence
 import contextlib
 import json
 import platform
 import re
 import sys
 import threading
-from typing import Any, Callable, Iterator, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Union
 import uuid
 import warnings
 
@@ -254,7 +255,7 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
   args = {}
   try:
     args = oauth.get_credentials_arguments()
-  except IOError:
+  except OSError:
     pass
 
   if args.get('refresh_token'):
@@ -826,8 +827,7 @@ def _generate(func, list_key: str, **kwargs) -> Iterator[Any]:
   args = kwargs.copy()
   while True:
     response = func(**args)
-    for obj in response.get(list_key, []):
-      yield obj
+    yield from response.get(list_key, [])
     if _NEXT_PAGE_TOKEN_KEY not in response:
       break
     args['params'].update({'pageToken': response[_NEXT_PAGE_TOKEN_KEY]})
@@ -1262,8 +1262,9 @@ def makeThumbUrl(thumbId: dict[str, str]) -> str:
   Returns:
     A URL from which the thumbnail can be obtained.
   """
-  url = '%s/%s/%s:getPixels' % (_tile_base_url, _cloud_api_utils.VERSION,
-                                thumbId['thumbid'])
+  url = '{}/{}/{}:getPixels'.format(
+      _tile_base_url, _cloud_api_utils.VERSION, thumbId['thumbid']
+  )
   if _cloud_api_key:
     url += '?key=%s' % _cloud_api_key
   return url
@@ -1394,8 +1395,9 @@ def makeDownloadUrl(downloadId: dict[str, str]) -> str:
   Returns:
     A URL from which the download can be obtained.
   """
-  return '%s/%s/%s:getPixels' % (_tile_base_url, _cloud_api_utils.VERSION,
-                                 downloadId['docid'])
+  return '{}/{}/{}:getPixels'.format(
+      _tile_base_url, _cloud_api_utils.VERSION, downloadId['docid']
+  )
 
 
 def getTableDownloadId(params: dict[str, Any]) -> dict[str, str]:
@@ -1456,8 +1458,9 @@ def makeTableDownloadUrl(downloadId: dict[str, str]) -> str:
   Returns:
     A Url from which the download can be obtained.
   """
-  return '%s/%s/%s:getFeatures' % (
-      _tile_base_url, _cloud_api_utils.VERSION, downloadId['docid'])
+  return '{}/{}/{}:getFeatures'.format(
+      _tile_base_url, _cloud_api_utils.VERSION, downloadId['docid']
+  )
 
 
 def getAlgorithms() -> Any:
@@ -1941,9 +1944,7 @@ def _startIngestion(
         project=_get_projects_path(), body=request
     )
   else:
-    raise ee_exception.EEException(
-        '{} is not a valid import mode'.format(import_mode)
-    )
+    raise ee_exception.EEException(f'{import_mode} is not a valid import mode')
 
   result = _execute_cloud_call(
       import_request,
@@ -2123,7 +2124,7 @@ def getAssetRootQuota(rootId: str) -> dict[str, Any]:
   """
   asset = getAsset(rootId)
   if 'quota' not in asset:
-    raise ee_exception.EEException('{} is not a root folder.'.format(rootId))
+    raise ee_exception.EEException(f'{rootId} is not a root folder.')
   quota = asset['quota']
   # The quota fields are int64s, and int64s are represented as strings in
   # JSON. Turn them back.

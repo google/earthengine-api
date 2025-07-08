@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from ee import computedobject
 from ee import ee_exception
@@ -75,7 +75,7 @@ class CustomFunction(function.Function, encodable.Encodable):
     return self._signature
 
   @staticmethod
-  def variable(type_name: Optional[str], name: str) -> Any:
+  def variable(type_name: str | None, name: str) -> Any:
     """Returns a placeholder variable with a given name and EE type.
 
     Args:

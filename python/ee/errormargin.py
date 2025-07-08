@@ -1,7 +1,7 @@
 """A wrapper for ErrorMargins."""
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from ee import _arg_types
 from ee import apifunction
@@ -36,8 +36,8 @@ class ErrorMargin(computedobject.ComputedObject):
 
   def __init__(
       self,
-      value: Optional[_arg_types.Number] = None,
-      unit: Optional[_arg_types.String] = None,
+      value: _arg_types.Number | None = None,
+      unit: _arg_types.String | None = None,
   ):
     """Creates a ErrorMargin wrapper.
 

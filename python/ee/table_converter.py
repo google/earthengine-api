@@ -1,6 +1,7 @@
 """Converters used in the table data fetching methods."""
 
-from typing import Any, Iterator, Optional, Type, Union
+from collections.abc import Iterator
+from typing import Any, Optional, Union
 
 
 class TableConverter:
@@ -51,7 +52,7 @@ class GeoPandasConverter(TableConverter):
     return list(features)
 
 
-_TABLE_DATA_CONVERTERS: dict[str, Type[TableConverter]] = {
+_TABLE_DATA_CONVERTERS: dict[str, type[TableConverter]] = {
     'PANDAS_DATAFRAME': PandasConverter,
     'GEOPANDAS_GEODATAFRAME': GeoPandasConverter,
 }

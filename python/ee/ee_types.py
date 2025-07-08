@@ -4,7 +4,7 @@
 # pylint: disable=g-bad-name
 
 import datetime
-from typing import Any, Type
+from typing import Any
 
 from ee import computedobject
 
@@ -23,7 +23,7 @@ def _registerClasses(classes) -> None:
   _registered_classes = classes
 
 
-def classToName(a_class: Type[Any]) -> str:
+def classToName(a_class: type[Any]) -> str:
   """Converts a class to the API-friendly type name.
 
   Args:

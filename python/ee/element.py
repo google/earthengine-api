@@ -6,7 +6,7 @@ This class is never intended to be instantiated by the user.
 from __future__ import annotations
 
 import datetime
-from typing import Any, Optional, Union
+from typing import Any
 
 from ee import _arg_types
 from ee import _utils
@@ -29,9 +29,9 @@ class Element(computedobject.ComputedObject):
   @_utils.accept_opt_prefix('opt_varName')
   def __init__(
       self,
-      func: Optional[apifunction.ApiFunction],
-      args: Optional[dict[str, Any]],
-      varName: Optional[str] = None,  # pylint: disable=g-bad-name
+      func: apifunction.ApiFunction | None,
+      args: dict[str, Any] | None,
+      varName: str | None = None,  # pylint: disable=g-bad-name
   ):
     """Constructs a collection by initializing its ComputedObject."""
     super().__init__(func, args, varName)
@@ -58,8 +58,8 @@ class Element(computedobject.ComputedObject):
   def copyProperties(
       self,
       source: _arg_types.Element,
-      properties: Optional[_arg_types.List] = None,
-      exclude: Optional[_arg_types.List] = None,
+      properties: _arg_types.List | None = None,
+      exclude: _arg_types.List | None = None,
   ) -> Element:
     """Copies metadata properties from one element to another.
 
@@ -121,13 +121,13 @@ class Element(computedobject.ComputedObject):
 
   def set(
       self,
-      *args: Union[
-          dict[str, Any],
-          float,
-          str,
-          datetime.datetime,
-          computedobject.ComputedObject,
-      ],
+      *args: (
+          dict[str, Any] |
+          float |
+          str |
+          datetime.datetime |
+          computedobject.ComputedObject
+      ),
   ) -> Element:
     """Overrides one or more metadata properties of an Element.
 
@@ -182,7 +182,7 @@ class Element(computedobject.ComputedObject):
     return self._cast(result)
 
   def toDictionary(
-      self, properties: Optional[_arg_types.List] = None
+      self, properties: _arg_types.List | None = None
   ) -> dictionary.Dictionary:
     """Returns properties from a feature as a dictionary.
 

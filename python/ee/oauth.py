@@ -17,7 +17,8 @@ import os
 import shutil
 import subprocess
 import sys
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Optional, Union
+from collections.abc import Sequence
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -200,7 +201,7 @@ def write_private_json(json_path: str, info_dict: dict[str, Any]) -> None:
   except OSError as e:
     if e.errno != errno.EEXIST:
       # pylint:disable=broad-exception-raised,raise-missing-from
-      raise Exception('Error creating directory %s: %s' % (dirname, e))
+      raise Exception('Error creating directory {}: {}'.format(dirname, e))
       # pylint:enable=broad-exception-raised,raise-missing-from
 
   file_content = json.dumps(info_dict)
@@ -292,30 +293,35 @@ def _display_auth_instructions_for_noninteractive(
   else:
     code_verifier_str = code_verifier
 
-  print('Paste the following address into a web browser:\n'
-        '\n'
-        '    {0}\n'
-        '\n'
-        'On the web page, please authorize access to your '
-        'Earth Engine account and copy the authentication code. '
-        'Next authenticate with the following command:\n'
-        '\n'
-        '    earthengine authenticate --code-verifier={1} '
-        '--authorization-code=PLACE_AUTH_CODE_HERE\n'.format(
-            auth_url, code_verifier_str))
+  print(
+      'Paste the following address into a web browser:\n'
+      '\n'
+      '    {}\n'
+      '\n'
+      'On the web page, please authorize access to your '
+      'Earth Engine account and copy the authentication code. '
+      'Next authenticate with the following command:\n'
+      '\n'
+      '    earthengine authenticate --code-verifier={} '
+      '--authorization-code=PLACE_AUTH_CODE_HERE\n'.format(
+          auth_url, code_verifier_str
+      )
+  )
 
 
 def _display_auth_instructions_with_print(
     auth_url: str, coda: Optional[str] = None
 ) -> None:
   """Displays instructions for authenticating using a print statement."""
-  print('To authorize access needed by Earth Engine, open the following '
-        'URL in a web browser and follow the instructions. If the web '
-        'browser does not start automatically, please manually browse the '
-        'URL below.\n'
-        '\n'
-        '    {0}\n'
-        '\n{1}'.format(auth_url, coda or PASTE_CODA))
+  print(
+      'To authorize access needed by Earth Engine, open the following '
+      'URL in a web browser and follow the instructions. If the web '
+      'browser does not start automatically, please manually browse the '
+      'URL below.\n'
+      '\n'
+      '    {}\n'
+      '\n{}'.format(auth_url, coda or PASTE_CODA)
+  )
 
 
 def _display_auth_instructions_with_html(

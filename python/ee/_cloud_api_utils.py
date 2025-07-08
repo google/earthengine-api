@@ -6,12 +6,13 @@ parameters and result values.
 """
 
 import calendar
+from collections.abc import Sequence
 import copy
 import datetime
 import json
 import os
 import re
-from typing import Any, Callable, Optional, Sequence, Type, Union
+from typing import Any, Callable, Optional, Type, Union
 import warnings
 
 import google_auth_httplib2
@@ -56,7 +57,7 @@ class _Http:
       body: Optional[str] = None,
       headers: Optional[dict[str, str]] = None,
       redirections: Optional[int] = None,
-      connection_type: Optional[Type[Any]] = None,
+      connection_type: Optional[type[Any]] = None,
   ) -> tuple[httplib2.Response, Any]:
     """Makes an HTTP request using httplib2 semantics."""
     del connection_type  # Ignored
@@ -434,7 +435,7 @@ def _convert_list_images_filter_params_to_list_assets_params(params) -> str:
     # query in a set of double quotes. We trivially avoid doubly-escaping the
     # quotes by replacing double quotes with single quotes.
     region = region.replace('"', "'")
-    query_strings.append('intersects("{}")'.format(region))
+    query_strings.append(f'intersects("{region}")')
     del params['region']
   if 'properties' in params:
     if isinstance(params['properties'], list) and any(
@@ -534,9 +535,9 @@ def convert_asset_id_to_asset_name(asset_id: str) -> str:
   if re.match(ASSET_NAME_PATTERN, asset_id) or is_asset_root(asset_id):
     return asset_id
   elif asset_id.split('/')[0] in ['users', 'projects']:
-    return 'projects/earthengine-legacy/assets/{}'.format(asset_id)
+    return f'projects/earthengine-legacy/assets/{asset_id}'
   else:
-    return 'projects/earthengine-public/assets/{}'.format(asset_id)
+    return f'projects/earthengine-public/assets/{asset_id}'
 
 
 def split_asset_name(asset_name: str) -> tuple[str, str]:
@@ -561,7 +562,7 @@ def convert_operation_name_to_task_id(operation_name: str) -> str:
 
 def convert_task_id_to_operation_name(task_id: str) -> str:
   """Converts a task ID to an Operation name."""
-  return 'projects/{}/operations/{}'.format(_cloud_api_user_project, task_id)
+  return f'projects/{_cloud_api_user_project}/operations/{task_id}'
 
 
 def convert_params_to_image_manifest(params: dict[str, Any]) -> dict[str, Any]:

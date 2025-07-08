@@ -18,7 +18,7 @@ from __future__ import annotations
 import copy
 import keyword
 import re
-from typing import Any, Optional, Type
+from typing import Any
 
 from ee import _utils
 from ee import computedobject
@@ -41,7 +41,7 @@ class ApiFunction(function.Function):
   _bound_signatures: set[str] = set()
 
   @_utils.accept_opt_prefix('opt_signature')
-  def __init__(self, name: str, signature: Optional[dict[str, Any]] = None):
+  def __init__(self, name: str, signature: dict[str, Any] | None = None):
     """Creates a function defined by the EE API.
 
     Args:
@@ -113,15 +113,17 @@ class ApiFunction(function.Function):
   def allSignatures(cls) -> dict[str, dict[str, Any]]:
     """Returns a map from the name to signature for all API functions."""
     cls.initialize()
-    return dict([(name, func.getSignature())
-                 for name, func in cls._api.items()])
+    return {name: func.getSignature() for name, func in cls._api.items()}
 
   @classmethod
   def unboundFunctions(cls) -> dict[str, Any]:
     """Returns the functions that have not been bound using importApi() yet."""
     cls.initialize()
-    return dict([(name, func) for name, func in cls._api.items()
-                 if name not in cls._bound_signatures])
+    return {
+        name: func
+        for name, func in cls._api.items()
+        if name not in cls._bound_signatures
+    }
 
   # TODO(user): Any -> ApiFunction for the return type.
   @classmethod
@@ -142,7 +144,7 @@ class ApiFunction(function.Function):
     return result
 
   @classmethod
-  def lookupInternal(cls, name: str) -> Optional[ApiFunction]:
+  def lookupInternal(cls, name: str) -> ApiFunction | None:
     """Looks up an API function by name.
 
     Args:
@@ -181,7 +183,7 @@ class ApiFunction(function.Function):
       target: Any,
       prefix: str,
       type_name: str,
-      prepend: Optional[str] = None,
+      prepend: str | None = None,
   ) -> None:
     """Adds all API functions that begin with a given prefix to a target class.
 
@@ -248,7 +250,7 @@ class ApiFunction(function.Function):
         setattr(target, fname, bound_function)
 
   @staticmethod
-  def clearApi(target: Type[Any]) -> None:
+  def clearApi(target: type[Any]) -> None:
     """Removes all methods added by importApi() from a target class.
 
     Args:

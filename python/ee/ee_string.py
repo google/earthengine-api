@@ -1,7 +1,7 @@
 """A wrapper for strings."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any
 
 from ee import _arg_types
 from ee import _utils
@@ -15,7 +15,7 @@ from ee import ee_number
 class String(computedobject.ComputedObject):
   """An object to represent strings."""
 
-  _string: Optional[str]
+  _string: str | None
 
   _initialized = False
 
@@ -158,7 +158,7 @@ class String(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.length', self)
 
   def match(
-      self, regex: _arg_types.String, flags: Optional[_arg_types.String] = None
+      self, regex: _arg_types.String, flags: _arg_types.String | None = None
   ) -> ee_list.List:
     """Matches a string against a regular expression.
 
@@ -179,7 +179,7 @@ class String(computedobject.ComputedObject):
       self,
       regex: _arg_types.String,
       replacement: _arg_types.String,
-      flags: Optional[_arg_types.String] = None,
+      flags: _arg_types.String | None = None,
   ) -> String:
     """Returns a string with some or all matches of a pattern replaced.
 
@@ -210,7 +210,7 @@ class String(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.rindex', self, pattern)
 
   def slice(
-      self, start: _arg_types.Integer, end: Optional[_arg_types.Integer] = None
+      self, start: _arg_types.Integer, end: _arg_types.Integer | None = None
   ) -> String:
     """Returns a substring of the given string.
 
@@ -232,7 +232,7 @@ class String(computedobject.ComputedObject):
     )
 
   def split(
-      self, regex: _arg_types.String, flags: Optional[_arg_types.String] = None
+      self, regex: _arg_types.String, flags: _arg_types.String | None = None
   ) -> ee_list.List:
     """Splits a string on a regular expression into a list of strings.
 

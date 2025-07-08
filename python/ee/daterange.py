@@ -1,7 +1,7 @@
 """A wrapper for DateRanges."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any
 
 from ee import _arg_types
 from ee import apifunction
@@ -29,10 +29,10 @@ class DateRange(computedobject.ComputedObject):
 
   def __init__(
       self,
-      start: Union[_arg_types.Date, _arg_types.DateRange],
-      end: Optional[_arg_types.Date] = None,
+      start: _arg_types.Date | _arg_types.DateRange,
+      end: _arg_types.Date | None = None,
       # pylint: disable-next=invalid-name
-      timeZone: Optional[_arg_types.String] = None,
+      timeZone: _arg_types.String | None = None,
   ):
     """Creates a DateRange wrapper.
 
@@ -85,7 +85,7 @@ class DateRange(computedobject.ComputedObject):
     return 'DateRange'
 
   def contains(
-      self, other: Union[_arg_types.Date, _arg_types.DateRange]
+      self, other: _arg_types.Date | _arg_types.DateRange
   ) -> computedobject.ComputedObject:
     """Returns true if the given Date or DateRange is within this DateRange.
 
@@ -104,8 +104,8 @@ class DateRange(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.end', self)
 
   def intersection(
-      self, other: Union[_arg_types.Date, _arg_types.DateRange]
-  ) -> 'DateRange':
+      self, other: _arg_types.Date | _arg_types.DateRange
+  ) -> DateRange:
     """Returns a DateRange that contains all the timespan of this and other.
 
     Args:
@@ -123,7 +123,7 @@ class DateRange(computedobject.ComputedObject):
     )
 
   def intersects(
-      self, other: Union[_arg_types.Date, _arg_types.DateRange]
+      self, other: _arg_types.Date | _arg_types.DateRange
   ) -> computedobject.ComputedObject:
     """Returns true if the other DateRange has at least one time in common.
 
@@ -160,7 +160,7 @@ class DateRange(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_('DateRange.unbounded')
 
   def union(
-      self, other: Union[_arg_types.Date, _arg_types.DateRange]
+      self, other: _arg_types.Date | _arg_types.DateRange
   ) -> DateRange:
     """Returns a DateRange that contains all points in this and other.
 

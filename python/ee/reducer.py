@@ -1,8 +1,6 @@
 """A wrapper for Reducers."""
 from __future__ import annotations
 
-from typing import Optional
-
 from ee import _arg_types
 from ee import apifunction
 from ee import computedobject
@@ -100,11 +98,11 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def autoHistogram(
       # pylint: disable=invalid-name
-      maxBuckets: Optional[_arg_types.Integer] = None,
-      minBucketWidth: Optional[_arg_types.Number] = None,
-      maxRaw: Optional[_arg_types.Integer] = None,
+      maxBuckets: _arg_types.Integer | None = None,
+      minBucketWidth: _arg_types.Number | None = None,
+      maxRaw: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
-      cumulative: Optional[_arg_types.Bool] = None,
+      cumulative: _arg_types.Bool | None = None,
   ) -> Reducer:
     """Returns an ee.Reducer that computes a histogram of the inputs.
 
@@ -201,8 +199,8 @@ class Reducer(computedobject.ComputedObject):
       self,
       reducer2: _arg_types.Reducer,
       # pylint: disable=invalid-name
-      outputPrefix: Optional[_arg_types.String] = None,
-      sharedInputs: Optional[_arg_types.Bool] = None,
+      outputPrefix: _arg_types.String | None = None,
+      sharedInputs: _arg_types.Bool | None = None,
       # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns a Reducer that runs two reducers in parallel.
@@ -289,7 +287,7 @@ class Reducer(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_('Reducer.covariance')
 
-  def disaggregate(self, axis: Optional[_arg_types.Integer] = None) -> Reducer:
+  def disaggregate(self, axis: _arg_types.Integer | None = None) -> Reducer:
     """Returns a Reducer that separates aggregate inputs.
 
     Separates aggregate inputs (Arrays, Lists, or Dictionaries) into individual
@@ -363,7 +361,7 @@ class Reducer(computedobject.ComputedObject):
       min: _arg_types.Number,  # pylint: disable=redefined-builtin
       max: _arg_types.Number,  # pylint: disable=redefined-builtin
       steps: _arg_types.Integer,
-      cumulative: Optional[_arg_types.Bool] = None,
+      cumulative: _arg_types.Bool | None = None,
   ) -> Reducer:
     """Returns a fixed histogram reducer.
 
@@ -443,9 +441,9 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def geometricMedian(
       numX: _arg_types.Integer,  # pylint: disable=invalid-name
-      eta: Optional[_arg_types.Number] = None,
+      eta: _arg_types.Number | None = None,
       # pylint: disable-next=invalid-name
-      initialStepSize: Optional[_arg_types.Number] = None,
+      initialStepSize: _arg_types.Number | None = None,
   ) -> Reducer:
     """Returns a reducer that computes the geometric median across the inputs.
 
@@ -467,8 +465,8 @@ class Reducer(computedobject.ComputedObject):
 
   def group(
       self,
-      groupField: Optional[_arg_types.Integer] = None,
-      groupName: Optional[_arg_types.String] = None,
+      groupField: _arg_types.Integer | None = None,
+      groupName: _arg_types.String | None = None,
   ) -> Reducer:
     """Returns a reducer groups reducer records by the value of a given input.
 
@@ -487,9 +485,9 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def histogram(
       # pylint: disable=invalid-name
-      maxBuckets: Optional[_arg_types.Integer] = None,
-      minBucketWidth: Optional[_arg_types.Number] = None,
-      maxRaw: Optional[_arg_types.Integer] = None,
+      maxBuckets: _arg_types.Integer | None = None,
+      minBucketWidth: _arg_types.Number | None = None,
+      maxRaw: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns a reducer that will compute a histogram of the inputs.
@@ -512,9 +510,9 @@ class Reducer(computedobject.ComputedObject):
       # pylint: disable=invalid-name
       minPercentile: _arg_types.Number,
       maxPercentile: _arg_types.Number,
-      maxBuckets: Optional[_arg_types.Integer] = None,
-      minBucketWidth: Optional[_arg_types.Number] = None,
-      maxRaw: Optional[_arg_types.Integer] = None,
+      maxBuckets: _arg_types.Integer | None = None,
+      minBucketWidth: _arg_types.Number | None = None,
+      maxRaw: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns an interval mean reducer.
@@ -547,7 +545,7 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def kendallsCorrelation(
       # pylint: disable-next=invalid-name
-      numInputs: Optional[_arg_types.Integer] = None,
+      numInputs: _arg_types.Integer | None = None,
   ) -> Reducer:
     """Returns a reducer that computes the Kendall's Tau-b rank correlation.
 
@@ -609,7 +607,7 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def linearRegression(
       numX: _arg_types.Integer,  # pylint: disable=invalid-name
-      numY: Optional[_arg_types.Integer] = None,  # pylint: disable=invalid-name
+      numY: _arg_types.Integer | None = None,  # pylint: disable=invalid-name
   ) -> Reducer:
     """Returns a linear regression reducer.
 
@@ -635,7 +633,7 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def max(
       # pylint: disable-next=invalid-name
-      numInputs: Optional[_arg_types.Integer] = None,
+      numInputs: _arg_types.Integer | None = None,
   ) -> Reducer:
     """Returns a reducer that outputs the maximum value of its (first) input.
 
@@ -660,9 +658,9 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def median(
       # pylint: disable=invalid-name
-      maxBuckets: Optional[_arg_types.Integer] = None,
-      minBucketWidth: Optional[_arg_types.Number] = None,
-      maxRaw: Optional[_arg_types.Integer] = None,
+      maxBuckets: _arg_types.Integer | None = None,
+      minBucketWidth: _arg_types.Number | None = None,
+      maxRaw: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns a reducer that will compute the median of the inputs.
@@ -687,7 +685,7 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def min(
       # pylint: disable-next=invalid-name
-      numInputs: Optional[_arg_types.Integer] = None,
+      numInputs: _arg_types.Integer | None = None,
   ) -> Reducer:
     """Returns a reducer that outputs the minimum value of its first input.
 
@@ -712,9 +710,9 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def mode(
       # pylint: disable=invalid-name
-      maxBuckets: Optional[_arg_types.Integer] = None,
-      minBucketWidth: Optional[_arg_types.Number] = None,
-      maxRaw: Optional[_arg_types.Integer] = None,
+      maxBuckets: _arg_types.Integer | None = None,
+      minBucketWidth: _arg_types.Number | None = None,
+      maxRaw: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns a reducer that will compute the mode of the inputs.
@@ -760,10 +758,10 @@ class Reducer(computedobject.ComputedObject):
   def percentile(
       percentiles: _arg_types.List,
       # pylint: disable=invalid-name
-      outputNames: Optional[_arg_types.List] = None,
-      maxBuckets: Optional[_arg_types.Integer] = None,
-      minBucketWidth: Optional[_arg_types.Number] = None,
-      maxRaw: Optional[_arg_types.Integer] = None,
+      outputNames: _arg_types.List | None = None,
+      maxBuckets: _arg_types.Integer | None = None,
+      minBucketWidth: _arg_types.Number | None = None,
+      maxRaw: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns a reducer that will compute the specified percentiles.
@@ -818,8 +816,8 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def ridgeRegression(
       numX: _arg_types.Integer,  # pylint: disable=invalid-name
-      numY: Optional[_arg_types.Integer] = None,  # pylint: disable=invalid-name
-      lambda_: Optional[_arg_types.Number] = None,
+      numY: _arg_types.Integer | None = None,  # pylint: disable=invalid-name
+      lambda_: _arg_types.Number | None = None,
       **kwargs,
   ) -> Reducer:
     # pylint: disable=g-doc-args
@@ -862,8 +860,8 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def robustLinearRegression(
       numX: _arg_types.Integer,  # pylint: disable=invalid-name
-      numY: Optional[_arg_types.Integer] = None,  # pylint: disable=invalid-name
-      beta: Optional[_arg_types.Number] = None,
+      numY: _arg_types.Integer | None = None,  # pylint: disable=invalid-name
+      beta: _arg_types.Number | None = None,
   ) -> Reducer:
     """Returns a robust linear regression reducer.
 
@@ -979,7 +977,7 @@ class Reducer(computedobject.ComputedObject):
   def toCollection(
       # pylint: disable=invalid-name
       propertyNames: _arg_types.List,
-      numOptional: Optional[_arg_types.Integer] = None,
+      numOptional: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns a reducer that collects its inputs into a FeatureCollection.
@@ -998,8 +996,8 @@ class Reducer(computedobject.ComputedObject):
   @staticmethod
   def toList(
       # pylint: disable=invalid-name
-      tupleSize: Optional[_arg_types.Integer] = None,
-      numOptional: Optional[_arg_types.Integer] = None,
+      tupleSize: _arg_types.Integer | None = None,
+      numOptional: _arg_types.Integer | None = None,
       # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns a reducer that collects its inputs into a list.
