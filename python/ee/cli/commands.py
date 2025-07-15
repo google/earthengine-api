@@ -52,25 +52,6 @@ except TypeError:
 finally:
   logging.getLogger().setLevel(old_level)
 
-TENSORFLOW_ADDONS_INSTALLED = False
-# pylint: disable=g-import-not-at-top
-if TENSORFLOW_INSTALLED:
-  try:
-    # This import is enough to register TFA ops though isn't directly used
-    # (for now).
-    # pylint: disable=unused-import
-    import tensorflow_addons as tfa
-    tfa.register_all(custom_kernels=False)  # pytype: disable=module-attr
-    TENSORFLOW_ADDONS_INSTALLED = True
-  except ImportError:
-    pass
-  except AttributeError:
-    # This can be thrown by "tfa.register_all()" which means the
-    # tensorflow_addons version is registering ops the old way, i.e.
-    # automatically at import time. If this is the case, we've actually
-    # successfully registered TFA.
-    TENSORFLOW_ADDONS_INSTALLED = True
-
 # pylint: disable=g-import-not-at-top, g-bad-import-order
 import ee
 from ee.cli import utils
@@ -2002,11 +1983,6 @@ def check_tensorflow_installed():
         '1.14 is installed; you can do this by executing \'pip install '
         'tensorflow\' in your shell.'
     )
-  else:
-    if not TENSORFLOW_ADDONS_INSTALLED:
-      print(
-          'Warning: TensorFlow Addons not found. Models that use '
-          'non-standard ops may not work.')
 
 
 class ModelCommand(Dispatcher):
