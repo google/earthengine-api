@@ -426,9 +426,7 @@ function deepCopyValue<T extends {}>(
   } else if (value instanceof NullClass) {
     deserialized = null as unknown as {};
   } else if (typeof value === 'object') {
-    // TODO(user): Assert as a type, declared interface, or `unknown`.
-    // tslint:disable-next-line:ban-types no-unnecessary-type-assertion
-    deserialized = JSON.parse(JSON.stringify(value)) as AnyDuringMigration;
+    deserialized = JSON.parse(JSON.stringify(value)) as object;
   } else {
     deserialized = value;
   }
