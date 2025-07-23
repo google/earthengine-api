@@ -33,16 +33,20 @@ export class PromiseApiClient extends ApiClient {
     }
 
     hook.onBeforeSend();
-    return promise.then(
-      (response) => {
-        hook.onSuccess(response);
-        return response;
-      },
-      (error) => {
-        hook.onError(error);
-        throw error;
-      },
-    );
+    return promise
+      .then(
+        (response) => {
+          hook.onSuccess(response);
+          return response;
+        },
+        (error) => {
+          hook.onError(error);
+          throw error;
+        },
+      )
+      .finally(() => {
+        hook.onFinalize?.();
+      });
   }
 
   /** Converts a gapi.client.Request to an Promise<T>. */
