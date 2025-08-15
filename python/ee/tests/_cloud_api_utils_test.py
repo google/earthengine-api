@@ -551,6 +551,22 @@ class CloudApiUtilsTest(unittest.TestCase):
         expected,
         _cloud_api_utils.convert_sources_to_one_platform_sources(old_sources))
 
+  def test_convert_to_operation_state(self):
+    def convert(state):
+      return _cloud_api_utils.convert_to_operation_state(state)
+
+    self.assertEqual('CANCELLED', convert('CANCELLED'))
+    self.assertEqual('CANCELLING', convert('CANCEL_REQUESTED'))
+    self.assertEqual('CANCELLING', convert('CANCELLING'))
+    self.assertEqual('FAILED', convert('FAILED'))
+    self.assertEqual('PENDING', convert('PENDING'))
+    self.assertEqual('PENDING', convert('READY'))
+    self.assertEqual('RUNNING', convert('RUNNING'))
+    self.assertEqual('SUCCEEDED', convert('COMPLETED'))
+    self.assertEqual('SUCCEEDED', convert('SUCCEEDED'))
+    self.assertEqual('UNKNOWN', convert('random_string'))
+    self.assertEqual('UNKNOWN', convert('UNKNOWN'))
+
 
 if __name__ == '__main__':
   unittest.main()

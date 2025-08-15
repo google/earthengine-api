@@ -40,12 +40,6 @@ CONFIG_PARAMS: dict[str, Union[str, list[str], None]] = {
     'url': 'https://earthengine.googleapis.com',
 }
 
-TASK_FINISHED_STATES: tuple[str, str, str] = (
-    ee.batch.Task.State.COMPLETED,
-    ee.batch.Task.State.FAILED,
-    ee.batch.Task.State.CANCELLED,
-)
-
 
 class CommandLineConfig:
   """Holds the configuration parameters used by the EE command line interface.
@@ -248,6 +242,13 @@ def truncate(string: str, length: int) -> str:
     return string
 
 
+def _task_id_to_operation_name(task_id: str) -> str:
+  """Converts a task ID to an operation name."""
+  # pylint: disable=protected-access
+  return ee._cloud_api_utils.convert_task_id_to_operation_name(task_id)
+  # pylint: enable=protected-access
+
+
 def wait_for_task(
     task_id: str, timeout: float, log_progress: bool = True
 ) -> None:
@@ -257,10 +258,10 @@ def wait_for_task(
   last_check = 0
   while True:
     elapsed = time.time() - start
-    status = ee.data.getTaskStatus(task_id)[0]
-    state = status['state']
-    if state in TASK_FINISHED_STATES:
-      error_message = status.get('error_message', None)
+    status = ee.data.getOperation(_task_id_to_operation_name(task_id))
+    state = status['metadata']['state']
+    if status.get('done', False):
+      error_message = status.get('error', {}).get('message')
       print('Task %s ended at state: %s after %.2f seconds'
             % (task_id, state, elapsed))
       if error_message:
@@ -299,14 +300,21 @@ def wait_for_tasks(
   for thread in threads:
     thread.join()
 
-  status_list = ee.data.getTaskStatus(task_id_list)
+  get_state = lambda task_id: ee.data.getOperation(
+      _task_id_to_operation_name(task_id)
+  )['metadata']['state']
+  status_list = [get_state(task_id) for task_id in task_id_list]
   status_counts = collections.defaultdict(int)
   for status in status_list:
-    status_counts[status['state']] += 1
-  num_incomplete = (len(status_list) - status_counts['COMPLETED']
-                    - status_counts['FAILED'] - status_counts['CANCELLED'])
+    status_counts[status] += 1
+  num_incomplete = (
+      len(status_list)
+      - status_counts['SUCCEEDED']
+      - status_counts['FAILED']
+      - status_counts['CANCELLED']
+  )
   print('Finished waiting for tasks.\n  Status summary:')
-  print('  %d tasks completed successfully.' % status_counts['COMPLETED'])
+  print('  %d tasks completed successfully.' % status_counts['SUCCEEDED'])
   print('  %d tasks failed.' % status_counts['FAILED'])
   print('  %d tasks cancelled.' % status_counts['CANCELLED'])
   print('  %d tasks are still incomplete (timed-out)' % num_incomplete)

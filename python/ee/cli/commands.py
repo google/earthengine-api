@@ -193,6 +193,29 @@ def _cloud_timestamp_for_timestamp_ms(timestamp_ms: float) -> str:
   return timestamp.replace(tzinfo=None).isoformat() + 'Z'
 
 
+def _datetime_from_cloud_timestamp(
+    cloud_timestamp: str | None,
+) -> datetime.datetime:
+  """Returns a datetime object for the given Cloud-formatted timestamp.
+
+  Args:
+    cloud_timestamp: A timestamp string in the format 'YYYY-MM-DDTHH:MM:SS.mmmZ'
+      or 'YYYY-MM-DDTHH:MM:SSZ'.
+
+  Returns:
+    A datetime object for the given Cloud-formatted timestamp.
+  """
+  if not cloud_timestamp:
+    return datetime.datetime.fromtimestamp(0)
+  # Replace 'Z' with the UTC offset +00:00 for fromisoformat compatibility.
+  return datetime.datetime.fromisoformat(cloud_timestamp.replace('Z', '+00:00'))
+
+
+def _format_cloud_timestamp(timestamp: str | None) -> str:
+  """Returns a formatted datetime for the given Cloud-formatted timestamp."""
+  return _datetime_from_cloud_timestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+
+
 def _parse_millis(millis: float) -> datetime.datetime:
   return datetime.datetime.fromtimestamp(millis / 1000)
 
@@ -228,6 +251,27 @@ def _decode_date(string: str) -> Union[float, str]:
         continue
   raise argparse.ArgumentTypeError(
       'Invalid value for property of type "date": "%s".' % string)
+
+
+def _task_id_to_operation_name(task_id: str) -> str:
+  """Converts a task ID to an operation name."""
+  # pylint: disable=protected-access
+  return ee._cloud_api_utils.convert_task_id_to_operation_name(task_id)
+  # pylint: enable=protected-access
+
+
+def _operation_name_to_task_id(operation_name: str) -> str:
+  """Converts an operation name to a task ID."""
+  # pylint: disable=protected-access
+  return ee._cloud_api_utils.convert_operation_name_to_task_id(operation_name)
+  # pylint: enable=protected-access
+
+
+def _convert_to_operation_state(state: str) -> str:
+  """Converts a task or operation state to an operation state."""
+  # pylint: disable=protected-access
+  return ee._cloud_api_utils.convert_to_operation_state(state)
+  # pylint: enable=protected-access
 
 
 def _decode_property(string: str) -> tuple[str, Any]:
@@ -1111,19 +1155,21 @@ class TaskCancelCommand:
     config.ee_init()
     cancel_all = args.task_ids == ['all']
     if cancel_all:
-      statuses = ee.data.getTaskList()
+      operations = ee.data.listOperations()
     else:
-      statuses = ee.data.getTaskStatus(args.task_ids)
-    for status in statuses:
-      state = status['state']
-      task_id = status['id']
+      operation_names = map(_task_id_to_operation_name, args.task_ids)
+      operations = map(ee.data.getOperation, operation_names)
+    for operation in operations:
+      name = operation['name']
+      state = operation['metadata']['state']
+      task_id = _operation_name_to_task_id(name)
       if state == 'UNKNOWN':
-        raise ee.EEException('Unknown task id "%s"' % task_id)
-      elif state == 'READY' or state == 'RUNNING':
-        print('Canceling task "%s"' % task_id)
-        ee.data.cancelTask(task_id)
+        raise ee.EEException(f'Unknown task id "{task_id}"')
+      elif state == 'PENDING' or state == 'RUNNING':
+        print(f'Canceling task "{task_id}"')
+        ee.data.cancelOperation(name)
       elif not cancel_all:
-        print('Task "{}" already in state "{}".'.format(status['id'], state))
+        print(f'Task "{task_id}" already in state "{state}".')
 
 
 class TaskInfoCommand:
@@ -1139,26 +1185,30 @@ class TaskInfoCommand:
   ) -> None:
     """Runs the TaskInfo command."""
     config.ee_init()
-    for i, status in enumerate(ee.data.getTaskStatus(args.task_id)):
+    for i, task_id in enumerate(args.task_id):
+      operation = ee.data.getOperation(_task_id_to_operation_name(task_id))
       if i:
         print()
-      print('%s:' % status['id'])
-      print('  State: %s' % status['state'])
-      if status['state'] == 'UNKNOWN':
+      print(f'{task_id}:')
+      metadata = operation['metadata']
+      state = metadata['state']
+      print(f'  State: {state}')
+      if state == 'UNKNOWN':
         continue
-      print('  Type: %s' % TASK_TYPES.get(status.get('task_type'), 'Unknown'))
-      print('  Description: %s' % status.get('description'))
-      print('  Created: %s' % _parse_millis(status['creation_timestamp_ms']))
-      if 'start_timestamp_ms' in status:
-        print('  Started: %s' % _parse_millis(status['start_timestamp_ms']))
-      if 'update_timestamp_ms' in status:
-        print('  Updated: %s' % _parse_millis(status['update_timestamp_ms']))
-      if 'error_message' in status:
-        print('  Error: %s' % status['error_message'])
-      if 'destination_uris' in status:
-        print('  Destination URIs: %s' % ', '.join(status['destination_uris']))
-      if 'priority' in status:
-        print('  Priority: %s' % status['priority'])
+      print(f'  Type: {TASK_TYPES.get(metadata.get("type"), "Unknown")}')
+      print(f'  Description: {metadata.get("description")}')
+      print(f'  Created: {_format_cloud_timestamp(metadata["createTime"])}')
+      if start_time := metadata.get('startTime'):
+        print(f'  Started: {_format_cloud_timestamp(start_time)}')
+      if update_time := metadata.get('updateTime'):
+        print(f'  Updated: {_format_cloud_timestamp(update_time)}')
+      if error := operation.get('error'):
+        if error_message := error.get('message'):
+          print(f'  Error: {error_message}')
+      if destination_uris := metadata.get('destinationUris'):
+        print(f'  Destination URIs: {destination_uris}')
+      if priority := metadata.get('priority'):
+        print(f'  Priority: {priority}')
 
 
 class TaskListCommand:
@@ -1168,10 +1218,24 @@ class TaskListCommand:
 
   def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
-        '--status', '-s', required=False, nargs='*',
-        choices=['READY', 'RUNNING', 'COMPLETED', 'FAILED',
-                 'CANCELLED', 'UNKNOWN'],
-        help=('List tasks only with a given status'))
+        '--status',
+        '-s',
+        required=False,
+        nargs='*',
+        choices=[
+            'CANCEL_REQUESTED',  # Kept for backward compatibility.
+            'CANCELLED',
+            'CANCELLING',
+            'COMPLETED',  # Kept for backward compatibility.
+            'FAILED',
+            'PENDING',
+            'READY',  # Kept for backward compatibility.
+            'RUNNING',
+            'SUCCEEDED',
+            'UNKNOWN',
+        ],
+        help='List tasks only with a given status',
+    )
     parser.add_argument(
         '--long_format',
         '-l',
@@ -1185,34 +1249,47 @@ class TaskListCommand:
   ) -> None:
     """Lists tasks present for a user, maybe filtering by state."""
     config.ee_init()
-    status = args.status
-    tasks = ee.data.getTaskList()
-    descs = [utils.truncate(task.get('description', ''), 40) for task in tasks]
+    status = list(
+        map(_convert_to_operation_state, args.status) if args.status else []
+    )
+    operations = ee.data.listOperations()
+    descs = [
+        utils.truncate(op.get('metadata', {}).get('description', ''), 40)
+        for op in operations
+    ]
     desc_length = max((len(word) for word in descs), default=0)
-    format_str = '{:25s} {:13s} {:%ds} {:10s} {:s}' % (desc_length + 1)
-    for task in tasks:
-      if status and task['state'] not in status:
+    format_str = f'{{:25s}} {{:13s}} {{:{desc_length + 1}s}} {{:10s}} {{:s}}'
+    for operation in operations:
+      metadata = operation['metadata']
+      if status and metadata['state'] not in status:
         continue
-      truncated_desc = utils.truncate(task.get('description', ''), 40)
-      task_type = TASK_TYPES.get(task['task_type'], 'Unknown')
+      truncated_desc = utils.truncate(metadata.get('description', ''), 40)
+      task_type = TASK_TYPES.get(metadata['type'], 'Unknown')
       extra = ''
       if args.long_format:
-        show_date = lambda ms: _parse_millis(ms).strftime('%Y-%m-%d %H:%M:%S')
-        eecu = '{:.4f}'.format(
-            task['batch_eecu_usage_seconds']
-        ) if 'batch_eecu_usage_seconds' in task else '-'
-        trailing_extras = task.get('destination_uris', [])
-        trailing_extras.append(task.get('priority', '-'))
+        if eecu := metadata.get('batchEecuUsageSeconds'):
+          eecu = f'{eecu:.4f}'
+        else:
+          eecu = '-'
+        trailing_extras = metadata.get('destination_uris', [])
+        trailing_extras.append(metadata.get('priority', '-'))
         extra = ' {:20s} {:20s} {:20s} {:11s} {}'.format(
-            show_date(task['creation_timestamp_ms']),
-            show_date(task['start_timestamp_ms']),
-            show_date(task['update_timestamp_ms']),
+            _format_cloud_timestamp(operation.get('createTime')),
+            _format_cloud_timestamp(operation.get('startTime')),
+            _format_cloud_timestamp(operation.get('updateTime')),
             eecu,
             ' '.join(map(str, trailing_extras)),
         )
-      print(format_str.format(
-          task['id'], task_type, truncated_desc,
-          task['state'], task.get('error_message', '---')) + extra)
+      print(
+          format_str.format(
+              _operation_name_to_task_id(operation['name']),
+              task_type,
+              truncated_desc,
+              metadata['state'],
+              operation.get('error', {}).get('message', '---'),
+          )
+          + extra
+      )
 
 
 class TaskWaitCommand:
@@ -1241,17 +1318,17 @@ class TaskWaitCommand:
     config.ee_init()
     task_ids = []
     if args.task_ids == ['all']:
-      tasks = ee.data.getTaskList()
-      for task in tasks:
-        if task['state'] not in utils.TASK_FINISHED_STATES:
-          task_ids.append(task['id'])
+      operations = ee.data.listOperations()
+      for operation in operations:
+        if not operation.get('done', False):
+          task_ids.append(_operation_name_to_task_id(operation['name']))
     else:
-      statuses = ee.data.getTaskStatus(args.task_ids)
-      for status in statuses:
-        state = status['state']
-        task_id = status['id']
+      for task_id in args.task_ids:
+        operation = ee.data.getOperation(_task_id_to_operation_name(task_id))
+        state = operation['metadata']['state']
+        task_id = _operation_name_to_task_id(operation['name'])
         if state == 'UNKNOWN':
-          raise ee.EEException('Unknown task id "%s"' % task_id)
+          raise ee.EEException(f'Unknown task id "{task_id}"')
         else:
           task_ids.append(task_id)
 
