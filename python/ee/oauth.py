@@ -126,10 +126,22 @@ def get_appdefault_project() -> Optional[str]:
     return None
 
 
-def _valid_credentials_exist() -> bool:
+def _valid_credentials_exist(
+    scopes: Optional[Sequence[str]] = None,
+) -> bool:
+  """Checks if valid credentials exist and match the requested scopes."""
   try:
     creds = ee_data.get_persistent_credentials()
-    return is_valid_credentials(creds)
+    if not is_valid_credentials(creds):
+      return False
+    if scopes is not None:
+      try:
+        stored_args = get_credentials_arguments()
+        if set(stored_args.get('scopes', [])) != set(scopes):
+          return False
+      except FileNotFoundError:
+        return False
+    return True
   except ee_exception.EEException:
     return False
 
@@ -514,11 +526,18 @@ def authenticate(
      Exception: on invalid arguments.
   """
 
+  if auth_mode == 'colab' and scopes is not None and set(scopes) != set(SCOPES):
+    raise ee_exception.EEException(
+        'Scopes cannot be customized when auth_mode is "colab". Please see'
+        ' https://developers.google.com/earth-engine/guides/auth#quick_reference_guide_and_table'
+        ' for more information.'
+    )
+
   if cli_authorization_code:
     _obtain_and_write_token(cli_authorization_code, cli_code_verifier, scopes)
     return
 
-  if not force and _valid_credentials_exist():
+  if not force and _valid_credentials_exist(scopes):
     return True
 
   if not auth_mode:
