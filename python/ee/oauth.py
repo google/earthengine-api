@@ -96,7 +96,8 @@ def get_credentials_arguments() -> dict[str, Any]:
     args['refresh_token'] = stored.get('refresh_token')
     args['client_id'] = stored.get('client_id', CLIENT_ID)
     args['client_secret'] = stored.get('client_secret', CLIENT_SECRET)
-    args['scopes'] = stored.get('scopes', SCOPES)
+    if 'scopes' in stored:
+      args['scopes'] = stored.get('scopes')
     args['quota_project_id'] = stored.get('project')
     return args
 
@@ -126,10 +127,22 @@ def get_appdefault_project() -> Optional[str]:
     return None
 
 
-def _valid_credentials_exist() -> bool:
+def _valid_credentials_exist(
+    scopes: Optional[Sequence[str]] = None,
+) -> bool:
+  """Checks if valid credentials exist and match the requested scopes."""
   try:
     creds = ee_data.get_persistent_credentials()
-    return is_valid_credentials(creds)
+    if not is_valid_credentials(creds):
+      return False
+    if scopes is not None:
+      try:
+        stored_args = get_credentials_arguments()
+        if set(stored_args.get('scopes', SCOPES)) != set(scopes):
+          return False
+      except FileNotFoundError:
+        return False
+    return True
   except ee_exception.EEException:
     return False
 
@@ -387,10 +400,11 @@ def _load_gcloud_credentials(
     run_gcloud_legacy: bool = False,
 ) -> None:
   """Initializes credentials by running gcloud flows."""
+  scopes = scopes or SCOPES
   client_id_file = None
   command = GCLOUD_COMMAND.split()
   command[0] = shutil.which(command[0]) or command[0]  # Windows fix
-  command += ['--scopes=%s' % (','.join(scopes or SCOPES))]
+  command += ['--scopes=%s' % (','.join(scopes))]
   if run_gcloud_legacy:
     client_id_json = dict(
         client_id=CLIENT_ID,
@@ -425,6 +439,7 @@ def _load_gcloud_credentials(
   with open(adc_path) as adc_json:
     adc = json.load(adc_json)
     adc = {k: adc[k] for k in ['client_id', 'client_secret', 'refresh_token']}
+    adc['scopes'] = scopes
     write_private_json(get_credentials_path(), adc)
   print('\nSuccessfully saved authorization token.')
 
@@ -514,11 +529,18 @@ def authenticate(
      Exception: on invalid arguments.
   """
 
+  if auth_mode == 'colab' and scopes is not None and set(scopes) != set(SCOPES):
+    raise ee_exception.EEException(
+        'Scopes cannot be customized when auth_mode is "colab". Please see'
+        ' https://developers.google.com/earth-engine/guides/auth#quick_reference_guide_and_table'
+        ' for more information.'
+    )
+
   if cli_authorization_code:
     _obtain_and_write_token(cli_authorization_code, cli_code_verifier, scopes)
     return
 
-  if not force and _valid_credentials_exist():
+  if not force and _valid_credentials_exist(scopes):
     return True
 
   if not auth_mode:
