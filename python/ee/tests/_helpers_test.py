@@ -7,14 +7,67 @@ name since that is the name we want to ensure works.
 """
 
 import io
+import json
 import unittest
+from unittest import mock
 
 import unittest
 import ee
+from ee import _helpers
 from ee import apifunction
 from ee import apitestcase
 from ee import computedobject
 from ee import ee_exception
+from ee import oauth
+
+
+class ServiceAccountCredentialsTest(unittest.TestCase):
+
+  def testNoArgs(self):
+    with self.assertRaisesRegex(ValueError, 'At least one of'):
+      ee.ServiceAccountCredentials()
+
+  @mock.patch('google.oauth2.service_account.Credentials')
+  def testJsonFile(self, mock_credentials):
+    ee.ServiceAccountCredentials(key_file='foo.json')
+    mock_credentials.from_service_account_file.assert_called_with(
+        'foo.json', scopes=oauth.SCOPES
+    )
+
+  @mock.patch('google.oauth2.service_account.Credentials')
+  def testJsonKeyData(self, mock_credentials):
+    key_data = {'client_email': 'foo@bar.com'}
+    ee.ServiceAccountCredentials(key_data=json.dumps(key_data))
+    mock_credentials.from_service_account_info.assert_called_with(
+        key_data, scopes=oauth.SCOPES
+    )
+
+  @mock.patch('google.auth.crypt.RSASigner')
+  @mock.patch('google.oauth2.service_account.Credentials')
+  def testPemKeyData(self, mock_credentials, mock_signer):
+    ee.ServiceAccountCredentials(email='foo@bar.com', key_data='pem_key_data')
+    mock_signer.from_string.assert_called_with('pem_key_data')
+    self.assertEqual(
+        mock_credentials.call_args[0][1], 'foo@bar.com'
+    )
+
+  @mock.patch('google.auth.crypt.RSASigner')
+  @mock.patch('google.oauth2.service_account.Credentials')
+  def testPemFile(self, mock_credentials, mock_signer):
+    with mock.patch.object(
+        _helpers, 'open', mock.mock_open(read_data='pem_key_data')
+    ):
+      ee.ServiceAccountCredentials(email='foo@bar.com', key_file='foo.pem')
+    mock_signer.from_string.assert_called_with('pem_key_data')
+    self.assertEqual(
+        mock_credentials.call_args[0][1], 'foo@bar.com'
+    )
+
+  def testBadJsonKeyData(self):
+    # This causes a different failure based on where the test is run.
+    message = r'Could not deserialize key data|No key could be detected'
+    with self.assertRaisesRegex(ValueError, message):
+      ee.ServiceAccountCredentials(key_data='not json')
 
 
 class ProfilingTest(apitestcase.ApiTestCase):

@@ -28,7 +28,9 @@ _PROFILE_RETRIES = 5
 
 
 def ServiceAccountCredentials(
-    email: str, key_file: Optional[str] = None, key_data: Optional[str] = None
+    email: Optional[str] = None,
+    key_file: Optional[str] = None,
+    key_data: Optional[str] = None,
 ) -> service_account.Credentials:
   """Configure OAuth2 credentials for a Google Service Account.
 
@@ -42,6 +44,10 @@ def ServiceAccountCredentials(
   Returns:
     An OAuth2 credentials object.
   """
+  if not email and not key_file and not key_data:
+    raise ValueError(
+        'At least one of email, key_file, or key_data must be specified.'
+    )
 
   # Assume anything that doesn't end in '.pem' is a JSON key.
   if key_file and not key_file.endswith('.pem'):
