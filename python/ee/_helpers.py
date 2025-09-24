@@ -22,7 +22,6 @@ from ee import data
 from ee import ee_exception
 from ee import oauth
 
-
 # Number of times to retry fetching profile data.
 _PROFILE_RETRIES = 5
 
@@ -125,14 +124,13 @@ def profilePrinting(destination: TextIO = sys.stderr) -> Iterator[None]:
   The profile will be printed when the context ends, whether or not any error
   occurred within the context.
 
-  # Simple example:
-  with ee.profilePrinting():
-     print ee.Number(1).add(1).getInfo()
+  Example:
+    with ee.profilePrinting():
+      print(ee.Number(1).add(1).getInfo())
 
   Args:
     destination: A file-like object to which the profile text is written.
         Defaults to sys.stderr.
-
   """
   # Profile.getProfiles is `hidden`, so call it explicitly.
   get_profiles = apifunction.ApiFunction.lookup('Profile.getProfiles').call
@@ -142,12 +140,11 @@ def profilePrinting(destination: TextIO = sys.stderr) -> Iterator[None]:
       yield
   finally:
     # Make several attempts in case of transient errors.
-    attempts = _PROFILE_RETRIES
-    for i in range(_PROFILE_RETRIES):
+    for attempt in range(_PROFILE_RETRIES):
       try:
         profile_text = get_profiles(ids=profile_ids).getInfo()
         destination.write(profile_text)
         break
       except ee_exception.EEException as exception:
-        if i == attempts - 1:
+        if attempt == _PROFILE_RETRIES - 1:
           raise exception
