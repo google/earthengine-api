@@ -8,6 +8,7 @@ from unittest import mock
 
 import unittest
 import ee
+from ee import _state
 from ee import apitestcase
 from ee import batch
 from ee import data
@@ -55,7 +56,17 @@ class TaskTest(unittest.TestCase):
 
   def setUp(self):
     super().setUp()
-    data.setCloudApiUserProject('test-project')
+    mock.patch.object(
+        _state,
+        'get_state',
+        return_value=_state.EEState(
+            initialized=True, cloud_api_user_project='test-project'
+        ),
+    ).start()
+
+  def tearDown(self):
+    super().tearDown()
+    mock.patch.stopall()
 
   def testStartWithoutConfig(self):
     task = batch.Task('an id', 'a task type', 'a state')
@@ -72,7 +83,8 @@ class TaskTest(unittest.TestCase):
       task.start()
 
   def testStatusWithId(self):
-    task = batch.Task('test_1', 'a task type', 'a state')
+    name = 'projects/test-project/operations/test_1'
+    task = batch.Task('an id', 'a task type', 'a state', name=name)
     with mock.patch.object(
         data, 'getOperation', return_value=RUNNING_OPERATION
     ) as m:
@@ -97,7 +109,8 @@ class TaskTest(unittest.TestCase):
       )
 
   def testStatusWithIdStateUnknown(self):
-    task = batch.Task('an id', 'a task type', 'a state')
+    name = 'projects/test-project/operations/an id'
+    task = batch.Task('an id', 'a task type', 'a state', name=name)
     with mock.patch.object(
         data, 'getOperation', return_value=UNKNOWN_OPERATION
     ) as m:
@@ -111,7 +124,8 @@ class TaskTest(unittest.TestCase):
     self.assertEqual('UNSUBMITTED', task.status()['state'])
 
   def testActive(self):
-    task = batch.Task('an id', 'a task type', 'a state')
+    name = 'projects/test-project/operations/an id'
+    task = batch.Task('an id', 'a task type', 'a state', name=name)
     with mock.patch.object(
         data, 'getOperation', return_value=RUNNING_OPERATION
     ):
