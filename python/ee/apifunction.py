@@ -60,7 +60,7 @@ class ApiFunction(function.Function):
     return (isinstance(other, ApiFunction) and
             self.getSignature() == other.getSignature())
 
-  # For Python 3, __hash__ is needed because __eq__ is defined.
+  # __hash__ is needed because __eq__ is defined.
   # See https://docs.python.org/3/reference/datamodel.html#object.__hash__
   def __hash__(self) -> int:
     return hash(computedobject.ComputedObject.freeze(self.getSignature()))
