@@ -16,10 +16,6 @@ from ee import ee_exception
 
 class CloudApiUtilsTest(unittest.TestCase):
 
-  def setUp(self):
-    super().setUp()
-    _cloud_api_utils.set_cloud_api_user_project('earthengine-legacy')
-
   def test_build_cloud_resource(self):
     base = 'https://earthengine.basetest'
     path = '$discovery/rest?version=v1&prettyPrint=false'
@@ -171,7 +167,10 @@ class CloudApiUtilsTest(unittest.TestCase):
   def test_convert_task_id_to_operation_name(self):
     self.assertEqual(
         'projects/earthengine-legacy/operations/taskId',
-        _cloud_api_utils.convert_task_id_to_operation_name('taskId'))
+        _cloud_api_utils.convert_task_id_to_operation_name(
+            'earthengine-legacy', 'taskId'
+        ),
+    )
 
   def test_encode_number_as_cloud_value(self):
     self.assertEqual({
