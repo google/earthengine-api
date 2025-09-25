@@ -35,73 +35,6 @@ from ee import table_converter
 
 from ee import __version__
 
-# OAuth2 credentials object.  This may be set by ee.Initialize().
-_credentials: Optional[credentials_lib.Credentials] = None
-
-# The base URL for all data calls.  This is set by ee.Initialize().
-_api_base_url: Optional[str] = None
-
-# The base URL for map tiles.  This is set by ee.Initialize().
-_tile_base_url: Optional[str] = None
-
-# The base URL for all Cloud API calls.  This is set by ee.Initialize().
-_cloud_api_base_url: Optional[str] = None
-
-# Google Cloud API key.  This may be set by ee.Initialize().
-_cloud_api_key: Optional[str] = None
-
-# A Requests session.  This is set by ee.Initialize()
-_requests_session: Optional[requests.Session] = None
-
-# A resource object for making Cloud API calls.
-_cloud_api_resource = None
-
-# A resource object for making Cloud API calls and receiving raw return types.
-_cloud_api_resource_raw = None
-
-# The default user project to use when making Cloud API calls.
-_cloud_api_user_project: Optional[str] = None
-
-# The API client version number to send when making requests.
-_cloud_api_client_version: Optional[str] = None
-
-# The http_transport to use.
-_http_transport = None
-
-# Whether the module has been initialized.
-_initialized: bool = False
-
-# Sets the number of milliseconds to wait for a request before considering
-# it timed out. 0 means no limit.
-_deadline_ms: int = 0
-
-# Maximum number of times to retry a rate-limited request.
-_max_retries: int = 5
-
-# User agent to indicate which application is calling Earth Engine
-_user_agent: Optional[str] = None
-
-
-class _ThreadLocals(threading.local):
-  """Storage for thread local variables."""
-
-  def __init__(self):
-    # pylint: disable=super-init-not-called
-
-    # A function called when profile results are received from the server. Takes
-    # the profile ID as an argument. None if profiling is disabled.
-    #
-    # This is a thread-local variable because the alternative is to add a
-    # parameter to ee.data.send_, which would then have to be propagated from
-    # the assorted API call functions (ee.data.getInfo, ee.data.getMapId, etc.),
-    # and the user would have to modify each call to profile, rather than
-    # enabling profiling as a wrapper around the entire program (with
-    # ee.data.profiling, defined below).
-    self.profile_hook: Optional[Callable[[str], None]] = None
-
-
-_thread_locals = _ThreadLocals()
-
 # The HTTP header through which profile results are returned.
 # Lowercase because that's how httplib2 does things.
 _PROFILE_RESPONSE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
@@ -159,6 +92,73 @@ _NEXT_PAGE_TOKEN_KEY = 'nextPageToken'
 _NOT_INITIALIZED_MESSAGE = (
     'Earth Engine client library not initialized. See http://goo.gle/ee-auth.'
 )
+
+# OAuth2 credentials object.  This may be set by ee.Initialize().
+_credentials: Optional[credentials_lib.Credentials] = None
+
+# The base URL for all data calls.  This is set by ee.Initialize().
+_api_base_url: Optional[str] = None
+
+# The base URL for map tiles.  This is set by ee.Initialize().
+_tile_base_url: Optional[str] = None
+
+# The base URL for all Cloud API calls.  This is set by ee.Initialize().
+_cloud_api_base_url: Optional[str] = None
+
+# Google Cloud API key.  This may be set by ee.Initialize().
+_cloud_api_key: Optional[str] = None
+
+# A Requests session.  This is set by ee.Initialize()
+_requests_session: Optional[requests.Session] = None
+
+# A resource object for making Cloud API calls.
+_cloud_api_resource = None
+
+# A resource object for making Cloud API calls and receiving raw return types.
+_cloud_api_resource_raw = None
+
+# The default user project to use when making Cloud API calls.
+_cloud_api_user_project: str = DEFAULT_CLOUD_API_USER_PROJECT
+
+# The API client version number to send when making requests.
+_cloud_api_client_version: Optional[str] = None
+
+# The http_transport to use.
+_http_transport = None
+
+# Whether the module has been initialized.
+_initialized: bool = False
+
+# Sets the number of milliseconds to wait for a request before considering
+# it timed out. 0 means no limit.
+_deadline_ms: int = 0
+
+# Maximum number of times to retry a rate-limited request.
+_max_retries: int = 5
+
+# User agent to indicate which application is calling Earth Engine
+_user_agent: Optional[str] = None
+
+
+class _ThreadLocals(threading.local):
+  """Storage for thread local variables."""
+
+  def __init__(self):
+    # pylint: disable=super-init-not-called
+
+    # A function called when profile results are received from the server. Takes
+    # the profile ID as an argument. None if profiling is disabled.
+    #
+    # This is a thread-local variable because the alternative is to add a
+    # parameter to ee.data.send_, which would then have to be propagated from
+    # the assorted API call functions (ee.data.getInfo, ee.data.getMapId, etc.),
+    # and the user would have to modify each call to profile, rather than
+    # enabling profiling as a wrapper around the entire program (with
+    # ee.data.profiling, defined below).
+    self.profile_hook: Optional[Callable[[str], None]] = None
+
+
+_thread_locals = _ThreadLocals()
 
 
 def initialize(
@@ -231,9 +231,8 @@ def initialize(
 
   if project is not None:
     _cloud_api_user_project = project
-    _cloud_api_utils.set_cloud_api_user_project(project)
   else:
-    _cloud_api_utils.set_cloud_api_user_project(DEFAULT_CLOUD_API_USER_PROJECT)
+    _cloud_api_user_project = DEFAULT_CLOUD_API_USER_PROJECT
 
   _initialized = True
 
@@ -302,18 +301,14 @@ def reset() -> None:
   _cloud_api_key = None
   _cloud_api_resource = None
   _cloud_api_resource_raw = None
-  _cloud_api_user_project = None
-  _cloud_api_utils.set_cloud_api_user_project(DEFAULT_CLOUD_API_USER_PROJECT)
+  _cloud_api_user_project = DEFAULT_CLOUD_API_USER_PROJECT
   _http_transport = None
   _initialized = False
 
 
 def _get_projects_path() -> str:
   """Returns the projects path to use for constructing a request."""
-  if _cloud_api_user_project is not None:
-    return 'projects/' + _cloud_api_user_project
-  else:
-    return 'projects/' + DEFAULT_CLOUD_API_USER_PROJECT
+  return f'projects/{_cloud_api_user_project}'
 
 
 def _install_cloud_api_resource() -> None:
@@ -372,7 +367,7 @@ def _make_request_headers() -> Optional[dict[str, Any]]:
   headers[_API_CLIENT_VERSION_HEADER] = ' '.join(client_version_header_values)
   if _thread_locals.profile_hook:
     headers[_PROFILE_REQUEST_HEADER] = '1'
-  if _cloud_api_user_project is not None:
+  if _cloud_api_user_project is not DEFAULT_CLOUD_API_USER_PROJECT:
     headers[_USER_PROJECT_OVERRIDE_HEADER] = _cloud_api_user_project
   if headers:
     return headers
@@ -455,7 +450,6 @@ def setCloudApiKey(cloud_api_key: str) -> None:
 def setCloudApiUserProject(cloud_api_user_project: str) -> None:
   global _cloud_api_user_project
   _cloud_api_user_project = cloud_api_user_project
-  _cloud_api_utils.set_cloud_api_user_project(_cloud_api_user_project)
 
 
 def setUserAgent(user_agent: str) -> None:
@@ -1683,7 +1677,8 @@ def getTaskStatus(taskId: Union[list[str], str]) -> list[Any]:
   """Retrieve status of one or more long-running tasks.
 
   Args:
-    taskId: ID of the task or a list of multiple IDs.
+    taskId: ID of the task or a list of multiple IDs. These will be assumed to
+      be running in the currently initialized project.
 
   Returns:
     List containing one object for each queried task, in the same order as
@@ -1698,19 +1693,22 @@ def getTaskStatus(taskId: Union[list[str], str]) -> list[Any]:
     taskId = [taskId]
   result = []
   for one_id in taskId:
+    # Don't use getOperation as it will translate the exception, and we need
+    # to handle 404s specially.
+    name = _cloud_api_utils.convert_task_id_to_operation_name(
+        _cloud_api_user_project, one_id
+    )
     try:
-      # Don't use getOperation as it will translate the exception, and we need
-      # to handle 404s specially.
       operation = (
           _get_cloud_projects()
           .operations()
-          .get(name=_cloud_api_utils.convert_task_id_to_operation_name(one_id))
+          .get(name=name)
           .execute(num_retries=_max_retries)
       )
       result.append(_cloud_api_utils.convert_operation_to_task(operation))
     except googleapiclient.errors.HttpError as e:
       if e.resp.status == 404:
-        result.append({'id': one_id, 'state': 'UNKNOWN'})
+        result.append({'id': one_id, 'state': 'UNKNOWN', 'name': name})
       else:
         raise _translate_cloud_exception(e)  # pylint: disable=raise-missing-from
   return result
@@ -1734,7 +1732,11 @@ def getOperation(operation_name: str) -> Any:
 @deprecation.Deprecated('Use cancelOperation')
 def cancelTask(taskId: str) -> None:
   """Cancels a batch task."""
-  cancelOperation(_cloud_api_utils.convert_task_id_to_operation_name(taskId))
+  cancelOperation(
+      _cloud_api_utils.convert_task_id_to_operation_name(
+          _cloud_api_user_project, taskId
+      )
+  )
 
 
 def cancelOperation(operation_name: str) -> None:

@@ -72,7 +72,8 @@ class TaskTest(unittest.TestCase):
       task.start()
 
   def testStatusWithId(self):
-    task = batch.Task('test_1', 'a task type', 'a state')
+    name = 'projects/test-project/operations/test_1'
+    task = batch.Task('an id', 'a task type', 'a state', name=name)
     with mock.patch.object(
         data, 'getOperation', return_value=RUNNING_OPERATION
     ) as m:
@@ -97,7 +98,8 @@ class TaskTest(unittest.TestCase):
       )
 
   def testStatusWithIdStateUnknown(self):
-    task = batch.Task('an id', 'a task type', 'a state')
+    name = 'projects/test-project/operations/an id'
+    task = batch.Task('an id', 'a task type', 'a state', name=name)
     with mock.patch.object(
         data, 'getOperation', return_value=UNKNOWN_OPERATION
     ) as m:
@@ -111,7 +113,8 @@ class TaskTest(unittest.TestCase):
     self.assertEqual('UNSUBMITTED', task.status()['state'])
 
   def testActive(self):
-    task = batch.Task('an id', 'a task type', 'a state')
+    name = 'projects/test-project/operations/an id'
+    task = batch.Task('an id', 'a task type', 'a state', name=name)
     with mock.patch.object(
         data, 'getOperation', return_value=RUNNING_OPERATION
     ):

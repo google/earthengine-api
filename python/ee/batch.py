@@ -112,7 +112,7 @@ class Task:
           - description: The name of the task, a freeform string.
           - sourceUrl: An optional URL for the script that generated the task.
           Specific task types have other custom config fields.
-      name: The name of the operation.  Only relevant when using the cloud api.
+      name: The name of the operation.
     """
     self.id = self._request_id = task_id
     self.config = config and config.copy()
@@ -123,10 +123,9 @@ class Task:
 
   @property
   def operation_name(self) -> str | None:
+    """The server-assigned name for this task."""
     if self.name:
       return self.name
-    if self.id:
-      return _cloud_api_utils.convert_task_id_to_operation_name(self.id)
     return None
 
   def start(self) -> None:

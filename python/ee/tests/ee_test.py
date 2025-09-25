@@ -49,7 +49,7 @@ class EETestCase(apitestcase.ApiTestCase):
     ee.Reset()
     self.assertFalse(ee.data._initialized)
     self.assertIsNone(ee.data._api_base_url)
-    self.assertIsNone(ee.data._cloud_api_user_project)
+    self.assertEqual(ee.data._cloud_api_user_project, 'earthengine-legacy')
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
 

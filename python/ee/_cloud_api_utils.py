@@ -35,9 +35,6 @@ ASSET_NAME_PATTERN = (r'^projects/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
 ASSET_ROOT_PATTERN = (r'^projects/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
                       r'[a-z][a-z0-9\-]{4,28}[a-z0-9])/assets/?$')
 
-# The default user project to use when making Cloud API calls.
-_cloud_api_user_project: Optional[str] = None
-
 
 class _Http:
   """A httplib2.Http-like object based on requests."""
@@ -134,11 +131,6 @@ def _wrap_request(
     return request
 
   return builder
-
-
-def set_cloud_api_user_project(cloud_api_user_project: str) -> None:
-  global _cloud_api_user_project
-  _cloud_api_user_project = cloud_api_user_project
 
 
 def build_cloud_resource(
@@ -560,9 +552,9 @@ def convert_operation_name_to_task_id(operation_name: str) -> str:
   return found.group(1) if found else operation_name
 
 
-def convert_task_id_to_operation_name(task_id: str) -> str:
+def convert_task_id_to_operation_name(project: str, task_id: str) -> str:
   """Converts a task ID to an Operation name."""
-  return f'projects/{_cloud_api_user_project}/operations/{task_id}'
+  return f'projects/{project}/operations/{task_id}'
 
 
 def convert_params_to_image_manifest(params: dict[str, Any]) -> dict[str, Any]:

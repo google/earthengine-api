@@ -49,12 +49,34 @@ class DataTest(unittest.TestCase):
 
   def tearDown(self):
     super().tearDown()
+    ee.data.reset()
     mock.patch.stopall()
 
   def testIsInitialized(self):
     self.assertFalse(ee.data.is_initialized())
     with apitestcase.UsingCloudApi():
       self.assertTrue(ee.data.is_initialized())
+
+  @mock.patch.object(ee.data, '_install_cloud_api_resource', return_value=None)
+  def testInitialize(self, mock_install_cloud_api_resource):
+    ee.data.initialize()
+
+    self.assertTrue(ee.data.is_initialized())
+    mock_install_cloud_api_resource.assert_called_once()
+
+  @mock.patch.object(ee.data, '_install_cloud_api_resource', return_value=None)
+  def testInitializeWithProject(self, unused_mock_install_cloud_api_resource):
+    ee.data.initialize(project='my-project')
+
+    self.assertTrue(ee.data.is_initialized())
+    self.assertEqual(ee.data._cloud_api_user_project, 'my-project')
+
+  @mock.patch.object(ee.data, '_install_cloud_api_resource', return_value=None)
+  def testInitializeWithNoProject(self, unused_mock_install_cloud_api_resource):
+    ee.data.initialize()
+
+    self.assertTrue(ee.data.is_initialized())
+    self.assertEqual(ee.data._cloud_api_user_project, 'earthengine-legacy')
 
   def testSetMaxRetries_badValues(self):
     with self.assertRaises(ValueError):
@@ -107,6 +129,112 @@ class DataTest(unittest.TestCase):
     mock_http.request.return_value = (httplib2.Response({'status': 200}), b'{}')
     with apitestcase.UsingCloudApi(mock_http=mock_http):
       self.assertEqual([], ee.data.listOperations())
+
+  def testGetOperation(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      name = 'projects/test-project/operations/foo'
+      cloud_api_resource.projects().operations().get.execute.return_value = {
+          'name': name,
+          'done': False,
+      }
+      ee.data.getOperation(name)
+      cloud_api_resource.projects().operations().get.assert_called_once_with(
+          name=name
+      )
+
+  def testGetTaskStatus(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      cloud_api_resource.projects().operations().get.return_value.execute.return_value = {
+          'name': 'projects/earthengine-legacy/operations/foo',
+          'done': False,
+          'metadata': {'state': 'RUNNING'},
+      }
+      result = ee.data.getTaskStatus('foo')
+      cloud_api_resource.projects().operations().get.assert_called_once_with(
+          name='projects/earthengine-legacy/operations/foo'
+      )
+      self.assertEqual(
+          result,
+          [{
+              'id': 'foo',
+              'state': 'RUNNING',
+              'name': 'projects/earthengine-legacy/operations/foo',
+          }],
+      )
+
+  def testGetTaskStatus_withNotFound(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      cloud_api_resource.projects().operations().get.return_value.execute.side_effect = [
+          {
+              'name': 'projects/earthengine-legacy/operations/foo',
+              'done': False,
+              'metadata': {'state': 'RUNNING'},
+          },
+          NotFoundError(),
+          {
+              'name': 'projects/earthengine-legacy/operations/bar',
+              'done': True,
+              'metadata': {'state': 'SUCCEEDED'},
+          },
+      ]
+      result = ee.data.getTaskStatus(['foo', 'missing', 'bar'])
+      cloud_api_resource.projects().operations().get.assert_has_calls([
+          mock.call(name='projects/earthengine-legacy/operations/foo'),
+          mock.call().execute(num_retries=5),
+          mock.call(name='projects/earthengine-legacy/operations/missing'),
+          mock.call().execute(num_retries=5),
+          mock.call(name='projects/earthengine-legacy/operations/bar'),
+          mock.call().execute(num_retries=5),
+      ])
+      self.assertEqual(
+          3,
+          cloud_api_resource.projects()
+          .operations()
+          .get.return_value.execute.call_count,
+      )
+      self.assertEqual(
+          result,
+          [
+              {
+                  'id': 'foo',
+                  'state': 'RUNNING',
+                  'name': 'projects/earthengine-legacy/operations/foo',
+              },
+              {
+                  'id': 'missing',
+                  'state': 'UNKNOWN',
+                  'name': 'projects/earthengine-legacy/operations/missing',
+              },
+              {
+                  'id': 'bar',
+                  'state': 'COMPLETED',
+                  'name': 'projects/earthengine-legacy/operations/bar',
+              },
+          ],
+      )
+
+  def testCancelOperation(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      cancel_mock = cloud_api_resource.projects().operations().cancel
+      cancel_mock.execute.return_value = {}
+      ee.data.cancelOperation('projects/test-project/operations/foo')
+      cancel_mock.assert_called_once_with(
+          name='projects/test-project/operations/foo', body={}
+      )
+
+  def testCancelTask(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      cancel_mock = cloud_api_resource.projects().operations().cancel
+      cancel_mock.execute.return_value = {}
+      ee.data.cancelTask('foo')
+      cancel_mock.assert_called_once_with(
+          name='projects/earthengine-legacy/operations/foo', body={}
+      )
 
   def testCreateAsset(self):
     cloud_api_resource = mock.MagicMock()
