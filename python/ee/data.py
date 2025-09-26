@@ -3,6 +3,8 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from __future__ import annotations
+
 from collections.abc import Iterator, Sequence
 import contextlib
 import json
@@ -2421,7 +2423,7 @@ def setDefaultWorkloadTag(tag: Optional[Union[int, str]]) -> None:
   Args:
     tag: The tag to set.
   """
-  _workloadTag.setDefault(tag)
+  _workloadTag.set_default(tag)
   _workloadTag.set(tag)
 
 
@@ -2436,41 +2438,37 @@ def resetWorkloadTag(resetDefault: bool = False) -> None:
     resetDefault: Whether to reset the default back to empty.
   """
   if resetDefault:
-    _workloadTag.setDefault('')
+    _workloadTag.set_default('')
   _workloadTag.reset()
 
 
-# TODO(user): Consider only returning str even for ints.
 class _WorkloadTag:
   """A helper class to manage the workload tag."""
-  _tag: Optional[Union[int, str]]
-  _default: Optional[Union[int, str]]
+
+  _tag: str
+  _default: str
 
   def __init__(self):
-    # TODO(user): Consider using None as default and setting them above.
     self._tag = ''
     self._default = ''
 
-  def get(self) -> Union[int, str, None]:
+  def get(self) -> str:
     return self._tag
 
-  def set(self, tag: Optional[Union[int, str]]) -> None:
+  def set(self, tag: int | str | None) -> None:
     self._tag = self.validate(tag)
 
-  def setDefault(self, newDefault: Optional[Union[int, str]]) -> None:
-    self._default = self.validate(newDefault)
+  def set_default(self, new_default: int | str | None) -> None:
+    self._default = self.validate(new_default)
 
   def reset(self) -> None:
     self._tag = self._default
 
-  def validate(self, tag: Optional[Union[int, str]]) -> str:
-    """Throws an error if setting an invalid tag.
+  def validate(self, tag: int | str | None) -> str:
+    """Returns the validated tag or raises a ValueError.
 
     Args:
       tag: the tag to validate.
-
-    Returns:
-      The validated tag.
 
     Raises:
       ValueError if the tag does not match the expected format.
@@ -2479,12 +2477,13 @@ class _WorkloadTag:
       return ''
     tag = str(tag)
     if not re.fullmatch(r'([a-z0-9]|[a-z0-9][-_a-z0-9]{0,61}[a-z0-9])', tag):
-      validationMessage = (
+      validation_message = (
           'Tags must be 1-63 characters, '
           'beginning and ending with a lowercase alphanumeric character '
           '([a-z0-9]) with dashes (-), underscores (_), '
-          'and lowercase alphanumerics between.')
-      raise ValueError(f'Invalid tag, "{tag}". {validationMessage}')
+          'and lowercase alphanumerics between.'
+      )
+      raise ValueError(f'Invalid tag, "{tag}". {validation_message}')
     return tag
 
 
