@@ -38,11 +38,11 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
   necessary to interact well with the rest of the API.
 
   ComputedObjects come in two flavors:
-  1. If func != null and args != null, the ComputedObject is encoded as an
-     invocation of func with args.
-  2. If func == null and args == null, the ComputedObject is a variable
+  1. If func is not None and args is not None, the ComputedObject is encoded as
+     an invocation of func with args.
+  2. If func is None and args is None, the ComputedObject is a variable
      reference. The variable name is stored in its varName member. Note that
-     in this case, varName may still be null; this allows the name to be
+     in this case, varName may still be None; this allows the name to be
      deterministically generated at a later time. This is used to generate
      deterministic variable names for mapped functions, ensuring that nested
      mapping calls do not use the same variable name.
@@ -184,7 +184,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
 
   def __str__(self) -> str:
     """Writes out the object in a human-readable form."""
-    return 'ee.{}({})'.format(self.name(), serializer.toReadableJSON(self))
+    return f'ee.{self.name()}({serializer.toReadableJSON(self)})'
 
   def isVariable(self) -> bool:
     """Returns whether this computed object is a variable reference."""
