@@ -793,6 +793,28 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     self.assertNotEqual(b, c)
     self.assertNotEqual(hash(a), hash(b))
 
+  def testCoordinatesToLine(self):
+    # pylint: disable=protected-access
+    self.assertEqual([], ee.Geometry._coordinatesToLine([]))
+    self.assertEqual([1, 2], ee.Geometry._coordinatesToLine([1, 2]))
+    # TODO: schwehr - Improve _coordinatesToLine typing.
+    self.assertEqual(
+        [[1, 2]],
+        ee.Geometry._coordinatesToLine([[1, 2]]),  # pytype: disable=wrong-arg-types
+    )
+    self.assertEqual(
+        [[1, 2], [3, 4]], ee.Geometry._coordinatesToLine([1, 2, 3, 4])
+    )
+    self.assertEqual(
+        [[1, 2], [3, 4], [5, 6]],
+        ee.Geometry._coordinatesToLine([1, 2, 3, 4, 5, 6]),
+    )
+    with self.assertRaisesRegex(
+        ee.EEException, 'Invalid number of coordinates: 5'
+    ):
+      ee.Geometry._coordinatesToLine([1, 2, 3, 4, 5])
+    # pylint: enable=protected-access
+
   def testInit_optParams(self):
     result = ee.Geometry(
         geo_json={'type': 'Polygon', 'coordinates': [[[-2, 1]]]},

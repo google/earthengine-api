@@ -157,7 +157,7 @@ class Geometry(computedobject.ComputedObject):
         if isinstance(name, str):
           return name
     raise ee_exception.EEException(
-        'Invalid CRS declaration in GeoJSON: ' + json.dumps(crs)
+        f'Invalid CRS declaration in GeoJSON: {json.dumps(crs)}'
     )
 
   @classmethod
@@ -342,12 +342,12 @@ class Geometry(computedobject.ComputedObject):
     # negated, we also reject NaN.
     if not south <= 90:
       raise ee_exception.EEException(
-          'Geometry.BBox: south must be at most +90°, but was {}°'.format(
-              south))
+          f'Geometry.BBox: south must be at most +90°, but was {south}°'
+      )
     if not north >= -90:
       raise ee_exception.EEException(
-          'Geometry.BBox: north must be at least -90°, but was {}°'.format(
-              north))
+          f'Geometry.BBox: north must be at least -90°, but was {north}°'
+      )
     # On the other hand, allow a box whose extent lies past the pole, but
     # canonicalize it to being exactly the pole.
     south = max(south, -90)
@@ -652,7 +652,7 @@ class Geometry(computedobject.ComputedObject):
     return serializer.toJSON(self, for_cloud_api=for_cloud_api)
 
   def __str__(self) -> str:
-    return 'ee.Geometry(%s)' % serializer.toReadableJSON(self)
+    return f'ee.Geometry({serializer.toReadableJSON(self)})'
 
   def __repr__(self) -> str:
     return self.__str__()
@@ -742,13 +742,13 @@ class Geometry(computedobject.ComputedObject):
       return coordinates
     if len(coordinates) % 2 != 0:
       raise ee_exception.EEException(
-          'Invalid number of coordinates: %s' % len(coordinates))
+          f'Invalid number of coordinates: {len(coordinates)}'
+      )
 
-    line = []
-    for i in range(0, len(coordinates), 2):
-      pt = [coordinates[i], coordinates[i + 1]]
-      line.append(pt)
-    return line
+    return [
+        [coordinates[i], coordinates[i + 1]]
+        for i in range(0, len(coordinates), 2)
+    ]
 
   @staticmethod
   def _parseArgs(ctor_name: str, depth: int, args: Any) -> dict[str, Any]:
