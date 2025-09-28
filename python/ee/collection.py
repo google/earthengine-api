@@ -30,18 +30,7 @@ from ee import image
 class Collection(element.Element):
   """Base class for ImageCollection and FeatureCollection."""
 
-  _initialized = False
-
-  # pylint: disable-next=useless-parent-delegation
-  @_utils.accept_opt_prefix('opt_varName')
-  def __init__(
-      self,
-      func: function.Function,
-      args: dict[str, Any],
-      varName: str | None = None,  # pylint: disable=invalid-name
-  ):
-    """Constructs a collection by initializing its ComputedObject."""
-    super().__init__(func, args, varName)
+  _initialized: bool = False
 
   @classmethod
   def initialize(cls) -> None:
@@ -562,22 +551,6 @@ class Collection(element.Element):
         'Collection.geometry', self, maxError
     )
 
-  # pylint: disable-next=useless-parent-delegation
-  def getInfo(self) -> Any | None:
-    """Returns all the known information about this collection.
-
-    This function makes a REST call to to retrieve all the known information
-    about this collection.
-
-    Returns:
-      The return contents vary but will include at least:
-       features: an array containing metadata about the items in the
-           collection that passed all filters.
-       properties: a dictionary containing the collection's metadata
-           properties.
-    """
-    return super().getInfo()
-
   def iterate(
       self, algorithm: Callable[[Any, Any], Any], first: Any | None = None
   ) -> Any:
@@ -611,7 +584,7 @@ class Collection(element.Element):
       self,
       maximum: int,
       prop: str | None = None,
-      ascending: bool | None = None,
+      ascending: bool = True,
   ) -> Collection:
     """Limit a collection to the specified number of elements.
 
@@ -630,7 +603,6 @@ class Collection(element.Element):
     args = {'collection': self, 'limit': maximum}
     if prop is not None:
       args['key'] = prop
-    if ascending is not None:
       args['ascending'] = ascending
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
@@ -820,9 +792,8 @@ class Collection(element.Element):
 
     return apifunction.ApiFunction.call_('Collection.size', self)
 
-  # TODO(user): Make ascending default to True
   @_utils.accept_opt_prefix('opt_ascending')
-  def sort(self, prop: str, ascending: bool | None = None) -> Any:
+  def sort(self, prop: str, ascending: bool = True) -> Any:
     """Sort a collection by the specified property.
 
     Args:
@@ -833,9 +804,7 @@ class Collection(element.Element):
     Returns:
        The collection.
     """
-    args = {'collection': self, 'key': prop}
-    if ascending is not None:
-      args['ascending'] = ascending
+    args = {'collection': self, 'key': prop, 'ascending': ascending}
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
