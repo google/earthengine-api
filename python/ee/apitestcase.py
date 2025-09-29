@@ -146,7 +146,9 @@ def UsingCloudApi(
     mock_http: Optional[Any] = None,
 ) -> Iterable[Any]:  # pytype: disable=wrong-arg-types
   """Returns a context manager under which the Cloud API is enabled."""
-  old_state = copy.copy(_state.get_state())
+  # pylint: disable=protected-access
+  old_state = copy.copy(_state._state)
+  # pylint: enable=protected-access
   try:
     if cloud_api_resource is None:
       cloud_api_resource = _GenerateCloudApiResource(mock_http, False)
@@ -158,7 +160,9 @@ def UsingCloudApi(
     state.initialized = True
     yield
   finally:
-    _state._state = old_state  # pylint: disable=protected-access
+    # pylint: disable=protected-access
+    _state._state = old_state
+    # pylint: enable=protected-access
 
 
 # A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.

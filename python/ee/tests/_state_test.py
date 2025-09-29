@@ -1,23 +1,31 @@
 #!/usr/bin/env python3
 """Tests for ee._state."""
 
+from absl.testing import parameterized
+
 import unittest
 from ee import _state
 
 
-class StateTest(unittest.TestCase):
+class StateTest(parameterized.TestCase):
 
   def setUp(self):
     super().setUp()
     _state.reset_state()
 
-  def test_get_state(self):
+  @parameterized.named_parameters(
+      ('global_mode', False),
+  )
+  def test_get_state(self, use_context_mode: bool):
     state = _state.get_state()
 
     self.assertIsInstance(state, _state.EEState)
     self.assertEqual(state, _state.EEState())
 
-  def test_update_state(self):
+  @parameterized.named_parameters(
+      ('global_mode', False),
+  )
+  def test_update_state(self, use_context_mode: bool):
     state = _state.get_state()
 
     # Modify the state and verify the global state has been updated.
@@ -25,7 +33,10 @@ class StateTest(unittest.TestCase):
 
     self.assertEqual(_state.get_state().cloud_api_user_project, 'my-project')
 
-  def test_reset_state(self):
+  @parameterized.named_parameters(
+      ('global_mode', False),
+  )
+  def test_reset_state(self, use_context_mode: bool):
     state = _state.get_state()
     state.cloud_api_user_project = 'my-project'
 

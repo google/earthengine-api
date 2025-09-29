@@ -92,6 +92,7 @@ def get_state() -> EEState:
   Returns:
     The EEState for the current execution context.
   """
+
   global _state
   if not _state:
     _state = EEState()
