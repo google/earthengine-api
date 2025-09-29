@@ -189,6 +189,8 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.bitCount', self)
 
+  @staticmethod
+  # pylint: disable-next=redefined-builtin
   def bitsToArray(input: _arg_types.Integer) -> Array:
     """Returns an Array from the bits of an integer.
 
