@@ -22,7 +22,7 @@ from ee import geometry
 from ee import image
 
 
-class FeatureCollection(collection.Collection):
+class FeatureCollection(collection.Collection[feature.Feature]):
   """A representation of a FeatureCollection."""
 
   _initialized = False

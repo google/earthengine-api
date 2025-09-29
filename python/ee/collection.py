@@ -6,7 +6,7 @@ This class is never intended to be instantiated by the user.
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable
+from typing import Any, Callable, Generic, TypeVar
 
 from ee import _arg_types
 from ee import _utils
@@ -26,8 +26,14 @@ from ee import function
 from ee import geometry as ee_geometry
 from ee import image
 
+# TODO: Remove this TypeVar and replace with typing.Self once
+# Python 3.11 is the minimum version.
+T = TypeVar('T', bound='Collection')
 
-class Collection(element.Element):
+ElementType = TypeVar('ElementType')
+
+
+class Collection(Generic[ElementType], element.Element):
   """Base class for ImageCollection and FeatureCollection."""
 
   _initialized = False
@@ -442,7 +448,7 @@ class Collection(element.Element):
         'Collection.errorMatrix', self, actual, predicted, order
     )
 
-  def filter(self, new_filter: str | ee_filter.Filter) -> Any:
+  def filter(self: T, new_filter: str | ee_filter.Filter) -> T:
     """Apply a filter to this collection.
 
     Args:
@@ -459,8 +465,8 @@ class Collection(element.Element):
 
   @deprecation.CanUseDeprecated
   def filterMetadata(
-      self, name: str, operator: str, value: int | str
-  ) -> Any:
+      self: T, name: str, operator: str, value: int | str
+  ) -> T:
     """Shortcut to add a metadata filter to a collection.
 
     This is equivalent to self.filter(Filter().metadata(...)).
@@ -480,8 +486,13 @@ class Collection(element.Element):
     return self.filter(ee_filter.Filter.metadata_(name, operator, value))
 
   def filterBounds(
-      self, geometry: dict[str, Any] | ee_geometry.Geometry
-  ) -> Any:
+      self: T,
+      geometry: (
+          dict[str, Any]
+          | ee_geometry.Geometry
+          | featurecollection.FeatureCollection
+      ),
+  ) -> T:
     """Shortcut to add a geometry filter to a collection.
 
     Items in the collection with a footprint that fails to intersect
@@ -505,12 +516,10 @@ class Collection(element.Element):
   # TODO(user): Any --> DateRange
   @_utils.accept_opt_prefix('opt_end')
   def filterDate(
-      self,
+      self: T,
       start: datetime.datetime | ee_date.Date | int | str | Any,
-      end: None | (
-          datetime.datetime | ee_date.Date | int | str | Any
-      ) = None,
-  ) -> Any:
+      end: None | (datetime.datetime | ee_date.Date | int | str | Any) = None,
+  ) -> T:
     """Shortcut to filter a collection with a date range.
 
     Items in the collection with a system:time_start property that doesn't
@@ -529,7 +538,7 @@ class Collection(element.Element):
     """
     return self.filter(ee_filter.Filter.date(start, end))
 
-  def first(self) -> element.Element:
+  def first(self) -> ElementType:
     """Returns the first entry from a given collection."""
 
     return apifunction.ApiFunction.call_('Collection.first', self)
@@ -660,10 +669,10 @@ class Collection(element.Element):
   # TODO(user): Can dropNulls default to False?
   @_utils.accept_opt_prefix('opt_dropNulls')
   def map(
-      self,
+      self: T,
       algorithm: Callable[[Any], Any],
       dropNulls: bool | None = None,  # pylint: disable=invalid-name
-  ) -> Any:
+  ) -> T:
     """Maps an algorithm over a collection.
 
     Args:
@@ -822,7 +831,7 @@ class Collection(element.Element):
 
   # TODO(user): Make ascending default to True
   @_utils.accept_opt_prefix('opt_ascending')
-  def sort(self, prop: str, ascending: bool | None = None) -> Any:
+  def sort(self: T, prop: str, ascending: bool | None = None) -> T:
     """Sort a collection by the specified property.
 
     Args:

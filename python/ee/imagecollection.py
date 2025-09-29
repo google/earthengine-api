@@ -20,7 +20,7 @@ from ee import image
 REDUCE_PREFIX = 'reduce'
 
 
-class ImageCollection(collection.Collection):
+class ImageCollection(collection.Collection[image.Image]):
   """Representation for an Earth Engine ImageCollection."""
 
   _initialized = False
