@@ -8,6 +8,7 @@ from google.oauth2 import credentials
 
 import unittest
 import ee
+from ee import _state
 from ee import apitestcase
 
 
@@ -27,29 +28,46 @@ class EETestCase(apitestcase.ApiTestCase):
     ee.data.getAlgorithms = MockAlgorithms
 
     # Verify that the base state is uninitialized.
-    self.assertFalse(ee.data._initialized)
-    self.assertIsNone(ee.data._api_base_url)
+    state = _state.get_state()
+    self.assertFalse(state.initialized)
+    self.assertIsNone(state.credentials)
+    self.assertIsNone(state.api_base_url)
+    self.assertIsNone(state.tile_base_url)
+    self.assertIsNone(state.cloud_api_base_url)
+    self.assertIsNone(state.cloud_api_key)
+    self.assertIsNone(state.requests_session)
+    self.assertIsNone(state.cloud_api_resource)
+    self.assertIsNone(state.cloud_api_resource_raw)
+    self.assertEqual(state.cloud_api_user_project, 'earthengine-legacy')
+    self.assertIsNone(state.cloud_api_client_version)
+    self.assertIsNone(state.http_transport)
+    self.assertEqual(state.deadline_ms, 0)
+    self.assertEqual(state.max_retries, 5)
+    self.assertIsNone(state.user_agent)
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
 
     # Verify that ee.Initialize() sets the URL and initializes classes.
     ee.Initialize(None, 'foo', project='my-project')
-    self.assertTrue(ee.data._initialized)
-    self.assertEqual(ee.data._api_base_url, 'foo/api')
-    self.assertEqual(ee.data._cloud_api_user_project, 'my-project')
+    state = _state.get_state()
+    self.assertTrue(state.initialized)
+    self.assertEqual(state.api_base_url, 'foo/api')
+    self.assertEqual(state.cloud_api_user_project, 'my-project')
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertTrue(ee.Image._initialized)
 
     # Verify that ee.Initialize() without a URL does not override custom URLs.
     ee.Initialize(None, project='my-project')
-    self.assertTrue(ee.data._initialized)
-    self.assertEqual(ee.data._api_base_url, 'foo/api')
+    state = _state.get_state()
+    self.assertTrue(state.initialized)
+    self.assertEqual(state.api_base_url, 'foo/api')
 
     # Verify that ee.Reset() reverts everything to the base state.
     ee.Reset()
-    self.assertFalse(ee.data._initialized)
-    self.assertIsNone(ee.data._api_base_url)
-    self.assertEqual(ee.data._cloud_api_user_project, 'earthengine-legacy')
+    state = _state.get_state()
+    self.assertFalse(state.initialized)
+    self.assertIsNone(state.api_base_url)
+    self.assertEqual(state.cloud_api_user_project, 'earthengine-legacy')
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
 

@@ -25,6 +25,7 @@ import httplib2
 import requests
 
 from ee import _cloud_api_utils
+from ee import _state
 from ee import _utils
 from ee import computedobject
 from ee import deprecation
@@ -95,52 +96,6 @@ _NOT_INITIALIZED_MESSAGE = (
     'Earth Engine client library not initialized. See http://goo.gle/ee-auth.'
 )
 
-# OAuth2 credentials object.  This may be set by ee.Initialize().
-_credentials: Optional[credentials_lib.Credentials] = None
-
-# The base URL for all data calls.  This is set by ee.Initialize().
-_api_base_url: Optional[str] = None
-
-# The base URL for map tiles.  This is set by ee.Initialize().
-_tile_base_url: Optional[str] = None
-
-# The base URL for all Cloud API calls.  This is set by ee.Initialize().
-_cloud_api_base_url: Optional[str] = None
-
-# Google Cloud API key.  This may be set by ee.Initialize().
-_cloud_api_key: Optional[str] = None
-
-# A Requests session.  This is set by ee.Initialize()
-_requests_session: Optional[requests.Session] = None
-
-# A resource object for making Cloud API calls.
-_cloud_api_resource = None
-
-# A resource object for making Cloud API calls and receiving raw return types.
-_cloud_api_resource_raw = None
-
-# The default user project to use when making Cloud API calls.
-_cloud_api_user_project: str = DEFAULT_CLOUD_API_USER_PROJECT
-
-# The API client version number to send when making requests.
-_cloud_api_client_version: Optional[str] = None
-
-# The http_transport to use.
-_http_transport = None
-
-# Whether the module has been initialized.
-_initialized: bool = False
-
-# Sets the number of milliseconds to wait for a request before considering
-# it timed out. 0 means no limit.
-_deadline_ms: int = 0
-
-# Maximum number of times to retry a rate-limited request.
-_max_retries: int = 5
-
-# User agent to indicate which application is calling Earth Engine
-_user_agent: Optional[str] = None
-
 
 class _ThreadLocals(threading.local):
   """Storage for thread local variables."""
@@ -161,6 +116,11 @@ class _ThreadLocals(threading.local):
 
 
 _thread_locals = _ThreadLocals()
+
+
+def _get_state() -> _state.EEState:
+  """Returns the current state, or a default state if not initialized."""
+  return _state.get_state()
 
 
 def initialize(
@@ -190,57 +150,51 @@ def initialize(
     project: The client project ID or number to use when making API calls.
     http_transport: The http transport to use
   """
-  global _api_base_url, _tile_base_url, _credentials, _initialized
-  global _requests_session
-  global _cloud_api_base_url
-  global _cloud_api_key
-  global _cloud_api_user_project, _http_transport
-  global _cloud_api_client_version
-
+  state = _get_state()
   # If already initialized, only replace the explicitly specified parts.
 
   if credentials is not None:
-    _credentials = credentials
+    state.credentials = credentials
 
   if api_base_url is not None:
-    _api_base_url = api_base_url
-  elif not _initialized:
-    _api_base_url = DEFAULT_API_BASE_URL
+    state.api_base_url = api_base_url
+  elif not state.initialized:
+    state.api_base_url = DEFAULT_API_BASE_URL
 
   if tile_base_url is not None:
-    _tile_base_url = tile_base_url
-  elif not _initialized:
-    _tile_base_url = DEFAULT_TILE_BASE_URL
+    state.tile_base_url = tile_base_url
+  elif not state.initialized:
+    state.tile_base_url = DEFAULT_TILE_BASE_URL
 
   if cloud_api_key is not None:
-    _cloud_api_key = cloud_api_key
+    state.cloud_api_key = cloud_api_key
 
   if cloud_api_base_url is not None:
-    _cloud_api_base_url = cloud_api_base_url
-  elif not _initialized:
-    _cloud_api_base_url = DEFAULT_CLOUD_API_BASE_URL
+    state.cloud_api_base_url = cloud_api_base_url
+  elif not state.initialized:
+    state.cloud_api_base_url = DEFAULT_CLOUD_API_BASE_URL
 
   if __version__ is not None:
     version = __version__
-    _cloud_api_client_version = version
+    state.cloud_api_client_version = version
 
-  _http_transport = http_transport
+  state.http_transport = http_transport
 
-  if _requests_session is None:
-    _requests_session = requests.Session()
+  if state.requests_session is None:
+    state.requests_session = requests.Session()
 
   _install_cloud_api_resource()
 
   if project is not None:
-    _cloud_api_user_project = project
+    state.cloud_api_user_project = project
   else:
-    _cloud_api_user_project = DEFAULT_CLOUD_API_USER_PROJECT
+    state.cloud_api_user_project = DEFAULT_CLOUD_API_USER_PROJECT
 
-  _initialized = True
+  state.initialized = True
 
 
 def is_initialized() -> bool:
-  return _initialized
+  return _get_state().initialized
 
 
 def get_persistent_credentials() -> credentials_lib.Credentials:
@@ -288,89 +242,78 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
 
 
 def reset() -> None:
-  """Resets the data module, clearing credentials and custom base URLs."""
-  global _api_base_url, _tile_base_url, _credentials, _initialized
-  global _requests_session, _cloud_api_resource, _cloud_api_resource_raw
-  global _cloud_api_base_url, _cloud_api_user_project
-  global _cloud_api_key, _http_transport
-  _credentials = None
-  _api_base_url = None
-  _tile_base_url = None
-  if _requests_session is not None:
-    _requests_session.close()
-    _requests_session = None
-  _cloud_api_base_url = None
-  _cloud_api_key = None
-  _cloud_api_resource = None
-  _cloud_api_resource_raw = None
-  _cloud_api_user_project = DEFAULT_CLOUD_API_USER_PROJECT
-  _http_transport = None
-  _initialized = False
+  """Resets the EE state, clearing credentials and custom base URLs."""
+  _state.reset_state()
 
 
 def _get_projects_path() -> str:
   """Returns the projects path to use for constructing a request."""
-  return f'projects/{_cloud_api_user_project}'
+  return f'projects/{_get_state().cloud_api_user_project}'
 
 
 def _install_cloud_api_resource() -> None:
   """Builds or rebuilds the Cloud API resource object, if needed."""
-  global _cloud_api_resource, _cloud_api_resource_raw
+  state = _get_state()
 
-  timeout = (_deadline_ms / 1000.0) or None
-  assert _requests_session is not None
-  _cloud_api_resource = _cloud_api_utils.build_cloud_resource(
-      _cloud_api_base_url,
-      _requests_session,
-      credentials=_credentials,
-      api_key=_cloud_api_key,
+  timeout = (state.deadline_ms / 1000.0) or None
+  assert state.requests_session is not None
+  state.cloud_api_resource = _cloud_api_utils.build_cloud_resource(
+      state.cloud_api_base_url,
+      state.requests_session,
+      credentials=state.credentials,
+      api_key=state.cloud_api_key,
       timeout=timeout,
-      num_retries=_max_retries,
+      num_retries=state.max_retries,
       headers_supplier=_make_request_headers,
       response_inspector=_handle_profiling_response,
-      http_transport=_http_transport,
+      http_transport=state.http_transport,
   )
 
-  _cloud_api_resource_raw = _cloud_api_utils.build_cloud_resource(
-      _cloud_api_base_url,
-      _requests_session,
-      credentials=_credentials,
-      api_key=_cloud_api_key,
+  state.cloud_api_resource_raw = _cloud_api_utils.build_cloud_resource(
+      state.cloud_api_base_url,
+      state.requests_session,
+      credentials=state.credentials,
+      api_key=state.cloud_api_key,
       timeout=timeout,
-      num_retries=_max_retries,
+      num_retries=state.max_retries,
       headers_supplier=_make_request_headers,
       response_inspector=_handle_profiling_response,
-      http_transport=_http_transport,
+      http_transport=state.http_transport,
       raw=True,
   )
 
 
 def _get_cloud_projects() -> Any:
-  if _cloud_api_resource is None:
+  state = _get_state()
+  if state.cloud_api_resource is None:
     raise ee_exception.EEException(_NOT_INITIALIZED_MESSAGE)
-  return _cloud_api_resource.projects()
+  return state.cloud_api_resource.projects()
 
 
 def _get_cloud_projects_raw() -> Any:
-  if _cloud_api_resource_raw is None:
+  state = _get_state()
+  if state.cloud_api_resource_raw is None:
     raise ee_exception.EEException(_NOT_INITIALIZED_MESSAGE)
-  return _cloud_api_resource_raw.projects()
+  return state.cloud_api_resource_raw.projects()
 
 
 def _make_request_headers() -> Optional[dict[str, Any]]:
   """Adds headers based on client context."""
+  state = _get_state()
   headers: dict[str, Any] = {}
   client_version_header_values: list[Any] = []
-  if _cloud_api_client_version is not None:
-    client_version_header_values.append('ee-py/' + _cloud_api_client_version)
-  if _user_agent is not None:
-    headers[_USER_AGENT_HEADER] = _user_agent
+  if state.cloud_api_client_version is not None:
+    client_version_header_values.append(
+        f'ee-py/{state.cloud_api_client_version}'
+    )
+  if state.user_agent is not None:
+    headers[_USER_AGENT_HEADER] = state.user_agent
   client_version_header_values.append('python/' + platform.python_version())
   headers[_API_CLIENT_VERSION_HEADER] = ' '.join(client_version_header_values)
   if _thread_locals.profile_hook:
     headers[_PROFILE_REQUEST_HEADER] = '1'
-  if _cloud_api_user_project is not DEFAULT_CLOUD_API_USER_PROJECT:
-    headers[_USER_PROJECT_OVERRIDE_HEADER] = _cloud_api_user_project
+  if state.cloud_api_user_project is not DEFAULT_CLOUD_API_USER_PROJECT:
+    headers[_USER_PROJECT_OVERRIDE_HEADER] = state.cloud_api_user_project
   if headers:
     return headers
   return None
@@ -401,7 +344,7 @@ def _execute_cloud_call(
   Raises:
     EEException if the call fails.
   """
-  num_retries = _max_retries if num_retries is None else num_retries
+  num_retries = _get_state().max_retries if num_retries is None else num_retries
   try:
     return call.execute(num_retries=num_retries)
   except googleapiclient.errors.HttpError as e:
@@ -444,23 +387,20 @@ def _maybe_populate_workload_tag(body: dict[str, Any]) -> None:
 
 def setCloudApiKey(cloud_api_key: str) -> None:
   """Sets the Cloud API key parameter ("api_key") for all requests."""
-  global _cloud_api_key
-  _cloud_api_key = cloud_api_key
+  _get_state().cloud_api_key = cloud_api_key
   _install_cloud_api_resource()
 
 
 def setCloudApiUserProject(cloud_api_user_project: str) -> None:
-  global _cloud_api_user_project
-  _cloud_api_user_project = cloud_api_user_project
+  _get_state().cloud_api_user_project = cloud_api_user_project
 
 
 def setUserAgent(user_agent: str) -> None:
-  global _user_agent
-  _user_agent = user_agent
+  _get_state().user_agent = user_agent
 
 
 def getUserAgent() -> Optional[str]:
-  return _user_agent
+  return _get_state().user_agent
 
 
 def setDeadline(milliseconds: float) -> None:
@@ -470,8 +410,7 @@ def setDeadline(milliseconds: float) -> None:
     milliseconds: The number of milliseconds to wait for a request
         before considering it timed out. 0 means no limit.
   """
-  global _deadline_ms
-  _deadline_ms = milliseconds
+  _get_state().deadline_ms = milliseconds
   _install_cloud_api_resource()
 
 
@@ -485,8 +424,7 @@ def setMaxRetries(max_retries: int) -> None:
     raise ValueError('max_retries must be non-negative')
   if max_retries >= 100:
     raise ValueError('Too many retries')
-  global _max_retries
-  _max_retries = max_retries
+  _get_state().max_retries = max_retries
 
 
 @contextlib.contextmanager
@@ -528,7 +466,7 @@ def getInfo(asset_id: str) -> Optional[Any]:
         _get_cloud_projects()
         .assets()
         .get(name=name, prettyPrint=False)
-        .execute(num_retries=_max_retries)
+        .execute(num_retries=_get_state().max_retries)
     )
   except googleapiclient.errors.HttpError as e:
     if e.resp.status == 404:
@@ -749,11 +687,12 @@ def getMapId(params: dict[str, Any]) -> dict[str, Any]:
       .maps()
       .create(parent=_get_projects_path(), **queryParams)
   )
+  state = _get_state()
   map_name = result['name']
   url_format = '%s/%s/%s/tiles/{z}/{x}/{y}' % (
-      _tile_base_url, _cloud_api_utils.VERSION, map_name)
-  if _cloud_api_key:
-    url_format += '?key=%s' % _cloud_api_key
+      state.tile_base_url, _cloud_api_utils.VERSION, map_name)
+  if state.cloud_api_key:
+    url_format += f'?key={state.cloud_api_key}'
 
   return {'mapid': map_name, 'token': '',
           'tile_fetcher': TileFetcher(url_format, map_name=map_name)}
@@ -789,8 +728,9 @@ def getFeatureViewTilesKey(params: dict[str, Any]) -> dict[str, Any]:
   )
   name = result['name']
   version = _cloud_api_utils.VERSION
-  format_tile_url = (
-      lambda x, y, z: f'{_tile_base_url}/{version}/{name}/tiles/{z}/{x}/{y}')
+  format_tile_url = lambda x, y, z: (
+      f'{_get_state().tile_base_url}/{version}/{name}/tiles/{z}/{x}/{y}'
+  )
   token = name.rsplit('/', 1).pop()
   return {
       'token': token,
@@ -1258,11 +1198,12 @@ def makeThumbUrl(thumbId: dict[str, str]) -> str:
   Returns:
     A URL from which the thumbnail can be obtained.
   """
+  state = _get_state()
   url = '{}/{}/{}:getPixels'.format(
-      _tile_base_url, _cloud_api_utils.VERSION, thumbId['thumbid']
+      state.tile_base_url, _cloud_api_utils.VERSION, thumbId['thumbid']
   )
-  if _cloud_api_key:
-    url += '?key=%s' % _cloud_api_key
+  if state.cloud_api_key:
+    url += f'?key={state.cloud_api_key}'
   return url
 
 
@@ -1392,7 +1333,7 @@ def makeDownloadUrl(downloadId: dict[str, str]) -> str:
     A URL from which the download can be obtained.
   """
   return '{}/{}/{}:getPixels'.format(
-      _tile_base_url, _cloud_api_utils.VERSION, downloadId['docid']
+      _get_state().tile_base_url, _cloud_api_utils.VERSION, downloadId['docid']
   )
 
 
@@ -1455,7 +1396,7 @@ def makeTableDownloadUrl(downloadId: dict[str, str]) -> str:
     A Url from which the download can be obtained.
   """
   return '{}/{}/{}:getFeatures'.format(
-      _tile_base_url, _cloud_api_utils.VERSION, downloadId['docid']
+      _get_state().tile_base_url, _cloud_api_utils.VERSION, downloadId['docid']
   )
 
 
@@ -1693,19 +1634,20 @@ def getTaskStatus(taskId: Union[list[str], str]) -> list[Any]:
   """
   if isinstance(taskId, str):
     taskId = [taskId]
+  state = _get_state()
   result = []
   for one_id in taskId:
     # Don't use getOperation as it will translate the exception, and we need
     # to handle 404s specially.
     name = _cloud_api_utils.convert_task_id_to_operation_name(
-        _cloud_api_user_project, one_id
+        state.cloud_api_user_project, one_id
     )
     try:
       operation = (
           _get_cloud_projects()
           .operations()
           .get(name=name)
-          .execute(num_retries=_max_retries)
+          .execute(num_retries=state.max_retries)
       )
       result.append(_cloud_api_utils.convert_operation_to_task(operation))
     except googleapiclient.errors.HttpError as e:
@@ -1736,7 +1678,7 @@ def cancelTask(taskId: str) -> None:
   """Cancels a batch task."""
   cancelOperation(
       _cloud_api_utils.convert_task_id_to_operation_name(
-          _cloud_api_user_project, taskId
+          _get_state().cloud_api_user_project, taskId
       )
   )
 
@@ -1912,7 +1854,7 @@ def _prepare_and_run_export(
   if isinstance(params['expression'], encodable.Encodable):
     params['expression'] = serializer.encode(
         params['expression'], for_cloud_api=True)
-  num_retries = _max_retries if request_id else 0
+  num_retries = _get_state().max_retries if request_id else 0
   return _execute_cloud_call(
       export_endpoint(project=_get_projects_path(), body=params),
       num_retries=num_retries)
@@ -1938,7 +1880,7 @@ def _startIngestion(
 
   # It's only safe to retry the request if there's a unique ID to make it
   # idempotent.
-  num_retries = _max_retries if request_id else 0
+  num_retries = _get_state().max_retries if request_id else 0
 
   image = _get_cloud_projects().image()
   if import_mode == _INTERNAL_IMPORT:
@@ -2073,7 +2015,7 @@ def startTableIngestion(
   }
   # It's only safe to retry the request if there's a unique ID to make it
   # idempotent.
-  num_retries = _max_retries if request_id else 0
+  num_retries = _get_state().max_retries if request_id else 0
   operation = _execute_cloud_call(
       _get_cloud_projects()
       .table()
@@ -2326,8 +2268,8 @@ def updateProjectConfig(
 
 
 def authorizeHttp(http: Any) -> Any:
-  if _credentials:
-    return google_auth_httplib2.AuthorizedHttp(_credentials)
+  if credentials := _get_state().credentials:
+    return google_auth_httplib2.AuthorizedHttp(credentials)
   else:
     return http
 
@@ -2371,7 +2313,7 @@ def convert_asset_id_to_asset_name(asset_id: str) -> str:
 
 def getWorkloadTag() -> Optional[Union[int, str]]:
   """Returns the currently set workload tag."""
-  return _workloadTag.get()
+  return _get_state().workload_tag.get()
 
 
 def setWorkloadTag(tag: Optional[Union[int, str]]) -> None:
@@ -2384,7 +2326,7 @@ def setWorkloadTag(tag: Optional[Union[int, str]]) -> None:
   Args:
     tag: The tag to set.
   """
-  _workloadTag.set(tag)
+  _get_state().workload_tag.set(tag)
 
 
 @contextlib.contextmanager
@@ -2423,8 +2365,9 @@ def setDefaultWorkloadTag(tag: Optional[Union[int, str]]) -> None:
   Args:
     tag: The tag to set.
   """
-  _workloadTag.set_default(tag)
-  _workloadTag.set(tag)
+  state = _get_state()
+  state.workload_tag.set_default(tag)
+  state.workload_tag.set(tag)
 
 
 @_utils.accept_opt_prefix('opt_resetDefault')
@@ -2437,55 +2380,7 @@ def resetWorkloadTag(resetDefault: bool = False) -> None:
   Args:
     resetDefault: Whether to reset the default back to empty.
   """
+  state = _get_state()
   if resetDefault:
-    _workloadTag.set_default('')
-  _workloadTag.reset()
-
-
-class _WorkloadTag:
-  """A helper class to manage the workload tag."""
-
-  _tag: str
-  _default: str
-
-  def __init__(self):
-    self._tag = ''
-    self._default = ''
-
-  def get(self) -> str:
-    return self._tag
-
-  def set(self, tag: int | str | None) -> None:
-    self._tag = self.validate(tag)
-
-  def set_default(self, new_default: int | str | None) -> None:
-    self._default = self.validate(new_default)
-
-  def reset(self) -> None:
-    self._tag = self._default
-
-  def validate(self, tag: int | str | None) -> str:
-    """Returns the validated tag or raises a ValueError.
-
-    Args:
-      tag: the tag to validate.
-
-    Raises:
-      ValueError if the tag does not match the expected format.
-    """
-    if not tag and tag != 0:
-      return ''
-    tag = str(tag)
-    if not re.fullmatch(r'([a-z0-9]|[a-z0-9][-_a-z0-9]{0,61}[a-z0-9])', tag):
-      validation_message = (
-          'Tags must be 1-63 characters, '
-          'beginning and ending with a lowercase alphanumeric character '
-          '([a-z0-9]) with dashes (-), underscores (_), '
-          'and lowercase alphanumerics between.'
-      )
-      raise ValueError(f'Invalid tag, "{tag}". {validation_message}')
-    return tag
-
-
-# Tracks the currently set workload tag.
-_workloadTag = _WorkloadTag()
+    state.workload_tag.set_default('')
+  state.workload_tag.reset()

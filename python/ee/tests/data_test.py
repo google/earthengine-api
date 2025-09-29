@@ -12,6 +12,7 @@ import requests
 import unittest
 import ee
 from ee import _cloud_api_utils
+from ee import _state
 from ee import apitestcase
 from ee import featurecollection
 from ee import image
@@ -69,14 +70,18 @@ class DataTest(unittest.TestCase):
     ee.data.initialize(project='my-project')
 
     self.assertTrue(ee.data.is_initialized())
-    self.assertEqual(ee.data._cloud_api_user_project, 'my-project')
+    self.assertEqual(
+        _state.get_state().cloud_api_user_project, 'my-project'
+    )
 
   @mock.patch.object(ee.data, '_install_cloud_api_resource', return_value=None)
   def testInitializeWithNoProject(self, unused_mock_install_cloud_api_resource):
     ee.data.initialize()
 
     self.assertTrue(ee.data.is_initialized())
-    self.assertEqual(ee.data._cloud_api_user_project, 'earthengine-legacy')
+    self.assertEqual(
+        _state.get_state().cloud_api_user_project, 'earthengine-legacy'
+    )
 
   def testSetMaxRetries_badValues(self):
     with self.assertRaises(ValueError):
@@ -86,7 +91,6 @@ class DataTest(unittest.TestCase):
 
   def testSetMaxRetries(self):
     mock_result = {'result': 5}
-    original_max_retries = ee.data._max_retries
     ee.data.setMaxRetries(3)
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
@@ -101,7 +105,6 @@ class DataTest(unittest.TestCase):
           .compute()
           .execute.call_args.kwargs['num_retries'],
       )
-    ee.data._max_retries = original_max_retries
 
   def testListOperations(self):
     mock_http = mock.MagicMock(httplib2.Http)
@@ -874,9 +877,9 @@ class DataTest(unittest.TestCase):
       ).execute.assert_called_once()
       self.assertEqual(mock_result, actual_result)
 
-  @mock.patch.object(ee.data, '_tile_base_url', new='base_url')
   def testGetFeatureViewTilesKey(self):
     cloud_api_resource = mock.MagicMock()
+    _state.get_state().tile_base_url = 'base_url'
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
       mock_name = 'projects/projectfoo/featureView/tiles-key-foo'
       mock_result = {'name': mock_name}
