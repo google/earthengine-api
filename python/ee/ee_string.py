@@ -49,7 +49,7 @@ class String(computedobject.ComputedObject):
       self._string = None
     else:
       raise ee_exception.EEException(
-          'Invalid argument specified for ee.String(): %s' % string)
+          f'Invalid argument specified for ee.String(): {string}')
 
   @classmethod
   def initialize(cls) -> None:
@@ -116,6 +116,7 @@ class String(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.decodeJSON', self)
 
   @staticmethod
+  # pylint: disable=redefined-builtin
   def encodeJSON(object: _arg_types.Any) -> String:
     """Returns an ee.String with an object encoded as JSON.
 
