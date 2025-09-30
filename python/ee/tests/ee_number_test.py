@@ -46,6 +46,12 @@ class NumberTest(apitestcase.ApiTestCase):
     self.assertNotEqual(b, c)
     self.assertNotEqual(hash(a), hash(b))
 
+  def test_init_invalid_arg(self):
+    with self.assertRaisesRegex(
+        ee.EEException, 'Invalid argument specified for ee.Number'
+    ):
+      ee.Number('not a number')
+
   def test_abs(self):
     expect = make_expression_graph({
         'arguments': {
