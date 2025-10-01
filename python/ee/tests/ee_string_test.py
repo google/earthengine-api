@@ -107,6 +107,14 @@ class StringTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+    expect = make_expression_graph({
+        'arguments': {'object': {'constantValue': [1]}},
+        'functionName': 'String.encodeJSON',
+    })
+    expression = ee.String.encodeJSON([1])
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_equals(self):
     expect = make_expression_graph({
         'arguments': {

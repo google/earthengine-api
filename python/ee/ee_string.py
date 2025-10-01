@@ -37,12 +37,12 @@ class String(computedobject.ComputedObject):
     if isinstance(string, str):
       super().__init__(None, None)
       self._string = string
-
     elif isinstance(string, computedobject.ComputedObject):
       if self.is_func_returning_same(string):
         # If it's a call that's already returning a String, just cast.
         super().__init__(string.func, string.args, string.varName)
       else:
+        # Wrap some other ComputedObject.
         super().__init__(
             apifunction.ApiFunction(self.name()), {'input': string}
         )
@@ -91,8 +91,7 @@ class String(computedobject.ComputedObject):
     Returns:
       Returns the result of joining self and string2.
     """
-
-    return apifunction.ApiFunction.call_(self.name() + '.cat', self, string2)
+    return apifunction.ApiFunction.call_(f'{self.name()}.cat', self, string2)
 
   def compareTo(self, string2: _arg_types.String) -> ee_number.Number:
     """Compares two strings lexicographically.
@@ -107,13 +106,12 @@ class String(computedobject.ComputedObject):
     """
 
     return apifunction.ApiFunction.call_(
-        self.name() + '.compareTo', self, string2
+        f'{self.name()}.compareTo', self, string2
     )
 
   def decodeJSON(self) -> computedobject.ComputedObject:
     """Decodes self as a JSON string."""
-
-    return apifunction.ApiFunction.call_(self.name() + '.decodeJSON', self)
+    return apifunction.ApiFunction.call_(f'{self.name()}.decodeJSON', self)
 
   @staticmethod
   # pylint: disable=redefined-builtin
@@ -125,7 +123,7 @@ class String(computedobject.ComputedObject):
     Args:
       object: The object to encode.
     """
-
+    # object is probably not an ee.String, so use "String." instead of object.
     return apifunction.ApiFunction.call_('String.encodeJSON', object)
 
   def equals(self, target: _arg_types.String) -> computedobject.ComputedObject:
@@ -138,8 +136,7 @@ class String(computedobject.ComputedObject):
       True if the target is a string and is lexicographically equal to the
       reference, or false otherwise.
     """
-
-    return apifunction.ApiFunction.call_(self.name() + '.equals', self, target)
+    return apifunction.ApiFunction.call_(f'{self.name()}.equals', self, target)
 
   def index(self, pattern: _arg_types.String) -> ee_number.Number:
     """Searches a string for the first occurrence of a substring.
@@ -150,13 +147,11 @@ class String(computedobject.ComputedObject):
     Returns:
       The index of the first match, or -1.
     """
-
-    return apifunction.ApiFunction.call_(self.name() + '.index', self, pattern)
+    return apifunction.ApiFunction.call_(f'{self.name()}.index', self, pattern)
 
   def length(self) -> ee_number.Number:
     """Returns the length of a string."""
-
-    return apifunction.ApiFunction.call_(self.name() + '.length', self)
+    return apifunction.ApiFunction.call_(f'{self.name()}.length', self)
 
   def match(
       self, regex: _arg_types.String, flags: _arg_types.String | None = None
@@ -173,7 +168,7 @@ class String(computedobject.ComputedObject):
     """
 
     return apifunction.ApiFunction.call_(
-        self.name() + '.match', self, regex, flags
+        f'{self.name()}.match', self, regex, flags
     )
 
   def replace(
@@ -195,7 +190,7 @@ class String(computedobject.ComputedObject):
     """
 
     return apifunction.ApiFunction.call_(
-        self.name() + '.replace', self, regex, replacement, flags
+        f'{self.name()}.replace', self, regex, replacement, flags
     )
 
   def rindex(self, pattern: _arg_types.String) -> ee_number.Number:
@@ -207,8 +202,7 @@ class String(computedobject.ComputedObject):
     Returns:
       The index of the first match or -1 if no match.
     """
-
-    return apifunction.ApiFunction.call_(self.name() + '.rindex', self, pattern)
+    return apifunction.ApiFunction.call_(f'{self.name()}.rindex', self, pattern)
 
   def slice(
       self, start: _arg_types.Integer, end: _arg_types.Integer | None = None
@@ -229,7 +223,7 @@ class String(computedobject.ComputedObject):
     """
 
     return apifunction.ApiFunction.call_(
-        self.name() + '.slice', self, start, end
+        f'{self.name()}.slice', self, start, end
     )
 
   def split(
@@ -247,20 +241,17 @@ class String(computedobject.ComputedObject):
     """
 
     return apifunction.ApiFunction.call_(
-        self.name() + '.split', self, regex, flags
+        f'{self.name()}.split', self, regex, flags
     )
 
   def toLowerCase(self) -> String:
     """Converts all of the characters in a string to lower case."""
-
-    return apifunction.ApiFunction.call_(self.name() + '.toLowerCase', self)
+    return apifunction.ApiFunction.call_(f'{self.name()}.toLowerCase', self)
 
   def toUpperCase(self) -> String:
     """Converts all of the characters in a string to upper case."""
-
-    return apifunction.ApiFunction.call_(self.name() + '.toUpperCase', self)
+    return apifunction.ApiFunction.call_(f'{self.name()}.toUpperCase', self)
 
   def trim(self) -> String:
     """Returns a string with any leading and trailing whitespace removed."""
-
-    return apifunction.ApiFunction.call_(self.name() + '.trim', self)
+    return apifunction.ApiFunction.call_(f'{self.name()}.trim', self)
