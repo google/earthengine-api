@@ -20,7 +20,7 @@ def make_expression_graph(
 
 class DictionaryTest(apitestcase.ApiTestCase):
 
-  def testDictionary(self):
+  def test_dictionary(self):
     """Verifies basic behavior of ee.Dictionary."""
     src = {'a': 1, 'b': 2, 'c': 'three'}
     dictionary = ee.Dictionary(src)
@@ -46,7 +46,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
     for d in cons:
       self.assertIsInstance(d, ee.ComputedObject)
 
-  def testInternals(self):
+  def test_internals(self):
     """Test eq(), ne() and hash()."""
     a = ee.Dictionary({'one': 1})
     b = ee.Dictionary({'two': 2})
@@ -93,7 +93,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_fromLists(self):
+  def test_from_lists(self):
     expect = make_expression_graph({
         'arguments': {
             'keys': {'constantValue': ['a']},
@@ -126,7 +126,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_getArray(self):
+  def test_get_array(self):
     expect = make_expression_graph({
         'arguments': {
             'dictionary': {'constantValue': {'a': 1}},
@@ -142,7 +142,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_getGeometry(self):
+  def test_get_geometry(self):
     expect = make_expression_graph({
         'arguments': {
             'dictionary': {'constantValue': {'a': 1}},
@@ -158,7 +158,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_getNumber(self):
+  def test_get_number(self):
     expect = make_expression_graph({
         'arguments': {
             'dictionary': {'constantValue': {'a': 1}},
@@ -174,7 +174,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_getString(self):
+  def test_get_string(self):
     expect = make_expression_graph({
         'arguments': {
             'dictionary': {'constantValue': {'a': 1}},
@@ -292,7 +292,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_toArray(self):
+  def test_to_array(self):
     expect = make_expression_graph({
         'arguments': {
             'dictionary': {'constantValue': {'a': 1}},
@@ -325,7 +325,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_toImage(self):
+  def test_to_image(self):
     expect = make_expression_graph({
         'arguments': {
             'dictionary': {'constantValue': {'a': 1}},

@@ -71,7 +71,7 @@ def make_expression_graph(
 
 class FeatureTest(apitestcase.ApiTestCase):
 
-  def testConstructors(self):
+  def test_constructors(self):
     """Verifies that constructors understand valid parameters."""
     point = ee.Geometry.Point(1, 2)
     from_geometry = ee.Feature(point)
@@ -121,7 +121,7 @@ class FeatureTest(apitestcase.ApiTestCase):
         'system:index': 'bar'
     }, from_geo_json_feature.args['metadata'])
 
-  def testGetMap(self):
+  def test_get_map(self):
     """Verifies that getMap() uses Collection.draw to rasterize Features."""
     feature = ee.Feature(None)
     mapid = feature.getMapId({'color': 'ABCDEF'})
@@ -132,7 +132,7 @@ class FeatureTest(apitestcase.ApiTestCase):
     self.assertEqual('fakeMapId', mapid['mapid'])
     self.assertEqual(manual.serialize(), mapid['image'].serialize())
 
-  def testInitOptParams(self):
+  def test_init_opt_params(self):
     result = ee.Feature(
         geom=ee.Geometry.Point(1, 2), opt_properties=dict(prop='a')
     ).serialize()
@@ -328,7 +328,7 @@ class FeatureTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_cutLines(self):
+  def test_cut_lines(self):
     expect = make_expression_graph({
         'arguments': {
             'feature': FEATURE_NONE_GRAPH,
@@ -546,7 +546,7 @@ class FeatureTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_setGeometry(self):
+  def test_set_geometry(self):
     expect = make_expression_graph({
         'arguments': {
             'feature': FEATURE_NONE_GRAPH,
@@ -646,7 +646,7 @@ class FeatureTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_withinDistance(self):
+  def test_within_distance(self):
     expect = {
         'result': '0',
         'values': {

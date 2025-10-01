@@ -17,7 +17,7 @@ class OAuthTest(unittest.TestCase):
     super().setUp()
     self.test_tmpdir = tempfile.mkdtemp()
 
-  def testRequestToken(self):
+  def test_request_token(self):
 
     class MockResponse:
 
@@ -39,7 +39,7 @@ class OAuthTest(unittest.TestCase):
       refresh_token = oauth.request_token(auth_code, verifier)
       self.assertEqual('123456', refresh_token)
 
-  def testWriteToken(self):
+  def test_write_token(self):
 
     def mock_credentials_path():
       return self.test_tmpdir + '/tempfile'

@@ -23,7 +23,7 @@ def _max_depth(x: Union[dict[str, Any], list[Any], str]) -> int:
 
 class DatetimeToMicrosecondsTest(unittest.TestCase):
 
-  def testDatetimeToMicrosecondsNaive(self):
+  def test_datetime_to_microseconds_naive(self):
     self.assertEqual(
         0,
         serializer.DatetimeToMicroseconds(
@@ -51,7 +51,7 @@ class DatetimeToMicrosecondsTest(unittest.TestCase):
         serializer.DatetimeToMicroseconds(datetime.datetime(1906, 4, 18)),
     )
 
-  def testDatetimeToMicroseconds(self):
+  def test_datetime_to_microseconds(self):
     self.assertEqual(
         0,
         serializer.DatetimeToMicroseconds(
@@ -88,7 +88,7 @@ class DatetimeToMicrosecondsTest(unittest.TestCase):
 
 class SerializerTest(apitestcase.ApiTestCase):
 
-  def testSerialization(self):
+  def test_serialization(self):
     """Verifies a complex serialization case."""
 
     class ByteString(ee.Encodable):
@@ -160,7 +160,7 @@ class SerializerTest(apitestcase.ApiTestCase):
     decoded_encoded_json = json.loads(encoded_json)
     self.assertEqual(encoded, decoded_encoded_json)
 
-  def testRepeats(self):
+  def test_repeats(self):
     """Verifies serialization finds and removes repeated values."""
     # pylint: disable-next=no-member
     test1 = ee.Image(5).mask(ee.Image(5))
@@ -257,7 +257,7 @@ class SerializerTest(apitestcase.ApiTestCase):
         expected_cloud_pretty,
         serializer.encode(test1, is_compound=False, for_cloud_api=True))
 
-  def testDepthLimit_withAlgorithms(self):
+  def test_depth_limit_with_algorithms(self):
     x = ee.Number(0)
     for i in range(100):
       x = x.add(ee.Number(i))
@@ -266,21 +266,21 @@ class SerializerTest(apitestcase.ApiTestCase):
     # on the test.
     self.assertLess(_max_depth(encoded), 60)
 
-  def testDepthLimit_withLists(self):
+  def test_depth_limit_with_lists(self):
     x = ee.List([0])
     for i in range(100):
       x = ee.List([i, x])
     encoded = serializer.encode(x, for_cloud_api=True)
     self.assertLess(_max_depth(encoded), 60)
 
-  def testDepthLimit_withDictionaries(self):
+  def test_depth_limit_with_dictionaries(self):
     x = ee.Dictionary({0: 0})
     for i in range(100):
       x = ee.Dictionary({i: x})
     encoded = serializer.encode(x, for_cloud_api=True)
     self.assertLess(_max_depth(encoded), 60)
 
-  def testToJsonOptParams(self):
+  def test_to_json_opt_params(self):
     self.assertIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=True))
     self.assertNotIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=False))
 

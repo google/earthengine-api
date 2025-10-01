@@ -10,7 +10,7 @@ from ee import apitestcase
 
 class ElementTestCase(apitestcase.ApiTestCase):
 
-  def testSet(self):
+  def test_set(self):
     """Verifies Element.set() keyword argument interpretation."""
     image = ee.Image(1)
 
@@ -48,7 +48,7 @@ class ElementTestCase(apitestcase.ApiTestCase):
     CheckMultiProperties(image.set(computed_arg))
     CheckMultiProperties(image.set({'properties': computed_arg}))
 
-  def testInitOptParams(self):
+  def test_init_opt_params(self):
     result = ee.Element(func=None, args=None, opt_varName='test').serialize()
     self.assertIn('"0": {"argumentReference": "test"}', result)
 

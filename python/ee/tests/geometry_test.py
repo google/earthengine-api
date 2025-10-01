@@ -87,13 +87,13 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
           (-10, -20, 10, math.inf),
       ),
   )
-  def testBBox(self, expected, coords):
+  def test_bbox(self, expected, coords):
     self.assertEqual(
         self.epsg4326_rectangle(*expected),
         ee.Geometry.BBox(*coords),
     )
 
-  def testBBox_computedArgs(self):
+  def test_bbox_computed_args(self):
     ten = ee.Number(5).add(5)
     box = ee.Geometry.BBox(-10, -20, ten, 20)
     func = ee.ApiFunction.lookup('GeometryConstructors.BBox')
@@ -164,11 +164,11 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
           r'Geometry\.BBox: north must be at least -90°, but was -inf°',
       ),
   )
-  def testBBoxInvalid(self, coords, message):
+  def test_bbox_invalid(self, coords, message):
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.BBox(*coords)
 
-  def testLineString(self):
+  def test_line_string(self):
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     max_error = 1000
@@ -186,7 +186,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testLineString_kwargs(self):
+  def test_line_string_kwargs(self):
     coords = [1, 2, 3, 4]
     func = ee.ApiFunction.lookup('GeometryConstructors.LineString')
 
@@ -197,7 +197,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testLineString_computedArgs(self):
+  def test_line_string_computed_args(self):
     """Verifies that a LineString with computed inputs can be constructed."""
     p1 = ee.Geometry.Point([1, 2])
     p2 = ee.Geometry.Point([3, 4])
@@ -215,11 +215,11 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ('_geometry', [[[1, 2], [3, 4], 5]], 'Invalid geometry'),
       ('_nesting', [[[[1, 2], [3, 4]]]], 'Invalid geometry'),
   )
-  def testLineStringInvalid(self, coords, message):
+  def test_line_string_invalid(self, coords, message):
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.LineString(*coords)
 
-  def testLinearRing(self):
+  def test_linear_ring(self):
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     geodesic = True
@@ -238,7 +238,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testLinearRing_kwargs(self):
+  def test_linear_ring_kwargs(self):
     coords = [1, 2, 3, 4]
     func = ee.ApiFunction.lookup('GeometryConstructors.LinearRing')
     geodesic = True
@@ -250,7 +250,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testLinearRing_computedArgs(self):
+  def test_linear_ring_computed_args(self):
     """Verifies that a LinearRing with computed inputs can be constructed."""
     p1 = ee.Geometry.Point([1, 2])
     p2 = ee.Geometry.Point([3, 4])
@@ -268,11 +268,11 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ('_geometry', [[[1, 2], [3, 4], 5]], 'Invalid geometry'),
       ('_nesting', [[[[1, 2], [3, 4]]]], 'Invalid geometry'),
   )
-  def testLinearRingInvalid(self, coords, message):
+  def test_linear_ring_invalid(self, coords, message):
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.LinearRing(*coords)
 
-  def testMultiLineString(self):
+  def test_multi_line_string(self):
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     geodesic = True
@@ -291,7 +291,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testMultiLineString_kwargs(self):
+  def test_multi_line_string_kwargs(self):
     coords = [1, 2, 3, 4]
     func = ee.ApiFunction.lookup('GeometryConstructors.MultiLineString')
     geodesic = True
@@ -303,7 +303,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testMultiLineString_computedArgs(self):
+  def test_multi_line_string_computed_args(self):
     """Verifies that a MultiLineString with computed inputs can be constructed."""
     p1 = ee.Geometry.Point([1, 2])
     p2 = ee.Geometry.Point([3, 4])
@@ -321,12 +321,12 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ('_geometry', [[[1, 2], [3, 4], 5]], 'Invalid geometry'),
       ('_nesting', [[[[[1, 2], [3, 4]]]]], 'Invalid geometry'),
   )
-  def testMultiLineStringInvalid(self, coords, message):
+  def test_multi_line_string_invalid(self, coords, message):
     """Verifies MultiLineString constructor behavior with invalid arguments."""
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.MultiLineString(*coords)
 
-  def testMultiPoint(self):
+  def test_multi_point(self):
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     func = ee.ApiFunction.lookup('GeometryConstructors.MultiPoint')
@@ -341,7 +341,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testMultiPoint_kwargs(self):
+  def test_multi_point_kwargs(self):
     coords = [1, 2, 3, 4]
     func = ee.ApiFunction.lookup('GeometryConstructors.MultiPoint')
     proj = 'EPSG:4326'
@@ -353,7 +353,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testMultiPoint_computedArgs(self):
+  def test_multi_point_computed_args(self):
     """Verifies that a MultiPoint with computed inputs can be constructed."""
     p1 = ee.Geometry.Point([1, 2])
     p2 = ee.Geometry.Point([3, 4])
@@ -371,12 +371,12 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ('_geometry', [[[1, 2], [3, 4], 5]], 'Invalid geometry'),
       ('_nesting', [[[[1, 2], [3, 4]]]], 'Invalid geometry'),
   )
-  def testMultiPointInvalid(self, coords, message):
+  def test_multi_point_invalid(self, coords, message):
     """Verifies MultiPoint constructor behavior with invalid arguments."""
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.MultiPoint(*coords)
 
-  def testMultiPolygon(self):
+  def test_multi_polygon(self):
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     geodesic = True
@@ -399,7 +399,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testMultiPolygon_kwargs(self):
+  def test_multi_polygon_kwargs(self):
     coords = [1, 2, 3, 4]
     func = ee.ApiFunction.lookup('GeometryConstructors.MultiPolygon')
     geodesic = True
@@ -411,7 +411,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testMultiPolygon_computedArgs(self):
+  def test_multi_polygon_computed_args(self):
     """Verifies that a MultiPolygon with computed inputs can be constructed."""
     p1 = ee.Geometry.Point([1, 2])
     p2 = ee.Geometry.Point([3, 4])
@@ -429,12 +429,12 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ('_geometry', [[[[[[1, 2], [3, 4], [5, 6]]]]]], 'Invalid geometry'),
       ('_nesting', [[[[[1, 2], [3, 4]], [1, 2]]]], 'Invalid geometry'),
   )
-  def testMultiPolygonInvalid(self, coords, message):
+  def test_multi_polygon_invalid(self, coords, message):
     """Verifies MultiPolygon constructor behavior with invalid arguments."""
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.MultiPolygon(*coords)
 
-  def testPoint(self):
+  def test_point(self):
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     func = ee.ApiFunction.lookup('GeometryConstructors.Point')
@@ -449,7 +449,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testPoint_kwargs(self):
+  def test_point_kwargs(self):
     coords = [1, 2, 3, 4]
     func = ee.ApiFunction.lookup('GeometryConstructors.Point')
     proj = 'EPSG:4326'
@@ -461,12 +461,12 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testPoint_oldKeywordArgs(self):
+  def test_point_old_keyword_args(self):
     """Verifies that Points still allow keyword lon/lat args."""
     self.assertEqual(ee.Geometry.Point(1, 2), ee.Geometry.Point(lon=1, lat=2))
     self.assertEqual(ee.Geometry.Point(1, 2), ee.Geometry.Point(1, lat=2))
 
-  def testPoint_computedArgs(self):
+  def test_point_computed_args(self):
     """Verifies that a Point with computed inputs can be constructed."""
     v1 = ee.Number(1)
     v2 = ee.Number(2)
@@ -481,12 +481,12 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
   @parameterized.named_parameters(
       ('_geometry', [['-78.204948', '40.966539']], 'Invalid geometry'),
   )
-  def testPointInvalid(self, coords, message):
+  def test_point_invalid(self, coords, message):
     """Verifies Point constructor behavior with invalid arguments."""
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.Point(*coords)
 
-  def testPolygon(self):
+  def test_polygon(self):
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     geodesic = True
@@ -507,7 +507,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testPolygon_kwargs(self):
+  def test_polygon_kwargs(self):
     coords = [1, 2, 3, 4]
     func = ee.ApiFunction.lookup('GeometryConstructors.Polygon')
     geodesic = True
@@ -519,7 +519,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testPolygon_computedArgs(self):
+  def test_polygon_computed_args(self):
     """Verifies that a Polygon with computed inputs can be constructed."""
     p1 = ee.Geometry.Point([1, 2])
     p2 = ee.Geometry.Point([3, 4])
@@ -531,7 +531,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     )
     self.assertEqual({'coordinates': ee.List([p1, p2])}, line.args)
 
-  def testPolygon_evenOdd(self):
+  def test_polygon_even_odd(self):
     poly1 = ee.Geometry.Polygon([0, 0, 0, 5, 5, 0])
     self.assertTrue(poly1.toGeoJSON()['evenOdd'])
 
@@ -546,12 +546,12 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ('_tooMuchNesting', [[[[[1, 2], [3, 4], [5, 6]]]]], 'Invalid geometry'),
       ('_badNesting', [[[[1, 2], [3, 4]], [1, 2]]], 'Invalid geometry'),
   )
-  def testPolygonInvalid(self, coords, message):
+  def test_polygon_invalid(self, coords, message):
     """Verifies Polygon constructor behavior with invalid arguments."""
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.Polygon(*coords)
 
-  def testRectangle(self):
+  def test_rectangle(self):
     coords = [1, 2, 3, 4]
     proj = 'EPSG:4326'
     geodesic = True
@@ -570,7 +570,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testRectangle_kwargs(self):
+  def test_rectangle_kwargs(self):
     coords = [1, 2, 3, 4]
     func = ee.ApiFunction.lookup('GeometryConstructors.Rectangle')
     geodesic = True
@@ -582,7 +582,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geometry.args,
     )
 
-  def testRectangle_oldKeywordArgs(self):
+  def test_rectangle_old_keyword_args(self):
     """Verifies that Rectangles still allow keyword xlo/ylo/xhi/yhi args."""
     self.assertEqual(
         ee.Geometry.Rectangle(1, 2, 3, 4),
@@ -593,7 +593,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         ee.Geometry.Rectangle(1, 2, xhi=3, yhi=4),
     )
 
-  def testRectangle_computedArgs(self):
+  def test_rectangle_computed_args(self):
     """Verifies that a Rectangle with computed inputs can be constructed."""
     p1 = ee.Geometry.Point([1, 2])
     p2 = ee.Geometry.Point([3, 4])
@@ -611,12 +611,12 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ('_geometry', [[[1, 2], [3, 4], 5]], 'Invalid geometry'),
       ('_tooMuchNesting', [[[[1, 2], [3, 4]]]], 'Invalid geometry'),
   )
-  def testRectangleInvalid(self, coords, message):
+  def test_rectangle_invalid(self, coords, message):
     """Verifies Rectangle constructor behavior with invalid arguments."""
     with self.assertRaisesRegex(ee.EEException, message):
       ee.Geometry.Rectangle(*coords)
 
-  def testValid_GeometryCollection(self):
+  def test_valid_geometry_collection(self):
     """Verifies GeometryCollection constructor behavior with valid arguments."""
     geometry = ee.Geometry({
         'type': 'GeometryCollection',
@@ -640,7 +640,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     })
     self.assertIsInstance(geometry, ee.Geometry)
 
-  def testArrayConstructors(self):
+  def test_array_constructors(self):
     """Verifies that constructors that take arrays fix nesting."""
     get_coordinates_count = lambda g: len(g.toGeoJSON()['coordinates'])
 
@@ -669,7 +669,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     )
     self.assertEqual(2, get_coordinates_count(mpolygon))
 
-  def testGeodesicFlag(self):
+  def test_geodesic_flag(self):
     """Verifies that JSON parsing and generation preserves the geodesic flag."""
     geodesic = ee.Geometry({
         'type': 'LineString',
@@ -684,7 +684,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     self.assertTrue(geodesic.toGeoJSON()['geodesic'])
     self.assertFalse(projected.toGeoJSON()['geodesic'])
 
-  def testConstructor(self):
+  def test_constructor(self):
     """Check the behavior of the Geometry constructor.
 
     There are 5 options:
@@ -729,7 +729,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     self.assertEqual(computed.func, geom.func)
     self.assertEqual(computed.args, geom.args)
 
-  def testComputedGeometries(self):
+  def test_computed_geometries(self):
     """Verifies the computed object behavior of the Geometry constructor."""
     line = ee.Geometry.LineString(1, 2, 3, 4)
     bounds = line.bounds()
@@ -739,7 +739,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     self.assertEqual(line, bounds.args['geometry'])
     self.assertTrue(hasattr(bounds, 'bounds'))
 
-  def testComputedCoordinate(self):
+  def test_computed_coordinate(self):
     """Verifies that a computed coordinate produces a computed geometry."""
     coords = [1, ee.Number(1).add(1)]
     p = ee.Geometry.Point(coords)
@@ -750,7 +750,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     )
     self.assertEqual({'coordinates': ee.List(coords)}, p.args)
 
-  def testComputedList(self):
+  def test_computed_list(self):
     """Verifies that a computed coordinate produces a computed geometry."""
     lst = ee.List([1, 2, 3, 4]).slice(0, 2)
     p = ee.Geometry.Point(lst)
@@ -761,7 +761,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     )
     self.assertEqual({'coordinates': lst}, p.args)
 
-  def testComputedProjection(self):
+  def test_computed_projection(self):
     """Verifies that a geometry with a projection can be constructed."""
     p = ee.Geometry.Point([1, 2], 'epsg:4326')
 
@@ -775,13 +775,13 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     }
     self.assertEqual(expected_args, p.args)
 
-  def testInvalidCrs(self):
+  def test_invalid_crs(self):
     geo_json = ee.Geometry.LineString(1, 2, 3, 4).toGeoJSON()
     geo_json['crs'] = {'something': 'invalid-crs'}
     with self.assertRaisesRegex(ee.EEException, 'Invalid CRS declaration'):
       ee.Geometry(geo_json)
 
-  def testInternals(self):
+  def test_internals(self):
     """Test eq(), ne() and hash()."""
     a = ee.Geometry.Point(1, 2)
     b = ee.Geometry.Point(2, 1)
@@ -793,7 +793,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     self.assertNotEqual(b, c)
     self.assertNotEqual(hash(a), hash(b))
 
-  def testCoordinatesToLine(self):
+  def test_coordinates_to_line(self):
     # pylint: disable=protected-access
     self.assertEqual([], ee.Geometry._coordinatesToLine([]))
     self.assertEqual([1, 2], ee.Geometry._coordinatesToLine([1, 2]))
@@ -815,7 +815,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ee.Geometry._coordinatesToLine([1, 2, 3, 4, 5])
     # pylint: enable=protected-access
 
-  def testInit_optParams(self):
+  def test_init_opt_params(self):
     result = ee.Geometry(
         geo_json={'type': 'Polygon', 'coordinates': [[[-2, 1]]]},
         opt_proj='abc',
@@ -904,7 +904,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
           ),
       ),
   )
-  def testToGeoJSON(self, geometry_func, expected_geojson):
+  def test_to_geo_json(self, geometry_func, expected_geojson):
     self.assertEqual(expected_geojson, geometry_func().toGeoJSON())
 
   @parameterized.named_parameters(
@@ -918,7 +918,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       ('Polygon', lambda: ee.Geometry.Polygon([], 'EPSG:4326')),
       ('Rectangle', lambda: ee.Geometry.Rectangle([], 'EPSG:4326')),
   )
-  def testToGeoJSON_FailsOnComputed(self, geometry_func):
+  def test_to_geo_json_fails_on_computed(self, geometry_func):
     message = 'Cannot convert a computed geometry to GeoJSON'
     with self.assertRaisesRegex(ee.EEException, message):
       geometry_func().toGeoJSON()

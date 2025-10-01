@@ -11,7 +11,7 @@ from ee import apitestcase
 
 class CollectionTestCase(apitestcase.ApiTestCase):
 
-  def testSortAndLimit(self):
+  def test_sort_and_limit(self):
     """Verifies the behavior of the sort() and limit() methods."""
     collection = ee.Collection(ee.Function(), {})
 
@@ -41,7 +41,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         'ascending': False
     }, reverse_sorted_collection.args)
 
-  def testFilter(self):
+  def test_filter(self):
     """Verifies the behavior of filter() method."""
     collection = ee.Collection(ee.Function(), {})
 
@@ -56,7 +56,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     }, filtered.args)
     self.assertIsInstance(filtered, ee.Collection)
 
-  def testFilterShortcuts(self):
+  def test_filter_shortcuts(self):
     """Verifies the behavior of the various filtering shortcut methods."""
     collection = ee.Collection(ee.Function(), {})
     geom = {'type': 'Polygon', 'coordinates': [[[1, 2], [3, 4]]]}
@@ -75,7 +75,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         collection.filter(ee.Filter.eq('foo', 13)),
         collection.filterMetadata('foo', 'equals', 13))
 
-  def testMapping(self):
+  def test_mapping(self):
     """Verifies the behavior of the map() method."""
     collection = ee.ImageCollection('foo')
     algorithm = lambda img: img.select('bar')
@@ -96,7 +96,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     self.assertEqual(expected_function.serialize(),
                      mapped.args['baseAlgorithm'].serialize())
 
-  def testNestedMapping(self):
+  def test_nested_mapping(self):
     """Verifies that nested map() calls produce distinct variables."""
     collection = ee.FeatureCollection('foo')
     result = collection.map(lambda x: collection.map(lambda y: [x, y]))
@@ -115,7 +115,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     self.assertEqual('_MAPPING_VAR_0_0',
                      inner_result.args['baseAlgorithm']._body[1].varName)
 
-  def testIteration(self):
+  def test_iteration(self):
     """Verifies the behavior of the iterate() method."""
     collection = ee.ImageCollection('foo')
     first = ee.Image(0)
@@ -140,7 +140,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     self.assertEqual(expected_function.serialize(),
                      result.args['function'].serialize())
 
-  def testNestedFunctions(self):
+  def test_nested_functions(self):
     """Verifies that nested function calls produce distinct variables."""
     fc = ee.FeatureCollection('fc')
     def f0(feat):
@@ -159,7 +159,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         '0_0, 1_0, 1_1, 2_0, 2_1, 3_0, 3_1, 4_0',
         ', '.join(sorted(set(mapped_vars))))
 
-  def testUnboundArguments(self):
+  def test_unbound_arguments(self):
     fc = ee.FeatureCollection('fc')
     with self.assertRaisesRegex(
         Exception, 'User-defined methods must return a value'):
@@ -172,11 +172,11 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     ):
       fc.map(lambda x: x.serialize())
 
-  def testInitOptVarName(self):
+  def test_init_opt_var_name(self):
     result = ee.Collection(func=None, args=None, opt_varName='test').serialize()
     self.assertIn('"argumentReference": "test"', result)
 
-  def testFilterDateOptParams(self):
+  def test_filter_date_opt_params(self):
     result = (
         ee.Collection(func=None, args=None, varName='test')
         .filterDate(0, opt_end=42)
@@ -184,7 +184,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     )
     self.assertIn('"end": {"constantValue": 42}', result)
 
-  def testLimitOptParams(self):
+  def test_limit_opt_params(self):
     result = (
         ee.Collection(func=None, args=None, varName='test')
         .limit(0, opt_property='abc', opt_ascending=True)
@@ -193,7 +193,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     self.assertIn('"key": {"constantValue": "abc"}', result)
     self.assertIn('"ascending": {"constantValue": true}', result)
 
-  def testSortOptParams(self):
+  def test_sort_opt_params(self):
     result = (
         ee.Collection(func=None, args=None, varName='test')
         .sort('abc', opt_ascending=True)
@@ -201,7 +201,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     )
     self.assertIn('"ascending": {"constantValue": true}', result)
 
-  def testMapOptParams(self):
+  def test_map_opt_params(self):
     a_func = lambda x: ee.Image(0)
     result = (
         ee.Collection(func=None, args=None, varName='test')

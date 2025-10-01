@@ -10,7 +10,7 @@ from ee import apitestcase
 
 class ApiFunctionTest(apitestcase.ApiTestCase):
 
-  def testAddFunctions(self):
+  def test_add_functions(self):
     """Verifies that addition of static and instance API functions."""
 
     # Check instance vs static functions, and trampling of
@@ -48,7 +48,7 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     self.assertTrue(hasattr(TestClass, 'pre_addBands'))
     self.assertFalse(hasattr(TestClass, '_pre_addBands'))
 
-  def testAddFunctions_Inherited(self):
+  def test_add_functions_inherited(self):
     """Verifies that inherited non-client functions can be overridden."""
 
     class Base:
@@ -66,7 +66,7 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     self.assertNotEqual(Base.addBands, Child.addBands)
     # pytype: enable=attribute-error
 
-  def testEq(self):
+  def test_eq(self):
     a_signature = {'hello': 'world', 'args': []}
     b_signature = {
         'hello': 'world',
@@ -93,14 +93,14 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
         ee.ApiFunction(name='test', signature=a_signature), a_signature
     )
 
-  def testInitOptParams(self):
+  def test_init_opt_params(self):
     signature = {'hello': 'world', 'args': []}
     self.assertEqual(
         ee.ApiFunction(name='test', signature=signature),
         ee.ApiFunction(name='test', opt_signature=signature),
     )
 
-  def testImportApiOptParams(self):
+  def test_import_api_opt_params(self):
     args = dict(
         target=ee.Dictionary, prefix='Dictionary', type_name='Dictionary'
     )

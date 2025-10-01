@@ -23,19 +23,19 @@ from ee import oauth
 
 class ServiceAccountCredentialsTest(unittest.TestCase):
 
-  def testNoArgs(self):
+  def test_no_args(self):
     with self.assertRaisesRegex(ValueError, 'At least one of'):
       ee.ServiceAccountCredentials()
 
   @mock.patch('google.oauth2.service_account.Credentials')
-  def testJsonFile(self, mock_credentials):
+  def test_json_file(self, mock_credentials):
     ee.ServiceAccountCredentials(key_file='foo.json')
     mock_credentials.from_service_account_file.assert_called_with(
         'foo.json', scopes=oauth.SCOPES
     )
 
   @mock.patch('google.oauth2.service_account.Credentials')
-  def testJsonKeyData(self, mock_credentials):
+  def test_json_key_data(self, mock_credentials):
     key_data = {'client_email': 'foo@bar.com'}
     ee.ServiceAccountCredentials(key_data=json.dumps(key_data))
     mock_credentials.from_service_account_info.assert_called_with(
@@ -44,7 +44,7 @@ class ServiceAccountCredentialsTest(unittest.TestCase):
 
   @mock.patch('google.auth.crypt.RSASigner')
   @mock.patch('google.oauth2.service_account.Credentials')
-  def testPemKeyData(self, mock_credentials, mock_signer):
+  def test_pem_key_data(self, mock_credentials, mock_signer):
     ee.ServiceAccountCredentials(email='foo@bar.com', key_data='pem_key_data')
     mock_signer.from_string.assert_called_with('pem_key_data')
     self.assertEqual(
@@ -53,7 +53,7 @@ class ServiceAccountCredentialsTest(unittest.TestCase):
 
   @mock.patch('google.auth.crypt.RSASigner')
   @mock.patch('google.oauth2.service_account.Credentials')
-  def testPemFile(self, mock_credentials, mock_signer):
+  def test_pem_file(self, mock_credentials, mock_signer):
     with mock.patch.object(
         _helpers, 'open', mock.mock_open(read_data='pem_key_data')
     ):
@@ -63,7 +63,7 @@ class ServiceAccountCredentialsTest(unittest.TestCase):
         mock_credentials.call_args[0][1], 'foo@bar.com'
     )
 
-  def testBadJsonKeyData(self):
+  def test_bad_json_key_data(self):
     # This causes a different failure based on where the test is run.
     message = r'Could not deserialize key data|No key could be detected'
     with self.assertRaisesRegex(ValueError, message):
@@ -80,21 +80,21 @@ class ProfilingTest(apitestcase.ApiTestCase):
     ) and value.func == apifunction.ApiFunction.lookup('Profile.getProfiles')
     return f'hooked={hooked} getProfiles={is_get_profiles}'
 
-  def testProfilePrinting(self):
+  def test_profile_printing(self):
     ee.data.computeValue = self.MockValue
     out = io.StringIO()
     with ee.profilePrinting(destination=out):
       self.assertEqual('hooked=True getProfiles=False', ee.Number(1).getInfo())
     self.assertEqual('hooked=False getProfiles=True', out.getvalue())
 
-  def testProfilePrintingDefaultSmoke(self):
+  def test_profile_printing_default_smoke(self):
     # This will print to sys.stderr, so we can't make any assertions about the
     # output. But we can check that it doesn't fail.
     ee.data.computeValue = self.MockValue
     with ee.profilePrinting():
       self.assertEqual('hooked=True getProfiles=False', ee.Number(1).getInfo())
 
-  def testProfilePrintingErrorGettingProfiles(self):
+  def test_profile_printing_error_getting_profiles(self):
     ee.data.computeValue = self.MockValue
     mock = unittest.mock.Mock()
     mock.call.side_effect = ee_exception.EEException('test')

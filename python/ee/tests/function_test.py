@@ -34,7 +34,7 @@ Args:
 
 class FunctionTest(unittest.TestCase):
 
-  def testNameArgs(self):
+  def test_name_args(self):
     """Verifies that Functions can convert positional to named arguments."""
     self.assertEqual({}, TEST_FUNC.nameArgs([]))
     self.assertEqual({'a': 42}, TEST_FUNC.nameArgs([42]))
@@ -44,7 +44,7 @@ class FunctionTest(unittest.TestCase):
     self.assertRaisesRegex(ee.EEException, 'Too many', TEST_FUNC.nameArgs,
                            [1, 2, 3])
 
-  def testPromoteArgs(self):
+  def test_promote_args(self):
     """Verifies that Functions can promote and verify their arguments."""
     old_promoter = ee.Function._promoter
     ee.Function._registerPromoter(lambda obj, type_name: [type_name, obj])
@@ -75,7 +75,7 @@ class FunctionTest(unittest.TestCase):
     # Clean up.
     ee.Function._registerPromoter(old_promoter)
 
-  def testCall(self):
+  def test_call(self):
     """Verifies the full function invocation flow."""
     old_promoter = ee.Function._promoter
     ee.Function._registerPromoter(lambda obj, type_name: [type_name, obj])
@@ -91,11 +91,11 @@ class FunctionTest(unittest.TestCase):
     # Clean up.
     ee.Function._registerPromoter(old_promoter)
 
-  def testToString(self):
+  def test_to_string(self):
     """Verifies function docstring generation."""
     self.assertEqual(EXPECTED_DOC, str(TEST_FUNC))
 
-  def testArgumentFailureMessage(self):
+  def test_argument_failure_message(self):
     """Verifies properly formed function error message generation."""
     self.assertRaisesRegex(
         ee.EEException,
