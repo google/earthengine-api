@@ -100,7 +100,7 @@ class Task:
     - Unpickling a previously pickled Task object.
 
     If you're looking for a task's status but don't need a full task object,
-    ee.data.getTaskStatus() may be appropriate.
+    ee.data.getOperation() may be appropriate.
 
     Args:
       task_id: The task ID, originally obtained through ee.data.newTaskId().
