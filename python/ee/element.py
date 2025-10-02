@@ -187,7 +187,7 @@ class Element(computedobject.ComputedObject):
     """Returns properties from a feature as a dictionary.
 
     Args:
-      properties: The list of properties to extract.  Defaults to all non-system
+      properties: The list of properties to extract. Defaults to all non-system
         properties
     """
 

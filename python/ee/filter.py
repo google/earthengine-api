@@ -108,7 +108,7 @@ class Filter(computedobject.ComputedObject):
     These are implicitly ANDed.
 
     Args:
-      new_filter: The filter to append to this one.  Possible types are:
+      new_filter: The filter to append to this one. Possible types are:
           1) another fully constructed Filter,
           2) a JSON representation of a filter,
           3) an array of 1 or 2.
@@ -141,7 +141,7 @@ class Filter(computedobject.ComputedObject):
     Returns:
       The new filter.
 
-    Deprecated.  Use ee.Filter.eq(), ee.Filter.gte(), etc.'
+    Deprecated. Use ee.Filter.eq(), ee.Filter.gte(), etc.'
     """
     operator = operator.lower()
 

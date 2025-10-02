@@ -5,12 +5,12 @@ import ee.mapclient
 
 ee.Initialize()
 
-# There are many fine places to look here is one.  Comment
+# There are many fine places to look here is one. Comment
 # this out if you want to twiddle knobs while panning around.
 ee.mapclient.centerMap(-61.61625, -11.64273, 14)
 
 # Grab a sample L7 image and pull out the RGB and pan bands
-# in the range (0, 1).  (The range of the pan band values was
+# in the range (0, 1). (The range of the pan band values was
 # chosen to roughly match the other bands.)
 image1 = ee.Image('LANDSAT/LE07/C02/T1/LE07_230068_19990815')
 

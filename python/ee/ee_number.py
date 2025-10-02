@@ -781,7 +781,7 @@ class Number(computedobject.ComputedObject):
   ) -> Number:
     """Scales the input so that [min, max] becomes [0, 1].
 
-    Values outside the range are NOT clamped.  If min == max, 0 is returned.
+    Values outside the range are NOT clamped. If min == max, 0 is returned.
 
     Args:
       min: Minimum value of the input to be scaled to 0.

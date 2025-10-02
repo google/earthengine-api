@@ -35,7 +35,7 @@ def _run_command(*argv):
       'Defaults to "~/%s".' % utils.DEFAULT_EE_CONFIG_FILE_RELATIVE)
   parser.add_argument(
       '--service_account_file', help='Path to a service account credentials'
-      'file.  Overrides any ee_config if specified.')
+      'file. Overrides any ee_config if specified.')
   parser.add_argument(
       '--project',
       help='Specifies a Google Cloud Platform Project id to override the call.',

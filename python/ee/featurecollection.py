@@ -47,10 +47,13 @@ class FeatureCollection(collection.Collection[feature.Feature]):
     """Constructs a collection features.
 
     Args:
-      args: constructor argument.  One of: 1) A string - assumed to be the name
-        of a collection. 2) A geometry. 3) A feature. 4) An array of features.
-        5) A GeoJSON FeatureCollection. 6) A computed object - reinterpreted as
-        a collection.
+      args: constructor argument. One of:
+        1) A string - assumed to be the name of a collection.
+        2) A geometry.
+        3) A feature.
+        4) An array of features.
+        5) A GeoJSON FeatureCollection.
+        6) A computed object - reinterpreted as a collection.
       column: The name of the geometry column to use. Only useful with the
         string constructor.
 
@@ -187,9 +190,9 @@ class FeatureCollection(collection.Collection[feature.Feature]):
       propertySelectors: An array of names or regexes specifying the properties
           to select.
       newProperties: An array of strings specifying the new names for the
-          selected properties.  If supplied, the length must match the number
+          selected properties. If supplied, the length must match the number
           of properties selected.
-      retainGeometry: A boolean.  When false, the result will have no geometry.
+      retainGeometry: A boolean. When false, the result will have no geometry.
       *args: Selector elements as varargs.
 
     Returns:

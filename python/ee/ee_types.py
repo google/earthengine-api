@@ -9,7 +9,7 @@ from typing import Any
 from ee import computedobject
 
 
-# A dictionary of the classes in the ee module.  Set by registerClasses.
+# A dictionary of the classes in the ee module. Set by registerClasses.
 _registered_classes = {}
 
 
@@ -48,7 +48,7 @@ def classToName(a_class: type[Any]) -> str:
 
 # TODO(user): Any -> Optional[type[Any]].
 def nameToClass(name: str) -> Any:
-  """Converts a class name to a class.  Returns None if not an ee class.
+  """Converts a class name to a class. Returns None if not an ee class.
 
   Args:
     name: The class name.

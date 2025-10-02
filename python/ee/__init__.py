@@ -171,12 +171,12 @@ def Initialize(
   """Initialize the EE library.
 
   If this hasn't been called by the time any object constructor is used,
-  it will be called then.  If this is called a second time with a different
+  it will be called then. If this is called a second time with a different
   URL, this doesn't do an un-initialization of, e.g., the previously loaded
   Algorithms, but will overwrite them and let point at alternate servers.
 
   Args:
-    credentials: OAuth2 credentials.  'persistent' (default) means use
+    credentials: OAuth2 credentials. 'persistent' (default) means use
       credentials already stored in the filesystem, or raise an explanatory
       exception guiding the user to create those credentials.
     url: The base url for the EarthEngine REST API to connect to.
@@ -443,7 +443,7 @@ def _MakeClass(name: str) -> type[Any]:
     """Initializer for dynamically created classes.
 
     Args:
-      self: The instance of this class.  Listed to make the linter hush.
+      self: The instance of this class. Listed to make the linter hush.
       *args: Either a ComputedObject to be promoted to this type, or
              arguments to an algorithm with the same name as this class.
       **kwargs: Any kwargs passed to this class constructor.
@@ -485,7 +485,7 @@ def _MakeClass(name: str) -> type[Any]:
         elif firstArgIsPrimitive:
           # Can't cast a primitive.
           raise EEException(
-              'Invalid argument for ee.{}(): {}.  '
+              'Invalid argument for ee.{}(): {}. '
               'Must be a ComputedObject.'.format(name, args))
 
         result = args[0]

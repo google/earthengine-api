@@ -474,7 +474,7 @@ class Collection(Generic[ElementType], element.Element):
     Args:
       name: Name of a property to filter.
       operator: Name of a comparison operator as defined
-          by FilterCollection.  Possible values are: "equals", "less_than",
+          by FilterCollection. Possible values are: "equals", "less_than",
           "greater_than", "not_equals", "not_less_than", "not_greater_than",
           "starts_with", "ends_with", "not_starts_with", "not_ends_with",
           "contains", "not_contains".
@@ -836,7 +836,7 @@ class Collection(Generic[ElementType], element.Element):
 
     Args:
        prop: The property to sort by.
-       ascending: Whether to sort in ascending or descending order.  The default
+       ascending: Whether to sort in ascending or descending order. The default
          is true (ascending).
 
     Returns:

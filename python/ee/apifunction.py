@@ -1,7 +1,7 @@
 """A class for representing built-in EE API Function.
 
 Earth Engine can dynamically produce a JSON array listing the
-algorithms available to the user.  Each item in the dictionary identifies
+algorithms available to the user. Each item in the dictionary identifies
 the name and return type of the algorithm, the name and type of its
 arguments, whether they're required or optional, default values and docs
 for each argument and the algorithms as a whole.

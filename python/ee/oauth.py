@@ -185,7 +185,7 @@ def request_token(
         urllib.parse.urlencode(request_args).encode()).read().decode()
   except urllib.error.HTTPError as e:
     # pylint:disable=broad-exception-raised,raise-missing-from
-    raise Exception('Problem requesting tokens. Please try again.  %s %s' %
+    raise Exception('Problem requesting tokens. Please try again. %s %s' %
                     (e, e.read()))
     # pylint:enable=broad-exception-raised,raise-missing-from
 
@@ -352,7 +352,7 @@ def _nonce_table(*nonce_keys: str) -> dict[str, str]:
     table[key] = _base64param(os.urandom(32))
     if key.endswith('_verifier'):
       # Generate a challenge that the server will use to ensure that requests
-      # only work with our verifiers.  https://tools.ietf.org/html/rfc7636
+      # only work with our verifiers. https://tools.ietf.org/html/rfc7636
       pkce_challenge = _base64param(hashlib.sha256(table[key]).digest())
       table[key.replace('_verifier', '_challenge')] = pkce_challenge
   return {k: v.decode() for k, v in table.items()}
@@ -445,7 +445,7 @@ def _start_server(port: int):
       self.end_headers()
       self.wfile.write(
           b'\n\nGoogle Earth Engine authorization successful!\n\n\n'
-          b'Credentials have been retrieved.  Please close this window.\n\n'
+          b'Credentials have been retrieved. Please close this window.\n\n'
           b'  \xf0\x9f\x8c\x8d  \xe2\x9a\x99\xef\xb8\x8f  \xf0\x9f\x8c\x8f'
           b'  \xe2\x9a\x99\xef\xb8\x8f  \xf0\x9f\x8c\x8e ')  # Earth emoji
 
@@ -479,14 +479,14 @@ def authenticate(
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
-    cli_authorization_code: An optional authorization code.  Supports CLI mode,
+    cli_authorization_code: An optional authorization code. Supports CLI mode,
       where the code is passed as an argument to `earthengine authenticate`.
     quiet: If true, do not require interactive prompts and force --no-browser
       mode for gcloud-legacy. If false, never supply --no-browser. Default is
       None, which autodetects the --no-browser setting.
-    cli_code_verifier: PKCE verifier to prevent auth code stealing.  Must be
+    cli_code_verifier: PKCE verifier to prevent auth code stealing. Must be
       provided if cli_authorization_code is given.
-    auth_mode: The authorization mode.  One of:
+    auth_mode: The authorization mode. One of:
         "colab" - use the Colab authentication flow.
         "notebook" - send user to notebook authenticator page. Intended for
           web users who do not run code locally. Credentials expire in 7 days.

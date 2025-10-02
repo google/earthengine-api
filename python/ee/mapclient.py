@@ -8,7 +8,7 @@ This currently has several spots that are hard-coded for 256x256 tiles, even
 though MapOverlay tries to track this.
 
 Supports mouse-based pan and zoom as well as tile upsampling while waiting
-for new tiles to load.  The map to display is specified by a MapOverlay, and
+for new tiles to load. The map to display is specified by a MapOverlay, and
 added to the GUI on creation or manually using addOverlay()
   gui = MapClient(MakeOverlay(mapid))
 
@@ -35,7 +35,7 @@ import urllib.request
 from PIL import Image
 from PIL import ImageTk
 
-# The default URL to fetch tiles from.  We could pull this from the EE library,
+# The default URL to fetch tiles from. We could pull this from the EE library,
 # however this doesn't have any other dependencies on that yet, so let's not.
 BASE_URL = 'https://earthengine.googleapis.com'
 
@@ -52,7 +52,7 @@ class MapClient(threading.Thread):
     """Initialize the MapClient UI.
 
     Args:
-      opt_overlay: A mapoverlay to display.  If not specified, the default
+      opt_overlay: A mapoverlay to display. If not specified, the default
          Google Maps basemap is used.
       opt_width: The default width of the frame to construct.
       opt_height: The default height of the frame to construct.
@@ -178,7 +178,7 @@ class MapClient(threading.Thread):
       image: The image tile to display.
       key: A tuple containing the key of the image (level, x, y)
       overlay: The overlay this tile belongs to.
-      layer: The layer number this overlay corresponds to.  Only used
+      layer: The layer number this overlay corresponds to. Only used
           for caching purposes.
     """
     # TODO(user): This function is called from multiple threads, and
@@ -205,7 +205,7 @@ class MapClient(threading.Thread):
 
     Args:
       event: The event that caused this zoom request.
-      direction: The direction to zoom.  +1 for higher zoom, -1 for lower.
+      direction: The direction to zoom. +1 for higher zoom, -1 for lower.
     """
     if self.level + direction >= 0:
       # Discard everything cached in the MapClient, and flush the fetch queues.
@@ -319,13 +319,13 @@ class MapOverlay:
     """Get the requested tile.
 
     If the requested tile is already cached, it's returned (sent to the
-    callback) directly.  If it's not cached, a check is made to see if
+    callback) directly. If it's not cached, a check is made to see if
     a lower-res version is cached, and if so that's interpolated up, before
     a request for the actual tile is made.
 
     Args:
       key: The key of the tile to fetch.
-      callback: The callback to call when the tile is available.  The callback
+      callback: The callback to call when the tile is available. The callback
           may be called more than once if a low-res version is available.
     """
     result = self.GetCachedTile(key)
@@ -456,12 +456,12 @@ def addToMap(eeobject, vis_params=None, *args):
 
   Args:
       eeobject: the object to add to the map.
-      vis_params: a dictionary of visualization parameters.  See
+      vis_params: a dictionary of visualization parameters. See
           ee.data.getMapId().
       *args: unused arguments, left for compatibility with the JS API.
 
   This call exists to be an equivalent to the playground addToMap() call.
-  It uses a global MapInstance to hang on to "the map".  If the MapInstance
+  It uses a global MapInstance to hang on to "the map". If the MapInstance
   isn't initialized, this creates a new one.
   """
   del args  # Unused.

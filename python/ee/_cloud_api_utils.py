@@ -290,7 +290,7 @@ def _convert_dict(
       not contain these keys.
     key_warnings: Whether to print warnings for input keys that are not mapped
       to anything in the output.
-    retain_keys: Whether or not to retain the state of dict.  If false, any keys
+    retain_keys: Whether or not to retain the state of dict. If false, any keys
       that don't show up in the conversions dict will be dropped from result.
 
   Returns:

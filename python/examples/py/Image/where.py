@@ -19,7 +19,7 @@ output = blank.where(
     cover.lte(4).And(cover.gte(1)).And(elev.gt(1000)),
     1)
 
-# Output contains 0s and 1s.  Mask it with itself to get rid of the 0s.
+# Output contains 0s and 1s. Mask it with itself to get rid of the 0s.
 result = output.mask(output)
 
 ee.mapclient.addToMap(result, {'palette': '00AA00'})

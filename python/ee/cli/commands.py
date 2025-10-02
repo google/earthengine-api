@@ -69,7 +69,7 @@ TYPE_STRING = 'string'
 SYSTEM_TIME_START = 'system:time_start'
 SYSTEM_TIME_END = 'system:time_end'
 
-# A regex that parses properties of the form "[(type)]name=value".  The
+# A regex that parses properties of the form "[(type)]name=value". The
 # second, third, and fourth group are type, name, and number, respectively.
 PROPERTY_RE = re.compile(r'(\(([^\)]*)\))?([^=]+)=(.*)')
 
@@ -290,7 +290,7 @@ def _decode_property(string: str) -> tuple[str, Any]:
   Args:
     string: The string must have the form name=value or (type)name=value, where
       type is one of 'number', 'string', or 'date'. The value format for dates
-      is YYYY-MM-DD[THH:MM:SS[.MS]].  The value 'null' is special: it evaluates
+      is YYYY-MM-DD[THH:MM:SS[.MS]]. The value 'null' is special: it evaluates
       to None unless it is cast to a string of 'null'.
 
   Returns:
@@ -454,7 +454,7 @@ class AuthenticateCommand:
         args_auth['auth_mode'] = 'notebook'
 
     if ee.Authenticate(**args_auth):
-      print('Authenticate: Credentials already exist.  Use --force to refresh.')
+      print('Authenticate: Credentials already exist. Use --force to refresh.')
 
 
 class SetProjectCommand:

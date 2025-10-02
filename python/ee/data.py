@@ -1404,11 +1404,11 @@ def getAlgorithms() -> Any:
   """Get the list of algorithms.
 
   Returns:
-    The dictionary of algorithms.  Each algorithm is a dictionary containing
+    The dictionary of algorithms. Each algorithm is a dictionary containing
     the following fields:
         "description" - (string) A text description of the algorithm.
         "returns" - (string) The return type of the algorithm.
-        "args" - An array of arguments.  Each argument specifies the following:
+        "args" - An array of arguments. Each argument specifies the following:
             "name" - (string) The name of the argument.
             "description" - (string) A text description of the argument.
             "type" - (string) The type of the argument.

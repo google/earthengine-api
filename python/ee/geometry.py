@@ -79,7 +79,7 @@ class Geometry(computedobject.ComputedObject):
       if options:
         raise ee_exception.EEException(
             'Setting the CRS or geodesic on a computed Geometry is not '
-            'supported.  Use Geometry.transform().')
+            'supported. Use Geometry.transform().')
       else:
         super().__init__(geo_json.func, geo_json.args, geo_json.varName)
         return
@@ -402,7 +402,7 @@ class Geometry(computedobject.ComputedObject):
     """Constructs an ee.Geometry describing a LineString.
 
     Args:
-      coords: A list of at least two points.  May be a list of coordinates in
+      coords: A list of at least two points. May be a list of coordinates in
           the GeoJSON 'LineString' format, a list of at least two ee.Geometry
           objects describing a point, or a list of at least four numbers
           defining the [x,y] coordinates of at least two points.
@@ -477,7 +477,7 @@ class Geometry(computedobject.ComputedObject):
     """Constructs an ee.Geometry describing a MultiLineString.
 
     Create a GeoJSON MultiLineString from either a list of points, or an array
-    of lines (each an array of Points).  If a list of points is specified,
+    of lines (each an array of Points). If a list of points is specified,
     only a single line is created.
 
     Args:
@@ -730,7 +730,7 @@ class Geometry(computedobject.ComputedObject):
     """Create a line from a list of points.
 
     Args:
-      coordinates: The points to convert.  Must be list of numbers of
+      coordinates: The points to convert. Must be list of numbers of
           even length, in the format [x1, y1, x2, y2, ...]
 
     Returns:

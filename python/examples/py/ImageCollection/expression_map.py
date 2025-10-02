@@ -1,7 +1,7 @@
 """Map an expression.
 
 Computes the mean NDVI and SAVI by mapping an expression over a collection
-and taking the mean.  This intentionally exercises both variants of
+and taking the mean. This intentionally exercises both variants of
 Image.expression.
 """
 

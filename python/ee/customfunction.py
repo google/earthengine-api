@@ -171,19 +171,19 @@ class CustomFunction(function.Function, encodable.Encodable):
       return CountNodes(expression['values'].values())
 
     # There are three function building phases, which each call body():
-    # 1 - Check Return.  The constructor verifies that body() returns a result,
+    # 1 - Check Return. The constructor verifies that body() returns a result,
     # but does not try to serialize the result. If the function tries to use
     # unbound variables (e.g., using .getInfo() or print()), ComputedObject will
     # throw an exception when these calls try to serialize themselves, so that
     # unbound variables are not passed in server calls.
-    # 2 - Count Functions.  We serialize the result here. At this point all
+    # 2 - Count Functions. We serialize the result here. At this point all
     # variables must have names for serialization to succeed, but we don't yet
     # know the correct function depth. So we serialize with unbound_name set to
     # '<unbound>', which should silently succeed. If this does end up in server
     # calls, the function is very unusual: the first call doesn't use unbound
     # variables but the second call does. In this rare case we will return
     # server errors complaining about <unbound>.
-    # 3 - Final Serialize.  Finally, the constructor calls body() with the
+    # 3 - Final Serialize. Finally, the constructor calls body() with the
     # correct, depth-dependent names, which are used when the CustomFunction
     # is serialized and sent to the server.
     serialized_body = serializer.encode(

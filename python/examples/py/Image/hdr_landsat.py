@@ -21,7 +21,7 @@ image = collection.mosaic().select('B3', 'B2', 'B1')
 # Display the image normally.
 ee.mapclient.addToMap(image, {'gain': '1.6, 1.4, 1.1'}, 'Land')
 
-# Add and stretch the water.  Once where the elevation is masked,
+# Add and stretch the water. Once where the elevation is masked,
 # and again where the elevation is zero.
 elev = ee.Image('CGIAR/SRTM90_V4')
 mask1 = elev.mask().eq(0).And(image.mask())

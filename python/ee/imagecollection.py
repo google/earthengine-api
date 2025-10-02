@@ -114,7 +114,7 @@ class ImageCollection(collection.Collection[image.Image]):
       selectors: An array of names, regexes or numeric indices specifying the
         bands to select.
       names: An array of strings specifying the new names for the selected
-        bands.  If supplied, the length must match the number of bands selected.
+        bands. If supplied, the length must match the number of bands selected.
       *args: Selector elements as varargs.
 
     Returns:
@@ -194,7 +194,7 @@ class ImageCollection(collection.Collection[image.Image]):
     """Get the URL for an animated video thumbnail of the given collection.
 
     Note: Videos can only be created when the image visualization
-    creates an RGB or RGBA image.  This can be done by mapping a visualization
+    creates an RGB or RGBA image. This can be done by mapping a visualization
     onto the collection or specifying three bands in the params.
 
     Args:
