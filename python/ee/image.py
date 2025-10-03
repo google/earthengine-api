@@ -430,8 +430,7 @@ class Image(element.Element):
       # pylint: enable=protected-access
       return band_image
 
-    if params['format'] == 'ZIPPED_GEO_TIFF_PER_BAND' and params.get(
-        'bands') and len(params.get('bands')):
+    if params['format'] == 'ZIPPED_GEO_TIFF_PER_BAND' and params.get('bands'):
       # Build a new image based on the constituent band images.
       image = Image.combine_(
           [_build_image_per_band(band) for band in params['bands']])
@@ -3579,7 +3578,6 @@ class Image(element.Element):
       # pylint: enable=invalid-name
       **kwargs,
   ) -> Image:
-    # pylint: disable=g-doc-args
     """Returns an image with the values of a band remapped.
 
     Maps from input values to output values, represented by two parallel lists.
@@ -3589,24 +3587,21 @@ class Image(element.Element):
     floating point precision errors.
 
     Args:
-      from: The source values (numbers or ee.Array). All values in this list
+      from_: The source values (numbers or ee.Array). All values in this list
         will be mapped to the corresponding value in 'to'.
       to: The destination values (numbers or ee.Array). These are used to
         replace the corresponding values in 'from'. Must have the same number of
-        values as 'from'.
+        values as 'from_'.
       defaultValue: The default value to replace values that weren't matched by
-        a value in 'from'. If not specified, unmatched values are masked out.
+        a value in 'from_'. If not specified, unmatched values are masked out.
       bandName: The name of the band to remap. If not specified, the first band
         in the image is used.
     """
-    # pylint: enable=g-doc-args
 
+    if 'from' in kwargs:
+      from_ = kwargs.pop('from')
     if kwargs:
-      if kwargs.keys() != {'from'}:
-        raise TypeError(
-            f'Unexpected arguments: {list(kwargs.keys())}. Expected: from.'
-        )
-      from_ = kwargs['from']
+      raise TypeError(f'remap() got unexpected keyword arguments: {list(kwargs)}')
 
     if not from_:
       raise TypeError('from is required.')
