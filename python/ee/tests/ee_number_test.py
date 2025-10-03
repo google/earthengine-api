@@ -50,7 +50,7 @@ class NumberTest(apitestcase.ApiTestCase):
     with self.assertRaisesRegex(
         ee.EEException, 'Invalid argument specified for ee.Number'
     ):
-      ee.Number('not a number')
+      ee.Number('not a number')  # pytype: disable=wrong-arg-types
 
   def test_abs(self):
     expect = make_expression_graph({
