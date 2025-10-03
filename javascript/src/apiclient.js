@@ -380,6 +380,9 @@ class BatchRequestService extends PromiseRequestService {
     if (authToken != null) {
       request.push('Authorization: ' + authToken);
     }
+    if (apiclient.userAgent_) {
+      request.push('User-Agent: ' + apiclient.userAgent_);
+    }
     const body = params.body ? JSON.stringify(params.body) : '';
     const message = `${request.join('\r\n')}\r\n\r\n${body}`;
     return /** @type {?} */([message, responseCtor]);
@@ -672,6 +675,24 @@ apiclient.setAppIdToken = function(token) {
 };
 
 
+/**
+ * Sets the user agent for API requests.
+ * @param {string} userAgent The user agent string.
+ */
+apiclient.setUserAgent = function(userAgent) {
+  apiclient.userAgent_ = userAgent;
+};
+
+
+/**
+ * Returns the user agent for API requests.
+ * @return {?string}
+ */
+apiclient.getUserAgent = function() {
+  return apiclient.userAgent_;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                Initialization.                             //
 ////////////////////////////////////////////////////////////////////////////////
@@ -835,6 +856,9 @@ apiclient.send = function(
   if (API_CLIENT_VERSION) {
     let version = API_CLIENT_VERSION;
     headers[apiclient.API_CLIENT_VERSION_HEADER] = 'ee-js/' + version;
+  }
+  if (apiclient.userAgent_) {
+    headers['User-Agent'] = apiclient.userAgent_;
   }
 
   // Set up client-side authorization.
@@ -1250,7 +1274,7 @@ apiclient.setupMockSend = function(calls) {
   // If it's a function, call the function and use its return value.
   // If it's an object it has fields specifying more details.
   // If there's nothing set for this url, throw.
-  function getResponse(url, method, data) {
+  function getResponse(url, method, data, headers) {
     url =
         url.replace(apiBaseUrl, '')
             .replace(
@@ -1263,7 +1287,7 @@ apiclient.setupMockSend = function(calls) {
       throw new Error(url + ' mock response not specified');
     }
     if (typeof response === 'function') {
-      response = response(url, method, data);
+      response = response(url, method, data, headers);
     }
     if (typeof response === 'string') {
       response = {
@@ -1284,9 +1308,9 @@ apiclient.setupMockSend = function(calls) {
   }
 
   // Mock XhrIo.send for async calls.
-  XhrIo.send = function(url, callback, method, data) {
+  XhrIo.send = function(url, callback, method, data, headers) {
     apiBaseUrl = apiBaseUrl || apiclient.apiBaseUrl_;
-    const responseData = getResponse(url, method, data);
+    const responseData = getResponse(url, method, data, headers);
     // An anonymous class to simulate an event.  Closure doesn't like this.
     /** @constructor */
     const fakeEvent = function() {
@@ -1321,13 +1345,16 @@ apiclient.setupMockSend = function(calls) {
     /** @type {string} */ this.contentType_;
     /** @type {string} */ this.responseText;
     /** @type {number} */ this.status;
+    /** @type {!Object<string, string>} */ this.requestHeaders_ = {};
   };
   fakeXmlHttp.prototype.open = function(method, urlIn) {
     apiBaseUrl = apiBaseUrl || apiclient.apiBaseUrl_;
     this.url = urlIn;
     this.method = method;
   };
-  fakeXmlHttp.prototype.setRequestHeader = function() {};
+  fakeXmlHttp.prototype.setRequestHeader = function(key, value) {
+    this.requestHeaders_[key] = value;
+  };
   fakeXmlHttp.prototype.getResponseHeader = function(header) {
     if (header === 'Content-Type') {
       return this.contentType_ || null;
@@ -1336,7 +1363,8 @@ apiclient.setupMockSend = function(calls) {
     }
   };
   fakeXmlHttp.prototype.send = function(data) {
-    const responseData = getResponse(this.url, this.method, data);
+    const responseData =
+        getResponse(this.url, this.method, data, this.requestHeaders_);
     this.responseText = responseData.text;
     this.status = typeof responseData.status === 'function' ?
         responseData.status() :
@@ -1480,6 +1508,13 @@ apiclient.xsrfToken_ = null;
  * @private {?string}
  */
 apiclient.appIdToken_ = null;
+
+
+/**
+ * A string to pass as User-Agent header in XHRs.
+ * @private {?string}
+ */
+apiclient.userAgent_ = null;
 
 
 /**
@@ -1781,6 +1816,8 @@ exports.setAuthToken = apiclient.setAuthToken;
 exports.clearAuthToken = apiclient.clearAuthToken;
 exports.setAuthTokenRefresher = apiclient.setAuthTokenRefresher;
 exports.setAppIdToken = apiclient.setAppIdToken;
+exports.setUserAgent = apiclient.setUserAgent;
+exports.getUserAgent = apiclient.getUserAgent;
 exports.mergeAuthScopes = apiclient.mergeAuthScopes_;
 
 exports.setupMockSend = apiclient.setupMockSend;
