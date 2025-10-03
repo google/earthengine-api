@@ -514,6 +514,13 @@ def authenticate(
      Exception: on invalid arguments.
   """
 
+  if auth_mode == 'colab' and scopes is not None and set(scopes) != set(SCOPES):
+    raise ee_exception.EEException(
+        'Scopes cannot be customized when auth_mode is "colab". Please see'
+        ' https://developers.google.com/earth-engine/guides/auth#quick_reference_guide_and_table'
+        ' for more information.'
+    )
+
   if cli_authorization_code:
     _obtain_and_write_token(cli_authorization_code, cli_code_verifier, scopes)
     return

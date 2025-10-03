@@ -8,6 +8,7 @@ from unittest import mock
 import urllib.parse
 
 import unittest
+from ee import ee_exception
 from ee import oauth
 
 
@@ -76,6 +77,24 @@ class OAuthTest(unittest.TestCase):
             mock.MagicMock(client_id=f'{sdk_project}-somethingelse')
         )
     )
+
+  def testAuthenticate_colabAuthModeWithNonstandardScopes_raisesException(self):
+    with self.assertRaisesRegex(
+        ee_exception.EEException,
+        'Scopes cannot be customized when auth_mode is "colab".'
+    ):
+      oauth.authenticate(
+          auth_mode='colab',
+          scopes=['https://www.googleapis.com/auth/earthengine.readonly']
+      )
+
+  def testAuthenticate_colabAuthModeWithStandardScopes_succeeds(self):
+    # Should not raise an exception if the scopes are not narrowed.
+    with mock.patch.dict(sys.modules, {'google.colab': mock.MagicMock()}):
+      try:
+        oauth.authenticate(auth_mode='colab', scopes=oauth.SCOPES)
+      except ee_exception.EEException:
+        self.fail('authenticate raised an exception unexpectedly.')
 
 if __name__ == '__main__':
   unittest.main()
