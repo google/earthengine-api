@@ -691,7 +691,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
       1) A geoJSON object.
       2) A not-computed geometry.
       3) A not-computed geometry with overrides.
-      4) A computed geometry.
+      4) A computed geometry with no overrides.
       5) something to cast to geometry.
     """
     line = ee.Geometry.LineString(1, 2, 3, 4)
@@ -728,6 +728,25 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     geom = ee.Geometry(computed)
     self.assertEqual(computed.func, geom.func)
     self.assertEqual(computed.args, geom.args)
+
+  @parameterized.named_parameters(
+      ('_proj', {'proj': 'some-proj'}),
+      ('_geodesic', {'geodesic': False}),
+      ('_geodesic_true', {'geodesic': True}),
+      ('_evenOdd', {'evenOdd': False}),
+      ('_evenOdd_true', {'evenOdd': True}),
+  )
+  def test_constructor_error_for_computed_geometry_with_overrides(self, kwargs):
+    """Verifies that Geometry raises for computed geometries with overrides."""
+    computed_geometry = ee.Geometry.Polygon(
+        coords=[[[-35, -10], [-35, 10], [35, 10], [35, -10], [-35, -10]]],
+        geodesic=True,
+    )
+    with self.assertRaisesRegex(
+        AttributeError,
+        "'Geometry' object has no attribute '_type'",
+    ):
+      ee.Geometry(computed_geometry, **kwargs)
 
   def test_computed_geometries(self):
     """Verifies the computed object behavior of the Geometry constructor."""
