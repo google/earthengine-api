@@ -266,6 +266,10 @@ ee.data.getAuthScopes = ee.apiclient.getAuthScopes;
 goog.exportSymbol('ee.data.getAuthScopes', ee.data.getAuthScopes);
 ee.data.setDeadline = ee.apiclient.setDeadline;
 goog.exportSymbol('ee.data.setDeadline', ee.data.setDeadline);
+ee.data.setUserAgent = ee.apiclient.setUserAgent;
+goog.exportSymbol('ee.data.setUserAgent', ee.data.setUserAgent);
+ee.data.getUserAgent = ee.apiclient.getUserAgent;
+goog.exportSymbol('ee.data.getUserAgent', ee.data.getUserAgent);
 
 // The following symbol is exported because it is used in the Code Editor, much
 // like ee.data.setExpressionAugmenter above is.
