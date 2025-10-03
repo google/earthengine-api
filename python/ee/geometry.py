@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import collections.abc
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 import json
 import math
 from typing import Any
@@ -647,7 +646,7 @@ class Geometry(computedobject.ComputedObject):
       )
     return json.dumps(self.toGeoJSON())
 
-  def serialize(self, for_cloud_api=True):
+  def serialize(self, for_cloud_api: bool = True) -> str:
     """Returns the serialized representation of this object."""
     return serializer.toJSON(self, for_cloud_api=for_cloud_api)
 
@@ -702,10 +701,10 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       The number of nested arrays or -1 on error.
     """
-    if not isinstance(shape, collections.abc.Iterable):
+    if not isinstance(shape, Iterable):
       return -1
 
-    if (shape and isinstance(shape[0], collections.abc.Iterable) and
+    if (shape and isinstance(shape[0], Iterable) and
         not isinstance(shape[0], str)):
       count = Geometry._isValidCoordinates(shape[0])
       # If more than 1 ring or polygon, they should have the same nesting.
