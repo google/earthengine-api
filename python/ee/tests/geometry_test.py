@@ -743,8 +743,8 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
         geodesic=True,
     )
     with self.assertRaisesRegex(
-        AttributeError,
-        "'Geometry' object has no attribute '_type'",
+        ee.EEException,
+        'Setting the CRS or geodesic on a computed Geometry is not supported.',
     ):
       ee.Geometry(computed_geometry, **kwargs)
 

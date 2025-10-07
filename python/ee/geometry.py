@@ -73,10 +73,11 @@ class Geometry(computedobject.ComputedObject):
     self.initialize()
 
     # pylint: disable-next=protected-access
+    has_resolved_geometry_type = getattr(geo_json, '_type', None) is not None
     computed = isinstance(geo_json, computedobject.ComputedObject) and not (
-        isinstance(geo_json, Geometry) and geo_json._type is not None
+        isinstance(geo_json, Geometry) and has_resolved_geometry_type
     )
-    options = proj or geodesic or evenOdd
+    options = proj is not None or geodesic is not None or evenOdd is not None
     if computed:
       if options:
         raise ee_exception.EEException(
