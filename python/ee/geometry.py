@@ -43,6 +43,9 @@ class Geometry(computedobject.ComputedObject):
   ):
     """Creates a geometry.
 
+    Note that a creating a Geometry from a ComputedObject cannot have have any
+    overrides from the arguments proj, geodesic, or evenOdd.
+
     Args:
       geo_json: The GeoJSON object describing the geometry or a computed object
         to be reinterpred as a Geometry. Supports CRS specifications as per the
@@ -56,8 +59,8 @@ class Geometry(computedobject.ComputedObject):
       geodesic: Whether line segments should be interpreted as spherical
         geodesics. If false, indicates that line segments should be interpreted
         as planar lines in the specified CRS. If absent, defaults to true if the
-        CRS is geographic (including the default
-          EPSG:4326), or to false if the CRS is projected.
+        CRS is geographic (including the default EPSG:4326), or to false if the
+        CRS is projected.
       evenOdd: If true, polygon interiors will be determined by the even/odd
         rule, where a point is inside if it crosses an odd number of edges to
         reach a point at infinity. Otherwise polygons use the left-inside rule,
