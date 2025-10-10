@@ -40,8 +40,7 @@ class Projection(computedobject.ComputedObject):
         ),
     )
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,

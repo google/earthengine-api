@@ -26,8 +26,7 @@ class Model(computedobject.ComputedObject):
     - https://developers.google.com/earth-engine/guides/machine-learning
     - https://developers.google.com/earth-engine/guides/tensorflow-vertex
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(self, model: computedobject.ComputedObject):
     """Creates a Model wrapper.
