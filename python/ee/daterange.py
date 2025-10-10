@@ -24,8 +24,7 @@ class DateRange(computedobject.ComputedObject):
 
     ee.DateRange.unbounded()
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,

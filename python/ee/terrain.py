@@ -8,8 +8,7 @@ from ee import image as ee_image
 
 class Terrain:
   """A namespace for Terrain Algorithms."""
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(self):
     raise RuntimeError(

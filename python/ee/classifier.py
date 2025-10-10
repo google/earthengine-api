@@ -16,8 +16,7 @@ class Classifier(computedobject.ComputedObject):
   Example:
     # https://developers.google.com/earth-engine/guides/classification
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(self, classifier: computedobject.ComputedObject):
     """Creates a Classifier wrapper.

@@ -31,8 +31,7 @@ class ErrorMargin(computedobject.ComputedObject):
     ee.ErrorMargin(1, 'infinite')  # unit: infinite
     ee.ErrorMargin(value=2, unit='meters')  # unit: meters, value: 2
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,
