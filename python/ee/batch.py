@@ -308,6 +308,7 @@ class Export:
         crsTransform=None,
         maxPixels=None,
         priority=None,
+        overwrite=False,
         **kwargs,
     ) -> Task:
       """Creates a task to export an EE Image to an EE Asset.
@@ -344,6 +345,7 @@ class Export:
         priority: The priority of the task within the project. Higher priority
           tasks are scheduled sooner. Must be an integer between 0 and 9999.
           Defaults to 100.
+        overwrite: If an existing asset can be overwritten by this export.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -739,6 +741,7 @@ class Export:
         assetId=None,
         maxVertices=None,
         priority=None,
+        overwrite=False,
         **kwargs,
     ) -> Task:
       """Creates a task to export a FeatureCollection to an EE table asset.
@@ -753,6 +756,7 @@ class Export:
         priority: The priority of the task within the project. Higher priority
           tasks are scheduled sooner. Must be an integer between 0 and 9999.
           Defaults to 100.
+        overwrite: If an existing asset can be overwritten by this export.
         **kwargs: Holds other keyword arguments that may have been deprecated.
 
       Returns:
@@ -763,6 +767,7 @@ class Export:
           'assetId': assetId,
           'maxVertices': maxVertices,
           'priority': priority,
+          'overwrite': overwrite,
       }
       config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
@@ -1738,6 +1743,8 @@ def _build_earth_engine_destination(config: dict[str, Any]) -> dict[str, Any]:
       'name':
           _cloud_api_utils.convert_asset_id_to_asset_name(
               config.pop('assetId')),
+      'overwrite':
+          config.pop('overwrite', False)
   }
 
 
