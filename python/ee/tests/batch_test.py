@@ -225,6 +225,19 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertTrue(export_args[1]['body']['requestId'])
       self.assertEqual(export_args[1]['body']['description'], 'bar')
 
+  @mock.patch.object(data, 'exportMap')
+  def test_task_start_export_map_cloud_api(self, export_map_mock):
+    """Verifies that Task.start() calls exportMap appropriately."""
+    export_map_mock.return_value = {
+        'name': 'projects/earthengine-legacy/operations/foo',
+        'metadata': {},
+    }
+    with apitestcase.UsingCloudApi(cloud_api_resource=mock.MagicMock()):
+      task = ee.batch.Export.map.toCloudStorage(ee.Image(1), bucket='bar')
+      task.start()
+      export_map_mock.assert_called_once()
+      self.assertEqual(task.id, 'foo')
+
   def test_task_cancel_cloud_api(self):
     mock_cloud_api_resource = mock.MagicMock()
     mock_cloud_api_resource.projects().operations().list().execute.return_value = {
