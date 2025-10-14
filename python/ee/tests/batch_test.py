@@ -138,6 +138,14 @@ class TaskTest(unittest.TestCase):
     ):
       self.assertFalse(task.active())
 
+  def test_success(self):
+    self.assertTrue(batch.Task.State.success(batch.Task.State.COMPLETED))
+    self.assertTrue(batch.Task.State.success('COMPLETED'))
+    for state in batch.Task.State:
+      if state != batch.Task.State.COMPLETED:
+        self.assertFalse(batch.Task.State.success(state))
+        self.assertFalse(batch.Task.State.success(state.value))
+
   def test_repr_without_config(self):
     task = batch.Task('an id', 'a task type', 'a state')
     self.assertEqual('<Task "an id">', task.__repr__())
