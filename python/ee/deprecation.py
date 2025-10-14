@@ -204,6 +204,11 @@ def _IssueAssetDeprecationWarning(asset: DeprecatedAsset) -> None:
       formatted_date = removal_date.strftime('%B %d, %Y').replace(' 0', ' ')
       warning += f' by {formatted_date}'
   warning += '.'
+  if asset.replacement_id:
+    warning = (
+        warning
+        + f'\nThis dataset has been superseded by {asset.replacement_id}\n'
+    )
   if asset.learn_more_url:
     warning = warning + f'\nLearn more: {asset.learn_more_url}\n'
   warnings.warn(warning, category=DeprecationWarning)

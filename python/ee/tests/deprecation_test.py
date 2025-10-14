@@ -100,7 +100,8 @@ _EXPECTED_WARNINGS = {
         r'Attention required for date_and_learn_more! You are using a'
         r' deprecated asset.\nTo make sure your code keeps working, please'
         r' update'
-        r' it by July 1, 2024.\nLearn more: learn_more_url'
+        r' it by July 1, 2024.\nThis dataset has been superseded by'
+        r' replacement_id\n\nLearn more: learn_more_url'
     ),
     'date_only': (
         r'Attention required for date_only! You are using a deprecated asset.\n'
@@ -124,7 +125,8 @@ _EXPECTED_WARNINGS = {
         r'Attention required for learn_more_url_only! You are using a'
         r' deprecated asset.\nTo make sure your code keeps working, please'
         r' update'
-        r' it.\nLearn more: learn_more_url'
+        r' it.\nThis dataset has been superseded by replacement_id\n\nLearn'
+        r' more: learn_more_url'
     ),
 }
 
