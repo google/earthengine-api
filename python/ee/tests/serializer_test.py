@@ -284,6 +284,32 @@ class SerializerTest(apitestcase.ApiTestCase):
     self.assertIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=True))
     self.assertNotIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=False))
 
+  def test_datetime_serialization_legacy(self):
+    a_date = datetime.datetime(2014, 8, 10, tzinfo=datetime.timezone.utc)
+    # 1407628800000000 microseconds.
+    expected = {
+        'type': 'CompoundValue',
+        'scope': [],
+        'value': {
+            'type': 'Invocation',
+            'functionName': 'Date',
+            'arguments': {'value': 1407628800000.0},
+        },
+    }
+    self.assertEqual(expected, serializer.encode(a_date, for_cloud_api=False))
+
+  def test_single_value_no_compound(self):
+    """Verifies serialization of a single non-primitive value."""
+    self.assertEqual([1], serializer.encode([1], for_cloud_api=False))
+
+  def test_unencodable_object(self):
+    class Unencodable:
+      pass
+    with self.assertRaisesRegex(ee.EEException, 'Cannot encode object: .*'):
+      serializer.encode(Unencodable(), for_cloud_api=False)
+    with self.assertRaisesRegex(ee.EEException, 'Cannot encode object: .*'):
+      serializer.encode(Unencodable(), for_cloud_api=True)
+
 
 if __name__ == '__main__':
   unittest.main()
