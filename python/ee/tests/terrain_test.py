@@ -141,6 +141,14 @@ class TerrainTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_init(self):
+    message = r'Terrain should not be used as an object.*'
+    with self.assertRaisesRegex(RuntimeError, message):
+      ee.Terrain()
+
+  def test_name(self):
+    self.assertEqual('Terrain', ee.Terrain.name())
+
 
 if __name__ == '__main__':
   unittest.main()

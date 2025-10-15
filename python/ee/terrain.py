@@ -13,7 +13,7 @@ class Terrain:
 
   def __init__(self):
     raise RuntimeError(
-        self.__name__
+        self.__class__.__name__
         + ' should not be used as an object. Only direct usage of Terrain'
         ' static methods is allowed. For example, use this: '
         ' `ee.Terrain.aspect(...)`'
