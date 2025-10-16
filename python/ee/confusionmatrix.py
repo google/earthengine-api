@@ -25,8 +25,7 @@ class ConfusionMatrix(computedobject.ComputedObject):
                        [ 0, 0, 0,  1,  0, 5]])
     ee.ConfusionMatrix(matrix)
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,

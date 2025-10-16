@@ -47,8 +47,7 @@ class PixelType(computedobject.ComputedObject):
     print(pixeltype.dimensions().getInfo())
     # 3
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,

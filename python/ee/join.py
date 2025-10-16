@@ -24,8 +24,7 @@ class Join(computedobject.ComputedObject):
     join = ee.Join.simple()
     joined = join.apply(fc1, fc2, a_filter)
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,

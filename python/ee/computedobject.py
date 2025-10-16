@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any, Callable, ClassVar
 
 from ee import _utils
 from ee import data
@@ -55,7 +55,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
   _HAS_DYNAMIC_ATTRIBUTES: bool = True
 
   # False until the client has initialized the dynamic attributes.
-  _initialized: bool
+  _initialized: ClassVar[bool]
 
   @_utils.accept_opt_prefix('opt_varName')
   def __init__(
