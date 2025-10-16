@@ -369,6 +369,10 @@ ee.promote_ = function(arg, klass) {
     return undefined;
   }
 
+  if (typeof klass != 'string') {  // b/451628586
+    throw Error('Unexpected type: ' + Object.prototype.toString.call(klass));
+  }
+
   const exportedEE = goog.global['ee'];
 
   switch (klass) {
