@@ -115,6 +115,12 @@ class ModelTest(apitestcase.ApiTestCase):
     }
     self.assertEqual(expect, result)
 
+  def test_model_constructor_invalid(self):
+    with self.assertRaisesRegex(
+        TypeError, 'Model constructor can only cast to Model.'
+    ):
+      ee.Model('not a computed object')  # pytype: disable=wrong-arg-types
+
   def test_from_ai_platform_predictor(self):
     project_name = 'some project'
     project_id = 'a project id'
