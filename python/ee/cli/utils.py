@@ -206,7 +206,7 @@ class GcsHelper:
     """Uploads a directory to cloud storage."""
     canonical_path = _canonicalize_dir_path(source_path)
 
-    files = list()
+    files = []
     for dirpath, _, filenames in os.walk(canonical_path):
       files += [os.path.join(dirpath, f) for f in filenames]
 
