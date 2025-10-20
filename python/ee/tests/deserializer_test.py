@@ -80,6 +80,53 @@ class DeserializerTest(apitestcase.ApiTestCase):
     ):
       deserializer.decode(encoded)
 
+  def test_duplicate_scope_key(self):
+    """Verifies raising duplicate scope key in decode()."""
+    encoded = {
+        'type': 'CompoundValue',
+        'scope': [['a', 1], ['a', 2]],
+        'value': 3,
+    }
+    with self.assertRaisesRegex(
+        ee.EEException, 'Duplicate scope key "a" in scope #1.'
+    ):
+      deserializer.decode(encoded)
+
+  def test_cannot_decode_object(self):
+    """Verifies raising EEException for non-dict objects in _decodeValue()."""
+    with self.assertRaisesRegex(
+        ee.EEException, r'Cannot decode object: \(1\+1j\)'
+    ):
+      deserializer.decode([1 + 1j])
+
+  def test_invalid_date_value(self):
+    """Verifies EEException for invalid date values in _decodeValue()."""
+    with self.assertRaisesRegex(
+        ee.EEException, r'Invalid date value: not-a-number'
+    ):
+      deserializer.decode({'type': 'Date', 'value': 'not-a-number'})
+
+  def test_invocation_of_custom_function(self):
+    """Verifies decoding of an Invocation of a CustomFunction."""
+    encoded = {
+        'type': 'Invocation',
+        'function': {
+            'type': 'Function',
+            'argumentNames': ['foo'],
+            'body': {'type': 'ArgumentRef', 'value': 'foo'},
+        },
+        'arguments': {'foo': 1},
+    }
+    decoded = deserializer.decode(encoded)
+    self.assertIsInstance(decoded, ee.ComputedObject)
+
+  def test_date_decode(self):
+    """Verifies decoding of a Date."""
+    encoded = {'type': 'Date', 'value': 1609459200000000}
+    decoded = deserializer.decode(encoded)
+    self.assertIsInstance(decoded, ee.Date)
+    self.assertEqual({'value': 1609459200000}, decoded.args)
+
 
 if __name__ == '__main__':
   unittest.main()

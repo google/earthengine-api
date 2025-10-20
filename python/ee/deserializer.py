@@ -76,7 +76,7 @@ def _decodeValue(json_obj: Any, named_values: dict[str, Any]) -> Any:
 
   # Ensure that we've got a proper object at this point.
   if not isinstance(json_obj, dict):
-    raise ee_exception.EEException('Cannot decode object: ' + json_obj)
+    raise ee_exception.EEException(f'Cannot decode object: {json_obj}')
 
   # Check for explicitly typed values.
   type_name = json_obj['type']
@@ -88,12 +88,12 @@ def _decodeValue(json_obj: Any, named_values: dict[str, Any]) -> Any:
   elif type_name == 'ArgumentRef':
     var_name = json_obj['value']
     if not isinstance(var_name, str):
-      raise ee_exception.EEException('Invalid variable name: ' + var_name)
-    return customfunction.CustomFunction.variable(None, var_name)  # pylint: disable=protected-access
+      raise ee_exception.EEException(f'Invalid variable name: {var_name}')
+    return customfunction.CustomFunction.variable(None, var_name)
   elif type_name == 'Date':
     microseconds = json_obj['value']
     if not isinstance(microseconds, (float, int)):
-      raise ee_exception.EEException('Invalid date value: ' + microseconds)
+      raise ee_exception.EEException(f'Invalid date value: {microseconds}')
     return ee_date.Date(microseconds / 1e3)
   elif type_name == 'Bytes':
     result = encodable.Encodable()
@@ -131,7 +131,7 @@ def _decodeValue(json_obj: Any, named_values: dict[str, Any]) -> Any:
   elif type_name == 'CompoundValue':
     raise ee_exception.EEException('Nested CompoundValues are disallowed.')
   else:
-    raise ee_exception.EEException('Unknown encoded object type: ' + type_name)
+    raise ee_exception.EEException(f'Unknown encoded object type: {type_name}')
 
 
 def _invocation(func: Any, args: dict[str, Any]) -> Any:
@@ -150,7 +150,7 @@ def _invocation(func: Any, args: dict[str, Any]) -> Any:
         'returns': 'ComputedObject'
     }
     return function.SecondOrderFunction(func, signature).apply(args)
-  raise ee_exception.EEException('Invalid function value: %s' % func)
+  raise ee_exception.EEException(f'Invalid function value: {func}')
 
 
 def fromCloudApiJSON(json_obj: Union[str, bytes]) -> Any:  # pylint: disable=g-bad-name
