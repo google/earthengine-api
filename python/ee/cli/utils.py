@@ -197,7 +197,7 @@ class GcsHelper:
       if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
-      if output_path[-1:] != '/':
+      if not output_path.endswith('/'):
         blob.download_to_filename(output_path)
 
     return temp_dir
@@ -206,7 +206,7 @@ class GcsHelper:
     """Uploads a directory to cloud storage."""
     canonical_path = _canonicalize_dir_path(source_path)
 
-    files = list()
+    files = []
     for dirpath, _, filenames in os.walk(canonical_path):
       files += [os.path.join(dirpath, f) for f in filenames]
 
@@ -224,7 +224,7 @@ def is_gcs_path(path: str) -> bool:
 
 
 def query_yes_no(msg: str) -> bool:
-  print('%s (y/n)' % msg)
+  print(f'{msg} (y/n)')
   while True:
     confirm = input().lower()
     if confirm == 'y':
@@ -264,10 +264,9 @@ def wait_for_task(
     state = status['metadata']['state']
     if status.get('done', False):
       error_message = status.get('error', {}).get('message')
-      print('Task %s ended at state: %s after %.2f seconds'
-            % (task_id, state, elapsed))
+      print(f'Task {task_id} ended at state: {state} after {elapsed:.2f} seconds')
       if error_message:
-        raise ee.ee_exception.EEException('Error: %s' % error_message)
+        raise ee.ee_exception.EEException(f'Error: {error_message}')
       return
     if log_progress and elapsed - last_check >= 30:
       print('[{:%H:%M:%S}] Current state for task {}: {}'
@@ -309,17 +308,20 @@ def wait_for_tasks(
   status_counts = collections.defaultdict(int)
   for status in status_list:
     status_counts[status] += 1
+  succeeded = status_counts['SUCCEEDED']
+  failed = status_counts['FAILED']
+  cancelled = status_counts['CANCELLED']
   num_incomplete = (
       len(status_list)
-      - status_counts['SUCCEEDED']
-      - status_counts['FAILED']
-      - status_counts['CANCELLED']
+      - succeeded
+      - failed
+      - cancelled
   )
   print('Finished waiting for tasks.\n  Status summary:')
-  print('  %d tasks completed successfully.' % status_counts['SUCCEEDED'])
-  print('  %d tasks failed.' % status_counts['FAILED'])
-  print('  %d tasks cancelled.' % status_counts['CANCELLED'])
-  print('  %d tasks are still incomplete (timed-out)' % num_incomplete)
+  print(f'  {succeeded} tasks completed successfully.')
+  print(f'  {failed} tasks failed.')
+  print(f'  {cancelled} tasks cancelled.')
+  print(f'  {num_incomplete} tasks are still incomplete (timed-out)')
 
 
 def expand_gcs_wildcards(source_files: list[str]) -> Iterable[str]:
@@ -351,7 +353,7 @@ def expand_gcs_wildcards(source_files: list[str]) -> Iterable[str]:
       bucket, rest = bucket_match.group(1, 2)
     else:
       raise ee.ee_exception.EEException(
-          'Badly formatted source file or bucket: %s' % source)
+          f'Badly formatted source file or bucket: {source}')
     prefix = rest[:rest.find('*')]  # Everything before the first wildcard
 
     bucket_files = _gcs_ls(bucket, prefix)
@@ -395,23 +397,23 @@ def _gcs_ls(bucket: str, prefix: str = '') -> Iterable[str]:
     try:
       response, content = http.request(url, method=method)
     except httplib2.HttpLib2Error as e:
-      raise ee.ee_exception.EEException('Unexpected HTTP error: %s' % str(e))
+      raise ee.ee_exception.EEException(f'Unexpected HTTP error: {e}') from e
 
     if response.status < 100 or response.status >= 300:
       raise ee.ee_exception.EEException(
-          'Error retrieving bucket %s; Server returned HTTP code: %d'
-          % (bucket, response.status)
+          f'Error retrieving bucket {bucket}; '
+          f'Server returned HTTP code: {response.status}'
       )
 
     json_content = json.loads(content)
     if 'error' in json_content:
       json_error = json_content['error']['message']
-      raise ee.ee_exception.EEException('Error retrieving bucket %s: %s' %
-                                        (bucket, json_error))
+      raise ee.ee_exception.EEException(
+          f'Error retrieving bucket {bucket}: {json_error}')
 
     if 'items' not in json_content:
       raise ee.ee_exception.EEException(
-          'Cannot find items list in the response from GCS: %s' % json_content)
+          f'Cannot find items list in the response from GCS: {json_content}')
     objects = json_content['items']
     object_names = [str(gc_object['name']) for gc_object in objects]
 
