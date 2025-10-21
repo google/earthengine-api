@@ -287,6 +287,10 @@ class KernelTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_fixed_no_weights(self):
+    with self.assertRaisesRegex(ValueError, 'weights is required.'):
+      ee.Kernel.fixed()
+
   def test_gaussian(self):
     radius = 1.1
     sigma = 2.2
