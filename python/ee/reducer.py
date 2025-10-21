@@ -465,8 +465,10 @@ class Reducer(computedobject.ComputedObject):
 
   def group(
       self,
+      # pylint: disable=invalid-name
       groupField: _arg_types.Integer | None = None,
       groupName: _arg_types.String | None = None,
+      # pylint: enable=invalid-name
   ) -> Reducer:
     """Returns a reducer groups reducer records by the value of a given input.
 

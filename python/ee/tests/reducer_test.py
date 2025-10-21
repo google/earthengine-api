@@ -809,6 +809,19 @@ class ReducerTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_ridge_regression_kwargs_with_lambda(self):
+    with self.assertRaisesRegex(
+        ValueError, 'lambda_ cannot be set when providing kwargs.'
+    ):
+      ee.Reducer.ridgeRegression(1, lambda_=3, **{'lambda': 4})
+
+  def test_ridge_regression_unexpected_kwargs(self):
+    with self.assertRaisesRegex(
+        ValueError,
+        r"Unexpected arguments: \['unexpected'\]\. Expected: lambda.",
+    ):
+      ee.Reducer.ridgeRegression(1, unexpected=4)
+
   def test_robust_linear_regression(self):
     num_x = 1
     num_y = 2
