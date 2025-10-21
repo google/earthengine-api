@@ -128,7 +128,7 @@ def _comma_separated_strings(string: str) -> list[str]:
   """Parses an input consisting of comma-separated strings."""
   error_msg = 'Argument should be a comma-separated list of strings: {}'
   values = string.split(',')
-  if not values:
+  if not all(values):
     raise argparse.ArgumentTypeError(error_msg.format(string))
   return values
 
@@ -137,7 +137,7 @@ def _comma_separated_numbers(string: str) -> list[float]:
   """Parses an input consisting of comma-separated numbers."""
   error_msg = 'Argument should be a comma-separated list of numbers: {}'
   values = string.split(',')
-  if not values:
+  if not all(values):
     raise argparse.ArgumentTypeError(error_msg.format(string))
   numbervalues = []
   for value in values:
@@ -155,9 +155,9 @@ def _comma_separated_numbers(string: str) -> list[float]:
 def _comma_separated_pyramiding_policies(string: str) -> list[str]:
   """Parses an input consisting of comma-separated pyramiding policies."""
   error_msg = ('Argument should be a comma-separated list of: '
-               '{{"mean", "sample", "min", "max", "mode"}}: {}')
+               '{{"mean", "median", "sample", "min", "max", "mode"}}: {}')
   values = string.split(',')
-  if not values:
+  if not all(values):
     raise argparse.ArgumentTypeError(error_msg.format(string))
   redvalues = []
   for value in values:
