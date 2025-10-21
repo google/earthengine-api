@@ -15,8 +15,7 @@ class Kernel(computedobject.ComputedObject):
     # Chebyshev kernel
     ee.Kernel.chebyshev(radius=3)
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(self, kernel: computedobject.ComputedObject):
     """Creates a Kernel wrapper.

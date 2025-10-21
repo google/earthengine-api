@@ -20,8 +20,7 @@ class Reducer(computedobject.ComputedObject):
     result = fc.reduceColumns(reducer, ['label']).get('list')
     print(result.getInfo())
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,

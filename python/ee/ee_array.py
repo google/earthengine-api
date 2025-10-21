@@ -30,8 +30,7 @@ class Array(computedobject.ComputedObject):
     # Lists are useful ways to construct larger Arrays.
     ee.Array(ee.List.sequence(0, 10, 2)); value: [0, 2, 4, 6, 8, 10]
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,

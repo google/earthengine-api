@@ -26,8 +26,7 @@ class Clusterer(computedobject.ComputedObject):
     # Cluster the input using the trained clusterer.
     result = input_img.cluster(clusterer)
   """
-
-  _initialized: bool = False
+  _initialized = False
 
   def __init__(
       self,
