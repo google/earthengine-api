@@ -145,7 +145,10 @@ class CommandLineConfig:
 
 
 def _split_gcs_path(path):
-  m = re.search('gs://([a-z0-9-_.]*)/(.*)', path, re.IGNORECASE)
+  # This only catches some troubles. For complete details on naming, see:
+  #   https://cloud.google.com/storage/docs/buckets
+  #   https://cloud.google.com/storage/docs/objects#naming
+  m = re.search('gs://([a-z0-9][a-z0-9-_.]*)/(.*)', path, re.IGNORECASE)
   if not m:
     raise ValueError(f"'{path}' is not a valid GCS path")
 
