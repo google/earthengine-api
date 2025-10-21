@@ -226,10 +226,6 @@ def _format_cloud_timestamp(timestamp: str | None) -> str:
   return _datetime_from_cloud_timestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 
-def _parse_millis(millis: float) -> datetime.datetime:
-  return datetime.datetime.fromtimestamp(millis / 1000)
-
-
 def _decode_date(string: str) -> Union[float, str]:
   """Decodes a date from a command line argument, returning msec since epoch".
 
