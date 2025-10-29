@@ -677,10 +677,15 @@ apiclient.setAppIdToken = function(token) {
 
 /**
  * Sets the user agent for API requests.
- * @param {string} userAgent The user agent string.
+ * @param {string} userAgent The user agent. This will be converted to a string
+ *    and sanitized.
  */
 apiclient.setUserAgent = function(userAgent) {
-  apiclient.userAgent_ = userAgent;
+  if (userAgent == null) {
+    apiclient.userAgent_ = null;
+  } else {
+    apiclient.userAgent_ = String(userAgent).replace(/[\r\n]/g, '');
+  }
 };
 
 
