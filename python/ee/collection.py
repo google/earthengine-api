@@ -204,7 +204,7 @@ class Collection(Generic[ElementType], element.Element):
 
   # pylint: disable-next=redefined-builtin
   def aggregate_product(self, property: _arg_types.String) -> ee_number.Number:
-    """Returns the product of the values ofthe selected property.
+    """Returns the product of the values of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
     the product of the values of the selected property.
