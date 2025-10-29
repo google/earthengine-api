@@ -795,7 +795,21 @@ class NumberTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # TODO: test_parse.
+  def test_parse(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'input': {'constantValue': '1'},
+            'radix': {'constantValue': 2},
+        },
+        'functionName': 'Number.parse',
+    })
+    expression = ee.Number.parse('1', 2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Number.parse(input='1', radix=2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_pow(self):
     expect = make_expression_graph({

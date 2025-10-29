@@ -586,9 +586,9 @@ class Number(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.or', self, right)
 
+  @staticmethod
   def parse(
-      # pylint: disable=redefined-builtin
-      input: _arg_types.String,
+      input: _arg_types.String,  # pylint: disable=redefined-builtin
       radix: _arg_types.Integer | None = None,
   ) -> Number:
     """Returns a number from a string.
