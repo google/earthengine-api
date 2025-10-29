@@ -396,6 +396,31 @@ class NumberTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_expression(self):
+    expression = ee.Number.expression('1 + 2')
+    self.assertIsInstance(expression, ee.Number)
+    self.assertEqual(
+        ee.ApiFunction.lookup('Number.expression'), expression.func
+    )
+
+    expect = make_expression_graph({
+        'arguments': {'expression': {'constantValue': '1 + 2'}},
+        'functionName': 'Number.expression',
+    })
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression_vars = ee.Number.expression('a + b', {'a': 1, 'b': 2})
+    expect_vars = make_expression_graph({
+        'arguments': {
+            'expression': {'constantValue': 'a + b'},
+            'vars': {'constantValue': {'a': 1, 'b': 2}},
+        },
+        'functionName': 'Number.expression',
+    })
+    result_vars = json.loads(expression_vars.serialize())
+    self.assertEqual(expect_vars, result_vars)
+
   def test_first(self):
     expect = make_expression_graph({
         'arguments': {
