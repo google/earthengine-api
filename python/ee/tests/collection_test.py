@@ -47,6 +47,10 @@ class CollectionTestCase(apitestcase.ApiTestCase):
 
     # We don't allow empty filters.
     self.assertRaises(Exception, collection.filter)
+    with self.assertRaisesRegex(ee.EEException, 'Empty filters.'):
+      collection.filter(None)  # pytype: disable=wrong-arg-types
+    with self.assertRaisesRegex(ee.EEException, 'Empty filters.'):
+      collection.filter('')
 
     filtered = collection.filter(ee.Filter.eq('foo', 1))
     self.assertEqual(ee.ApiFunction.lookup('Collection.filter'), filtered.func)
@@ -74,6 +78,37 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     self.assertEqual(
         collection.filter(ee.Filter.eq('foo', 13)),
         collection.filterMetadata('foo', 'equals', 13))
+
+  def test_load_table(self):
+    """Verifies Collection.loadTable()."""
+    table_id = 'a/table/id'
+    geometry_column = 'geom'
+    version = 123
+    result = ee.Collection.loadTable(
+        tableId=table_id, geometryColumn=geometry_column, version=version
+    )
+    self.assertEqual(ee.ApiFunction.lookup('Collection.loadTable'), result.func)
+    self.assertEqual(
+        {
+            'tableId': ee.String(table_id),
+            'geometryColumn': ee.String(geometry_column),
+            'version': ee.Number(version),
+        },
+        result.args,
+    )
+    self.assertIsInstance(result, ee.FeatureCollection)
+
+    result2 = ee.Collection.loadTable(tableId=table_id)
+    self.assertEqual(ee.ApiFunction.lookup('Collection.loadTable'), result2.func)
+    self.assertEqual(
+        {
+            'tableId': ee.String(table_id),
+            'geometryColumn': None,
+            'version': None,
+        },
+        result2.args,
+    )
+    self.assertIsInstance(result2, ee.FeatureCollection)
 
   def test_mapping(self):
     """Verifies the behavior of the map() method."""
