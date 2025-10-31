@@ -11,7 +11,7 @@ from collections.abc import Iterator
 import contextlib
 import json
 import sys
-from typing import Any, Optional, TextIO, Union
+from typing import Any, TextIO
 
 from google.auth import crypt
 from google.oauth2 import service_account
@@ -27,9 +27,9 @@ _PROFILE_RETRIES = 5
 
 
 def ServiceAccountCredentials(
-    email: Optional[str] = None,
-    key_file: Optional[str] = None,
-    key_data: Optional[str] = None,
+    email: str | None = None,
+    key_file: str | None = None,
+    key_data: str | None = None,
 ) -> service_account.Credentials:
   """Configure OAuth2 credentials for a Google Service Account.
 
@@ -75,7 +75,7 @@ def ServiceAccountCredentials(
 
 
 def call(
-    func: Union[str, apifunction.ApiFunction], *args, **kwargs
+    func: str | apifunction.ApiFunction, *args, **kwargs
 ) -> computedobject.ComputedObject:
   """Invoke the given algorithm with the specified args.
 
@@ -97,7 +97,7 @@ def call(
 
 # pylint: disable-next=redefined-builtin
 def apply(
-    func: Union[str, apifunction.ApiFunction], named_args: dict[str, Any]
+    func: str | apifunction.ApiFunction, named_args: dict[str, Any]
 ) -> computedobject.ComputedObject:
   """Call a function with a dictionary of named arguments.
 

@@ -1,7 +1,7 @@
 """A deserializer that decodes EE object trees from JSON DAGs."""
 
 import json
-from typing import Any, Union
+from typing import Any
 
 from ee import apifunction
 from ee import computedobject
@@ -13,7 +13,7 @@ from ee import function
 from ee import geometry
 
 
-def fromJSON(json_obj: Union[bytes, str]) -> Any:  # pylint: disable=g-bad-name
+def fromJSON(json_obj: bytes | str) -> Any:  # pylint: disable=g-bad-name
   """Deserialize an object from a JSON string appropriate for API calls.
 
   Args:
@@ -153,7 +153,7 @@ def _invocation(func: Any, args: dict[str, Any]) -> Any:
   raise ee_exception.EEException(f'Invalid function value: {func}')
 
 
-def fromCloudApiJSON(json_obj: Union[str, bytes]) -> Any:  # pylint: disable=g-bad-name
+def fromCloudApiJSON(json_obj: str | bytes) -> Any:  # pylint: disable=g-bad-name
   """Deserializes an object from the JSON string used in Cloud API calls.
 
   Args:
@@ -180,7 +180,7 @@ def decodeCloudApi(json_obj: dict[str, Any]) -> Any:
   def lookup(reference, kind):
     if reference not in decoded:
       if reference not in json_obj['values']:
-        raise ee_exception.EEException('Cannot find {} {}'.format(reference, kind))
+        raise ee_exception.EEException(f'Cannot find {reference} {kind}')
       decoded[reference] = decode_node(json_obj['values'][reference])
     return decoded[reference]
 

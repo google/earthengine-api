@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Tests for the image_converter module."""
 
-from typing import Optional
-
 from absl.testing import parameterized
 import numpy
 
@@ -20,7 +18,7 @@ class ImageConverterTest(parameterized.TestCase):
   def test_from_file_format(
       self,
       data_format: str,
-      expected: Optional[type[image_converter.ImageConverter]],
+      expected: type[image_converter.ImageConverter] | None,
   ) -> None:
     """Verifies `from_file_format` returns the correct converter class."""
     if expected is None:

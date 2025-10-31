@@ -5,8 +5,9 @@ This class is never intended to be instantiated by the user.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import datetime
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from ee import _arg_types
 from ee import _utils

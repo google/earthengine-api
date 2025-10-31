@@ -14,7 +14,7 @@ import re
 import tempfile
 import threading
 import time
-from typing import Any, AnyStr, Optional, Union
+from typing import Any, AnyStr
 import urllib.parse
 
 from google.cloud import storage
@@ -32,7 +32,7 @@ DEFAULT_EE_CONFIG_FILE_RELATIVE = os.path.join(
 DEFAULT_EE_CONFIG_FILE = os.path.join(
     HOMEDIR, DEFAULT_EE_CONFIG_FILE_RELATIVE)
 
-CONFIG_PARAMS: dict[str, Union[str, list[str], None]] = {
+CONFIG_PARAMS: dict[str, str | list[str] | None] = {
     'account': None,
     'cloud_api_key': None,
     'private_key': None,

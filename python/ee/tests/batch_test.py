@@ -2,7 +2,7 @@
 """Test for the ee.batch module."""
 
 import json
-from typing import Any, Optional
+from typing import Any
 import unittest
 from unittest import mock
 
@@ -201,8 +201,8 @@ class ExportTest(unittest.TestCase):
 class BatchTestCase(apitestcase.ApiTestCase):
   """A test case for batch functionality."""
 
-  start_call_params: Optional[Any]
-  update_call_params: Optional[Any]
+  start_call_params: Any | None
+  update_call_params: Any | None
 
   def setUp(self):
     super().setUp()

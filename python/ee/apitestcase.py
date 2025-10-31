@@ -5,7 +5,7 @@ import contextlib
 import copy
 import json
 import os
-from typing import Any, Optional
+from typing import Any
 
 from googleapiclient import discovery
 
@@ -16,7 +16,7 @@ from ee import _state
 
 
 # Cached algorithms list
-_algorithms_cache: Optional[dict[str, Any]] = None
+_algorithms_cache: dict[str, Any] | None = None
 
 
 def GetAlgorithms() -> dict[str, Any]:
@@ -40,10 +40,10 @@ def GetAlgorithms() -> dict[str, Any]:
 
 class ApiTestCase(unittest.TestCase):
   """A TestCase that initializes the library with standard API methods."""
-  last_download_call: Optional[Any]
-  last_thumb_call: Optional[Any]
-  last_table_call: Optional[Any]
-  last_mapid_call: Optional[Any]
+  last_download_call: Any | None
+  last_thumb_call: Any | None
+  last_table_call: Any | None
+  last_mapid_call: Any | None
 
   def setUp(self):
     super().setUp()
@@ -108,7 +108,7 @@ class ApiTestCase(unittest.TestCase):
       self,
       params: dict[str, Any],
       # pylint: disable-next=invalid-name
-      thumbType: Optional[str] = None,
+      thumbType: str | None = None,
   ) -> dict[str, str]:
     del thumbType  # Unused.
     # Hang on to the call arguments.
@@ -141,9 +141,9 @@ def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> discovery.Resource:
 
 @contextlib.contextmanager  # pytype: disable=wrong-arg-types
 def UsingCloudApi(
-    cloud_api_resource: Optional[Any] = None,
-    cloud_api_resource_raw: Optional[Any] = None,
-    mock_http: Optional[Any] = None,
+    cloud_api_resource: Any | None = None,
+    cloud_api_resource_raw: Any | None = None,
+    mock_http: Any | None = None,
 ) -> Iterable[Any]:  # pytype: disable=wrong-arg-types
   """Returns a context manager under which the Cloud API is enabled."""
   # pylint: disable=protected-access

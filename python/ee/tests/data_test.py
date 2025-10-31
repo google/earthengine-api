@@ -2,7 +2,7 @@
 """Test for the ee.data module."""
 
 import json
-from typing import Any, Optional
+from typing import Any
 from unittest import mock
 
 import googleapiclient
@@ -28,7 +28,7 @@ def NotFoundError() -> googleapiclient.errors.HttpError:
 
 
 def NewFolderAsset(
-    name: str, quota: Optional[dict[str, int]] = None
+    name: str, quota: dict[str, int] | None = None
 ) -> dict[str, Any]:
   return {
       'type': 'FOLDER',
@@ -66,7 +66,9 @@ class DataTest(unittest.TestCase):
     mock_install_cloud_api_resource.assert_called_once()
 
   @mock.patch.object(ee.data, '_install_cloud_api_resource', return_value=None)
-  def test_initialize_with_project(self, unused_mock_install_cloud_api_resource):
+  def test_initialize_with_project(
+      self, unused_mock_install_cloud_api_resource
+  ):
     ee.data.initialize(project='my-project')
 
     self.assertTrue(ee.data.is_initialized())

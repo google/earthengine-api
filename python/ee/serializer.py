@@ -4,7 +4,7 @@ import collections
 import datetime
 import hashlib
 import json
-from typing import Any, Optional
+from typing import Any
 
 from ee import _cloud_api_utils
 from ee import _utils
@@ -32,7 +32,7 @@ def DatetimeToMicroseconds(date: datetime.datetime) -> int:
 
 class Serializer:
   """A serializer for EE object trees."""
-  unbound_name: Optional[str]
+  unbound_name: str | None
 
   # Whether the encoding should factor out shared subtrees.
   _is_compound: bool
@@ -48,7 +48,7 @@ class Serializer:
       self,
       is_compound: bool = True,
       for_cloud_api: bool = False,
-      unbound_name: Optional[str] = None,
+      unbound_name: str | None = None,
   ):
     """Constructs a serializer.
 
@@ -280,7 +280,7 @@ def encode(
     obj: Any,
     is_compound: bool = True,
     for_cloud_api: bool = True,
-    unbound_name: Optional[str] = None,
+    unbound_name: str | None = None,
 ) -> Any:
   """Serialize an object to a JSON-compatible structure for API calls.
 
@@ -358,7 +358,7 @@ class _ExpressionOptimizer:
   - Collapse dicts and arrays of constants to constant dicts/arrays.
   """
 
-  def __init__(self, result: Any, values: Optional[Any] = None):
+  def __init__(self, result: Any, values: Any | None = None):
     """Builds an ExpressionOptimizer.
 
     Args:
@@ -385,7 +385,7 @@ class _ExpressionOptimizer:
     reference_counts = collections.defaultdict(int)
     reference_counts[self._result] += 1
 
-    def _contained_reference(value: Any) -> Optional[Any]:
+    def _contained_reference(value: Any) -> Any | None:
       """Gets a contained reference from a ValueNode, if there is one."""
       if 'functionDefinitionValue' in value:
         return value['functionDefinitionValue']['body']

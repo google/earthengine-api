@@ -226,7 +226,7 @@ def _format_cloud_timestamp(timestamp: str | None) -> str:
   return _datetime_from_cloud_timestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 
-def _decode_date(string: str) -> Union[float, str]:
+def _decode_date(string: str) -> float | str:
   """Decodes a date from a command line argument, returning msec since epoch".
 
   Args:
@@ -598,7 +598,7 @@ class AclChCommand:
     return permissions
 
   def _apply_permissions(
-      self, acl: dict[str, Union[bool, list[str]]], permissions: dict[str, str]
+      self, acl: dict[str, bool | list[str]], permissions: dict[str, str]
   ) -> None:
     """Applies the given permission edits to the given acl."""
     for user, role in permissions.items():

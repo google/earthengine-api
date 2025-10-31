@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from ee import _utils
 from ee import data
@@ -233,9 +234,11 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
       return obj
     else:
       result = cls.__new__(cls)  # pylint: disable=no-value-for-parameter
+      # pylint: disable=attribute-error
       result.func = obj.func
       result.args = obj.args
       result.varName = obj.varName
+      # pylint: enable=attribute-error
       return result
 
   @staticmethod

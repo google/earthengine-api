@@ -1,7 +1,7 @@
 """Converters used in the image data fetching methods."""
 
 import io
-from typing import Any, Optional, Union
+from typing import Any
 
 
 class ImageConverter:
@@ -49,8 +49,8 @@ _PIXEL_DATA_CONVERTERS: dict[str, type[ImageConverter]] = {
 
 
 def from_file_format(
-    file_format: Union[str, ImageConverter]
-) -> Optional[ImageConverter]:
+    file_format: str | ImageConverter,
+) -> ImageConverter | None:
   if isinstance(file_format, ImageConverter):
     return file_format
   if file_format in _PIXEL_DATA_CONVERTERS:

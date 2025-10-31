@@ -1,7 +1,7 @@
 """Converters used in the table data fetching methods."""
 
 from collections.abc import Iterator
-from typing import Any, Optional, Union
+from typing import Any
 
 
 class TableConverter:
@@ -59,8 +59,8 @@ _TABLE_DATA_CONVERTERS: dict[str, type[TableConverter]] = {
 
 
 def from_file_format(
-    file_format: Union[str, TableConverter]
-) -> Optional[TableConverter]:
+    file_format: str | TableConverter
+) -> TableConverter | None:
   if isinstance(file_format, TableConverter):
     return file_format
   if file_format in _TABLE_DATA_CONVERTERS:

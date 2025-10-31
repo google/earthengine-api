@@ -126,13 +126,13 @@ _DYNAMIC_CLASSES = [
 
 
 def Authenticate(
-    authorization_code: Optional[str] = None,
-    quiet: Optional[bool] = None,
-    code_verifier: Optional[str] = None,
-    auth_mode: Optional[str] = None,
-    scopes: Optional[Sequence[str]] = None,
+    authorization_code: str | None = None,
+    quiet: bool | None = None,
+    code_verifier: str | None = None,
+    auth_mode: str | None = None,
+    scopes: Sequence[str] | None = None,
     force: bool = False,
-) -> Optional[bool]:
+) -> bool | None:
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
@@ -162,11 +162,11 @@ def Authenticate(
 
 @_utils.accept_opt_prefix('opt_url')
 def Initialize(
-    credentials: Optional[Any] = 'persistent',
-    url: Optional[str] = None,
-    cloud_api_key: Optional[str] = None,
-    http_transport: Optional[Any] = None,
-    project: Optional[Union[str, int]] = None,
+    credentials: Any | None = 'persistent',
+    url: str | None = None,
+    cloud_api_key: str | None = None,
+    http_transport: Any | None = None,
+    project: str | int | None = None,
 ) -> None:
   """Initialize the EE library.
 
@@ -274,7 +274,7 @@ def _ResetGeneratedClasses() -> None:
   types._registerClasses(globals())     # pylint: disable=protected-access
 
 
-def _Promote(arg: Optional[Any], a_class: str) -> Optional[Any]:
+def _Promote(arg: Any | None, a_class: str) -> Any | None:
   """Wrap an argument in an object of the specified class.
 
   This is used to, e.g., promote numbers or strings to Images and arrays

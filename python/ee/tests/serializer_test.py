@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Test for the ee.serializer module."""
 
+from collections.abc import Callable
 import datetime
 import json
-from typing import Any, Callable, Union
+from typing import Any
 
 import unittest
 import ee
@@ -11,7 +12,7 @@ from ee import apitestcase
 from ee import serializer
 
 
-def _max_depth(x: Union[dict[str, Any], list[Any], str]) -> int:
+def _max_depth(x: dict[str, Any] | list[Any] | str) -> int:
   """Computes the maximum nesting level of some dict, list, or str."""
   if isinstance(x, dict):
     return 1 + max(_max_depth(v) for v in x.values())
