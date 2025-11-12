@@ -34,7 +34,7 @@ class OAuthTest(unittest.TestCase):
       self.assertEqual('xyz', parsed[b'code_verifier'][0].decode())
       return MockResponse(parsed[b'code'][0])
 
-    with mock.patch('urllib.request.urlopen', new=mock_urlopen):
+    with mock.patch.object(urllib.request, 'urlopen', new=mock_urlopen):
       auth_code = '123'
       verifier = 'xyz'
       refresh_token = oauth.request_token(auth_code, verifier)
@@ -45,9 +45,9 @@ class OAuthTest(unittest.TestCase):
     def mock_credentials_path():
       return self.test_tmpdir + '/tempfile'
 
-    oauth_pkg = 'ee.oauth'
-    with mock.patch(
-        oauth_pkg + '.get_credentials_path', new=mock_credentials_path):
+    with mock.patch.object(
+        oauth, 'get_credentials_path', new=mock_credentials_path
+    ):
       client_info = dict(refresh_token='123')
       oauth.write_private_json(oauth.get_credentials_path(), client_info)
 
