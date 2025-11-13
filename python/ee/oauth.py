@@ -226,7 +226,7 @@ def _in_jupyter_shell() -> bool:
   """Tests if the code is being executed within Jupyter."""
   try:
     import ipykernel.zmqshell
-    return isinstance(IPython.get_ipython(),
+    return isinstance(IPython.get_ipython(),  # pylint: disable=undefined-variable
                       ipykernel.zmqshell.ZMQInteractiveShell)
   except ImportError:
     return False
@@ -329,7 +329,7 @@ def _display_auth_instructions_with_html(
 ) -> None:
   """Displays instructions for authenticating using HTML code."""
   try:
-    IPython.display.display(IPython.display.HTML(
+    IPython.display.display(IPython.display.HTML(  # pylint: disable=undefined-variable
         """<p>To authorize access needed by Earth Engine, open the following
         URL in a web browser and follow the instructions:</p>
         <p><a href={0}>{0}</a></p>
