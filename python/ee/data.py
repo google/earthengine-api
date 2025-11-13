@@ -2161,6 +2161,7 @@ def setIamPolicy(asset_id: str, policy: Any) -> None:
       .setIamPolicy(resource=name, body={'policy': policy}, prettyPrint=False)
   )
 
+
 @deprecation.Deprecated('Use ee.data.updateAsset().')
 def setAssetProperties(assetId: str, properties: dict[str, Any]) -> None:
   """Sets metadata properties of the asset with the given ID.
