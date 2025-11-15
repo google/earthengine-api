@@ -74,7 +74,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
    * @return {number} The number of requests in flight or pending send.
    */
   getOutstandingCount() {
-    return this.requests_.getCount();
+    return this.requests_.size;
   }
 
   /**
@@ -160,7 +160,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
    * @private
    */
   releaseRequest_(request) {
-    this.requests_.remove(request.getId());
+    this.requests_.delete(request.getId());
     if (request.getImageLoader()) {
       this.releaseObject_(request.getToken());
       request.getImageLoader().dispose();
@@ -189,7 +189,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
 
     // Call dispose on each request.
     var requests = this.requests_;
-    goog.array.forEach(requests.getValues(), function(value) {
+    goog.array.forEach([...requests.values()], function(value) {
       value.dispose();
     });
     requests.clear();
