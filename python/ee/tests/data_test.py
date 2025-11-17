@@ -87,6 +87,26 @@ class DataTest(unittest.TestCase):
         _state.get_state().cloud_api_user_project, 'earthengine-legacy'
     )
 
+  @mock.patch.object(ee.data, '_install_cloud_api_resource', return_value=None)
+  def test_initialize_with_credentials(
+      self, unused_mock_install_cloud_api_resource
+  ):
+    creds = mock.MagicMock()
+    ee.data.initialize(credentials=creds)
+
+    self.assertTrue(ee.data.is_initialized())
+    self.assertEqual(creds, _state.get_state().credentials)
+
+  @mock.patch.object(ee.data, '_install_cloud_api_resource', return_value=None)
+  def test_initialize_with_cloud_api_key(
+      self, unused_mock_install_cloud_api_resource
+  ):
+    cloud_api_key = 'a cloud api key'
+    ee.data.initialize(cloud_api_key=cloud_api_key)
+
+    self.assertTrue(ee.data.is_initialized())
+    self.assertEqual(cloud_api_key, _state.get_state().cloud_api_key)
+
   def test_set_max_retries_bad_values(self):
     with self.assertRaises(ValueError):
       ee.data.setMaxRetries(-1)
@@ -109,6 +129,46 @@ class DataTest(unittest.TestCase):
           .compute()
           .execute.call_args.kwargs['num_retries'],
       )
+
+  def test_set_cloud_api_key(self):
+    cloud_api_key = 'a cloud api key'
+    with mock.patch.object(
+        ee.data, '_install_cloud_api_resource', return_value=None
+    ) as mock_install_cloud_api_resource:
+      ee.data.setCloudApiKey(cloud_api_key)
+      self.assertEqual(cloud_api_key, _state.get_state().cloud_api_key)
+      mock_install_cloud_api_resource.assert_called_once()
+
+  def test_set_deadline(self):
+    deadline_ms = 12345
+    with mock.patch.object(
+        ee.data, '_install_cloud_api_resource', return_value=None
+    ) as mock_install_cloud_api_resource:
+      ee.data.setDeadline(deadline_ms)
+      self.assertEqual(deadline_ms, _state.get_state().deadline_ms)
+      mock_install_cloud_api_resource.assert_called_once()
+
+  def test_get_set_user_agent(self):
+    self.assertIsNone(ee.data.getUserAgent())
+    user_agent = 'user-agent'
+    ee.data.setUserAgent(user_agent)
+    self.assertEqual(user_agent, ee.data.getUserAgent())
+
+  def test_authorize_http_no_credentials(self):
+    self.assertIsNone(ee.data._get_state().credentials)
+    http = mock.MagicMock()
+    self.assertEqual(http, ee.data.authorizeHttp(http))
+
+  def test_authorize_http_with_credentials(self):
+    creds = mock.MagicMock()
+    ee.data._get_state().credentials = creds
+    http = mock.MagicMock()
+    with mock.patch.object(
+        ee.data.google_auth_httplib2, 'AuthorizedHttp'
+    ) as mock_authorized_http:
+      result = ee.data.authorizeHttp(http)
+      self.assertEqual(mock_authorized_http.return_value, result)
+      mock_authorized_http.assert_called_once_with(creds)
 
   def test_list_operations(self):
     mock_http = mock.MagicMock(httplib2.Http)
@@ -342,6 +402,14 @@ class DataTest(unittest.TestCase):
       asset = mock_create_asset.call_args.kwargs['body']
       self.assertEqual(asset, {'type': 'FOLDER'})
 
+  @mock.patch.object(ee.data, 'createAsset')
+  def test_create_asset_home(self, mock_create_asset):
+    ee.data.createAssetHome('users/test')
+    mock_create_asset.assert_called_once_with({
+        'name': 'projects/earthengine-legacy/assets/users/test',
+        'type': 'FOLDER',
+    })
+
   def test_create_assets(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
@@ -432,6 +500,68 @@ class DataTest(unittest.TestCase):
       )
       self.assertTrue(import_args['overwrite'])
 
+  def test_start_table_ingestion(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'name': 'operations/ingestion', 'done': False}
+      cloud_api_resource.projects().table().import_.return_value.execute.return_value = (
+          mock_result
+      )
+      params = {
+          'id': 'users/test/table',
+          'sources': [{'uris': ['gs://bucket/file.shp'], 'charset': 'UTF-8'}],
+      }
+      result = ee.data.startTableIngestion('request_id', params, True)
+      self.assertEqual(result['id'], 'ingestion')
+      self.assertEqual(result['name'], 'operations/ingestion')
+
+      mock_import = cloud_api_resource.projects().table().import_
+      mock_import.assert_called_once()
+      call_kwargs = mock_import.call_args.kwargs
+      self.assertEqual(call_kwargs['project'], 'projects/earthengine-legacy')
+      body = call_kwargs['body']
+      self.assertEqual(
+          body['tableManifest'],
+          {
+              'name': 'projects/earthengine-legacy/assets/users/test/table',
+              'sources': [
+                  {'uris': ['gs://bucket/file.shp'], 'charset': 'UTF-8'}
+              ],
+          },
+      )
+      self.assertEqual(body['requestId'], 'request_id')
+      self.assertTrue(body['overwrite'])
+
+  def test_start_external_image_ingestion(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      cloud_api_resource.projects().image().importExternal.return_value.execute.return_value = (
+          {}
+      )
+      manifest = {
+          'id': 'users/test/image',
+          'tilesets': [{'sources': [{'uris': ['gs://bucket/file.tif']}]}],
+      }
+      result = ee.data.startExternalImageIngestion(manifest, True)
+      expected_name = 'projects/earthengine-legacy/assets/users/test/image'
+      self.assertEqual(result['name'], expected_name)
+
+      mock_import_external = (
+          cloud_api_resource.projects().image().importExternal
+      )
+      mock_import_external.assert_called_once()
+      call_kwargs = mock_import_external.call_args.kwargs
+      self.assertEqual(call_kwargs['project'], 'projects/earthengine-legacy')
+      body = call_kwargs['body']
+      self.assertEqual(
+          body['imageManifest'],
+          {
+              'name': expected_name,
+              'tilesets': [{'sources': [{'uris': ['gs://bucket/file.tif']}]}],
+          },
+      )
+      self.assertTrue(body['overwrite'])
+
   def test_set_asset_properties(self):
     mock_http = mock.MagicMock(httplib2.Http)
     with apitestcase.UsingCloudApi(mock_http=mock_http), mock.patch.object(
@@ -452,6 +582,18 @@ class DataTest(unittest.TestCase):
           set(update_mask),
           {'properties.\"mYPropErTy\"',
                'properties.\"system:time_start\"'})
+
+  def test_update_asset(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      asset_id = 'users/test/asset'
+      asset = {'properties': {'foo': 'bar'}}
+      update_mask = ['properties.foo']
+      ee.data.updateAsset(asset_id, asset, update_mask)
+      cloud_api_resource.projects().assets().patch.assert_called_once_with(
+          name='projects/earthengine-legacy/assets/users/test/asset',
+          body={'updateMask': {'paths': update_mask}, 'asset': asset},
+      )
 
   def test_list_assets(self):
     cloud_api_resource = mock.MagicMock()
@@ -575,6 +717,16 @@ class DataTest(unittest.TestCase):
       actual_result = ee.data.listBuckets()
     cloud_api_resource.projects().listAssets().execute.assert_called_once()
     self.assertEqual(mock_result, actual_result)
+
+  def test_get_asset_roots(self):
+    with mock.patch.object(
+        ee.data,
+        'listBuckets',
+        return_value={'assets': [{'name': 'id1', 'type': 'FOLDER'}]},
+    ) as mock_list_buckets:
+      result = ee.data.getAssetRoots()
+      mock_list_buckets.assert_called_once()
+      self.assertEqual([{'id': 'id1', 'type': 'Folder'}], result)
 
   def test_simple_get_list_via_cloud_api(self):
     cloud_api_resource = mock.MagicMock()
@@ -881,6 +1033,50 @@ class DataTest(unittest.TestCase):
       ).execute.assert_called_once()
       self.assertEqual(mock_result, actual_result)
 
+  def test_get_pixels(self):
+    cloud_api_resource_raw = mock.MagicMock()
+    with apitestcase.UsingCloudApi(
+        cloud_api_resource_raw=cloud_api_resource_raw
+    ):
+      assets = cloud_api_resource_raw.projects().assets()
+      mock_result = b'pixel data'
+      assets.getPixels.return_value.execute.return_value = mock_result
+      asset_id = 'users/foo/bar'
+      params = {'assetId': asset_id}
+      result = ee.data.getPixels(params)
+      self.assertEqual(mock_result, result)
+      assets.getPixels.assert_called_once_with(
+          name='projects/earthengine-legacy/assets/users/foo/bar',
+          body={'fileFormat': 'AUTO_JPEG_PNG'},
+      )
+
+  def test_compute_pixels(self):
+    cloud_api_resource_raw = mock.MagicMock()
+    with apitestcase.UsingCloudApi(
+        cloud_api_resource_raw=cloud_api_resource_raw
+    ):
+      mock_result = b'pixel data'
+      (
+          cloud_api_resource_raw.projects()
+          .image()
+          .computePixels.return_value.execute.return_value
+      ) = mock_result
+      expression = ee.Image(1)
+      params = {'expression': expression}
+      result = ee.data.computePixels(params)
+      self.assertEqual(mock_result, result)
+      (
+          cloud_api_resource_raw.projects()
+          .image()
+          .computePixels.assert_called_once_with(
+              project='projects/earthengine-legacy',
+              body={
+                  'expression': ee.serializer.encode(expression),
+                  'fileFormat': 'AUTO_JPEG_PNG',
+              },
+          )
+      )
+
   def test_get_feature_view_tiles_key(self):
     cloud_api_resource = mock.MagicMock()
     _state.get_state().tile_base_url = 'base_url'
@@ -922,8 +1118,31 @@ class DataTest(unittest.TestCase):
       cloud_api_resource.projects().updateConfig().execute.return_value = (
           mock_result
       )
+      project_config = {'maxConcurrentExports': 2}
       actual_result = ee.data.updateProjectConfig(
-          {'maxConcurrentExports': 2}, ['max_concurrent_exports']
+          project_config, ['max_concurrent_exports']
+      )
+      cloud_api_resource.projects().updateConfig.assert_called_with(
+          name='projects/earthengine-legacy/config',
+          body=project_config,
+          updateMask='max_concurrent_exports',
+      )
+      cloud_api_resource.projects().updateConfig().execute.assert_called_once()
+      self.assertEqual(mock_result, actual_result)
+
+  def test_update_project_config_no_mask(self) -> None:
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'fake-project-config-value': 1}
+      cloud_api_resource.projects().updateConfig().execute.return_value = (
+          mock_result
+      )
+      project_config = {'maxConcurrentExports': 2}
+      actual_result = ee.data.updateProjectConfig(project_config)
+      cloud_api_resource.projects().updateConfig.assert_called_with(
+          name='projects/earthengine-legacy/config',
+          body=project_config,
+          updateMask='max_concurrent_exports',
       )
       cloud_api_resource.projects().updateConfig().execute.assert_called_once()
       self.assertEqual(mock_result, actual_result)
@@ -1039,6 +1258,81 @@ class DataTest(unittest.TestCase):
           'asset_size': {'usage': 789, 'limit': 1001},
       }
       self.assertEqual(expected, quota)
+
+  def test_get_asset_root_quota_not_root(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      asset_id = 'users/test/asset'
+      fake_asset = {
+          'type': 'IMAGE',
+          'name': 'projects/earthengine-legacy/assets/users/test/asset',
+      }
+      cloud_api_resource.projects().assets().get().execute.return_value = (
+          fake_asset
+      )
+      with self.assertRaisesRegex(
+          ee.ee_exception.EEException, f'{asset_id} is not a root folder.'
+      ):
+        ee.data.getAssetRootQuota(asset_id)
+
+  def test_get_iam_policy(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      asset_id = 'users/test/asset'
+      ee.data.getIamPolicy(asset_id)
+      cloud_api_resource.projects().assets().getIamPolicy.assert_called_once_with(
+          resource='projects/earthengine-legacy/assets/users/test/asset',
+          body={},
+          prettyPrint=False,
+      )
+
+  def test_get_asset_acl(self):
+    asset_id = 'users/test/asset'
+    policy = {'bindings': [{'role': 'roles/viewer', 'members': ['allUsers']}]}
+    acl = {'readers': ['allUsers']}
+    with mock.patch.object(
+        ee.data, 'getIamPolicy', return_value=policy
+    ) as mock_get_iam_policy, mock.patch.object(
+        ee.data._cloud_api_utils, 'convert_iam_policy_to_acl', return_value=acl
+    ) as mock_convert:
+      result = ee.data.getAssetAcl(asset_id)
+      mock_get_iam_policy.assert_called_once_with(asset_id)
+      mock_convert.assert_called_once_with(policy)
+      self.assertEqual(acl, result)
+
+  def test_set_asset_acl(self):
+    asset_id = 'users/test/asset'
+    acl_update_dict = {'readers': ['allUsers']}
+    acl_update_str = '{"readers": ["allUsers"]}'
+    policy = {'bindings': [{'role': 'roles/viewer', 'members': ['allUsers']}]}
+    with mock.patch.object(
+        ee.data._cloud_api_utils,
+        'convert_acl_to_iam_policy',
+        return_value=policy,
+    ) as mock_convert, mock.patch.object(
+        ee.data, 'setIamPolicy'
+    ) as mock_set_iam_policy:
+      ee.data.setAssetAcl(asset_id, acl_update_dict)
+      mock_convert.assert_called_once_with(acl_update_dict)
+      mock_set_iam_policy.assert_called_once_with(asset_id, policy)
+
+      mock_convert.reset_mock()
+      mock_set_iam_policy.reset_mock()
+      ee.data.setAssetAcl(asset_id, acl_update_str)
+      mock_convert.assert_called_once_with(acl_update_dict)
+      mock_set_iam_policy.assert_called_once_with(asset_id, policy)
+
+  def test_set_iam_policy(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      asset_id = 'users/test/asset'
+      policy = {'bindings': [{'role': 'roles/viewer', 'members': ['allUsers']}]}
+      ee.data.setIamPolicy(asset_id, policy)
+      cloud_api_resource.projects().assets().setIamPolicy.assert_called_once_with(
+          resource='projects/earthengine-legacy/assets/users/test/asset',
+          body={'policy': policy},
+          prettyPrint=False,
+      )
 
 
 def DoCloudProfileStubHttp(test, expect_profiling):
