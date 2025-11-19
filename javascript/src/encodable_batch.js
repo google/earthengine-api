@@ -759,7 +759,8 @@ ee.rpc_convert_batch.buildThinningOptions_ = function(params) {
   }
   return new ee.api.ThinningOptions({
     maxFeaturesPerTile: numberOrNull_(params['maxFeaturesPerTile']),
-    thinningStrategy: params['thinningStrategy']
+    thinningStrategy: params['thinningStrategy'],
+    minVisibleSizePx: numberOrNull_(params['minVisibleSizePx'])
   });
 };
 
