@@ -125,13 +125,14 @@ class ExportTask {
  * @param {number=} opt_maxPixels
  * @param {number=} opt_shardSize
  * @param {number=} opt_priority
+ * @param {boolean=} opt_overwrite
  * @return {!ExportTask}
  * @export
  */
 Export.image.toAsset = function(
     image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
-    opt_shardSize, opt_priority) {
+    opt_shardSize, opt_priority, opt_overwrite) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -289,11 +290,13 @@ Export.table.toDrive = function(
  * @param {string=} opt_assetId
  * @param {number=} opt_maxVertices
  * @param {number=} opt_priority
+ * @param {boolean=} opt_overwrite
  * @return {!ExportTask}
  * @export
  */
 Export.table.toAsset = function(
-    collection, opt_description, opt_assetId, opt_maxVertices, opt_priority) {
+    collection, opt_description, opt_assetId, opt_maxVertices, opt_priority,
+    opt_overwrite) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -628,6 +631,7 @@ Export.prepareDestination_ = function(taskConfig, destination) {
       break;
     case data.ExportDestination.ASSET:
       taskConfig['assetId'] = taskConfig['assetId'] || '';
+      taskConfig['overwrite'] = taskConfig['overwrite'] || false;
       break;
     case data.ExportDestination.FEATURE_VIEW:
       taskConfig['mapName'] = taskConfig['mapName'] || '';
