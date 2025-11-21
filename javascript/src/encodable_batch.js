@@ -707,8 +707,10 @@ ee.rpc_convert_batch.buildDriveDestination_ = function(params) {
  * @private
  */
 ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
-  return new ee.api.EarthEngineDestination(
-      {name: ee.rpc_convert.assetIdToAssetName(params['assetId'])});
+  return new ee.api.EarthEngineDestination({
+    name: ee.rpc_convert.assetIdToAssetName(params['assetId']),
+    overwrite: Boolean(params['overwrite'])
+  });
 };
 
 

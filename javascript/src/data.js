@@ -3478,6 +3478,7 @@ ee.data.AbstractTaskConfig;
  *   pyramidingPolicy: (undefined|string),
  *   workloadTag: (undefined|string),
  *   priority: (undefined|number),
+ *   overwrite: (undefined|boolean),
  * }}
  */
 ee.data.ImageTaskConfigUnformatted;
@@ -3523,6 +3524,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   pyramidingPolicy: (undefined|string),
  *   workloadTag: (undefined|string),
  *   priority: (undefined|number),
+ *   overwrite: (undefined|boolean),
  * }}
  */
 ee.data.ImageTaskConfig;
@@ -3661,6 +3663,7 @@ ee.data.BigQueryTaskConfig;
  *   maxVertices: (undefined|number),
  *   workloadTag: (undefined|string),
  *   priority: (undefined|number),
+ *   overwrite: (undefined|boolean),
  * }}
  */
 ee.data.TableTaskConfig;
