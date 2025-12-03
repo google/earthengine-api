@@ -143,9 +143,9 @@ def initialize(
 
   Args:
     credentials: The OAuth2 credentials.
-    api_base_url: The EarthEngine REST API endpoint.
-    tile_base_url: The EarthEngine REST tile endpoint.
-    cloud_api_base_url: The EarthEngine Cloud API endpoint.
+    api_base_url: The Earth Engine REST API endpoint.
+    tile_base_url: The Earth Engine REST tile endpoint.
+    cloud_api_base_url: The Earth Engine Cloud API endpoint.
     cloud_api_key: The API key to use with the Cloud API.
     project: The client project ID or number to use when making API calls.
     http_transport: The http transport to use

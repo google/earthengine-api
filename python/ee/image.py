@@ -57,8 +57,8 @@ class Image(element.Element):
 
     Args:
       args: This constructor accepts a variety of arguments:
-          - A string - an EarthEngine asset id,
-          - A string and a number - an EarthEngine asset id and version,
+          - A string - an Earth Engine asset id,
+          - A string and a number - an Earth Engine asset id and version,
           - A number - creates a constant image,
           - An ee.Array - creates a constant array image,
           - A list - creates an image out of each element of the array and

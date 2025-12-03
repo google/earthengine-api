@@ -179,7 +179,7 @@ def Initialize(
     credentials: OAuth2 credentials. 'persistent' (default) means use
       credentials already stored in the filesystem, or raise an explanatory
       exception guiding the user to create those credentials.
-    url: The base url for the EarthEngine REST API to connect to.
+    url: The base url for the Earth Engine REST API to connect to.
     cloud_api_key: An optional API key to use the Cloud API.
     http_transport: The http transport method to use when making requests.
     project: The client project ID or number to use when making API calls.

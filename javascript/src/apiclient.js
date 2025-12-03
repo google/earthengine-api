@@ -706,9 +706,9 @@ apiclient.getUserAgent = function() {
 /**
  * Initializes the data module, setting base URLs.
  *
- * @param {?string=} apiBaseUrl The (proxied) EarthEngine REST API
+ * @param {?string=} apiBaseUrl The (proxied) Earth Engine REST API
  *     endpoint.
- * @param {?string=} tileBaseUrl The (unproxied) EarthEngine REST tile
+ * @param {?string=} tileBaseUrl The (unproxied) Earth Engine REST tile
  *     endpoint.
  * @param {?string=} xsrfToken A string to pass in the X-XSRF-Token header
  *     of XHRs.

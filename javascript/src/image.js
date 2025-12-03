@@ -25,8 +25,8 @@ goog.require('goog.object');
 /**
  * An object to represent an Earth Engine image. This constructor accepts a
  * variety of arguments:
- *   - A string: an EarthEngine asset id,
- *   - A string and a number: an EarthEngine asset id and version,
+ *   - A string: an Earth Engine asset id,
+ *   - A string and a number: an Earth Engine asset id and version,
  *   - A number or ee.Array: creates a constant image,
  *   - A list: creates an image out of each list element and combines them
  *     into a single image,
