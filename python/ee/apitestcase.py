@@ -89,7 +89,6 @@ class ApiTestCase(unittest.TestCase):
     ee.data.computeValue = lambda x: {'value': 'fakeValue'}
     ee.data.getMapId = self._MockMapId
     ee.data.getDownloadId = self._MockDownloadUrl
-    ee.data.getThumbId = self._MockThumbUrl
     ee.data.getTableDownloadId = self._MockTableDownload
     # pylint: disable-next=protected-access
     ee.deprecation._FetchDataCatalogStac = self._MockFetchDataCatalogStac
@@ -103,17 +102,6 @@ class ApiTestCase(unittest.TestCase):
   def _MockDownloadUrl(self, params: dict[str, Any]) -> dict[str, str]:
     self.last_download_call = {'url': '/download', 'data': params}
     return {'docid': '1', 'token': '2'}
-
-  def _MockThumbUrl(
-      self,
-      params: dict[str, Any],
-      # pylint: disable-next=invalid-name
-      thumbType: str | None = None,
-  ) -> dict[str, str]:
-    del thumbType  # Unused.
-    # Hang on to the call arguments.
-    self.last_thumb_call = {'url': '/thumb', 'data': params}
-    return {'thumbid': '3', 'token': '4'}
 
   def _MockTableDownload(self, params: dict[str, Any]) -> dict[str, str]:
     self.last_table_call = {'url': '/table', 'data': params}
