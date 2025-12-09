@@ -130,7 +130,7 @@ ee.FloatTileOverlay =
 
   /** @return {number} The number of tiles successfully loaded. */
   getLoadedFloatTilesCount() {
-    return this.floatTiles_.getCount();
+    return this.floatTiles_.size;
   }
 
   /**
