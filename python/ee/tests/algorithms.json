@@ -615,7 +615,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.C2c",
-    "description": "An implementation of the Composite 2 Change (C2C) algorithm. This algorithm segments a time series using a piecewise linear fit with the minimum of segments required to fit the data within the given maximum root mean squared error (RMSE).  For every band given the algorithm will return the following bands:\n    changeDate:A 1D array of doubles representing pairs of start and end dates for each fitted segment. The date format is determined by the dateFormat argument.\n    value: A 1D array of doubles of the value of the band at the changeDate.\n    magnitude: A 1D array of doubles providing the absolute difference between the values before and after a change date.  The first magnitude is always NaN.\n    duration: A 1D array of doubles of the duration of the segment preceding the change date.  The first duration is always NaN.\n    rate: A 1D array of doubles of the rate of change of the data preceding the. change date. The first rate is always NaN.\n    postMagnitude: A 1D array of doubles of the absolute difference between the values after the change date and the value at the change date.  The last postMagnitude is always NaN.\n    postDuration: The duration of the segment following the change date. The last postDuration is always NaN.\n    postRate: The rate of change of the data following the change date. The last postRate is always NaN.\n See Hermosilla et al. (2015) dx.doi.org/10.1016/j.rse.2014.11.005 for further details on the original algorithm.\n This algorithm is in preview and is subject to change.",
+    "description": "An implementation of the Composite 2 Change (C2C) algorithm. This algorithm segments a time series using a piecewise linear fit with the minimum of segments required to fit the data within the given maximum root mean squared error (RMSE).  For every band given the algorithm will return the following bands:\n    changeDate:A 1D array of doubles representing pairs of start and end dates for each fitted segment. The date format is determined by the dateFormat argument.\n    value: A 1D array of doubles of the value of the band at the changeDate.\n    magnitude: A 1D array of doubles providing the absolute difference between the values before and after a change date.  The first magnitude is always NaN.\n    duration: A 1D array of doubles of the duration of the segment preceding the change date.  The first duration is always NaN.\n    rate: A 1D array of doubles of the rate of change of the data preceding the. change date. The first rate is always NaN.\n    postMagnitude: A 1D array of doubles of the absolute difference between the values after the change date and the value at the change date.  The last postMagnitude is always NaN.\n    postDuration: The duration of the segment following the change date. The last postDuration is always NaN.\n    postRate: The rate of change of the data following the change date. The last postRate is always NaN.\n    indexRegrowth: The difference between the value in change date and the value five data points after.\n    recoveryIndicator: The indexRegrowth/magnitude ratio.\n    regrowth60: Time difference between breakpoint and the  data point where the series value is 60% of the pre-distrubance value.\n    regrowth60: Time difference between breakpoint and the  data point where the series value is 80% of the pre-distrubance value.\n    regrowth60: Time difference between breakpoint and the  data point where the series value is 100% of the pre-distrubance value.\n See: Hermosilla et al. (2015) dx.doi.org/10.1016/j.rse.2014.11.005 for further details on the original algorithm.\n Algorithm implementation can be found on GitHub: https://github.com/saveriofrancini/C2C-GEE\n Acknowledgements: FORWARDS and NextGenCarbon.\n Citation: Txomin Hermosilla, Michael A. Wulder, Joanne C. White, Nicholas C. Coops, Daniel Coelho, Giovanni Ciatto, Noel Gorelick, and Saverio Francini. In preparation. Image compositing, time-series change detection and temporal metrics: Implementation of the Composite2Change (C2C) algorithm on Google Earth Engine.   This algorithm is in preview and is subject to change.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -657,6 +657,26 @@
       "type": "Float",
       "optional": true,
       "defaultValue": 0.85
+    }, {
+      "argumentName": "includePostMetrics",
+      "type": "Boolean",
+      "optional": true,
+      "defaultValue": true
+    }, {
+      "argumentName": "includeRegrowth",
+      "type": "Boolean",
+      "optional": true,
+      "defaultValue": false
+    }, {
+      "argumentName": "useRelativeRegrowth",
+      "type": "Boolean",
+      "optional": true,
+      "defaultValue": false
+    }, {
+      "argumentName": "negativeMagnitudeOnly",
+      "type": "Boolean",
+      "optional": true,
+      "defaultValue": false
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.StructuralChangeBreakpoints",
@@ -9497,6 +9517,16 @@
       "description": "The Cloud Storage URI of the GeoTIFF to load. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or the US-CENTRAL1 region."
     }]
   }, {
+    "name": "algorithms/Image.loadMosaic",
+    "description": "Loads a mosaic metadata file as an Image.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "uri",
+      "type": "String",
+      "description": "The Cloud Storage URI of the mosaic metadata file to load."
+    }],
+    "hidden": true
+  }, {
     "name": "algorithms/Image.loadZarrV2Array",
     "description": "Loads a Zarr v2 array as an Image. The array attributes (.zattrs) must contain the field \u0027_ARRAY_DIMENSIONS\u0027, which is a list of the names of each dimension (e.g., [\u0027time\u0027, \u0027y\u0027, \u0027x\u0027]). There must be at least two dimensions, with the final two representing Y and X respectively (e.g., [\u0027lat\u0027, \u0027lon\u0027]). The supported compression codecs are \u0027blosc\u0027, \u0027gzip\u0027, \u0027lz4\u0027, \u0027zlib\u0027, and \u0027zstd\u0027. The supported blosc meta-compression codecs are \u0027lz4\u0027, lz4hc\u0027, \u0027zlib\u0027, and \u0027zstd\u0027 (\u0027blosclz\u0027 is not supported).",
     "returnType": "Image\u003cunknown bands\u003e",
@@ -10404,7 +10434,7 @@
     }]
   }, {
     "name": "algorithms/Image.sldStyle",
-    "description": "Styles a raster input with the provided OGC SLD styling.\nPoints of note:\n * OGC SLD 1.0 and OGC SE 1.1 are supported.\n * The XML document passed in can be complete, or just the   SldRasterSymbolizer element and down.\n * Exactly one SldRasterSymbolizer is required.\n * Bands may be selected by their proper EarthEngine names or   using numeric identifiers (\"1\", \"2\", ...). Proper   EarthEngine names are tried first.\n * The Histogram and Normalize contrast stretch mechanisms are   supported.\n * The type\u003d\"values\", type\u003d\"intervals\" and type\u003d\"ramp\"   attributes for ColorMap element in SLD 1.0 (GeoServer   extensions) are supported.\n * Opacity is only taken into account when it is 0.0   (transparent). Non-zero opacity values are treated as   completely opaque.\n * The OverlapBehavior definition is currently ignored.\n * The ShadedRelief mechanism is not currently supported.\n * The ImageOutline mechanism is not currently supported.\n * The Geometry element is ignored.\nThe output image will have histogram_bandname metadata if histogram equalization or normalization is requested.",
+    "description": "Styles a raster input with the provided OGC SLD styling.\nPoints of note:\n * OGC SLD 1.0 and OGC SE 1.1 are supported.\n * The XML document passed in can be complete, or just the   SldRasterSymbolizer element and down.\n * Exactly one SldRasterSymbolizer is required.\n * Bands may be selected by their proper Earth Engine names or   using numeric identifiers (\"1\", \"2\", ...). Proper   Earth Engine names are tried first.\n * The Histogram and Normalize contrast stretch mechanisms are   supported.\n * The type\u003d\"values\", type\u003d\"intervals\" and type\u003d\"ramp\"   attributes for ColorMap element in SLD 1.0 (GeoServer   extensions) are supported.\n * Opacity is only taken into account when it is 0.0   (transparent). Non-zero opacity values are treated as   completely opaque.\n * The OverlapBehavior definition is currently ignored.\n * The ShadedRelief mechanism is not currently supported.\n * The ImageOutline mechanism is not currently supported.\n * The Geometry element is ignored.\nThe output image will have histogram_bandname metadata if histogram equalization or normalization is requested.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
