@@ -150,7 +150,10 @@ const simpleCorsAllowedContentTypes: readonly string[] = [
  * by the browser.
  */
 // TODO(user): Return a changed copy of params.
-export function bypassCorsPreflight(params: MakeRequestParams): void {
+export function bypassCorsPreflight(
+  params: MakeRequestParams,
+  singleEncode = false,
+): void {
   const safeHeaders: {[key: string]: string} = {};
   const unsafeHeaders: {[key: string]: string} = {};
   let hasUnsafeHeaders = false;
@@ -196,8 +199,10 @@ export function bypassCorsPreflight(params: MakeRequestParams): void {
   }
 
   if (hasUnsafeHeaders) {
-    const finalParam =
-      httpCors.generateEncodedHttpHeadersOverwriteParam(unsafeHeaders);
+    const generator = singleEncode
+      ? httpCors.generateHttpHeadersOverwriteParam
+      : httpCors.generateEncodedHttpHeadersOverwriteParam;
+    const finalParam = generator(unsafeHeaders);
     addQueryParameter(params, httpCors.HTTP_HEADERS_PARAM_NAME, finalParam);
   }
   params.headers = safeHeaders;

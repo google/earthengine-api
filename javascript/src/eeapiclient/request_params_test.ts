@@ -253,4 +253,25 @@ describe('bypassCorsPreflight', () => {
       '$httpMethod': 'PUT',
     });
   });
+
+  it('handles singleEncode=true', () => {
+    const params: MakeRequestParams = {
+      path: 'v1/whatever',
+      httpMethod: 'PUT',
+      methodId: 'someservice.whatever.put',
+      headers: {'accept-language': 'de', 'foo': 'bar'},
+      queryParams: {'hello': 'world'},
+    };
+    bypassCorsPreflight(params, /** singleEncode= */ true);
+    expect(params.headers).toEqual({
+      'accept-language': 'de',
+      'Content-Type': 'text/plain',
+    });
+    expect(params.httpMethod).toEqual('POST');
+    expect(params.queryParams).toEqual({
+      'hello': 'world',
+      '$httpHeaders': 'foo:bar\r\nContent-Type:application/json\r\n',
+      '$httpMethod': 'PUT',
+    });
+  });
 });
