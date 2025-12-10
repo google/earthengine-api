@@ -63,6 +63,46 @@ from .reducer import Reducer
 from .serializer import Serializer
 from .terrain import Terrain
 
+__all__: tuple[str, ...] = (
+    'Array',
+    'Blob',
+    'Classifier',
+    'Clusterer',
+    'Collection',
+    'ComputedObject',
+    'ConfusionMatrix',
+    'CustomFunction',
+    'Date',
+    'DateRange',
+    'Dictionary',
+    'EEException',
+    'Element',
+    'Encodable',
+    'ErrorMargin',
+    'Feature',
+    'FeatureCollection',
+    'Filter',
+    'Function',
+    'Geometry',
+    'Image',
+    'ImageCollection',
+    'Join',
+    'Kernel',
+    'List',
+    'Model',
+    'Number',
+    'PixelType',
+    'Projection',
+    'Reducer',
+    'Serializer',
+    'ServiceAccountCredentials',
+    'String',
+    'Terrain',
+    'apply',
+    'call',
+    'profilePrinting',
+)
+
 # Tell pytype not to worry about dynamic attributes.
 _HAS_DYNAMIC_ATTRIBUTES = True
 
