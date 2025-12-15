@@ -5894,7 +5894,7 @@
       "type": "Long",
       "description": "The version of the asset. -1 signifies the latest version. Ignored unless tableId is an asset ID.",
       "optional": true,
-      "defaultValue": null
+      "defaultValue": -1.0
     }]
   }, {
     "name": "algorithms/Collection.merge",
@@ -9404,7 +9404,7 @@
     }, {
       "argumentName": "size",
       "type": "Integer",
-      "description": "The size of the neighborhood to include in each GLCM.",
+      "description": "The size of the neighborhood to include in each GLCM. For example, the size of 1 corresponds to a 3x3 square, the size of 2 corresponds to a 5x5 square, the size of 3 corresponds to a 7x7 square, etc.",
       "optional": true,
       "defaultValue": 1.0
     }, {
