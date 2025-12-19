@@ -848,6 +848,131 @@ class DataTest(unittest.TestCase):
             cloud_api_resource.projects().maps().create.call_args_list[1]
             .kwargs['workloadTag'])
 
+  def test_get_map_id_with_string_image(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      with self.assertRaisesRegex(
+          ee.ee_exception.EEException, '^Image as JSON string not supported.'
+      ):
+        ee.data.getMapId({'image': 'my-image'})
+
+  def test_get_map_id_with_version(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      with self.assertRaisesRegex(
+          ee.ee_exception.EEException,
+          '^Image version specification not supported.',
+      ):
+        ee.data.getMapId({
+            'image': image.Image('my-image'),
+            'version': '123',
+        })
+
+  def test_get_map_id_with_vis_params(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'name': 'projects/earthengine-legacy/maps/DOCID',
+      }
+      cloud_api_resource.projects().maps().create().execute.return_value = (
+          mock_result
+      )
+      vis_params = {'paletteColors': ['FF0000']}
+      ee.data.getMapId({
+          'image': image.Image('my-image'),
+          'palette': 'FF0000',
+      })
+      self.assertEqual(
+          2, cloud_api_resource.projects().maps().create.call_count
+      )
+      kwargs = (
+          cloud_api_resource.projects().maps().create.call_args_list[1].kwargs
+      )
+      self.assertIn('body', kwargs)
+      self.assertIn('visualizationOptions', kwargs['body'])
+      self.assertEqual(vis_params, kwargs['body']['visualizationOptions'])
+
+  def test_get_map_id_with_cloud_api_key(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data._get_state().cloud_api_key = 'my-api-key'
+      mock_result = {
+          'name': 'projects/earthengine-legacy/maps/DOCID',
+      }
+      cloud_api_resource.projects().maps().create().execute.return_value = (
+          mock_result
+      )
+      actual_result = ee.data.getMapId({
+          'image': image.Image('my-image'),
+      })
+      self.assertIn('?key=my-api-key', actual_result['tile_fetcher'].url_format)
+
+  def test_get_thumbnail_default(self):
+    cloud_api_resource_raw = mock.MagicMock()
+    with apitestcase.UsingCloudApi(
+        cloud_api_resource_raw=cloud_api_resource_raw
+    ):
+      thumb_id = 'projects/earthengine-legacy/thumbnails/some-id'
+      thumb_id_result = {'thumbid': thumb_id}
+      img = image.Image('my-image')
+      img.getThumbId = mock.Mock(return_value=thumb_id_result)
+      params = {'image': img}
+      (
+          cloud_api_resource_raw.projects()
+          .thumbnails()
+          .getPixels.return_value.execute.return_value
+      ) = b'pixel data'
+      result = ee.data.getThumbnail(params)
+      self.assertEqual(b'pixel data', result)
+      img.getThumbId.assert_called_once_with(params)
+      cloud_api_resource_raw.projects().thumbnails().getPixels.assert_called_once_with(
+          name=thumb_id
+      )
+
+  def test_get_thumbnail_video(self):
+    cloud_api_resource_raw = mock.MagicMock()
+    with apitestcase.UsingCloudApi(
+        cloud_api_resource_raw=cloud_api_resource_raw
+    ):
+      thumb_id = 'projects/earthengine-legacy/videoThumbnails/some-id'
+      thumb_id_result = {'thumbid': thumb_id}
+      img = image.Image('my-image')
+      img.getThumbId = mock.Mock(return_value=thumb_id_result)
+      params = {'image': img}
+      (
+          cloud_api_resource_raw.projects()
+          .videoThumbnails()
+          .getPixels.return_value.execute.return_value
+      ) = b'video data'
+      result = ee.data.getThumbnail(params, thumbType='video')
+      self.assertEqual(b'video data', result)
+      img.getThumbId.assert_called_once_with(params)
+      cloud_api_resource_raw.projects().videoThumbnails().getPixels.assert_called_once_with(
+          name=thumb_id
+      )
+
+  def test_get_thumbnail_filmstrip(self):
+    cloud_api_resource_raw = mock.MagicMock()
+    with apitestcase.UsingCloudApi(
+        cloud_api_resource_raw=cloud_api_resource_raw
+    ):
+      thumb_id = 'projects/earthengine-legacy/filmstripThumbnails/some-id'
+      thumb_id_result = {'thumbid': thumb_id}
+      img = image.Image('my-image')
+      img.getThumbId = mock.Mock(return_value=thumb_id_result)
+      params = {'image': img}
+      (
+          cloud_api_resource_raw.projects()
+          .filmstripThumbnails()
+          .getPixels.return_value.execute.return_value
+      ) = b'filmstrip data'
+      result = ee.data.getThumbnail(params, thumbType='filmstrip')
+      self.assertEqual(b'filmstrip data', result)
+      img.getThumbId.assert_called_once_with(params)
+      cloud_api_resource_raw.projects().filmstripThumbnails().getPixels.assert_called_once_with(
+          name=thumb_id
+      )
+
   def test_get_download_id(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
@@ -948,6 +1073,14 @@ class DataTest(unittest.TestCase):
             'thumbid-tag',
             cloud_api_resource.projects().thumbnails().create.call_args
             .kwargs['workloadTag'])
+
+  def test_make_thumb_url_with_api_key(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data._get_state().cloud_api_key = 'my-api-key'
+      thumb_id = {'thumbid': 'projects/earthengine-legacy/thumbnails/some-id'}
+      url = ee.data.makeThumbUrl(thumb_id)
+      self.assertIn('?key=my-api-key', url)
 
   def test_get_table_download_id(self):
     cloud_api_resource = mock.MagicMock()
