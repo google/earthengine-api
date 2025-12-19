@@ -272,6 +272,31 @@ class DateRangeTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_unbounded(self):
+    expect = make_expression_graph({
+        'functionName': 'DateRange.unbounded',
+        'arguments': {},
+    })
+    expression = ee.DateRange.unbounded()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    is_unbounded_expect = make_expression_graph({
+        'arguments': {
+            'dateRange': {
+                'functionInvocationValue': {
+                    'functionName': 'DateRange.unbounded',
+                    'arguments': {},
+                }
+            }
+        },
+        'functionName': 'DateRange.isUnbounded',
+    })
+
+    is_unbounded_expression = expression.isUnbounded()
+    is_unbounded_result = json.loads(is_unbounded_expression.serialize())
+    self.assertEqual(is_unbounded_expect, is_unbounded_result)
+
   def test_union(self):
     expect = make_expression_graph({
         'arguments': {
