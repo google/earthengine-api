@@ -28,10 +28,10 @@ class Feature(element.Element):
   def __init__(
       self,
       geom: None | (
-              Feature |
-              geometry.Geometry |
-              dict[str, Any] |
-              computedobject.ComputedObject
+          Feature |
+          geometry.Geometry |
+          dict[str, Any] |
+          computedobject.ComputedObject
       ),
       properties: None | (
           dict[str, Any] | computedobject.ComputedObject
@@ -682,6 +682,7 @@ class Feature(element.Element):
     )
 
   def setGeometry(
+      # pylint: disable-next=redefined-outer-name
       self, geometry: _arg_types.Geometry | None = None
   ) -> Feature:
     """Returns the feature with the geometry replaced by the specified geometry.

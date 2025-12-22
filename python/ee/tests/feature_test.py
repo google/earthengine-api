@@ -121,6 +121,30 @@ class FeatureTest(apitestcase.ApiTestCase):
         'system:index': 'bar'
     }, from_geo_json_feature.args['metadata'])
 
+  def test_feature_copy(self):
+    feature = ee.Feature(ee.Geometry.Point(1, 2), {'x': 1})
+    feature_copy = ee.Feature(feature)
+    self.assertEqual(feature.func, feature_copy.func)
+    self.assertEqual(feature.args, feature_copy.args)
+
+  def test_feature_with_properties_exception(self):
+    with self.assertRaisesRegex(
+        ee.EEException, 'Cannot create Feature out of a Feature and properties'
+    ):
+      ee.Feature(ee.Feature(None), {'x': 2})
+
+  def test_id_and_system_index_exception(self):
+    point = ee.Geometry.Point(1, 2)
+    with self.assertRaisesRegex(
+        ee.EEException, 'Cannot specify both "id" and "system:index"'
+    ):
+      ee.Feature({
+          'type': 'Feature',
+          'id': 'bar',
+          'geometry': point.toGeoJSON(),
+          'properties': {'system:index': 'bar'},
+      })
+
   def test_get_map(self):
     """Verifies that getMap() uses Collection.draw to rasterize Features."""
     feature = ee.Feature(None)
