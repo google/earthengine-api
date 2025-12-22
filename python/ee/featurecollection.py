@@ -35,12 +35,12 @@ class FeatureCollection(collection.Collection[feature.Feature]):
   def __init__(
       self,
       args: None | (
-              dict[str, Any] |
-              list[Any] |
-              str |
-              feature.Feature |
-              geometry.Geometry |
-              computedobject.ComputedObject
+          dict[str, Any] |
+          list[Any] |
+          str |
+          feature.Feature |
+          geometry.Geometry |
+          computedobject.ComputedObject
       ),
       column: Any | None = None,
   ):

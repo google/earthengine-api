@@ -96,6 +96,19 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
         ee.ComputedObject(None, {'x': 'y'}))
     self.assertEqual({'x': 'y'}, from_computed_object.args)
 
+  def test_invalid_constructor_args(self):
+    with self.assertRaisesRegex(
+        ee.EEException,
+        'Unrecognized argument type to convert to a FeatureCollection: 1',
+    ):
+      ee.FeatureCollection(1)
+
+    with self.assertRaisesRegex(
+        ee.EEException,
+        'Unrecognized argument type to convert to a FeatureCollection: None',
+    ):
+      ee.FeatureCollection(None)
+
   def test_get_map_id(self):
     """Verifies that getMap() uses Collection.draw to draw."""
     collection = ee.FeatureCollection('test5')
@@ -125,6 +138,13 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     self.assertEqual(
         ee.FeatureCollection('test7').getDownloadUrl('csv'),
         ee.FeatureCollection('test7').getDownloadURL('csv'))
+
+    ee.FeatureCollection('test9').getDownloadURL(selectors=['bar', 'baz'])
+    self.assertEqual(
+        ee.FeatureCollection('test9').serialize(),
+        self.last_table_call['data']['table'].serialize(),
+    )
+    self.assertEqual('bar,baz', self.last_table_call['data']['selectors'])
 
   def test_download_table_with_cloud_api(self):
     cloud_api_resource = mock.MagicMock()
