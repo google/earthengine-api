@@ -47,6 +47,12 @@ class ListTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, json.loads(ee.List(tuple([42])).serialize()))
     self.assertEqual(expect, json.loads(ee.List([42]).serialize()))
 
+  def test_bad_list(self):
+    with self.assertRaisesRegex(
+        ee.EEException, 'Invalid argument specified for ee.List'
+    ):
+      ee.List('not a list')
+
   def test_mapping(self):
     lst = ee.List(['foo', 'bar'])
     body = lambda s: ee.String(s).cat('bar')
@@ -359,7 +365,31 @@ class ListTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # TODO: test_iterate
+  def test_iterate(self):
+    lst = ee.List([1, 2, 3])
+    body = lambda n, p: ee.Number(p).add(n)
+    iterated = lst.iterate(body, 0)
+
+    self.assertIsInstance(iterated, ee.ComputedObject)
+    self.assertEqual(ee.ApiFunction.lookup('List.iterate'), iterated.func)
+    self.assertEqual(lst, iterated.args['list'])
+    self.assertEqual(0, iterated.args['first'])
+
+    sig = {
+        'returns': 'Object',
+        'args': [
+            {'name': '_MAPPING_VAR_0_0', 'type': 'Object'},
+            {'name': '_MAPPING_VAR_0_1', 'type': 'Object'},
+        ],
+    }
+    expected_function = ee.CustomFunction(sig, body)
+    self.assertEqual(
+        expected_function.serialize(), iterated.args['function'].serialize()
+    )
+    self.assertEqual(
+        expected_function.serialize(for_cloud_api=True),
+        iterated.args['function'].serialize(for_cloud_api=True),
+    )
 
   def test_join(self):
     expect = make_expression_graph({
