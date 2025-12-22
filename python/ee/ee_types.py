@@ -77,6 +77,7 @@ def isSubtype(firstType: str, secondType: str) -> bool:
                           'Collection', 'ImageCollection', 'FeatureCollection')
   elif firstType in ('FeatureCollection', 'Collection'):
     return secondType in ('Collection', 'ImageCollection', 'FeatureCollection')
+  # TODO: elif firstType == 'Object':
   elif firstType == object:
     return True
   else:
