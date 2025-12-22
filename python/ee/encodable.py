@@ -1,4 +1,7 @@
-"""Interfaces implemented by serializable objects."""
+"""Interfaces implemented by serializable objects.
+
+This file has no implementation, only interfaces.
+"""
 
 from collections.abc import Callable
 from typing import Any
