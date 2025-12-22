@@ -51,7 +51,7 @@ class ListTest(apitestcase.ApiTestCase):
     with self.assertRaisesRegex(
         ee.EEException, 'Invalid argument specified for ee.List'
     ):
-      ee.List('not a list')
+      ee.List('not a list')  # pytype: disable=wrong-arg-types
 
   def test_mapping(self):
     lst = ee.List(['foo', 'bar'])
