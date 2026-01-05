@@ -144,13 +144,13 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
 
   def test_filmstrip_thumb_url_invalid_format(self):
     """Verifies correct thumbnailing behavior."""
-    message = r'Invalid format specified for thumbnail\. gif'
+    message = r'Invalid format specified for thumbnail: "gif"'
     with self.assertRaisesRegex(ee.EEException, message):
       ee.ImageCollection(ee.Image(1)).getFilmstripThumbURL({'format': 'gif'})
 
   def test_video_thumb_url_invalid_format(self):
     """Verifies correct thumbnailing behavior."""
-    message = r'Invalid format specified for thumbnail\. png'
+    message = r'Invalid format specified for thumbnail: "png"'
     with self.assertRaisesRegex(ee.EEException, message):
       ee.ImageCollection(ee.Image(1)).getVideoThumbURL({'format': 'png'})
 
