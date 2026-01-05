@@ -28,6 +28,11 @@ class JoinTest(apitestcase.ApiTestCase):
     with self.assertRaisesRegex(TypeError, message):
       ee.Join()  # pytype:disable=missing-parameter
 
+  def test_join_type_error(self):
+    message = r"Join can only be used as a cast to Join\. Found <class 'str'>"
+    with self.assertRaisesRegex(TypeError, message):
+      ee.Join('some string')  # pytype:disable=wrong-arg-types
+
   def test_apply(self):
     expect = make_expression_graph({
         'arguments': {
