@@ -816,7 +816,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     # pylint: disable=protected-access
     self.assertEqual([], ee.Geometry._coordinatesToLine([]))
     self.assertEqual([1, 2], ee.Geometry._coordinatesToLine([1, 2]))
-    # TODO: schwehr - Improve _coordinatesToLine typing.
+    # TODO: user - Improve _coordinatesToLine typing.
     self.assertEqual(
         [[1, 2]],
         ee.Geometry._coordinatesToLine([[1, 2]]),  # pytype: disable=wrong-arg-types

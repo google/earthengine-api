@@ -3191,7 +3191,7 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The distance metric to use. NOTE: KD_TREE (and AUTO for low dimensions) will not use the metric selected. Options are:\n  \u0027EUCLIDEAN\u0027 - Euclidean distance.\n  \u0027MAHALANOBIS\u0027 - Mahalanobis distance.\n  \u0027MANHATTAN\u0027 - Manhattan distance.\n  \u0027BRAYCURTIS\u0027 - Bray-Curtis distance.",
+      "description": "The distance metric to use. NOTE: Euclidean distance.\n  \u0027MAHALANOBIS\u0027 - Mahalanobis distance.\n  \u0027MANHATTAN\u0027 - Manhattan distance.\n  \u0027BRAYCURTIS\u0027 - Bray-Curtis distance.",
       "optional": true,
       "defaultValue": "EUCLIDEAN"
     }]
