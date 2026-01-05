@@ -135,7 +135,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
     this.opacity = opacity;
     this.tilesById.forEach(function(tile) {
       goog.style.setOpacity(tile.div, this.opacity);
-    }, this);
+    }.bind(this));
   }
 
   /**
@@ -201,7 +201,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
    */
   releaseTile(tileDiv) {
     var tile = this.tilesById.get(tileDiv.id);
-    this.tilesById.remove(tileDiv.id);
+    this.tilesById.delete(tileDiv.id);
     if (tile) {
       tile.abort();
       goog.dispose(tile);
@@ -283,7 +283,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
    * @private
    */
   getTileCountForStatus_(status) {
-    return goog.array.count(this.tilesById.getValues(), function(tile) {
+    return goog.array.count([...this.tilesById.values()], function(tile) {
       return tile.getStatus() == status;
     });
   }
