@@ -459,6 +459,13 @@ ee.promote_ = function(arg, klass) {
     default:
       // Handle dynamically generated classes.
       if (klass in exportedEE) {
+        if (!(exportedEE[klass].prototype instanceof ee.ComputedObject)) {
+          // Block things that should not be replaced.
+          throw new Error(
+              'Algorithm not an instance of ee.ComputedObject: ' + klass +
+              ': ' + arg);
+        }
+
         const ctor = ee.ApiFunction.lookupInternal(klass);
         if (arg instanceof exportedEE[klass]) {
           // Return unchanged.
