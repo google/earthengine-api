@@ -8,6 +8,7 @@ from typing import Any
 import unittest
 import ee
 from ee import apitestcase
+from ee import ee_exception
 
 
 def make_expression_graph(
@@ -39,6 +40,12 @@ class FilterTest(apitestcase.ApiTestCase):
 
     copy = ee.Filter(from_static_method)
     self.assertEqual(from_static_method, copy)
+
+  def test_noop_filter_raises(self):
+    with self.assertRaisesRegex(
+        ee_exception.EEException, r'Invalid argument specified for ee\.Filter()'
+    ):
+      ee.Filter(ee.Filter())
 
   def test_metadata(self):
     """Verifies that the metadata_() method works."""
