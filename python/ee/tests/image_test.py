@@ -97,6 +97,20 @@ class ImageTest(apitestcase.ApiTestCase):
         'value': 'foo'
     }, from_variable.encode(None))
 
+  def test_constructor_invalid_version(self):
+    with self.assertRaisesRegex(
+        ee_exception.EEException,
+        r'If version is specified, the arg to Image\(\) must be a string',
+    ):
+      ee.Image(123, version=456)
+
+  def test_constructor_unrecognized_type(self):
+    with self.assertRaisesRegex(
+        ee_exception.EEException,
+        'Unrecognized argument type to convert to an Image:',
+    ):
+      ee.Image({'some': 'dict'})
+
   def test_image_signatures(self):
     """Verifies that the API functions are added to ee.Image."""
     self.assertTrue(hasattr(ee.Image(1), 'addBands'))
@@ -629,6 +643,19 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
       )
       self.assertEqual({}, params)
 
+  def test_prepare_for_export_with_crs_and_crsTransform(self):
+    with apitestcase.UsingCloudApi():
+      image, params = self._base_image.prepare_for_export(
+          {'crs': 'ABCD', 'crsTransform': '1,2,3,4,5,6'}
+      )
+      self.assertImageEqual(
+          self._base_image.reproject(
+              crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6]
+          ),
+          image,
+      )
+      self.assertEqual({}, params)
+
   def test_prepare_for_export_invalid_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
       with self.assertRaises(ee_exception.EEException):
@@ -637,6 +664,20 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
         self._base_image.prepare_for_export(
             {'crs': 'ABCD', 'crs_transform': 'x'}
         )
+      with self.assertRaisesRegex(
+          ee_exception.EEException,
+          'Both "crs_transform" and "crsTransform" are specified.',
+      ):
+        self._base_image.prepare_for_export({
+            'crs': 'EPSG:4326',
+            'crs_transform': [1, 2, 3, 4, 5, 6],
+            'crsTransform': [1, 2, 3, 4, 5, 6],
+        })
+
+  def test_prepare_for_export_invalid_dimensions(self):
+    with apitestcase.UsingCloudApi():
+      with self.assertRaisesRegex(ee_exception.EEException, 'Invalid dimensions'):
+        self._base_image.prepare_for_export({'dimensions': [1, 2, 3]})
 
   def test_prepare_for_export_with_polygon(self):
     with apitestcase.UsingCloudApi():
