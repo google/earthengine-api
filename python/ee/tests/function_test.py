@@ -34,6 +34,11 @@ Args:
 
 class FunctionTest(unittest.TestCase):
 
+  def test_get_signature_not_implemented(self):
+    message = 'Function subclasses must implement getSignature()'
+    with self.assertRaisesRegex(NotImplementedError, message):
+      ee.Function().getSignature()
+
   def test_name_args(self):
     """Verifies that Functions can convert positional to named arguments."""
     self.assertEqual({}, TEST_FUNC.nameArgs([]))
@@ -43,6 +48,13 @@ class FunctionTest(unittest.TestCase):
 
     self.assertRaisesRegex(ee.EEException, 'Too many', TEST_FUNC.nameArgs,
                            [1, 2, 3])
+    self.assertRaisesRegex(
+        ee.EEException,
+        'Argument a specified as both positional and keyword',
+        TEST_FUNC.nameArgs,
+        [1],
+        {'a': 2},
+    )
 
   def test_promote_args(self):
     """Verifies that Functions can promote and verify their arguments."""
