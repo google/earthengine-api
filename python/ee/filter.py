@@ -69,6 +69,11 @@ class Filter(computedobject.ComputedObject):
     if isinstance(filter_, computedobject.ComputedObject):
       super().__init__(filter_.func, filter_.args, filter_.varName)
       self._filter = (filter_,)
+    elif filter_ is None:
+      # A call with no arguments left for backward-compatibility.
+      # Encoding such a filter is expected to fail.
+      super().__init__(None, None)
+      self._filter = ()
     else:
       raise ee_exception.EEException(
           'Invalid argument specified for ee.Filter(): %s' % filter_

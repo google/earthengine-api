@@ -100,13 +100,13 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
   def test_filter(self):
     """Verifies that filtering an ImageCollection wraps the result."""
     collection = ee.ImageCollection(ee.Image(1))
-    eq_filter = ee.Filter.eq('foo', 'bar')
-    filtered = collection.filter(eq_filter)
+    noop_filter = ee.Filter()
+    filtered = collection.filter(noop_filter)
     self.assertIsInstance(filtered, ee.ImageCollection)
     self.assertEqual(ee.ApiFunction.lookup('Collection.filter'), filtered.func)
     self.assertEqual({
         'collection': collection,
-        'filter': eq_filter
+        'filter': noop_filter
     }, filtered.args)
 
   def test_first_lookup(self):
