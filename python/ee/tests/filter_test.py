@@ -40,6 +40,24 @@ class FilterTest(apitestcase.ApiTestCase):
     copy = ee.Filter(from_static_method)
     self.assertEqual(from_static_method, copy)
 
+  def test_constructor_no_args(self):
+    # This is code to be avoided, but since it has been this way for a long
+    # time, this captures the current behavior.
+    # Please do not use `ee.Filter()` to access static methods like `Or`.
+    # Instead, call them directly on the class, e.g., `ee.Filter.Or(...)`.
+    a_filter = ee.Filter()
+    self.assertEqual(a_filter.predicateCount(), 0)
+
+    self.assertTrue(a_filter.isVariable())
+
+    # Not very intuitive error message.
+    with self.assertRaisesRegex(ee.EEException, 'arguments cannot be used'):
+      a_filter.serialize()
+
+    # Not very intuitive error message.
+    with self.assertRaisesRegex(ee.EEException, 'arguments cannot be used'):
+      str(a_filter)
+
   def test_metadata(self):
     """Verifies that the metadata_() method works."""
     self.assertEqual(
