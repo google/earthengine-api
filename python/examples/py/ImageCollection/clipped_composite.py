@@ -19,7 +19,7 @@ image1 = collection.median()
 
 # Clip to the output image to the California state boundary.
 fc = (ee.FeatureCollection('TIGER/2018/States')
-      .filter(ee.Filter().eq('NAME', 'California')))
+      .filter(ee.Filter.eq('NAME', 'California')))
 image2 = image1.clipToCollection(fc)
 
 # Select the red, green and blue bands.

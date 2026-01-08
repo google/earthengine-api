@@ -10,8 +10,8 @@ ee.mapclient.centerMap(-122.39, 37.7857, 12)
 
 photos_near_sf = ee.FeatureCollection('GOOGLE/EE/DEMOS/sf-photo-locations')
 bridge_photos = photos_near_sf.filter(
-    ee.Filter().Or(ee.Filter.stringContains('title', 'Bridge'),
-                   ee.Filter.stringContains('title', 'bridge')))
+    ee.Filter.Or(ee.Filter.stringContains('title', 'Bridge'),
+                 ee.Filter.stringContains('title', 'bridge')))
 
 ee.mapclient.addToMap(photos_near_sf, {'color': '0040b0'})
 ee.mapclient.addToMap(bridge_photos, {'color': 'e02070'})

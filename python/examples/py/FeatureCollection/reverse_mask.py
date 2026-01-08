@@ -10,7 +10,7 @@ ee.Initialize()
 ee.mapclient.centerMap(-115, 39, 5)
 
 fc = (ee.FeatureCollection('RESOLVE/ECOREGIONS/2017')
-      .filter(ee.Filter().eq('ECO_NAME', 'Great Basin shrub steppe')))
+      .filter(ee.Filter.eq('ECO_NAME', 'Great Basin shrub steppe')))
 
 # Start with a black image.
 empty = ee.Image(0).toByte()
