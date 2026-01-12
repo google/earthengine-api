@@ -148,6 +148,60 @@ class ImageTest(apitestcase.ApiTestCase):
         'srcImg': image2
     }, combined.args['input'].args)
 
+  def test_rgb(self):
+    """Verifies the behavior of ee.Image.rgb()."""
+    r = 1.1
+    g = 2.2
+    b = 3.3
+    expression = ee.Image.rgb(r, g, b)
+    expect = make_expression_graph({
+        'arguments': {
+            'input': {
+                'functionInvocationValue': {
+                    'functionName': 'Image.addBands',
+                    'arguments': {
+                        'dstImg': {
+                            'functionInvocationValue': {
+                                'functionName': 'Image.addBands',
+                                'arguments': {
+                                    'dstImg': {
+                                        'functionInvocationValue': {
+                                            'functionName': 'Image.constant',
+                                            'arguments': {
+                                                'value': {'constantValue': r}
+                                            },
+                                        }
+                                    },
+                                    'srcImg': {
+                                        'functionInvocationValue': {
+                                            'functionName': 'Image.constant',
+                                            'arguments': {
+                                                'value': {'constantValue': g}
+                                            },
+                                        }
+                                    },
+                                },
+                            }
+                        },
+                        'srcImg': {
+                            'functionInvocationValue': {
+                                'functionName': 'Image.constant',
+                                'arguments': {'value': {'constantValue': b}},
+                            }
+                        },
+                    },
+                }
+            },
+            'bandSelectors': {'constantValue': ['.*']},
+            'newNames': {
+                'constantValue': ['vis-red', 'vis-green', 'vis-blue']
+            },
+        },
+        'functionName': 'Image.select',
+    })
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_select(self):
     """Verifies regression in the behavior of empty ee.Image.select()."""
     image = ee.Image([1, 2]).select()
