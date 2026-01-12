@@ -395,6 +395,17 @@ class CloudApiUtilsTest(unittest.TestCase):
             'members': ['group:readerGroup', 'allUsers', 'user:readerUser']
         }]
     }))
+    self.assertEqual(
+        {
+            'owners': [],
+            'writers': [],
+            'readers': [],
+            'all_users_can_read': True,
+        },
+        _cloud_api_utils.convert_iam_policy_to_acl(
+            {'bindings': [{'role': 'roles/viewer', 'members': ['allUsers']}]}
+        ),
+    )
 
   def test_convert_acl_to_iam_policy(self):
     self.assertEqual({
@@ -411,12 +422,24 @@ class CloudApiUtilsTest(unittest.TestCase):
         'readers': ['group:readerGroup', 'user:readerUser'],
         'all_users_can_read': True
     }))
+    self.assertEqual(
+        {
+            'bindings': [
+                {'role': 'roles/viewer', 'members': ['user:readerOnly']}
+            ]
+        },
+        _cloud_api_utils.convert_acl_to_iam_policy(
+            {'readers': ['user:readerOnly']}
+        ),
+    )
 
   def test_convert_to_grid_dimension(self):
     self.assertEqual({'width': 123, 'height': 123},
                      _cloud_api_utils.convert_to_grid_dimensions(123))
-    self.assertEqual({'width': 123, 'height': 123},
-                     _cloud_api_utils.convert_to_grid_dimensions(123))
+    self.assertEqual(
+        {'width': 123, 'height': 123},
+        _cloud_api_utils.convert_to_grid_dimensions([123]),
+    )
     self.assertEqual({'width': 123, 'height': 234},
                      _cloud_api_utils.convert_to_grid_dimensions((123, 234)))
 
