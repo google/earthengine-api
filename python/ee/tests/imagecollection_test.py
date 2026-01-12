@@ -722,7 +722,38 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # fromImages already tested in other tests.
+  def test_from_images(self):
+    images = [ee.Image(1), ee.Image(2)]
+    expect = make_expression_graph({
+        'arguments': {
+            'images': {
+                'arrayValue': {
+                    'values': [
+                        {
+                            'functionInvocationValue': {
+                                'functionName': 'Image.constant',
+                                'arguments': {'value': {'constantValue': 1}},
+                            }
+                        },
+                        {
+                            'functionInvocationValue': {
+                                'functionName': 'Image.constant',
+                                'arguments': {'value': {'constantValue': 2}},
+                            }
+                        },
+                    ]
+                }
+            }
+        },
+        'functionName': 'ImageCollection.fromImages',
+    })
+    expression = ee.ImageCollection.fromImages(images)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection.fromImages(images=images)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_geometry(self):
     max_error = 1.1
