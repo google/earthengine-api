@@ -721,6 +721,8 @@ def convert_to_image_file_format(format_str: str | None) -> str:
     return 'GEO_TIFF'
   elif format_str == 'TFRECORD':
     return 'TF_RECORD_IMAGE'
+  elif format_str == 'NUMPY':
+    return 'NPY'
   else:
     # It's probably "JPEG" or "PNG", but might be some other supported format.
     # Let the server validate it.
