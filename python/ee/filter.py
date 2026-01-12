@@ -7,7 +7,6 @@ Example usage:
      .lt('time', value)
 """
 
-# Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
 from __future__ import annotations
