@@ -691,7 +691,7 @@ def getMapId(params: dict[str, Any]) -> dict[str, Any]:
   map_name = result['name']
   version = _cloud_api_utils.VERSION
   url_format = (
-      '{state.tile_base_url}/{version}/{map_name)}/tiles/{{z}}/{{x}}/{{y}}'
+      f'{state.tile_base_url}/{version}/{map_name}/tiles/{{z}}/{{x}}/{{y}}'
   )
   if state.cloud_api_key:
     url_format += f'?key={state.cloud_api_key}'
