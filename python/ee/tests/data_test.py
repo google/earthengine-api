@@ -565,23 +565,22 @@ class DataTest(unittest.TestCase):
   def test_set_asset_properties(self):
     mock_http = mock.MagicMock(httplib2.Http)
     with apitestcase.UsingCloudApi(mock_http=mock_http), mock.patch.object(
-        ee.data, 'updateAsset', autospec=True) as mock_update_asset:
-      ee.data.setAssetProperties('foo', {
-          'mYPropErTy': 'Value',
-          'system:time_start': 1
-      })
+        ee.data, 'updateAsset', autospec=True
+    ) as mock_update_asset:
+      ee.data.setAssetProperties(
+          'foo', {'mYPropErTy': 'Value', 'system:time_start': 1}
+      )
       asset_id = mock_update_asset.call_args[0][0]
       self.assertEqual(asset_id, 'foo')
       asset = mock_update_asset.call_args[0][1]
-      self.assertEqual(asset['properties'], {
-          'mYPropErTy': 'Value',
-          'system:time_start': 1
-      })
+      self.assertEqual(
+          asset['properties'], {'mYPropErTy': 'Value', 'system:time_start': 1}
+      )
       update_mask = mock_update_asset.call_args[0][2]
       self.assertSetEqual(
           set(update_mask),
-          {'properties.\"mYPropErTy\"',
-               'properties.\"system:time_start\"'})
+          {'properties."mYPropErTy"', 'properties."system:time_start"'},
+      )
 
   def test_update_asset(self):
     cloud_api_resource = mock.MagicMock()
@@ -895,7 +894,10 @@ class DataTest(unittest.TestCase):
   def test_get_map_id_with_cloud_api_key(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      custom_url = 'https://example.test'
       ee.data._get_state().cloud_api_key = 'my-api-key'
+      ee.data._get_state().tile_base_url = custom_url
+
       mock_result = {
           'name': 'projects/earthengine-legacy/maps/DOCID',
       }
@@ -905,7 +907,31 @@ class DataTest(unittest.TestCase):
       actual_result = ee.data.getMapId({
           'image': image.Image('my-image'),
       })
-      self.assertIn('?key=my-api-key', actual_result['tile_fetcher'].url_format)
+      expected_url = (
+          custom_url
+          + '/v1/projects/earthengine-legacy/maps/DOCID/tiles/{z}/{x}/{y}'
+          '?key=my-api-key'
+      )
+      self.assertEqual(expected_url, actual_result['tile_fetcher'].url_format)
+
+  def test_get_map_id_no_cloud_api_key(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      custom_url = 'https://example.test'
+      ee.data._get_state().cloud_api_key = None
+      ee.data._get_state().tile_base_url = custom_url
+      mock_result = {
+          'name': 'projects/earthengine-legacy/maps/DOCID',
+      }
+      cloud_api_resource.projects().maps().create().execute.return_value = (
+          mock_result
+      )
+      actual_result = ee.data.getMapId({'image': image.Image('my-image')})
+      expected_url = (
+          custom_url
+          + '/v1/projects/earthengine-legacy/maps/DOCID/tiles/{z}/{x}/{y}'
+      )
+      self.assertEqual(expected_url, actual_result['tile_fetcher'].url_format)
 
   def test_get_thumbnail_default(self):
     cloud_api_resource_raw = mock.MagicMock()
