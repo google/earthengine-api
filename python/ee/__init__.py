@@ -11,6 +11,7 @@ import datetime
 import inspect
 import os
 import re
+import typing
 from typing import Any, Optional, Type, Union
 
 from google.oauth2 import service_account
@@ -62,6 +63,48 @@ from .projection import Projection
 from .reducer import Reducer
 from .serializer import Serializer
 from .terrain import Terrain
+
+if typing.TYPE_CHECKING:
+    __all__ = (
+        'apply',
+        'call',
+        'profilePrinting',
+        'ServiceAccountCredentials',
+        'ApiFunction',
+        'Blob',
+        'Classifier',
+        'Clusterer',
+        'Collection',
+        'ComputedObject',
+        'ConfusionMatrix',
+        'CustomFunction',
+        'DateRange',
+        'Dictionary',
+        'Array',
+        'Date',
+        'EEException',
+        'List',
+        'Number',
+        'String',
+        'Element',
+        'Encodable',
+        'ErrorMargin',
+        'Feature',
+        'FeatureCollection',
+        'Filter',
+        'Function',
+        'Geometry',
+        'Image',
+        'ImageCollection',
+        'Join',
+        'Kernel',
+        'Model',
+        'PixelType',
+        'Projection',
+        'Reducer',
+        'Serializer',
+        'Terrain',
+    )
 
 # Tell pytype not to worry about dynamic attributes.
 _HAS_DYNAMIC_ATTRIBUTES = True
