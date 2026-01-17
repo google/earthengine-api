@@ -22,8 +22,6 @@ goog.require('goog.object');
 goog.requireType('ee.Encodable');
 goog.requireType('ee.api');
 
-
-
 /**
  * Creates a function defined by the EE API.
  * @param {string} name The name of the function.
