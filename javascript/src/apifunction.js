@@ -245,47 +245,51 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
   ee.ApiFunction.initialize();
   const prepend = opt_prepend || '';
   goog.object.forEach(ee.ApiFunction.api_, function(apiFunc, name) {
-    const parts = name.split('.');
-    if (parts.length == 2 && parts[0] == prefix) {
-      const fname = prepend + parts[1];
-      const signature = apiFunc.getSignature();
-
-      // Mark signatures as used.
-      ee.ApiFunction.boundSignatures_[name] = true;
-
-      // Decide whether this is a static or an instance function.
-      let isInstance = false;
-      if (signature['args'].length) {
-        const firstArgType = signature['args'][0]['type'];
-        isInstance = firstArgType != 'Object' &&
-                     ee.Types.isSubtype(firstArgType, typeName);
-      }
-      // Assume we have a constructor Function if we get an instance method.
-      const destination =
-          isInstance ? /** @type {!Function} */(target).prototype : target;
-
-      if (fname in destination && !destination[fname]['signature']) {
-        // Don't overwrite client-defined functions.
-        return;
-      }
-
-      // Add the actual function
-      /**
-       * @param {*} var_args
-       * @return {!ee.ComputedObject}
-       * @this {*}
-       **/
-      destination[fname] = function(var_args) {
-        return apiFunc.callOrApply(
-            isInstance ? this : undefined,
-            Array.prototype.slice.call(arguments, 0));
-      };
-      // Add a friendly formatting.
-      destination[fname].toString =
-          goog.bind(apiFunc.toString, apiFunc, fname, isInstance);
-      // Attach the signature object for documentation generators.
-      destination[fname]['signature'] = signature;
+    const parts = name.split('.');  // Should be api group and api method.
+    if (parts.length != 2 || parts[0] != prefix) {
+      return;
     }
+
+    const apiMethod = parts[1];
+
+    const fname = prepend + apiMethod;
+    const signature = apiFunc.getSignature();
+
+    // Mark signatures as used.
+    ee.ApiFunction.boundSignatures_[name] = true;
+
+    // Decide whether this is a static or an instance function.
+    let isInstance = false;
+    if (signature['args'].length) {
+      const firstArgType = signature['args'][0]['type'];
+      isInstance = firstArgType != 'Object' &&
+          ee.Types.isSubtype(firstArgType, typeName);
+    }
+    // Assume we have a constructor Function if we get an instance method.
+    const destination =
+        isInstance ? /** @type {!Function} */ (target).prototype : target;
+
+    if (fname in destination && !destination[fname]['signature']) {
+      // Don't overwrite client-defined functions.
+      return;
+    }
+
+    // Add the actual function
+    /**
+     * @param {*} var_args
+     * @return {!ee.ComputedObject}
+     * @this {*}
+     **/
+    destination[fname] = function(var_args) {
+      return apiFunc.callOrApply(
+          isInstance ? this : undefined,
+          Array.prototype.slice.call(arguments, 0));
+    };
+    // Add a friendly formatting.
+    destination[fname].toString =
+        goog.bind(apiFunc.toString, apiFunc, fname, isInstance);
+    // Attach the signature object for documentation generators.
+    destination[fname]['signature'] = signature;
   });
 };
 
