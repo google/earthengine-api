@@ -167,11 +167,11 @@ ee.ApiFunction.lookup = function(name) {
  * Looks up an API function by name, but doesn't throw an error.
  *
  * @param {string} name The name of the function to get.
- * @return {!ee.ApiFunction} The requested function or null if it's not found.
+ * @return {!ee.ApiFunction|null} The requested function or null if it's not found.
  */
 ee.ApiFunction.lookupInternal = function(name) {
   ee.ApiFunction.initialize();
-  return ee.ApiFunction.api_[name] || null;
+  return ee.ApiFunction.api_.hasOwnProperty(name) ? ee.ApiFunction.api_[name] : null;
 };
 
 
@@ -244,10 +244,20 @@ ee.ApiFunction.reset = function() {
 ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
   ee.ApiFunction.initialize();
   const prepend = opt_prepend || '';
-  goog.object.forEach(ee.ApiFunction.api_, function(apiFunc, name) {
+  const api = ee.ApiFunction.api_;
+  for (const name in api) {
+    // "names" in API either look like:
+    // - `Array` (base constructor), or
+    // - `Array.method` (methods)
+
+    // Ignore properties inherited from the prototype chain.
+    if (!Object.prototype.hasOwnProperty.call(api, name)) {
+      continue;
+    }
+    const apiFunc = api[name];
     const parts = name.split('.');  // Should be api group and api method.
-    if (parts.length != 2 || parts[0] != prefix) {
-      return;
+    if (parts.length !== 2 || parts[0] !== prefix) {
+      continue;
     }
 
     const apiMethod = parts[1];
@@ -263,7 +273,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
     if (signature['args'].length) {
       const firstArgType = signature['args'][0]['type'];
       isInstance = firstArgType != 'Object' &&
-          ee.Types.isSubtype(firstArgType, typeName);
+           ee.Types.isSubtype(firstArgType, typeName);
     }
     // Assume we have a constructor Function if we get an instance method.
     const destination =
@@ -271,7 +281,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
 
     if (fname in destination && !destination[fname]['signature']) {
       // Don't overwrite client-defined functions.
-      return;
+      continue;
     }
 
     // Add the actual function
@@ -290,7 +300,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
         goog.bind(apiFunc.toString, apiFunc, fname, isInstance);
     // Attach the signature object for documentation generators.
     destination[fname]['signature'] = signature;
-  });
+  }
 };
 
 
