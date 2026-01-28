@@ -1,3 +1,5 @@
+# DO NOT SUBMIT
+
 """A wrapper for strings."""
 from __future__ import annotations
 
