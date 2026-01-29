@@ -40,16 +40,16 @@ class Clusterer(computedobject.ComputedObject):
     """
     self.initialize()
 
-    if isinstance(clusterer, computedobject.ComputedObject):
-      # There is no server-side constructor for ee.Clusterer. Pass the object
-      # as-is to the server in case it is intended to be a Clusterer cast.
-      super().__init__(clusterer.func, clusterer.args, clusterer.varName)
-      return
+    if not isinstance(clusterer, computedobject.ComputedObject):
+      raise TypeError(
+          'Clusterer can only be used as a cast to Clusterer. Found'
+          f' {type(clusterer)}.'
+      )
 
-    raise TypeError(
-        'Clusterer can only be used as a cast to Clusterer. Found'
-        f' {type(clusterer)}.'
-    )
+
+    # There is no server-side constructor for ee.Clusterer. Pass the object
+    # as-is to the server in case it is intended to be a Clusterer cast.
+    super().__init__(clusterer.func, clusterer.args, clusterer.varName)
 
   @classmethod
   def initialize(cls) -> None:
