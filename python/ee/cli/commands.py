@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from typing import Any, Union
+from typing import Any
 import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
