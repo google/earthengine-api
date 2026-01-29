@@ -10,7 +10,7 @@ import ee
 from ee import apitestcase
 
 
-class Type(str, enum.Enum):
+class TypeEnum(str, enum.Enum):
   DOUBLE = 'double'
   FLOAT = 'float'
   INT = 'int'
@@ -33,7 +33,7 @@ def make_expression_graph(
   }
 
 
-def pixeltype_function_expr(value: Type) -> dict[str, Any]:
+def pixeltype_function_expr(value: TypeEnum) -> dict[str, Any]:
   return {
       'functionInvocationValue': {
           'functionName': 'PixelType',
@@ -66,7 +66,7 @@ def pixeltype_noargs_expr(type_name: str) -> dict[str, Any]:
 class PixelTypeTest(apitestcase.ApiTestCase):
 
   def test_int(self):
-    precision = Type.INT
+    precision = TypeEnum.INT
     min_value = 0
     max_value = 1
     dimensions = 2
@@ -96,7 +96,7 @@ class PixelTypeTest(apitestcase.ApiTestCase):
         expected_min_value,
         json.loads(pixeltype.args[MIN_VALUE_KEY].serialize()),
     )
-    self.assertEqual(Type.INT, pixeltype.args[PRECISION_KEY])
+    self.assertEqual(TypeEnum.INT, pixeltype.args[PRECISION_KEY])
 
     result = json.loads(pixeltype.serialize())
     expect = {
@@ -118,7 +118,7 @@ class PixelTypeTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
   def test_minimal_double(self):
-    precision = Type.DOUBLE
+    precision = TypeEnum.DOUBLE
     pixeltype = ee.PixelType(precision)
     result = json.loads(pixeltype.serialize())
     expect = {
@@ -135,7 +135,7 @@ class PixelTypeTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
   def test_float_named_args(self):
-    precision = Type.FLOAT
+    precision = TypeEnum.FLOAT
     min_value = 3
     max_value = 4
     dimensions = 5
@@ -168,7 +168,7 @@ class PixelTypeTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, cast_result)
 
   def test_float_computed_object_args(self):
-    precision = Type.FLOAT
+    precision = TypeEnum.FLOAT
     min_value = 3
     max_value = 4
     dimensions = 5
@@ -210,7 +210,7 @@ class PixelTypeTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, cast_result)
 
   def test_float_no_dimensions(self):
-    precision = Type.FLOAT
+    precision = TypeEnum.FLOAT
     min_value = 0.1
     max_value = 0.2
     result = json.loads(
@@ -236,11 +236,11 @@ class PixelTypeTest(apitestcase.ApiTestCase):
   def test_dimensions(self):
     expect = make_expression_graph({
         'arguments': {
-            'pixelType': pixeltype_function_expr(Type.FLOAT),
+            'pixelType': pixeltype_function_expr(TypeEnum.FLOAT),
         },
         'functionName': 'PixelType.dimensions',
     })
-    expression = ee.PixelType(Type.FLOAT).dimensions()
+    expression = ee.PixelType(TypeEnum.FLOAT).dimensions()
     result = json.loads(expression.serialize())
 
     self.assertEqual(expect, result)
@@ -248,33 +248,33 @@ class PixelTypeTest(apitestcase.ApiTestCase):
   def test_maxValue(self):
     expect = make_expression_graph({
         'arguments': {
-            'pixelType': pixeltype_function_expr(Type.FLOAT),
+            'pixelType': pixeltype_function_expr(TypeEnum.FLOAT),
         },
         'functionName': 'PixelType.maxValue',
     })
-    expression = ee.PixelType(Type.FLOAT).maxValue()
+    expression = ee.PixelType(TypeEnum.FLOAT).maxValue()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
   def test_minValue(self):
     expect = make_expression_graph({
         'arguments': {
-            'pixelType': pixeltype_function_expr(Type.FLOAT),
+            'pixelType': pixeltype_function_expr(TypeEnum.FLOAT),
         },
         'functionName': 'PixelType.minValue',
     })
-    expression = ee.PixelType(Type.FLOAT).minValue()
+    expression = ee.PixelType(TypeEnum.FLOAT).minValue()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
   def test_precision(self):
     expect = make_expression_graph({
         'arguments': {
-            'pixelType': pixeltype_function_expr(Type.FLOAT),
+            'pixelType': pixeltype_function_expr(TypeEnum.FLOAT),
         },
         'functionName': 'PixelType.precision',
     })
-    expression = ee.PixelType(Type.FLOAT).precision()
+    expression = ee.PixelType(TypeEnum.FLOAT).precision()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
