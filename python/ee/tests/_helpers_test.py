@@ -65,7 +65,10 @@ class ServiceAccountCredentialsTest(unittest.TestCase):
 
   def test_bad_json_key_data(self):
     # This causes a different failure based on where the test is run.
-    message = r'Could not deserialize key data|No key could be detected'
+    message = (
+        r'Could not deserialize key data|No key could be detected|Unable to'
+        r' load PEM file'
+    )
     with self.assertRaisesRegex(ValueError, message):
       ee.ServiceAccountCredentials(key_data='not json')
 
