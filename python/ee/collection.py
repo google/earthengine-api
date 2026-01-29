@@ -519,7 +519,7 @@ class Collection(Generic[ElementType], element.Element):
   def filterDate(
       self: T,
       start: datetime.datetime | ee_date.Date | int | str | Any,
-      end: None | (datetime.datetime | ee_date.Date | int | str | Any) = None,
+      end: datetime.datetime | ee_date.Date | int | str | Any | None = None,
   ) -> T:
     """Shortcut to filter a collection with a date range.
 

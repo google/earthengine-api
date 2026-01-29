@@ -17,9 +17,7 @@ from ee import geometry
 
 class List(computedobject.ComputedObject):
   """An object to represent lists."""
-  _list: None | (
-      list[Any] | tuple[Any, Any]
-  )
+  _list: list[Any] | tuple[Any, Any] | None
 
   _initialized = False
 

@@ -752,7 +752,7 @@ def convert_to_table_file_format(format_str: str | None) -> str:
     return format_str
 
 
-def convert_to_band_list(bands: list[str] | None | str) -> list[str]:
+def convert_to_band_list(bands: list[str] | str | None) -> list[str]:
   """Converts a band list, possibly as CSV, to a real list of bands.
 
   Args:
