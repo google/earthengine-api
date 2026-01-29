@@ -160,8 +160,7 @@ class Serializer:
           'type':
               'Dictionary',
           'value':
-              {key: self._encode_value(value)
-                    for key, value in obj.items()}
+              {key: self._encode_value(value) for key, value in obj.items()}
       }
     else:
       raise ee_exception.EEException('Cannot encode object: %s' % obj)
@@ -403,8 +402,9 @@ class _ExpressionOptimizer:
         reference_counts[reference] += 1
 
     self._visit_all_values_in_expression(increment_reference_count)
-    return {reference for reference, count in reference_counts.items()
-               if count == 1}
+    return {
+        reference for reference, count in reference_counts.items() if count == 1
+    }
 
   def optimize(self) -> Any:
     """Optimises the expression, returning the optimised form."""
