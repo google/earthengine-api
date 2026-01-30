@@ -15,6 +15,7 @@ import json
 import re
 from typing import Any
 
+from ee import _arg_types
 from ee import _cloud_api_utils
 from ee import data
 from ee import ee_exception
@@ -230,7 +231,7 @@ class Export:
 
     def __new__(
         cls,
-        image: Any,
+        image: _arg_types.Image,
         description: str = 'myExportImageTask',
         config: dict[str, Any] | None = None,
     ):
@@ -297,18 +298,18 @@ class Export:
     # pylint: disable=unused-argument
     @staticmethod
     def toAsset(
-        image,
-        description='myExportImageTask',
-        assetId=None,
-        pyramidingPolicy=None,
-        dimensions=None,
-        region=None,
-        scale=None,
-        crs=None,
-        crsTransform=None,
-        maxPixels=None,
-        priority=None,
-        overwrite=False,
+        image: _arg_types.Image,
+        description: str = 'myExportImageTask',
+        assetId: str | None = None,
+        pyramidingPolicy: dict[str, str] | None = None,
+        dimensions: int | str | None = None,
+        region: Any | None = None,
+        scale: int | float | None = None,
+        crs: str | None = None,
+        crsTransform: str | None = None,
+        maxPixels: int | float | None = None,
+        priority: int | None = None,
+        overwrite: bool = False,
         **kwargs,
     ) -> Task:
       """Creates a task to export an EE Image to an EE Asset.
@@ -361,22 +362,22 @@ class Export:
     # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(
-        image,
-        description='myExportImageTask',
-        bucket=None,
-        fileNamePrefix=None,
-        dimensions=None,
-        region=None,
-        scale=None,
-        crs=None,
-        crsTransform=None,
-        maxPixels=None,
-        shardSize=None,
-        fileDimensions=None,
-        skipEmptyTiles=None,
-        fileFormat=None,
-        formatOptions=None,
-        priority=None,
+        image: _arg_types.Image,
+        description: str = 'myExportImageTask',
+        bucket: str | None = None,
+        fileNamePrefix: str | None = None,
+        dimensions: int | str | None = None,
+        region: Any | None = None,
+        scale: int | float | None = None,
+        crs: str | None = None,
+        crsTransform: str | None = None,
+        maxPixels: int | float | None = None,
+        shardSize: int | None = None,
+        fileDimensions: int | tuple[int, int] | None = None,
+        skipEmptyTiles: bool | None = None,
+        fileFormat: str | None = None,
+        formatOptions: dict[str, Any] | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export an EE Image to Google Cloud Storage.
@@ -435,22 +436,22 @@ class Export:
 
     @staticmethod
     def toDrive(
-        image,
-        description='myExportImageTask',
-        folder=None,
-        fileNamePrefix=None,
-        dimensions=None,
-        region=None,
-        scale=None,
-        crs=None,
-        crsTransform=None,
-        maxPixels=None,
-        shardSize=None,
-        fileDimensions=None,
-        skipEmptyTiles=None,
-        fileFormat=None,
-        formatOptions=None,
-        priority=None,
+        image: _arg_types.Image,
+        description: str = 'myExportImageTask',
+        folder: str | None = None,
+        fileNamePrefix: str | None = None,
+        dimensions: int | str | None = None,
+        region: Any | None = None,
+        scale: int | float | None = None,
+        crs: str | None = None,
+        crsTransform: str | None = None,
+        maxPixels: int | float | None = None,
+        shardSize: int | None = None,
+        fileDimensions: int | tuple[int, int] | None = None,
+        skipEmptyTiles: bool | None = None,
+        fileFormat: str | None = None,
+        formatOptions: dict[str, Any] | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export an EE Image to Drive.
@@ -507,6 +508,7 @@ class Export:
       config = _prepare_image_export_config(image, config,
                                             Task.ExportDestination.DRIVE)
       return _create_export_task(config, Task.Type.EXPORT_IMAGE)
+
     # pylint: enable=unused-argument
 
   class map:
@@ -520,20 +522,20 @@ class Export:
     # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(
-        image,
-        description='myExportMapTask',
-        bucket=None,
-        fileFormat=None,
-        path=None,
-        writePublicTiles=None,
-        maxZoom=None,
-        scale=None,
-        minZoom=None,
-        region=None,
-        skipEmptyTiles=None,
-        mapsApiKey=None,
-        bucketCorsUris=None,
-        priority=None,
+        image: _arg_types.Image,
+        description: str = 'myExportMapTask',
+        bucket: str | None = None,
+        fileFormat: str | None = None,
+        path: str | None = None,
+        writePublicTiles: bool | None = None,
+        maxZoom: int | None = None,
+        scale: int | float | None = None,
+        minZoom: int | None = None,
+        region: Any | None = None,
+        skipEmptyTiles: bool | None = None,
+        mapsApiKey: str | None = None,
+        bucketCorsUris: list[str] | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export an Image as a pyramid of map tiles.
@@ -590,6 +592,7 @@ class Export:
       config = _capture_parameters(locals(), ['image'])
       config = _prepare_map_export_config(image, config)
       return _create_export_task(config, Task.Type.EXPORT_MAP)
+
     # pylint: enable=unused-argument
 
   class table:
@@ -651,14 +654,14 @@ class Export:
     # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(
-        collection,
-        description='myExportTableTask',
-        bucket=None,
-        fileNamePrefix=None,
-        fileFormat=None,
-        selectors=None,
-        maxVertices=None,
-        priority=None,
+        collection: _arg_types.FeatureCollection,
+        description: str = 'myExportTableTask',
+        bucket: str | None = None,
+        fileNamePrefix: str | None = None,
+        fileFormat: str | None = None,
+        selectors: Sequence[str] | str | None = None,
+        maxVertices: int | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export a FeatureCollection to Google Cloud Storage.
@@ -693,14 +696,14 @@ class Export:
 
     @staticmethod
     def toDrive(
-        collection,
-        description='myExportTableTask',
-        folder=None,
-        fileNamePrefix=None,
-        fileFormat=None,
-        selectors=None,
-        maxVertices=None,
-        priority=None,
+        collection: _arg_types.FeatureCollection,
+        description: str = 'myExportTableTask',
+        folder: str | None = None,
+        fileNamePrefix: str | None = None,
+        fileFormat: str | None = None,
+        selectors: Sequence[str] | str | None = None,
+        maxVertices: int | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export a FeatureCollection to Drive.
@@ -736,12 +739,12 @@ class Export:
 
     @staticmethod
     def toAsset(
-        collection,
-        description='myExportTableTask',
-        assetId=None,
-        maxVertices=None,
-        priority=None,
-        overwrite=False,
+        collection: _arg_types.FeatureCollection,
+        description: str = 'myExportTableTask',
+        assetId: str | None = None,
+        maxVertices: int | None = None,
+        priority: int | None = None,
+        overwrite: bool = False,
         **kwargs,
     ) -> Task:
       """Creates a task to export a FeatureCollection to an EE table asset.
@@ -776,11 +779,11 @@ class Export:
 
     @staticmethod
     def toFeatureView(
-        collection,
-        description='myExportTableTask',
-        assetId=None,
-        ingestionTimeParameters=None,
-        priority=None,
+        collection: _arg_types.FeatureCollection,
+        description: str = 'myExportTableTask',
+        assetId: str | None = None,
+        ingestionTimeParameters: dict[str, Any] | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export a FeatureCollection to a FeatureView.
@@ -811,14 +814,14 @@ class Export:
 
     @staticmethod
     def toBigQuery(
-        collection,
-        description='myExportTableTask',
-        table=None,
-        overwrite=False,
-        append=False,
-        selectors=None,
-        maxVertices=None,
-        priority=None,
+        collection: _arg_types.FeatureCollection,
+        description: str = 'myExportTableTask',
+        table: str | None = None,
+        overwrite: bool = False,
+        append: bool = False,
+        selectors: Sequence[str] | str | None = None,
+        maxVertices: int | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export a FeatureCollection to a BigQuery table.
@@ -950,19 +953,19 @@ class Export:
     # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(
-        collection,
-        description='myExportVideoTask',
-        bucket=None,
-        fileNamePrefix=None,
-        framesPerSecond=None,
-        dimensions=None,
-        region=None,
-        scale=None,
-        crs=None,
-        crsTransform=None,
-        maxPixels=None,
-        maxFrames=None,
-        priority=None,
+        collection: _arg_types.ImageCollection,
+        description: str = 'myExportVideoTask',
+        bucket: str | None = None,
+        fileNamePrefix: str | None = None,
+        framesPerSecond: int | float | None = None,
+        dimensions: int | str | None = None,
+        region: Any | None = None,
+        scale: int | float | None = None,
+        crs: str | None = None,
+        crsTransform: str | None = None,
+        maxPixels: int | float | None = None,
+        maxFrames: int | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export an ImageCollection video to Cloud Storage.
@@ -1014,19 +1017,19 @@ class Export:
 
     @staticmethod
     def toDrive(
-        collection,
-        description='myExportVideoTask',
-        folder=None,
-        fileNamePrefix=None,
-        framesPerSecond=None,
-        dimensions=None,
-        region=None,
-        scale=None,
-        crs=None,
-        crsTransform=None,
-        maxPixels=None,
-        maxFrames=None,
-        priority=None,
+        collection: _arg_types.ImageCollection,
+        description: str = 'myExportVideoTask',
+        folder: str | None = None,
+        fileNamePrefix: str | None = None,
+        framesPerSecond: int | float | None = None,
+        dimensions: int | str | None = None,
+        region: Any | None = None,
+        scale: int | float | None = None,
+        crs: str | None = None,
+        crsTransform: str | None = None,
+        maxPixels: int | float | None = None,
+        maxFrames: int | None = None,
+        priority: int | None = None,
         **kwargs,
     ) -> Task:
       """Creates a task to export an ImageCollection as a video to Drive.
@@ -1108,12 +1111,12 @@ class Export:
     # pylint: disable=unused-argument
     @staticmethod
     def toAsset(
-        classifier,
-        description='myExportClassifierTask',
-        assetId=None,
-        overwrite=False,
-        priority=None,
-        **kwargs,
+        classifier: _arg_types.Classifier,
+        description: str = 'myExportClassifierTask',
+        assetId: str | None = None,
+        overwrite: bool = False,
+        priority: int | None = None,
+        **kwargs: Any,
     ) -> Task:
       """Creates a task to export an ee.Classifier as an Earth Engine asset.
 
@@ -1158,7 +1161,7 @@ NON_FILE_DESTINATIONS = frozenset([
 
 
 def _prepare_image_export_config(
-    image: Any, config: dict[str, Any], export_destination: str
+    image: _arg_types.Image, config: dict[str, Any], export_destination: str
 ) -> dict[str, Any]:
   """Performs all preparation steps for an image export.
 
@@ -1243,7 +1246,7 @@ def _prepare_image_export_config(
 
 
 def _prepare_map_export_config(
-    image: Any, config: dict[str, Any]
+    image: _arg_types.Image, config: dict[str, Any]
 ) -> dict[str, Any]:
   """Performs all preparation steps for a map export.
 
@@ -1289,7 +1292,9 @@ def _prepare_map_export_config(
 
 
 def _prepare_table_export_config(
-    collection: Any, config: dict[str, Any], export_destination
+    collection: _arg_types.FeatureCollection,
+    config: dict[str, Any],
+    export_destination,
 ) -> dict[str, Any]:
   """Performs all preparation steps for a table export.
 
@@ -1360,7 +1365,9 @@ def _prepare_table_export_config(
 
 
 def _prepare_video_export_config(
-    collection: Any, config: dict[str, Any], export_destination: str
+    collection: _arg_types.ImageCollection,
+    config: dict[str, Any],
+    export_destination: str,
 ) -> dict[str, Any]:
   """Performs all preparation steps for a video export.
 
@@ -1595,7 +1602,9 @@ def _build_video_file_export_options(
 
 
 def _prepare_classifier_export_config(
-    classifier: Any, config: dict[str, Any], export_destination: str
+    classifier: _arg_types.Classifier,
+    config: dict[str, Any],
+    export_destination: str,
 ) -> dict[str, Any]:
   """Performs all preparation steps for a classifier export.
 
@@ -1942,7 +1951,7 @@ def _capture_parameters(
   return result
 
 
-def _canonicalize_parameters(config, destination):
+def _canonicalize_parameters(config: dict[str, Any], destination: str) -> None:
   """Canonicalizes a set of parameter names.
 
   For legacy and other reasons, there are multiple ways to specify some export
@@ -1977,7 +1986,8 @@ def _canonicalize_parameters(config, destination):
     del config['kwargs']
 
   collision_error = 'Both {} and {} are specified.'
-  def canonicalize_name(a, b):
+
+  def canonicalize_name(a: str, b: str) -> None:
     """Renames config[a] to config[b]."""
     if a in config:
       if b in config:
