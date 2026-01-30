@@ -1,5 +1,6 @@
 """A base class for EE Functions."""
 
+from collections.abc import Callable, Sequence
 import textwrap
 from typing import Any
 
@@ -61,7 +62,7 @@ class Function(encodable.EncodableFunction):
     """
     return self.apply(self.nameArgs(args, kwargs))
 
-  def apply(self, named_args):
+  def apply(self, named_args: dict[str, Any]) -> computedobject.ComputedObject:
     """Calls the function with a dictionary of named arguments.
 
     Args:
@@ -117,7 +118,11 @@ class Function(encodable.EncodableFunction):
 
     return promoted_args
 
-  def nameArgs(self, args, extra_keyword_args=None):
+  def nameArgs(
+      self,
+      args: Sequence[Any],
+      extra_keyword_args: dict[str, Any] | None = None,
+  ) -> dict[str, Any]:
     """Converts a list of positional arguments to a map of keyword arguments.
 
     Uses the function's signature for argument names. Note that this does not
@@ -159,10 +164,10 @@ class Function(encodable.EncodableFunction):
 
     return named_args
 
-  def getReturnType(self):
+  def getReturnType(self) -> str:
     return self.getSignature()['returns']
 
-  def serialize(self, for_cloud_api=True):
+  def serialize(self, for_cloud_api: bool = True) -> Any:
     return serializer.toJSON(
         self, for_cloud_api=for_cloud_api
     )
@@ -196,7 +201,9 @@ class Function(encodable.EncodableFunction):
 class SecondOrderFunction(Function):
   """A function that executes the result of a function."""
 
-  def __init__(self, function_body, signature):
+  def __init__(
+      self, function_body: encodable.Encodable, signature: dict[str, Any]
+  ) -> None:
     """Creates a SecondOrderFunction.
 
     Args:
@@ -208,11 +215,13 @@ class SecondOrderFunction(Function):
     self._function_body = function_body
     self._signature = signature
 
-  def encode_invocation(self, encoder):
+  def encode_invocation(self, encoder: Callable[[Any], Any]) -> Any:
     return self._function_body.encode(encoder)
 
-  def encode_cloud_invocation(self, encoder):
+  def encode_cloud_invocation(
+      self, encoder: Callable[[Any], Any]
+  ) -> dict[str, Any]:
     return {'functionReference': encoder(self._function_body)}
 
-  def getSignature(self):
+  def getSignature(self) -> dict[str, Any]:
     return self._signature
