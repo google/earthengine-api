@@ -203,15 +203,17 @@ class Task:
   def __repr__(self) -> str:
     """Returns a string representation of the task."""
     if self.config and self.id:
-      return '<Task {} {}: {} ({})>'.format(
-          self.id, self.task_type, self.config['description'], self.state
+      return (
+          f'<Task {self.id} {self.task_type}: {self.config["description"]}'
+          f' ({self.state})>'
       )
     elif self.config:
-      return '<Task {}: {} ({})>'.format(
-          self.task_type, self.config['description'], self.state
+      return (
+          f'<Task {self.task_type}:'
+          f' {self.config["description"]} ({self.state})>'
       )
     else:
-      return '<Task "%s">' % self.id
+      return f'<Task "{self.id}">'
 
 
 class Export:
@@ -1898,8 +1900,9 @@ def build_ingestion_time_parameters(
 
   if input_params:
     raise ee_exception.EEException(
-        'The following keys are unrecognized in the ingestion parameters: %s' %
-        list(input_params.keys()))
+        'The following keys are unrecognized in the ingestion parameters:'
+        f' {list(input_params.keys())}'
+    )
   return output_params
 
 
@@ -1976,12 +1979,11 @@ def _canonicalize_parameters(config, destination):
     config.update(config['kwargs'])
     del config['kwargs']
 
-  collision_error = 'Both {} and {} are specified.'
   def canonicalize_name(a, b):
     """Renames config[a] to config[b]."""
     if a in config:
       if b in config:
-        raise ee_exception.EEException(collision_error.format(a, b))
+        raise ee_exception.EEException(f'Both {a} and {b} are specified.')
       config[b] = config.pop(a)
 
   canonicalize_name('crsTransform', 'crs_transform')
@@ -2022,7 +2024,8 @@ def _canonicalize_parameters(config, destination):
         remapped_key = remapped_key[:1].lower() + remapped_key[1:]
         if remapped_key in format_options:
           raise ee_exception.EEException(
-              collision_error.format(key, remapped_key))
+              f'Both {key} and {remapped_key} are specified.'
+          )
         format_options[remapped_key] = value
         keys_to_delete.append(key)
     if format_options:
@@ -2047,16 +2050,16 @@ def _canonicalize_region(
   if isinstance(region, str):
     try:
       region = json.loads(region)
-    except json.JSONDecodeError:
-      raise region_error  # pylint: disable=raise-missing-from
+    except json.JSONDecodeError as e:
+      raise region_error from e
 
   # It's probably a list of coordinates - attempt to parse as a LineString or
   # Polygon.
   try:
     region = geometry.Geometry.LineString(region)
-  except:
+  except Exception:
     try:
       region = geometry.Geometry.Polygon(region)
-    except:
-      raise region_error  # pylint: disable=raise-missing-from
+    except Exception as e:
+      raise region_error from e
   return region
