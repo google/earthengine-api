@@ -1739,13 +1739,8 @@ def _build_earth_engine_destination(config: dict[str, Any]) -> dict[str, Any]:
     An EarthEngineDestination containing information extracted from
     config.
   """
-  return {
-      'name':
-          _cloud_api_utils.convert_asset_id_to_asset_name(
-              config.pop('assetId')),
-      'overwrite':
-          config.pop('overwrite', False)
-  }
+  name = _cloud_api_utils.convert_asset_id_to_asset_name(config.pop('assetId'))
+  return {'name': name, 'overwrite': config.pop('overwrite', False)}
 
 
 def _build_feature_view_destination(config: dict[str, Any]) -> dict[str, Any]:
