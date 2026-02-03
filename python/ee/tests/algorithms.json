@@ -658,12 +658,22 @@
       "optional": true,
       "defaultValue": 0.85
     }, {
+      "argumentName": "spikeRemovalMagnitude",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": 100.0
+    }, {
       "argumentName": "includePostMetrics",
       "type": "Boolean",
       "optional": true,
       "defaultValue": true
     }, {
       "argumentName": "includeRegrowth",
+      "type": "Boolean",
+      "optional": true,
+      "defaultValue": false
+    }, {
+      "argumentName": "interpolateRegrowth",
       "type": "Boolean",
       "optional": true,
       "defaultValue": false
