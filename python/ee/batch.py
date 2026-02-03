@@ -1163,7 +1163,9 @@ NON_FILE_DESTINATIONS = frozenset([
 
 
 def _prepare_image_export_config(
-    image: _arg_types.Image, config: dict[str, Any], export_destination: str
+    image: _arg_types.Image,
+    config: dict[str, Any],
+    export_destination: Task.ExportDestination,
 ) -> dict[str, Any]:
   """Performs all preparation steps for an image export.
 
