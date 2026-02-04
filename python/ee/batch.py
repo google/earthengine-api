@@ -1990,12 +1990,11 @@ def _canonicalize_parameters(config: dict[str, Any], destination: str) -> None:
     config.update(config['kwargs'])
     del config['kwargs']
 
-
   def canonicalize_name(a: str, b: str) -> None:
     """Renames config[a] to config[b]."""
     if a in config:
       if b in config:
-        raise ee_exception.EEException(f'Both {a} and {b} are specified.')
+        raise ee_exception.EEException(f'Both {a!r} and {b!r} are specified.')
       config[b] = config.pop(a)
 
   canonicalize_name('crsTransform', 'crs_transform')
@@ -2036,7 +2035,7 @@ def _canonicalize_parameters(config: dict[str, Any], destination: str) -> None:
         remapped_key = remapped_key[:1].lower() + remapped_key[1:]
         if remapped_key in format_options:
           raise ee_exception.EEException(
-              f'Both {key} and {remapped_key} are specified.'
+              f'Both {key!r} and {remapped_key!r} are specified.'
           )
         format_options[remapped_key] = value
         keys_to_delete.append(key)

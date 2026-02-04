@@ -397,6 +397,27 @@ class BatchTestCase(apitestcase.ApiTestCase):
           task.config,
       )
 
+  def test_canonicalize_parameters_collision(self):
+    """Verifies canonicalize_name collision raises an error."""
+    config = {'crsTransform': 1, 'crs_transform': 2}
+    with self.assertRaisesRegex(
+        ee.EEException, "Both 'crsTransform' and 'crs_transform' are specified."
+    ):
+      batch._canonicalize_parameters(config, batch.Task.ExportDestination.DRIVE)
+
+  def test_canonicalize_parameters_tiff_collision(self):
+    """Verifies formatOptions collision raises an error."""
+    config = {
+        'fileFormat': 'GeoTIFF',
+        'tiffCloudOptimized': True,
+        'formatOptions': {'cloudOptimized': True},
+    }
+    with self.assertRaisesRegex(
+        ee.EEException,
+        "Both 'tiffCloudOptimized' and 'cloudOptimized' are specified.",
+    ):
+      batch._canonicalize_parameters(config, batch.Task.ExportDestination.GCS)
+
   def test_export_image_to_asset_cloud_api(self):
     """Verifies the Asset export task created by Export.image.toAsset()."""
     with apitestcase.UsingCloudApi():
