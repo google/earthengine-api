@@ -1,7 +1,7 @@
 """Internal types used to represent arguments to the API."""
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 import datetime
 from typing import Any as AnyType, Union
 
@@ -44,8 +44,7 @@ Date = Union[
 ]
 DateRange = Union[daterange.DateRange, computedobject.ComputedObject]
 Dictionary = Union[
-    dict[AnyType, AnyType],
-    Sequence[AnyType],
+    Mapping[AnyType, AnyType],
     dictionary.Dictionary,
     computedobject.ComputedObject,
 ]
@@ -69,9 +68,7 @@ ImageCollection = Union[
 Integer = Union[int, ee_number.Number, computedobject.ComputedObject]
 Kernel = Union[kernel.Kernel, computedobject.ComputedObject]
 List = Union[
-    list[AnyType],
-    tuple[()],
-    tuple[AnyType, AnyType],
+    Sequence[AnyType],
     ee_list.List,
     computedobject.ComputedObject,
 ]
