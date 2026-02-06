@@ -3,6 +3,8 @@
 
 import datetime
 
+from absl.testing import parameterized
+
 import unittest
 from ee import apitestcase
 from ee import ee_list
@@ -10,7 +12,7 @@ from ee import ee_number
 from ee import ee_types
 
 
-class EeTypesTest(apitestcase.ApiTestCase):
+class EeTypesTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
   def test_class_to_name(self):
     self.assertEqual('List', ee_types.classToName(ee_list.List))
@@ -28,22 +30,32 @@ class EeTypesTest(apitestcase.ApiTestCase):
 
     self.assertEqual('Object', ee_types.classToName(Foo))
 
-  def test_is_subtype(self):
-    self.assertTrue(ee_types.isSubtype('Image', 'Image'))
-    self.assertTrue(ee_types.isSubtype('Element', 'Image'))
-    self.assertFalse(ee_types.isSubtype('Image', 'Element'))
-
-    self.assertTrue(ee_types.isSubtype('Collection', 'ImageCollection'))
-    self.assertTrue(ee_types.isSubtype('Collection', 'FeatureCollection'))
-
-    self.assertFalse(ee_types.isSubtype('ImageCollection', 'Collection'))
-
-    self.assertFalse(ee_types.isSubtype('Image', 'Collection'))
-    self.assertFalse(ee_types.isSubtype('ImageCollection', 'FeatureCollection'))
-
-    # TODO: Theses should be false.
-    self.assertTrue(ee_types.isSubtype('FeatureCollection', 'Collection'))
-    self.assertTrue(ee_types.isSubtype('FeatureCollection', 'ImageCollection'))
+  @parameterized.named_parameters(
+      ('Image_Image', 'Image', 'Image', True),
+      ('Element_Image', 'Element', 'Image', True),
+      ('Image_Element', 'Image', 'Element', False),
+      ('Collection_ImageCollection', 'Collection', 'ImageCollection', True),
+      ('Collection_FeatureCollection', 'Collection', 'FeatureCollection', True),
+      ('ImageCollection_Collection', 'ImageCollection', 'Collection', False),
+      ('Image_Collection', 'Image', 'Collection', False),
+      (
+          'ImageCollection_FeatureCollection',
+          'ImageCollection',
+          'FeatureCollection',
+          False,
+      ),
+      ('Object_Image', 'Object', 'Image', True),
+      # TODO: Theses two tests should be false.
+      ('FeatureCollection_Collection', 'FeatureCollection', 'Collection', True),
+      (
+          'FeatureCollection_ImageCollection',
+          'FeatureCollection',
+          'ImageCollection',
+          True,
+      ),
+  )
+  def test_is_subtype(self, type1, type2, expected):
+    self.assertEqual(expected, ee_types.isSubtype(type1, type2))
 
   def test_is_array(self):
     self.assertTrue(ee_types.isArray([]))
