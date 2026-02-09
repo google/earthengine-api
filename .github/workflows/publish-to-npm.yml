@@ -11,7 +11,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Authenticate with Google Cloud
         id: "auth"
         uses: 'google-github-actions/auth@v2'
@@ -19,7 +19,7 @@ jobs:
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           token_format: "access_token"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
@@ -36,8 +36,8 @@ jobs:
     needs: smoke-test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
