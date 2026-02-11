@@ -76,7 +76,7 @@ the contents of the `static` folder to your web host.
 gcloud storage cp --recursive ./static/* gs://<bucket>/cloudfunctions-demo/
 
 # Share demo resources publicly.
-gcloud storage objects update gs://<bucket>/cloudfunctions-demo/* --recursive --all-versions --predefined-acl=public-read
+gcloud storage objects update gs://<bucket>/cloudfunctions-demo/* --recursive --all-versions --predefined-acl=publicRead
 ```
 
 A public demo will start at
