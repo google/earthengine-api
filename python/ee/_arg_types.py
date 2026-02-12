@@ -49,7 +49,7 @@ Dictionary = Union[
     computedobject.ComputedObject,
 ]
 Any = Union[AnyType, computedobject.ComputedObject]
-Element = Union[AnyType, element.Element, computedobject.ComputedObject]
+Element = Union[element.Element, computedobject.ComputedObject]
 ErrorMargin = Union[
     float,
     ee_number.Number,
