@@ -64,9 +64,12 @@ FeatureCollection = Union[
 ]
 Filter = Union[ee_filter.Filter, computedobject.ComputedObject]
 Geometry = Union[AnyType, computedobject.ComputedObject]
-Image = Union[AnyType, image.Image, computedobject.ComputedObject]
+Image = Union[str, ee_string.String, image.Image, computedobject.ComputedObject]
 ImageCollection = Union[
-    AnyType, imagecollection.ImageCollection, computedobject.ComputedObject
+    str,
+    ee_string.String,
+    imagecollection.ImageCollection,
+    computedobject.ComputedObject,
 ]
 Integer = Union[int, ee_number.Number, computedobject.ComputedObject]
 Kernel = Union[kernel.Kernel, computedobject.ComputedObject]
