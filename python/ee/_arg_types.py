@@ -57,7 +57,10 @@ ErrorMargin = Union[
     computedobject.ComputedObject,
 ]
 FeatureCollection = Union[
-    AnyType, featurecollection.FeatureCollection, computedobject.ComputedObject
+    str,
+    ee_string.String,
+    featurecollection.FeatureCollection,
+    computedobject.ComputedObject,
 ]
 Filter = Union[ee_filter.Filter, computedobject.ComputedObject]
 Geometry = Union[AnyType, computedobject.ComputedObject]
