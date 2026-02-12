@@ -27,8 +27,8 @@ from ee import projection
 from ee import reducer
 
 Array = Union[
-    AnyType,
-    list[AnyType],
+    Sequence[float | ee_number.Number],
+    Sequence[Sequence[AnyType]],
     ee_array.Array,
     ee_list.List,
     computedobject.ComputedObject,
