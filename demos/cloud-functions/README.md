@@ -73,10 +73,10 @@ the contents of the `static` folder to your web host.
 
 ```
 # Upload demo to Cloud Storage.
-gsutil copy -r ./static/* gs://<bucket>/cloudfunctions-demo/
+gcloud storage cp --recursive ./static/* gs://<bucket>/cloudfunctions-demo/
 
 # Share demo resources publicly.
-gsutil -m acl set -R -a public-read gs://<bucket>/cloudfunctions-demo/*
+gcloud storage objects update gs://<bucket>/cloudfunctions-demo/* --recursive --predefined-acl=publicRead
 ```
 
 A public demo will start at
