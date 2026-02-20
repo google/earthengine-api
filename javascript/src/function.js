@@ -148,7 +148,7 @@ ee.Function.prototype.promoteArgs = function(args) {
   const promotedArgs = {};
   const known = {};
   for (let i = 0; i < specs.length; i++) {
-    const name = specs[i]['name'];
+    const name = String(specs[i]['name']);
     if (name in args && args[name] !== undefined) {
       promotedArgs[name] = ee.Function.promoter_(args[name], specs[i]['type']);
     } else if (!specs[i]['optional']) {
