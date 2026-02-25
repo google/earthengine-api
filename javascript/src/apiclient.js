@@ -1050,6 +1050,16 @@ apiclient.withProfiling = function(hook, body, thisObject) {
 
 
 /**
+ * Sets a function to be called with the value of the quota status header
+ * whenever it is present in a response.
+ * @param {?function(string)} hook
+ */
+apiclient.setQuotaStatusHook = function(hook) {
+  apiclient.quotaStatusHook_ = hook;
+};
+
+
+/**
  * Handles processing and dispatching a callback response.
  * @param {number} status The status code of the response.
  * @param {function(string):?string} getResponseHeader A function for
@@ -1075,6 +1085,18 @@ apiclient.handleResponse_ = function(
       profileHook ? getResponseHeader(apiclient.PROFILE_HEADER) : '';
   if (profileId && profileHook) {
     profileHook(profileId);
+  }
+
+  // Handle quota status header.
+  if (apiclient.quotaStatusHook_) {
+    try {
+      const quotaStatus = getResponseHeader(apiclient.QUOTA_STATUS_HEADER);
+      if (quotaStatus) {
+        apiclient.quotaStatusHook_(quotaStatus);
+      }
+    } catch (e) {
+      // Ignore errors when reading the header.
+    }
   }
   const parseJson = (body) => {
     try {
@@ -1333,6 +1355,8 @@ apiclient.setupMockSend = function(calls) {
     e.target.getResponseHeader = function(header) {
       if (header === 'Content-Type') {
         return responseData.contentType;
+      } else if (responseData.headers && header in responseData.headers) {
+        return responseData.headers[header];
       } else {
         return null;
       }
@@ -1351,6 +1375,7 @@ apiclient.setupMockSend = function(calls) {
     /** @type {string} */ this.responseText;
     /** @type {number} */ this.status;
     /** @type {!Object<string, string>} */ this.requestHeaders_ = {};
+    /** @type {?Object<string, string>} */ this.responseHeaders_ = null;
   };
   fakeXmlHttp.prototype.open = function(method, urlIn) {
     apiBaseUrl = apiBaseUrl || apiclient.apiBaseUrl_;
@@ -1363,6 +1388,8 @@ apiclient.setupMockSend = function(calls) {
   fakeXmlHttp.prototype.getResponseHeader = function(header) {
     if (header === 'Content-Type') {
       return this.contentType_ || null;
+    } else if (this.responseHeaders_ && header in this.responseHeaders_) {
+      return this.responseHeaders_[header];
     } else {
       return null;
     }
@@ -1375,6 +1402,7 @@ apiclient.setupMockSend = function(calls) {
         responseData.status() :
         responseData.status;
     this.contentType_ = responseData.contentType;
+    this.responseHeaders_ = responseData.headers;
   };
   XmlHttp.setGlobalFactory(/** @type {?} */({
     createInstance() { return new fakeXmlHttp(); },
@@ -1645,6 +1673,14 @@ apiclient.profileHook_ = null;
 
 
 /**
+ * A function called when quota status results are received from the server. Takes
+ * the header value as an argument. Null if not set.
+ * @private {?function(string)}
+ */
+apiclient.quotaStatusHook_ = null;
+
+
+/**
  * The minimum increment of time (in milliseconds) to wait before retrying a
  * request in response to a 429 response.
  * @private @const {number}
@@ -1689,6 +1725,12 @@ apiclient.APP_ID_TOKEN_HEADER_ = 'X-Earth-Engine-App-ID-Token';
  * @const {string}
  */
 apiclient.PROFILE_HEADER = 'X-Earth-Engine-Computation-Profile';
+
+/**
+ * The HTTP header through which quota status is provided.
+ * @const {string}
+ */
+apiclient.QUOTA_STATUS_HEADER = 'X-Earth-Engine-Quota-Status';
 
 /**
  * The HTTP header indicating what the client library version is.
@@ -1793,6 +1835,7 @@ exports.setProject = apiclient.setProject;
 exports.getProject = apiclient.getProject;
 exports.DEFAULT_PROJECT = apiclient.DEFAULT_PROJECT_;
 exports.PROFILE_HEADER = apiclient.PROFILE_HEADER;
+exports.QUOTA_STATUS_HEADER = apiclient.QUOTA_STATUS_HEADER;
 exports.PROFILE_REQUEST_HEADER = apiclient.PROFILE_REQUEST_HEADER;
 exports.API_CLIENT_VERSION_HEADER = apiclient.API_CLIENT_VERSION_HEADER;
 exports.send = apiclient.send;
@@ -1828,6 +1871,7 @@ exports.mergeAuthScopes = apiclient.mergeAuthScopes_;
 exports.setupMockSend = apiclient.setupMockSend;
 exports.setParamAugmenter = apiclient.setParamAugmenter;
 exports.withProfiling = apiclient.withProfiling;
+exports.setQuotaStatusHook = apiclient.setQuotaStatusHook;
 exports.getApiBaseUrl = apiclient.getApiBaseUrl;
 exports.getTileBaseUrl = apiclient.getTileBaseUrl;
 

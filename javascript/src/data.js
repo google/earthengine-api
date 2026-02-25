@@ -275,6 +275,9 @@ goog.exportSymbol('ee.data.getUserAgent', ee.data.getUserAgent);
 // like ee.data.setExpressionAugmenter above is.
 ee.data.setParamAugmenter = ee.apiclient.setParamAugmenter;
 goog.exportSymbol('ee.data.setParamAugmenter', ee.data.setParamAugmenter);
+// The following symbol is exported because it is used in the Code Editor.
+ee.data.setQuotaStatusHook = ee.apiclient.setQuotaStatusHook;
+goog.exportSymbol('ee.data.setQuotaStatusHook', ee.data.setQuotaStatusHook);
 
 // The following symbols are not exported because they are meant to be used via
 // the wrapper functions in ee.js.
@@ -287,6 +290,8 @@ ee.data.reset = ee.apiclient.reset;
 // use only.
 /** @const {string} */
 ee.data.PROFILE_HEADER = ee.apiclient.PROFILE_HEADER;
+/** @const {string} */
+ee.data.QUOTA_STATUS_HEADER = ee.apiclient.QUOTA_STATUS_HEADER;
 ee.data.makeRequest_ = ee.apiclient.makeRequest;
 ee.data.send_ = ee.apiclient.send;
 ee.data.setupMockSend = ee.apiclient.setupMockSend;
