@@ -61,6 +61,16 @@ class ReducerTest(apitestcase.ApiTestCase):
     with self.assertRaisesRegex(TypeError, message):
       ee.Reducer(1)  # pytype: disable=wrong-arg-types
 
+  def test_bad_arg_dict(self):
+    message = (
+        r"Reducer can only be used as a cast to Reducer\. Found <class 'dict'>"
+        '\. If you are trying to pass keyword arguments as a dictionary, use'
+        r' the `\*\*` dictionary unpacking operator \(e\.g\., '
+        r'`myFunction\(\*\*kwargs\)`\)\.'
+    )
+    with self.assertRaisesRegex(TypeError, message):
+      ee.Reducer({})  # pytype: disable=wrong-arg-types
+
   def test_all_non_zero(self):
     expect = make_expression_graph(
         {'arguments': {}, 'functionName': 'Reducer.allNonZero'}

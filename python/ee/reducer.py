@@ -40,9 +40,16 @@ class Reducer(computedobject.ComputedObject):
       super().__init__(reducer.func, reducer.args, reducer.varName)
       return
 
-    raise TypeError(
+    message = (
         f'Reducer can only be used as a cast to Reducer. Found {type(reducer)}.'
     )
+    if isinstance(reducer, dict):
+      message += (
+          ' If you are trying to pass keyword arguments as a dictionary, use'
+          ' the `**` dictionary unpacking operator (e.g.,'
+          ' `myFunction(**kwargs)`).'
+      )
+    raise TypeError(message)
 
   @classmethod
   def initialize(cls) -> None:
