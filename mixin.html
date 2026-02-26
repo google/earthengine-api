@@ -1,0 +1,72 @@
+{{>head}}
+
+  <div id="dartdoc-main-content" class="main-content">
+    {{#self}}
+      <div>{{>source_link}}<h1><span class="kind-mixin">{{{nameWithGenerics}}}</span> {{kind}} {{>feature_set}} {{>categorization}}</h1></div>
+    {{/self}}
+
+    {{#mixin}}
+    {{>documentation}}
+
+    {{#hasModifiers}}
+    <section>
+      <dl class="dl-horizontal">
+        {{#hasPublicSuperclassConstraints}}
+        <dt>Superclass Constraints</dt>
+        <dd><ul class="comma-separated dark mixin-relationships">
+          {{#publicSuperclassConstraints}}
+          <li>{{{linkedName}}}</li>
+          {{/publicSuperclassConstraints}}
+        </ul></dd>
+        {{/hasPublicSuperclassConstraints}}
+
+        {{ >super_chain }}
+        {{ >interfaces }}
+
+        {{#hasPublicImplementors}}
+        <dt>Mixin Applications</dt>
+        <dd>
+          <ul class="comma-separated mixin-relationships">
+            {{#publicImplementorsSorted}}
+            <li>{{{linkedName}}}</li>
+            {{/publicImplementorsSorted}}
+          </ul>
+        </dd>
+        {{/hasPublicImplementors}}
+
+        {{ >annotations }}
+      </dl>
+    </section>
+    {{/hasModifiers}}
+
+    {{#hasPublicInstanceFields}}
+    <section class="summary offset-anchor{{ #publicInheritedInstanceFields }} inherited{{ /publicInheritedInstanceFields }}" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        {{#publicInstanceFields}}
+        {{>property}}
+        {{/publicInstanceFields}}
+      </dl>
+    </section>
+    {{/hasPublicInstanceFields}}
+
+    {{ >instance_methods }}
+    {{ >instance_operators }}
+    {{ >static_properties }}
+    {{ >static_methods }}
+    {{ >static_constants }}
+    {{/mixin}}
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    {{>search_sidebar}}
+    <h5>{{parent.name}} {{parent.kind}}</h5>
+    {{{sidebarForLibrary}}}
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    {{{sidebarForContainer}}}
+  </div><!--/.sidebar-offcanvas-->
+
+{{>footer}}

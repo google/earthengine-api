@@ -1,0 +1,54 @@
+{{>head}}
+
+<div id="dartdoc-main-content" class="main-content">
+    {{#self}}
+    <div>{{>source_link}}<h1><span class="kind-class">{{{nameWithGenerics}}}</span> {{kind}} {{>feature_set}} {{>categorization}}</h1></div>
+    {{/self}}
+
+    {{#extension}}
+    {{>documentation}}
+    <section>
+      <dl class="dl-horizontal">
+        <dt>on</dt>
+        <dd>
+          <ul class="comma-separated clazz-relationships">
+            {{ #extendedType }}
+              <li>{{{ linkedName }}}</li>
+            {{ /extendedType }}
+          </ul>
+        </dd>
+      </dl>
+      {{ >container_annotations }}
+    </section>
+
+    {{#hasPublicInstanceFields}}
+    <section class="summary offset-anchor" id="instance-properties">
+        <h2>Properties</h2>
+
+        <dl class="properties">
+            {{#publicInstanceFieldsSorted}}
+            {{>property}}
+            {{/publicInstanceFieldsSorted}}
+        </dl>
+    </section>
+    {{/hasPublicInstanceFields}}
+
+    {{ >instance_methods }}
+    {{ >instance_operators }}
+    {{ >static_properties }}
+    {{ >static_methods }}
+    {{ >static_constants }}
+
+</div> <!-- /.main-content -->
+
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    {{>search_sidebar}}
+    <h5>{{parent.name}} {{parent.kind}}</h5>
+    {{{sidebarForLibrary}}}
+</div>
+
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    {{{sidebarForContainer}}}
+</div><!--/.sidebar-offcanvas-->
+
+{{>footer}}
