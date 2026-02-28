@@ -119,8 +119,9 @@ ee.Function.prototype.callOrApply = function(thisValue, args) {
     if (isInstance) {
       const firstArgName = signature['args'][0]['name'];
       if (firstArgName in namedArgs) {
-        throw Error('Named args for ' + signature['name'] +
-                    ' can\'t contain keyword ' + firstArgName);
+        throw new Error(
+            'Named args for ' + signature['name'] + ' can\'t contain keyword ' +
+            firstArgName);
       }
       namedArgs[firstArgName] = thisValue;
     }
@@ -145,15 +146,19 @@ ee.Function.prototype.promoteArgs = function(args) {
   const specs = this.getSignature()['args'];
 
   // Promote all recognized args.
-  const promotedArgs = {};
-  const known = {};
+  const promotedArgs = Object.create(null);
+  const known = Object.create(null);
   for (let i = 0; i < specs.length; i++) {
-    const name = String(specs[i]['name']);
-    if (name in args && args[name] !== undefined) {
+    const name = specs[i]['name'];
+    if (typeof name !== 'string') {
+      throw new Error('Argument name must be a string.');
+    }
+    if (Object.prototype.hasOwnProperty.call(args, name) &&
+        args[name] !== undefined) {
       promotedArgs[name] = ee.Function.promoter_(args[name], specs[i]['type']);
     } else if (!specs[i]['optional']) {
-      throw Error('Required argument (' + name + ') missing to function: ' +
-                  this);
+      throw new Error(
+          `Required argument (${name}) missing to function: ${this}`);
     }
     known[name] = true;
   }
@@ -166,8 +171,7 @@ ee.Function.prototype.promoteArgs = function(args) {
     }
   }
   if (unknown.length > 0) {
-    throw Error('Unrecognized arguments (' + unknown + ') to function: ' +
-                this);
+    throw new Error(`Unrecognized arguments (${unknown}) to function: ${this}`);
   }
 
   return promotedArgs;
@@ -186,12 +190,15 @@ ee.Function.prototype.promoteArgs = function(args) {
 ee.Function.prototype.nameArgs = function(args) {
   const specs = this.getSignature()['args'];
   if (specs.length < args.length) {
-    throw Error('Too many (' + args.length + ') arguments to function: ' +
-                this);
+    throw new Error(`Too many (${args.length}) arguments to function: ${this}`);
   }
   const namedArgs = {};
   for (let i = 0; i < args.length; i++) {
-    namedArgs[specs[i]['name']] = args[i];
+    const name = specs[i]['name'];
+    if (typeof name !== 'string') {
+      throw new Error('Argument name must be a string.');
+    }
+    namedArgs[name] = args[i];
   }
   return namedArgs;
 };
