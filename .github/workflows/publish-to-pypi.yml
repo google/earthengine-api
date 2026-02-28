@@ -11,9 +11,9 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v6
         with:
           python-version: 3.11
       - name: Authenticate with Google Cloud
@@ -46,9 +46,9 @@ jobs:
     needs: smoke-test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.11
       - name: Install dependencies
@@ -60,7 +60,7 @@ jobs:
       - name: Check built artifacts
         run: |
           python -m twine check ./python/dist/*
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: releases
           path: ./python/dist
@@ -69,11 +69,11 @@ jobs:
     needs: build-artifacts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         name: Install Python
         with:
           python-version: 3.11
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: releases
           path: dist
@@ -88,7 +88,7 @@ jobs:
     needs: pypi-upload
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         name: Install Python
         with:
           python-version: 3.11
