@@ -122,7 +122,7 @@ def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> discovery.Resource:
       json.loads(discovery_doc_str),
       http_transport=mock_http,
       headers_supplier=ee.data._make_request_headers,  # pylint: disable=protected-access
-      response_inspector=ee.data._handle_profiling_response,  # pylint: disable=protected-access
+      response_inspector=ee.data._handle_response_headers,  # pylint: disable=protected-access
       raw=raw,
   )
 

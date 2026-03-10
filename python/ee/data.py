@@ -42,6 +42,9 @@ from ee import __version__
 # Lowercase because that's how httplib2 does things.
 _PROFILE_RESPONSE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
 
+# The HTTP header used to return quota status.
+_QUOTA_STATUS_HEADER = 'x-earth-engine-quota-status'
+
 # The HTTP header through which profiling is requested when using the Cloud API.
 _PROFILE_REQUEST_HEADER = 'X-Earth-Engine-Computation-Profiling'
 
@@ -265,7 +268,7 @@ def _install_cloud_api_resource() -> None:
       timeout=timeout,
       num_retries=state.max_retries,
       headers_supplier=_make_request_headers,
-      response_inspector=_handle_profiling_response,
+      response_inspector=_handle_response_headers,
       http_transport=state.http_transport,
   )
 
@@ -277,7 +280,7 @@ def _install_cloud_api_resource() -> None:
       timeout=timeout,
       num_retries=state.max_retries,
       headers_supplier=_make_request_headers,
-      response_inspector=_handle_profiling_response,
+      response_inspector=_handle_response_headers,
       http_transport=state.http_transport,
       raw=True,
   )
@@ -319,13 +322,20 @@ def _make_request_headers() -> dict[str, Any] | None:
   return None
 
 
-def _handle_profiling_response(response: httplib2.Response) -> None:
-  """Handles profiling annotations on Cloud API responses."""
+def _handle_response_headers(response: httplib2.Response) -> None:
+  """Handles response headers on Cloud API responses."""
   # Call the profile hook if present. Note that this is done before we handle
   # the content, so that profiles are reported even if the response is an error.
   if (_thread_locals.profile_hook and
       _PROFILE_RESPONSE_HEADER_LOWERCASE in response):
     _thread_locals.profile_hook(response[_PROFILE_RESPONSE_HEADER_LOWERCASE])
+
+  if _QUOTA_STATUS_HEADER in response:
+    if 'parallelism_restricted=true' in response[_QUOTA_STATUS_HEADER]:
+      warnings.warn(
+          'Your project has exceeded the compute quota of its noncommercial '
+          'tier and is currently in restricted mode.'
+      )
 
 
 def _execute_cloud_call(

@@ -4,7 +4,9 @@
 import json
 from typing import Any
 from unittest import mock
+import warnings
 
+from absl.testing import parameterized
 import googleapiclient
 import httplib2
 import requests
@@ -37,7 +39,7 @@ def NewFolderAsset(
   }
 
 
-class DataTest(unittest.TestCase):
+class DataTest(parameterized.TestCase):
 
   def setUp(self):
     super().setUp()
@@ -1156,6 +1158,35 @@ class DataTest(unittest.TestCase):
   def test_cloud_profiling_disabled(self):
     with apitestcase.UsingCloudApi(), DoCloudProfileStubHttp(self, False):
       ee.data.listImages({'parent': 'projects/earthengine-public/assets/q'})
+
+  @parameterized.named_parameters(
+      ('_warning', True),
+      ('_no_warning', False),
+  )
+  def test_quota_status(self, parallelism_restricted: bool):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({
+        'status': 200,
+        ee.data._QUOTA_STATUS_HEADER: (
+            'parallelism_restricted=true' if parallelism_restricted else ''
+        ),
+    })
+    mock_http.request.return_value = (ok_resp, b'{}')
+
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      if parallelism_restricted:
+        with self.assertWarnsRegex(
+            UserWarning,
+            'Your project has exceeded the compute quota of its noncommercial '
+            'tier and is currently in restricted mode.',
+        ):
+          warnings.simplefilter('always')
+          ee.data.listOperations()
+      else:
+        with warnings.catch_warnings(record=True) as warns:
+          warnings.simplefilter('always')
+          ee.data.listOperations()
+          self.assertEqual(0, len(warns))
 
   def test_cloud_error_translation(self):
     mock_http = mock.MagicMock(httplib2.Http)
