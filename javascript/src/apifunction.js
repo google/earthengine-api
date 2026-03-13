@@ -41,7 +41,7 @@ ee.ApiFunction = function(name, opt_signature) {
 
   /**
    * The signature of this API function.
-   * @type {!ee.Function.Signature}
+   * @const {!ee.Function.Signature}
    * @private
    */
   this.signature_ = /** @type {!ee.Function.Signature} */ (
@@ -84,7 +84,12 @@ ee.ApiFunction._apply = function(name, namedArgs) {
 };
 
 
-/** @override */
+/**
+ * @param {function(*): *} encoder A function that can be called to encode
+ *     the components of an object.
+ * @return {*} The encoded form of the object.
+ * @override
+ */
 ee.ApiFunction.prototype.encode = function(encoder) {
   return this.signature_['name'];
 };
@@ -97,7 +102,7 @@ ee.ApiFunction.prototype.encodeCloudInvocation = function(
 };
 
 
-/** @override */
+/** @override @return {!ee.Function.Signature} */
 ee.ApiFunction.prototype.getSignature = function() {
   return this.signature_;
 };
@@ -137,7 +142,7 @@ ee.ApiFunction.allSignatures = function() {
 /**
  * Returns the functions that have not been bound using importApi() yet.
  *
- * @return {!Object.<ee.ApiFunction>} A map from name to function.
+ * @return {!Object.<!ee.ApiFunction>} A map from name to function.
  */
 ee.ApiFunction.unboundFunctions = function() {
   ee.ApiFunction.initialize();
