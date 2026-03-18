@@ -63,7 +63,7 @@ goog.require('goog.object');
  * @param {function()?=} opt_successCallback An optional callback to be invoked
  *     when the initialization is successful. If not provided, the
  *     initialization is done synchronously. (JavaScript only)
- * @param {function(Error)?=} opt_errorCallback An optional callback to be
+ * @param {function(?Error)?=} opt_errorCallback An optional callback to be
  *     invoked with an error if the initialization fails. (JavaScript only)
  * @param {string?=} opt_xsrfToken A string to pass in the "xsrfToken"
  *     parameter of EE API XHRs. (JavaScript only)
@@ -147,6 +147,8 @@ ee.reset = function() {
   // Can't simply reassign ee.Algorithms to {} since it's been exported by
   // reference.
   goog.object.clear(ee.Algorithms);
+  ee.successCallbacks_ = [];
+  ee.errorCallbacks_ = [];
 };
 
 
@@ -171,7 +173,7 @@ goog.exportSymbol('ee.InitState.READY', ee.InitState.READY);
 
 /**
  * A flag to indicate the initialization state.
- * @type {ee.InitState}
+ * @type {!ee.InitState}
  * @private
  */
 ee.ready_ = ee.InitState.NOT_READY;
@@ -181,7 +183,7 @@ ee.ready_ = ee.InitState.NOT_READY;
  * The list of callbacks to call on successful initialization. Added by
  * initialize() and cleared by initializationSuccess_() and
  * initializationFailure_().
- * @type {Array.<function()?>}
+ * @type {!Array.<function()?>}
  * @private
  */
 ee.successCallbacks_ = [];
@@ -191,7 +193,7 @@ ee.successCallbacks_ = [];
  * The list of callbacks to call on failed initialization. Added by
  * initialize() and cleared by initializationSuccess_() and
  * initializationFailure_().
- * @type {Array.<function(Error)>}
+ * @type {!Array.<function(!Error)>}
  * @private
  */
 ee.errorCallbacks_ = [];
@@ -207,7 +209,7 @@ ee.TILE_SIZE = 256;
 
 /**
  * The list of auto-generated class names.
- * @type {Array.<string>}
+ * @type {!Array.<string>}
  * @private
  */
 ee.generatedClasses_ = [];
@@ -216,14 +218,14 @@ ee.generatedClasses_ = [];
 /**
  * A dictionary of algorithms that are not bound to a specific class. Can
  * contain nested namespaces (e.g. ee.Algorithms.Landsat.SimpleComposite).
- * @type {Object.<Object|Function>}
+ * @type {!Object.<!Object|!Function>}
  * @export
  */
 ee.Algorithms = {};
 
 
 /**
- * @return {ee.InitState} The initialization status.
+ * @return {!ee.InitState} The initialization status.
  */
 ee.ready = function() {
   return ee.ready_;
@@ -233,7 +235,7 @@ ee.ready = function() {
 /**
  * Call a function with the given positional arguments.
  *
- * @param {ee.Function|string} func The function to call. Either an
+ * @param {!ee.Function|string} func The function to call. Either an
  *     ee.Function object or the name of an API function.
  * @param {...*} var_args Positional arguments to pass to the function.
  * @return {!ee.ComputedObject} An object representing the called function.
@@ -255,9 +257,9 @@ ee.call = function(func, var_args) {
 /**
  * Call a function with a dictionary of named arguments.
  *
- * @param {ee.Function|string} func The function to call. Either an
+ * @param {!ee.Function|string} func The function to call. Either an
  *     ee.Function object or the name of an API function.
- * @param {Object} namedArgs A dictionary of arguments to the function.
+ * @param {!Object} namedArgs A dictionary of arguments to the function.
  * @return {!ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
  *     value will be cast to that type.
@@ -327,7 +329,7 @@ ee.initializationSuccess_ = function() {
 
 /**
  * Reports initialization failure.
- * @param {Error} e The cause of the failure.
+ * @param {!Error} e The cause of the failure.
  * @private
  */
 ee.initializationFailure_ = function(e) {
@@ -377,14 +379,14 @@ ee.promote_ = function(arg, klass) {
 
   switch (klass) {
     case 'Image':
-      return new ee.Image(/** @type {Object} */ (arg));
+      return new ee.Image(/** @type {!Object} */ (arg));
     case 'Feature':
       if (arg instanceof ee.Collection) {
         // This can be quite dangerous on large collections.
         return ee.ApiFunction._call(
             'Feature', ee.ApiFunction._call('Collection.geometry', arg));
       } else {
-        return new ee.Feature(/** @type {Object} */ (arg));
+        return new ee.Feature(/** @type {!Object} */ (arg));
       }
     case 'Element':
       if (arg instanceof ee.Element) {
@@ -392,10 +394,10 @@ ee.promote_ = function(arg, klass) {
         return arg;
       } else if (arg instanceof ee.Geometry) {
         // Geometries get promoted to Features.
-        return new ee.Feature(/** @type {ee.Geometry} */ (arg));
+        return new ee.Feature(/** @type {!ee.Geometry} */ (arg));
       } else if (arg instanceof ee.ComputedObject) {
         // Try a cast.
-        const co = /** @type {ee.ComputedObject} */ (arg);
+        const co = /** @type {!ee.ComputedObject} */ (arg);
         return new ee.Element(co.func, co.args, co.varName);
       } else {
         // No way to convert.
@@ -417,7 +419,7 @@ ee.promote_ = function(arg, klass) {
     case 'ImageCollection':
       return new ee.ImageCollection(/** @type {?} */ (arg));
     case 'Filter':
-      return new ee.Filter(/** @type {Object} */ (arg));
+      return new ee.Filter(/** @type {!Object} */ (arg));
     case 'Algorithm':
       if (typeof arg === 'string') {
         // An API function name.
