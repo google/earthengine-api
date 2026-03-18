@@ -69,12 +69,12 @@ ee.Collection.reset = function() {
 /**
  * Apply a filter to this collection.
  *
- * @param {ee.Filter} filter A filter to apply to this collection.
- * @return {ee.Collection} The filtered collection.
+ * @param {?ee.Filter} filter A filter to apply to this collection.
+ * @return {!ee.Collection} The filtered collection.
  * @export
  */
 ee.Collection.prototype.filter = function(filter) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.Collection.prototype.filter, arguments);
   filter = args['filter'];
   if (!filter) {
@@ -96,12 +96,12 @@ ee.Collection.prototype.filter = function(filter) {
  *     "ends_with", "not_starts_with", "not_ends_with", "contains",
  *     "not_contains".
  * @param {*} value - The value to compare against.
- * @return {ee.Collection} The filtered collection.
+ * @return {!ee.Collection} The filtered collection.
  * @export
  * @deprecated Use filter() with ee.Filter.eq(), ee.Filter.gte(), etc.
  */
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.Collection.prototype.filterMetadata, arguments);
   return this.filter(ee.Filter.metadata(
       args['name'], args['operator'], args['value']));
@@ -121,7 +121,7 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
  * achieve the desired outcome.
  * @param {!ee.Geometry|!ee.ComputedObject|!ee.FeatureCollection} geometry
  *     The geometry, feature or collection to intersect with.
- * @return {ee.Collection} The filtered collection.
+ * @return {!ee.Collection} The filtered collection.
  * @export
  */
 ee.Collection.prototype.filterBounds = function(geometry) {
@@ -144,7 +144,7 @@ ee.Collection.prototype.filterBounds = function(geometry) {
  * @export
  */
 ee.Collection.prototype.filterDate = function(start, opt_end) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.Collection.prototype.filterDate, arguments);
   return this.filter(ee.Filter.date(args['start'], args['end']));
 };
@@ -158,11 +158,11 @@ ee.Collection.prototype.filterDate = function(start, opt_end) {
  * @param {string=} opt_property The property to sort by, if sorting.
  * @param {boolean=} opt_ascending Whether to sort in ascending or
  *     descending order.  The default is true (ascending).
- * @return {ee.Collection} The limited collection.
+ * @return {!ee.Collection} The limited collection.
  * @export
  */
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.Collection.prototype.limit, arguments);
   return this.castInternal(ee.ApiFunction._call(
       'Collection.limit', this,
@@ -176,11 +176,11 @@ ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
  * @param {string} property The property to sort by.
  * @param {boolean=} opt_ascending Whether to sort in ascending or descending
  *     order.  The default is true (ascending).
- * @return {ee.Collection} The sorted collection.
+ * @return {!ee.Collection} The sorted collection.
  * @export
  */
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.Collection.prototype.sort, arguments);
   return this.castInternal(ee.ApiFunction._call(
       'Collection.limit', this,
@@ -188,7 +188,10 @@ ee.Collection.prototype.sort = function(property, opt_ascending) {
 };
 
 
-/** @override */
+/**
+ * @return {string}
+ * @override
+ */
 ee.Collection.prototype.name = function() {
   return 'Collection';
 };
@@ -207,7 +210,7 @@ ee.Collection.prototype.elementType = function() {
 /**
  * Maps an algorithm over a collection.
  *
- * @param {function(Object):Object} algorithm The operation to map over
+ * @param {function(!Object):?Object} algorithm The operation to map over
  *     the images or features of the collection. A JavaScript function that
  *     receives an image or features and returns one. The function is called
  *     only once and the result is captured as a description, so it cannot
@@ -215,12 +218,12 @@ ee.Collection.prototype.elementType = function() {
  * @param {boolean=} opt_dropNulls If true, the mapped algorithm is allowed
  *     to return nulls, and the elements for which it returns nulls will be
  *     dropped.
- * @return {ee.Collection} The mapped collection.
+ * @return {!ee.Collection} The mapped collection.
  * @export
  */
 ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
-  var elementType = this.elementType();
-  var withCast = function(e) { return algorithm(new elementType(e)); };
+  const elementType = this.elementType();
+  const withCast = function(e) { return algorithm(new elementType(e)); };
   return this.castInternal(ee.ApiFunction._call(
       'Collection.map', this, withCast, opt_dropNulls));
 };
@@ -233,7 +236,7 @@ ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
  * for the first iteration. The result is the value returned by the final
  * call to the user-supplied function.
  *
- * @param {function(Object, Object):Object} algorithm The function to apply
+ * @param {function(!Object, ?Object):?Object} algorithm The function to apply
  *     to each element. Must take two arguments: an element of the collection
  *     and the value from the previous iteration.
  * @param {*=} opt_first The initial state.
@@ -241,8 +244,8 @@ ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
  * @export
  */
 ee.Collection.prototype.iterate = function(algorithm, opt_first) {
-  var first = (opt_first !== undefined) ? opt_first : null;
-  var elementType = this.elementType();
-  var withCast = function(e, p) { return algorithm(new elementType(e), p); };
+  const first = (opt_first !== undefined) ? opt_first : null;
+  const elementType = this.elementType();
+  const withCast = function(e, p) { return algorithm(new elementType(e), p); };
   return ee.ApiFunction._call('Collection.iterate', this, withCast, first);
 };

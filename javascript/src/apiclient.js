@@ -267,7 +267,11 @@ class EERequestService extends PromiseRequestService {
     return value.then(r => responseCtor ? deserialize(responseCtor, r) : r);
   }
 
-  /** @override abstract method, not used */ makeRequest(params) {}
+  /**
+   * @param {!MakeRequestParams} params
+   * @override abstract method, not used
+   */
+  makeRequest(params) {}
 }
 
 
@@ -388,7 +392,11 @@ class BatchRequestService extends PromiseRequestService {
     return /** @type {?} */([message, responseCtor]);
   }
 
-  /** @override abstract method, not used */ makeRequest(params) {}
+  /**
+   * @param {!MakeRequestParams} params
+   * @override abstract method, not used
+   */
+  makeRequest(params) {}
 }
 
 

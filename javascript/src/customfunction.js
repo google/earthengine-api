@@ -22,10 +22,10 @@ goog.requireType('ee.api');
  * The expression is created by evaluating the given JavaScript function
  * using variables as placeholders.
  *
- * @param {ee.Function.Signature} signature The function's signature. If any of
+ * @param {!ee.Function.Signature} signature The function's signature. If any of
  *     the argument names are null, their names will be generated
  *     deterministically, based on the body.
- * @param {Function} body The JavaScript function to evaluate.
+ * @param {!Function} body The JavaScript function to evaluate.
  *
  * @constructor
  * @extends {ee.Function}
@@ -51,7 +51,7 @@ ee.CustomFunction = function(signature, body) {
 
   /**
    * The signature of the function.
-   * @type {ee.Function.Signature}
+   * @const {!ee.Function.Signature}
    * @private
    */
   this.signature_ = ee.CustomFunction.resolveNamelessArgs_(
@@ -59,7 +59,7 @@ ee.CustomFunction = function(signature, body) {
 
   /**
    * The function evaluated using placeholders.
-   * @type {*}
+   * @const {*}
    * @private
    */
   this.body_ = body.apply(null, vars);
@@ -69,7 +69,11 @@ goog.inherits(ee.CustomFunction, ee.Function);
 goog.exportSymbol('ee.CustomFunction', ee.CustomFunction);
 
 
-/** @override */
+/**
+ * @param {function(*): *} encoder
+ * @return {{type: string, argumentNames: !Array<string>, body: *}}
+ * @override
+ */
 ee.CustomFunction.prototype.encode = function(encoder) {
   return {
     'type': 'Function',
@@ -96,7 +100,10 @@ ee.CustomFunction.prototype.encodeCloudInvocation = function(
 };
 
 
-/** @override */
+/**
+ * @return {!ee.Function.Signature}
+ * @override
+ */
 ee.CustomFunction.prototype.getSignature = function() {
   return this.signature_;
 };
@@ -106,7 +113,7 @@ ee.CustomFunction.prototype.getSignature = function() {
  * Returns a placeholder variable with a given name that implements a given
  * EE type.
  *
- * @param {Function} type A type to mimic.
+ * @param {?Function} type A type to mimic.
  * @param {string?} name The name of the variable as it will appear in the
  *     arguments of the custom functions that use this variable. If null, a
  *     name will be auto-generated in resolveNamelessArgs_().
@@ -148,10 +155,10 @@ ee.CustomFunction.variable = function(type, name) {
  * Creates a CustomFunction calling a given native function with the specified
  * return type and argument types and auto-generated argument names.
  *
- * @param {Function} func The native function to wrap.
- * @param {string|Function} returnType The type of the return value, either
+ * @param {!Function} func The native function to wrap.
+ * @param {string|!Function} returnType The type of the return value, either
  *     as a string or a constructor/class reference.
- * @param {Array.<string|Function>} arg_types The types of the arguments,
+ * @param {!Array<string|!Function>} arg_types The types of the arguments,
  *     either as strings or constructor/class references.
  * @return {!ee.CustomFunction} The constructed CustomFunction.
  */

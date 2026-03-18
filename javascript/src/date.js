@@ -17,7 +17,7 @@ goog.require('ee.arguments');
 /**
  * Constructs a new Date object.
  *
- * @param {number|String|ee.ComputedObject|Date} date The date to convert,
+ * @param {number|string|!ee.ComputedObject|!Date} date The date to convert,
  *     one of:
  *     a number (number of milliseconds since the epoch),
  *     an ISO Date string,
@@ -43,13 +43,13 @@ ee.Date = function(date, opt_tz) {
 
   ee.Date.initialize();
 
-  var jsArgs = ee.arguments.extractFromFunction(ee.Date, arguments);
+  const jsArgs = ee.arguments.extractFromFunction(ee.Date, arguments);
   date = jsArgs['date'];
-  var tz = jsArgs['tz'];
+  const tz = jsArgs['tz'];
 
-  var func = new ee.ApiFunction('Date');
-  var args = {};
-  var varName = null;
+  let func = new ee.ApiFunction('Date');
+  let args = {};
+  let varName = null;
   if (ee.Types.isString(date)) {
     args['value'] = date;
     if (tz) {
@@ -63,7 +63,7 @@ ee.Date = function(date, opt_tz) {
   } else if (ee.Types.isNumber(date)) {
     args['value'] = date;
   } else if (goog.isDateLike(date)) {
-    args['value'] = Math.floor(/** @type {Date} */(date).getTime());
+    args['value'] = Math.floor(/** @type {!Date} */(date).getTime());
   } else if (date instanceof ee.ComputedObject) {
     if (date.func && date.func.getSignature()['returns'] == 'Date') {
       // If it's a call that's already returning a Date, just cast.
@@ -107,6 +107,7 @@ ee.Date.reset = function() {
 
 /**
  * @override
+ * @return {string}
  */
 ee.Date.prototype.name = function() {
   return 'Date';

@@ -129,7 +129,7 @@ ee.ComputedObject.prototype.encode = function(encoder) {
       'value': this.varName
     };
   } else {
-    var encodedArgs = {};
+    const encodedArgs = {};
     for (var name in this.args) {
       if (this.args[name] !== undefined) {
         encodedArgs[name] = encoder(this.args[name]);

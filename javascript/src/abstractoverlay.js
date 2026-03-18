@@ -13,9 +13,9 @@ goog.requireType('ee.data.Profiler');
  * @param {string} url The url for fetching this layer's tiles.
  * @param {string} mapId The map ID for fetching this layer's tiles.
  * @param {string} token The temporary token for fetching tiles.
- * @param {Object=} opt_init Initialization options, of the same form as a
+ * @param {!Object=} opt_init Initialization options, of the same form as a
  *     google.maps.ImageMapTypeOptions object.
- * @param {ee.data.Profiler=} opt_profiler Map tile calculation cost will be
+ * @param {!ee.data.Profiler=} opt_profiler Map tile calculation cost will be
  *     sent to this profiler, if its enabled flag is set.
  * @constructor
  * @extends {goog.events.EventTarget}
@@ -34,7 +34,7 @@ earthengine_api.javascript.abstractoverlay.AbstractOverlay =
   /** @protected {!Array<string>} The list of tiles currently being loaded. */
   this.tilesLoading = [];
 
-  /** @protected {goog.structs.Set} The set of failed tile IDs. */
+  /** @protected {!goog.structs.Set} The set of failed tile IDs. */
   this.tilesFailed = new goog.structs.Set();
 
   /** @protected {number} The count of tiles that have been loaded. */
@@ -60,8 +60,8 @@ earthengine_api.javascript.abstractoverlay.AbstractOverlay
  * Implements getTile() for the google.maps.MapType interface.
  * @param {!google.maps.Point} coord Position of tile.
  * @param {number} zoom Zoom level.
- * @param {Node} ownerDocument Parent document.
- * @return {Node} Element or binary data to be displayed as a map
+ * @param {!Node} ownerDocument Parent document.
+ * @return {!Node} Element or binary data to be displayed as a map
  *     tile.
  */
 earthengine_api.javascript.abstractoverlay.AbstractOverlay
@@ -76,10 +76,10 @@ earthengine_api.javascript.abstractoverlay.AbstractOverlay
  */
 earthengine_api.javascript.abstractoverlay.AbstractOverlay
     .prototype.getTileId = function(coord, zoom) {
-  var maxCoord = 1 << zoom;
+  const maxCoord = 1 << zoom;
 
   // Wrap longitude around.
-  var x = coord.x % maxCoord;
+  let x = coord.x % maxCoord;
   if (x < 0) {
     x += maxCoord;
   }

@@ -30,9 +30,9 @@ ee.MapLayerOverlay =
    * @param {string} url The url for fetching this layer's tiles.
    * @param {string} mapId The map ID for fetching this layer's tiles.
    * @param {string} token The temporary token for fetching tiles.
-   * @param {Object} init Initialization options, of the same form as a
+   * @param {!Object} init Initialization options, of the same form as a
    *     google.maps.ImageMapTypeOptions object.
-   * @param {ee.data.Profiler=} opt_profiler Map tile calculation cost will be
+   * @param {!ee.data.Profiler=} opt_profiler Map tile calculation cost will be
    *     sent to this profiler, if its enabled flag is set.
    */
   constructor(url, mapId, token, init, opt_profiler) {
@@ -105,12 +105,12 @@ ee.MapLayerOverlay =
    * Implements getTile() for the google.maps.MapType interface.
    * @param {!google.maps.Point} coord Position of tile.
    * @param {number} zoom Zoom level.
-   * @param {Node} ownerDocument Parent document.
-   * @return {Node} Element to be displayed as a map tile.
+   * @param {!Node} ownerDocument Parent document.
+   * @return {!Node} Element to be displayed as a map tile.
    * @override
    */
   getTile(coord, zoom, ownerDocument) {
-    var maxCoord = 1 << zoom;
+    const maxCoord = 1 << zoom;
     if (zoom < this.minZoom || coord.y < 0 || coord.y >= maxCoord) {
       // Construct and return the tile immediately.
       var img = ownerDocument.createElement('IMG');
