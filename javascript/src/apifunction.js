@@ -25,6 +25,36 @@ goog.requireType('ee.api');
 
 
 /**
+ * Recursively deletes the __proto__ property from objects to prevent prototype
+ * pollution.
+ * @param {*} obj The object to sanitize.
+ * @param {!Set<*>=} opt_seen A set of already visited objects to handle
+ *     circular references.
+ * @return {*} The sanitized object.
+ */
+function deleteProto(obj, opt_seen) {
+  if (!(obj && typeof obj === 'object')) {
+    return obj;
+  }
+  const seen = opt_seen || new Set();
+  if (seen.has(obj)) return obj;
+  seen.add(obj);
+  if (Object.prototype.hasOwnProperty.call(obj, 'constructor')) {
+    delete obj['constructor'];
+  }
+  for (const key in obj) {
+    if (key === '__proto__') {
+      continue;
+    }
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      deleteProto(obj[key], seen);
+    }
+  }
+  return obj;
+}
+
+
+/**
  * Creates a function defined by the EE API.
  * @param {string} name The name of the function.
  * @param {!ee.Function.Signature|!ee.data.AlgorithmSignature=} opt_signature
@@ -33,12 +63,19 @@ goog.requireType('ee.api');
  * @extends {ee.Function}
  */
 ee.ApiFunction = function(name, opt_signature) {
+  if (typeof name !== 'string') {
+    throw new Error('ApiFunction name must be a string.');
+  }
   if (opt_signature === undefined) {
     return ee.ApiFunction.lookup(name);
   } else if (!(this instanceof ee.ApiFunction)) {
     return ee.ComputedObject.construct(ee.ApiFunction, arguments);
   }
 
+  if (opt_signature === null || typeof opt_signature !== 'object') {
+    throw new Error('opt_signature must be an object.');
+  }
+  deleteProto(opt_signature);
   /**
    * The signature of this API function.
    * @const {!ee.Function.Signature}
@@ -64,8 +101,14 @@ goog.exportSymbol('ee.ApiFunction', ee.ApiFunction);
  * @export
  */
 ee.ApiFunction._call = function(name, var_args) {
-  return ee.Function.prototype.call.apply(
-      ee.ApiFunction.lookup(name), Array.prototype.slice.call(arguments, 1));
+  if (typeof name !== 'string') {
+    throw new Error('ApiFunction name must be a string.');
+  }
+  const args = Array.prototype.slice.call(arguments, 1);
+  for (let i = 0; i < args.length; i++) {
+    deleteProto(args[i]);
+  }
+  return ee.Function.prototype.call.apply(ee.ApiFunction.lookup(name), args);
 };
 
 
@@ -80,8 +123,18 @@ ee.ApiFunction._call = function(name, var_args) {
  * @export
  */
 ee.ApiFunction._apply = function(name, namedArgs) {
+  if (typeof name !== 'string') {
+    throw new Error('ApiFunction name must be a string.');
+  }
+  if (namedArgs === null || typeof namedArgs !== 'object') {
+    throw new Error('namedArgs must be an object.');
+  }
+  deleteProto(namedArgs);
   return ee.ApiFunction.lookup(name).apply(namedArgs);
 };
+
+
+
 
 
 /**
@@ -296,9 +349,11 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
      * @this {*}
      **/
     destination[fname] = function(var_args) {
-      return apiFunc.callOrApply(
-          isInstance ? this : undefined,
-          Array.prototype.slice.call(arguments, 0));
+      const args = Array.prototype.slice.call(arguments, 0);
+      for (let i = 0; i < args.length; i++) {
+        deleteProto(args[i]);
+      }
+      return apiFunc.callOrApply(isInstance ? this : undefined, args);
     };
     // Add a friendly formatting.
     destination[fname].toString =
