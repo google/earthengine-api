@@ -181,10 +181,20 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
  */
 ee.Deserializer.roundTrip_ = function(node, value) {
   class Reencoder extends ee.Encodable {
-    /** @override */ encode(encoder) {
+    /**
+     * @param {function(*):*} encoder
+     * @return {*}
+     * @override
+     */
+    encode(encoder) {
       return value;
     }
-    /** @override */ encodeCloudValue(encoder) {
+    /**
+     * @param {!ee.Encodable.Serializer} serializer
+     * @return {!ee.api.ValueNode}
+     * @override
+     */
+    encodeCloudValue(serializer) {
       return node;
     }
   }

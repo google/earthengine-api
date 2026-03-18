@@ -23,9 +23,9 @@ goog.requireType('ee.data');
  *   - A computed object: reinterpreted as a geometry if properties
  *      are specified, and as a feature if they aren't.
  *
- * @param {ee.Geometry|ee.Feature|ee.ComputedObject|Object} geometry
+ * @param {!ee.Geometry|!ee.Feature|!ee.ComputedObject|!Object|null} geometry
  *     A geometry or feature.
- * @param {Object=} opt_properties A dictionary of metadata properties. If the
+ * @param {!Object=} opt_properties A dictionary of metadata properties. If the
  *     first parameter is a Feature (instead of a geometry), this is unused.
  * @constructor
  * @extends {ee.Element}
@@ -60,7 +60,7 @@ ee.Feature = function(geometry, opt_properties) {
     ee.Feature.base(this, 'constructor', geometry.func, geometry.args, geometry.varName);
   } else if (geometry['type'] == 'Feature') {
     // Try to convert a GeoJSON Feature.
-    var properties = geometry['properties'] || {};
+    let properties = geometry['properties'] || {};
     if ('id' in geometry) {
       if ('system:index' in properties) {
         throw Error('Can\'t specify both "id" and "system:index".');
@@ -116,16 +116,16 @@ ee.Feature.reset = function() {
  * An imperative function that returns information about this feature via an
  * AJAX call.
  *
- * @param {function(ee.data.GeoJSONFeature, string=)=} opt_callback
+ * @param {function(!ee.data.GeoJSONFeature, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  *     If supplied, will be called with the first parameter if successful and
  *     the second if unsuccessful.
- * @return {ee.data.GeoJSONFeature} A description of the feature.
+ * @return {!ee.data.GeoJSONFeature} A description of the feature.
  * @export
  * @override
  */
 ee.Feature.prototype.getInfo = function(opt_callback) {
-  return /** @type {ee.data.GeoJSONFeature} */(
+  return /** @type {!ee.data.GeoJSONFeature} */(
       ee.Feature.base(this, 'getInfo', opt_callback));
 };
 
@@ -171,7 +171,10 @@ ee.Feature.prototype.getMapId = function(opt_visParams, opt_callback) {
 ee.Feature.prototype.getMap = ee.Feature.prototype.getMapId;
 
 
-/** @override */
+/**
+ * @return {string}
+ * @override
+ */
 ee.Feature.prototype.name = function() {
   return 'Feature';
 };

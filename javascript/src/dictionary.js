@@ -15,7 +15,7 @@ goog.requireType('ee.api');
 /**
  * Constructs a new Dictionary.
  *
- * @param {Object|ee.ComputedObject=} opt_dict An object to convert to
+ * @param {Object|!ee.ComputedObject=} opt_dict An object to convert to
  *    a dictionary. This constructor accepts the following types:
  *      1) Another dictionary.
  *      2) A list of key/value pairs.
@@ -38,7 +38,7 @@ ee.Dictionary = function(opt_dict) {
   /**
    * The internal rerpresentation of this dictionary.
    *
-   * @type {Object}
+   * @type {?Object}
    * @private
    */
   this.dict_;
@@ -46,7 +46,7 @@ ee.Dictionary = function(opt_dict) {
   if (ee.Types.isRegularObject(opt_dict)) {
     // Cast to a dictionary.
     ee.Dictionary.base(this, 'constructor', null, null);
-    this.dict_ = /** @type {Object} */ (opt_dict);
+    this.dict_ = /** @type {!Object} */ (opt_dict);
   } else {
     if (opt_dict instanceof ee.ComputedObject && opt_dict.func &&
         opt_dict.func.getSignature()['returns'] == 'Dictionary') {
@@ -89,6 +89,8 @@ ee.Dictionary.reset = function() {
 
 /**
  * @override
+ * @param {function(*):*} encoder
+ * @return {*}
  */
 ee.Dictionary.prototype.encode = function(encoder) {
   if (this.dict_ !== null) {
@@ -112,6 +114,7 @@ ee.Dictionary.prototype.encodeCloudValue = function(
 
 /**
  * @override
+ * @return {string}
  */
 ee.Dictionary.prototype.name = function() {
   return 'Dictionary';

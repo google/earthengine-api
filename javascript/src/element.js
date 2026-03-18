@@ -16,8 +16,8 @@ goog.requireType('ee.Function');
 
 /**
  * A ComputedObject that can be stored in a collection.
- * @param {ee.Function} func The same argument as in ee.ComputedObject().
- * @param {Object} args The same argument as in ee.ComputedObject().
+ * @param {?ee.Function} func The same argument as in ee.ComputedObject().
+ * @param {?Object} args The same argument as in ee.ComputedObject().
  * @param {string?=} opt_varName The same argument as in ee.ComputedObject().
  * @constructor
  * @extends {ee.ComputedObject}
@@ -59,7 +59,10 @@ ee.Element.reset = function() {
 };
 
 
-/** @override */
+/**
+ * @return {string}
+ * @override
+ */
 ee.Element.prototype.name = function() {
   return 'Element';
 };
@@ -68,30 +71,30 @@ ee.Element.prototype.name = function() {
 /**
  * Overrides one or more metadata properties of an Element.
  *
- * @param {...Object} var_args Either a dictionary of properties, or a
+ * @param {...!Object} var_args Either a dictionary of properties, or a
  *     vararg sequence of properties, e.g. key1, value1, key2, value2, ...
- * @return {ee.Element} The element with the specified properties overridden.
+ * @return {!ee.Element} The element with the specified properties overridden.
  * @export
  */
 ee.Element.prototype.set = function(var_args) {
-  var result;
+  let result;
   if (arguments.length <= 1) {
-    var properties = arguments[0];
+    let properties = arguments[0];
 
     // If this is a keyword call, unwrap it.
     if (ee.Types.isRegularObject(properties) &&
         goog.array.equals(goog.object.getKeys(properties), ['properties']) &&
         goog.isObject(properties['properties'])) {
       // Looks like a call with keyword parameters. Extract them.
-      properties = /** @type {Object.<*>} */(properties['properties']);
+      properties = /** @type {!Object.<*>} */(properties['properties']);
     }
 
     if (ee.Types.isRegularObject(properties)) {
       // Still a plain object. Extract its keys. Setting the keys separately
       // allows filter propagation.
       result = this;
-      for (var key in properties) {
-        var value = properties[key];
+      for (const key in properties) {
+        const value = properties[key];
         result = ee.ApiFunction._call('Element.set', result, key, value);
       }
     } else if (properties instanceof ee.ComputedObject &&
@@ -109,9 +112,9 @@ ee.Element.prototype.set = function(var_args) {
                   'must be an even number of them.');
     }
     result = this;
-    for (var i = 0; i < arguments.length; i += 2) {
-      var key = arguments[i];
-      var value = arguments[i + 1];
+    for (let i = 0; i < arguments.length; i += 2) {
+      const key = arguments[i];
+      const value = arguments[i + 1];
       result = ee.ApiFunction._call('Element.set', result, key, value);
     }
   }
