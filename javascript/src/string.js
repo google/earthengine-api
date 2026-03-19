@@ -81,12 +81,16 @@ ee.String.reset = function() {
 };
 
 
-/** @override */
+/**
+ * @param {function(*): *} encoder
+ * @return {string|!Object}
+ * @override
+ */
 ee.String.prototype.encode = function(encoder) {
   if (typeof (this.string_) === 'string') {
     return this.string_;
   } else {
-    return ee.String.base(this, 'encode', encoder);
+    return /** @type {!Object} */ (ee.String.base(this, 'encode', encoder));
   }
 };
 
@@ -102,7 +106,10 @@ ee.String.prototype.encodeCloudValue = function(
 };
 
 
-/** @override */
+/**
+ * @return {string}
+ * @override
+ */
 ee.String.prototype.name = function() {
   return 'String';
 };
