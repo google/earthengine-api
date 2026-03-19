@@ -84,7 +84,7 @@ ee.data.Profiler = class extends goog.events.EventTarget {
     /**
      * Helper to ensure we don't make too many profile requests.
      * See DELAY_BEFORE_REFRESH_ for rationale.
-     * @private {!goog.async.Delay}
+     * @private @const {!goog.async.Delay}
      */
     this.throttledRefresh_ = new goog.async.Delay(
         goog.bind(this.refresh_, this), ee.data.Profiler.DELAY_BEFORE_REFRESH_);
@@ -336,6 +336,7 @@ ee.data.Profiler = class extends goog.events.EventTarget {
 
   /**
    * This class does not allow setting a parent event target.
+   * @param {?goog.events.EventTarget} parent
    * @override
    */
   setParentEventTarget(parent) {
@@ -375,7 +376,7 @@ ee.data.Profiler.DELAY_BEFORE_REFRESH_ = 500;
 
 
 /**
- * @private {!google.visualization.DataObject}
+ * @private @const {!google.visualization.DataObject}
  */
 ee.data.Profiler.EMPTY_JSON_PROFILE_ = {
   cols: [],
@@ -408,6 +409,7 @@ ee.data.Profiler.Format = class {
   }
 
   /**
+   * @return {string}
    * @override
    */
   toString() {
