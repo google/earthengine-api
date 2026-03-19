@@ -56,14 +56,14 @@ ee.MapTileManager = class extends goog.events.EventTarget {
 
     /**
      * The pool of tokens.
-     * @type {ee.MapTileManager.TokenPool_}
+     * @type {?ee.MapTileManager.TokenPool_}
      * @private
      */
     this.tokenPool_ = new ee.MapTileManager.TokenPool_(0, 60);
 
     /**
      * Map of IDs to requests.
-     * @type {goog.structs.Map}
+     * @type {?goog.structs.Map}
      * @private
      */
     this.requests_ = new goog.structs.Map();
@@ -99,7 +99,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
       throw Error(ee.MapTileManager.ERROR_ID_IN_USE_);
     }
     // Make the Request object.
-    var request = new ee.MapTileManager.Request_(
+    const request = new ee.MapTileManager.Request_(
         id, url, opt_imageCompletedCallback,
         goog.bind(this.releaseRequest_, this),
         opt_maxRetries !== undefined ? opt_maxRetries :
@@ -107,7 +107,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
     this.requests_.set(id, request);
 
     // Setup the callback for the pool.
-    var callback = goog.bind(this.handleAvailableToken_, this, request);
+    const callback = goog.bind(this.handleAvailableToken_, this, request);
     this.tokenPool_.getObject(callback, opt_priority);
 
     return request;
@@ -118,7 +118,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
    * @param {string} id The id of the request to abort.
    */
   abort(id) {
-    var request = /** @type {ee.MapTileManager.Request_} */
+    const request = /** @type {!ee.MapTileManager.Request_} */
         (this.requests_.get(id));
     if (request) {
       request.setAborted(true);
@@ -129,9 +129,9 @@ ee.MapTileManager = class extends goog.events.EventTarget {
   /**
    * Handles a Token object that became available. Sets up the callback,
    * and starts the process to send the request.
-   * @param {ee.MapTileManager.Request_} request A request to associate
+   * @param {!ee.MapTileManager.Request_} request A request to associate
    *     the token with.
-   * @param {ee.MapTileManager.Token_} token The available Token_ object.
+   * @param {!ee.MapTileManager.Token_} token The available Token_ object.
    * @private
    */
   handleAvailableToken_(request, token) {
@@ -156,7 +156,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
 
   /**
    * Finishes processing of a request and releases its token if possible.
-   * @param {ee.MapTileManager.Request_} request The object to process.
+   * @param {!ee.MapTileManager.Request_} request The object to process.
    * @private
    */
   releaseRequest_(request) {
@@ -170,7 +170,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
 
   /**
    * Returns the token back to the pool.
-   * @param {ee.MapTileManager.Token_} token The object to release.
+   * @param {?ee.MapTileManager.Token_} token The object to release.
    * @private
    */
   releaseObject_(token) {
@@ -188,7 +188,7 @@ ee.MapTileManager = class extends goog.events.EventTarget {
     this.tokenPool_ = null;
 
     // Call dispose on each request.
-    var requests = this.requests_;
+    const requests = this.requests_;
     goog.array.forEach([...requests.values()], function(value) {
       value.dispose();
     });
@@ -216,7 +216,7 @@ ee.MapTileManager.MAX_RETRIES = 1;
 /**
  * Error to throw when a send is attempted with an ID that the manager already
  * has registered for another request.
- * @type {string}
+ * @const {string}
  * @private
  */
 ee.MapTileManager.ERROR_ID_IN_USE_ = '[ee.MapTileManager] ID in use';
@@ -227,15 +227,16 @@ ee.MapTileManager.ERROR_ID_IN_USE_ = '[ee.MapTileManager] ID in use';
  * An encapsulation of everything needed to make a Xhr request.
  * NOTE: This is used internal to the MapTileManager.
  * @private
+ * @const
  * @unrestricted
  */
 ee.MapTileManager.Request_ = class extends goog.Disposable {
   /**
    * @param {string} id Unique id for the request.
    * @param {string} url Uri to make the request too.
-   * @param {Function=} opt_imageEventCallback Callback attached to the events
+   * @param {!Function=} opt_imageEventCallback Callback attached to the events
    *        of the ImageLoader object of the request.
-   * @param {Function=} opt_requestCompleteCallback Callback function for when
+   * @param {!Function=} opt_requestCompleteCallback Callback function for when
    *        request is complete. NOTE: Only 1 callback supported across all
    * events.
    * @param {number=} opt_maxRetries The maximum number of times the request
@@ -250,14 +251,14 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
     /**
      * Uri to make the request too.
-     * @type {string}
+     * @const {string}
      * @private
      */
     this.url_ = url;
 
     /**
      * The maximum number of times the request should be retried.
-     * @type {number}
+     * @const {number}
      * @private
      */
     this.maxRetries_ = (opt_maxRetries !== undefined) ?
@@ -266,14 +267,14 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
     /**
      * Callback attached to the events of the ImageLoader object.
-     * @type {Function|undefined}
+     * @type {?Function|undefined}
      * @private
      */
     this.imageEventCallback_ = opt_imageEventCallback;
 
     /**
      * Callback function called when request is complete.
-     * @type {Function|undefined}
+     * @type {?Function|undefined}
      * @private
      */
     this.requestCompleteCallback_ = opt_requestCompleteCallback;
@@ -281,7 +282,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
   /**
    * Returns the ImageLoader instance handling this request.
-   * @return {goog.net.ImageLoader} The ImageLoader instance
+   * @return {?goog.net.ImageLoader} The ImageLoader instance
    *    handling this request.
    */
   getImageLoader() {
@@ -290,7 +291,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
   /**
    * Sets the ImageLoader instance handling this request.
-   * @param {goog.net.ImageLoader} imageLoader The ImageLoader
+   * @param {!goog.net.ImageLoader} imageLoader The ImageLoader
    *    instance handling this request.
    */
   setImageLoader(imageLoader) {
@@ -299,7 +300,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
   /**
    * Returns the Token_ instance guarding this request.
-   * @return {ee.MapTileManager.Token_} The Token_ instance
+   * @return {?ee.MapTileManager.Token_} The Token_ instance
    *    guarding this request.
    */
   getToken() {
@@ -308,7 +309,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
   /**
    * Sets the Token_ instance handling this request.
-   * @param {ee.MapTileManager.Token_} token The Token_ instance
+   * @param {?ee.MapTileManager.Token_} token The Token_ instance
    *    guarding this request.
    */
   setToken(token) {
@@ -319,7 +320,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
    * Adds an event handler listening for image loading events.
    */
   addImageEventListener() {
-    var types = ee.MapTileManager.Request_.IMAGE_LOADER_EVENT_TYPES_;
+    const types = ee.MapTileManager.Request_.IMAGE_LOADER_EVENT_TYPES_;
     goog.events.listenOnce(
         this.imageLoader_, types, goog.bind(this.handleImageEvent_, this));
   }
@@ -402,7 +403,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
   /**
    * Handles all events fired by the ImageLoader object for a given request.
-   * @param {goog.events.Event} e The event.
+   * @param {!goog.events.Event} e The event.
    * @private
    */
   handleImageEvent_(e) {
@@ -436,7 +437,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
   /**
    * Handles the success of a request. Dispatches the SUCCESS event.
-   * @param {goog.events.Event} e An event to handle.
+   * @param {!goog.events.Event} e An event to handle.
    * @private
    */
   handleSuccess_(e) {
@@ -447,7 +448,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
    * Handles the error of a request. If the request has not reach its maximum
    * number of retries, then it lets the request retry naturally (will let the
    * request hit the READY state). Else, it dispatches the ERROR event.
-   * @param {goog.events.Event} e An event to handle.
+   * @param {!goog.events.Event} e An event to handle.
    * @private
    */
   handleError_(e) {
@@ -491,7 +492,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
       return;
     }
 
-    var actuallyLoadImage = goog.bind(function(imageUrl) {
+    const actuallyLoadImage = goog.bind(function(imageUrl) {
       if (this.getAborted()) {
         return;
       }
@@ -500,7 +501,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
       this.imageLoader_.start();
     }, this);
 
-    var sourceUrl = this.getUrl();
+    const sourceUrl = this.getUrl();
     // Parsing the URL here isn't all that great. It's just a way to not have to
     // pass another parameter from MapLayerOverlay to here containing the same
     // information.
@@ -509,7 +510,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
       // response headers. Then construct an object URL for the response
       // (possible because we specified 'blob' response type) so that we can
       // load it as an image for the actual map tile display.
-      var xhrIo = new goog.net.XhrIo();
+      const xhrIo = new goog.net.XhrIo();
       xhrIo.setResponseType(goog.net.XhrIo.ResponseType.BLOB);
       xhrIo.listen(goog.net.EventType.COMPLETE, goog.bind(function(event) {
         this.profileId_ =
@@ -518,7 +519,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
         // Store the response, but only if it is not an error, because if we did
         // then we would attempt to interpret the error response as an image.
         // This also ensures that the Code Editor can display the error message.
-        var objectUrl, ok;
+        let objectUrl, ok;
         if (xhrIo.getStatus() >= 200 && xhrIo.getStatus() < 300) {
           try {
             objectUrl =
@@ -608,8 +609,9 @@ ee.MapTileManager.Request_.prototype.profileId_ = null;
 
 /**
  * The goog.net.EventType's to listen/unlisten for on the ImageLoader object.
- * @type {Array.<goog.net.EventType>}
+ * @type {!Array.<!goog.net.EventType>}
  * @private
+ * @const
  */
 ee.MapTileManager.Request_.IMAGE_LOADER_EVENT_TYPES_ = [
   goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR
@@ -620,6 +622,7 @@ ee.MapTileManager.Request_.IMAGE_LOADER_EVENT_TYPES_ = [
 /**
  * An object that we put into a PriorityPool to throttle requests.
  * @private
+ * @const
  * @unrestricted
  */
 ee.MapTileManager.Token_ = class extends goog.Disposable {
@@ -656,6 +659,7 @@ ee.MapTileManager.Token_ = class extends goog.Disposable {
 /**
  * A pool of Token objects.
  * @private
+ * @const
  * @unrestricted
  */
 ee.MapTileManager.TokenPool_ = class extends goog.structs.PriorityPool {
@@ -686,7 +690,11 @@ ee.MapTileManager.TokenPool_ = class extends goog.structs.PriorityPool {
     obj.dispose();
   }
 
-  /** @override */
+  /**
+   * @param {!ee.MapTileManager.Token_} obj The object to check.
+   * @return {boolean} Whether the object can be reused.
+   * @override
+   */
   objectCanBeReused(obj) {
     // An active ImageLoader object should never be used.
     return !obj.isDisposed() && !obj.isActive();
