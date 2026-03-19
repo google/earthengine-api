@@ -14,7 +14,7 @@ goog.requireType('ee.Function');
  * Not technically needed in the JavaScript library, but it matches what
  * we have to do in the Python library.
  * The keys are the names of the ee classes.  The values the class objects.
- * @type {Object}
+ * @type {!Object}
  * @private
  */
 ee.Types.registeredClasses_ = {};
@@ -22,7 +22,7 @@ ee.Types.registeredClasses_ = {};
 
 /**
  * Register the classes available in the ee object for lookup.
- * @param {Object} classes The classes available in the ee object for lookup.
+ * @param {!Object} classes The classes available in the ee object for lookup.
  */
 ee.Types.registerClasses = function(classes) {
   ee.Types.registeredClasses_ = classes;
@@ -33,7 +33,7 @@ ee.Types.registerClasses = function(classes) {
  * Converts a type name to a class constructor.
  *
  * @param {string} name The class name.
- * @return {Function} The constructor for the named class or null if it's not an
+ * @return {?Function} The constructor for the named class or null if it's not an
  *     ee class.
  */
 ee.Types.nameToClass = function(name) {
@@ -47,7 +47,7 @@ ee.Types.nameToClass = function(name) {
 
 /**
  * Converts a class constructor to the API-friendly type name.
- * @param {Function} klass The class constructor.
+ * @param {!Function} klass The class constructor.
  * @return {string} The name of the class, or "Object" if not recognized.
  */
 ee.Types.classToName = function(klass) {
@@ -144,7 +144,7 @@ ee.Types.isArray = function(obj) {
  */
 ee.Types.isRegularObject = function(obj) {
   if (goog.isObject(obj) && typeof obj !== 'function') {
-    var proto = Object.getPrototypeOf(obj);
+    const proto = Object.getPrototypeOf(obj);
     return proto !== null && Object.getPrototypeOf(proto) === null;
   } else {
     return false;
