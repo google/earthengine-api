@@ -48,19 +48,19 @@ ee.MapLayerOverlay =
     this.isPng = (init.isPng !== undefined) ? init.isPng : true;
     this.name = init.name;
 
-    /** @private {goog.structs.Set} The set of loaded tiles. */
+    /** @private @const {!goog.structs.Set} The set of loaded tiles. */
     this.tiles_ = new goog.structs.Set();
 
     /** @private {number} The layer's opacity. */
     this.opacity_ = 1.0;
 
-    /** @private {boolean} Whether the layer is currently visible. */
+    /** @private @const {boolean} Whether the layer is currently visible. */
     this.visible_ = true;
 
     /**
      * Map tile calculation cost will be sent to this profiler, if its enabled
      * flag is set.
-     * @private {?ee.data.Profiler}
+     * @private @const {?ee.data.Profiler}
      */
     this.profiler_ = opt_profiler || null;
   }
@@ -88,7 +88,7 @@ ee.MapLayerOverlay =
    * @export
    */
   removeTileCallback(callbackId) {
-    goog.events.unlistenByKey(/** @type {goog.events.Key} */ (callbackId));
+    goog.events.unlistenByKey(/** @type {!goog.events.Key} */ (callbackId));
   }
 
   /**
@@ -113,15 +113,15 @@ ee.MapLayerOverlay =
     const maxCoord = 1 << zoom;
     if (zoom < this.minZoom || coord.y < 0 || coord.y >= maxCoord) {
       // Construct and return the tile immediately.
-      var img = ownerDocument.createElement('IMG');
+      const img = ownerDocument.createElement('IMG');
       img.style.width = '0px';
       img.style.height = '0px';
       return img;
     }
 
-    var profiling = this.profiler_ && this.profiler_.isEnabled();
-    var tileId = this.getTileId(coord, zoom);
-    var src = [this.url, tileId].join('/') + '?token=' + this.token;
+    const profiling = this.profiler_ && this.profiler_.isEnabled();
+    const tileId = this.getTileId(coord, zoom);
+    let src = [this.url, tileId].join('/') + '?token=' + this.token;
     if (profiling) {
       src += '&profiling=1';
     }
@@ -132,11 +132,11 @@ ee.MapLayerOverlay =
     // don't overwrite each other's state, and 2) the unique token for this
     // layer to differentiate its tile requests from other tile requests
     // for other layers with the same map ID.
-    var uniqueTileId = [tileId, this.tileCounter, this.token].join('/');
+    const uniqueTileId = [tileId, this.tileCounter, this.token].join('/');
     this.tileCounter += 1;
 
     // Holds the <img> element created asynchronously.
-    var div = goog.dom.createDom(goog.dom.TagName.DIV, {'id': uniqueTileId});
+    const div = goog.dom.createDom(goog.dom.TagName.DIV, {'id': uniqueTileId});
 
     // Use the current time in seconds as the priority for the tile
     // loading queue. Smaller priorities move to the front of the queue,
@@ -145,7 +145,7 @@ ee.MapLayerOverlay =
     // Requests for tiles that are no longer visible won't clog the queue:
     // if the map is moved around a lot, Maps API calls our releaseTile()
     // method, and the obsolete requests will be removed from the queue.
-    var priority = new Date().getTime() / 1000;
+    const priority = new Date().getTime() / 1000;
     this.tilesLoading.push(uniqueTileId);
 
     ee.MapTileManager.getInstance().send(
@@ -171,11 +171,11 @@ ee.MapLayerOverlay =
   /**
    * Implements releaseTile() for the google.maps.MapType
    * interface.
-   * @param {Node} tileDiv The tile that has been released.
+   * @param {!Node} tileDiv The tile that has been released.
    */
   releaseTile(tileDiv) {
     ee.MapTileManager.getInstance().abort(tileDiv.id);
-    var tileImg = goog.dom.getFirstElementChild(tileDiv);
+    const tileImg = goog.dom.getFirstElementChild(tileDiv);
     this.tiles_.remove(tileImg);
     if (tileDiv.id !== '') {  // Out-of-bounds tiles have no ID.
       this.tilesFailed.remove(tileDiv.id);
@@ -191,7 +191,7 @@ ee.MapLayerOverlay =
    */
   setOpacity(opacity) {
     this.opacity_ = opacity;
-    var iter = this.tiles_.__iterator__();
+    const iter = this.tiles_.__iterator__();
     goog.iter.forEach(iter, function(tile) {
       goog.style.setOpacity(tile, opacity);
     });
@@ -201,7 +201,7 @@ ee.MapLayerOverlay =
    * Handle image 'load' and 'error' events. When the last one has
    * finished, dispatch an ee.AbstractOverlay.EventType.TILE_LOADED event.
    * Handle bookkeeping to keep the tilesLoading array accurate.
-   * @param {Node} div Tile div to which images should be appended.
+   * @param {!Node} div Tile div to which images should be appended.
    * @param {string} tileId The id of the tile that was requested.
    * @param {!goog.events.Event} e Image loading event.
    * @param {?string} profileId If profiling, profile ID for the tile.
@@ -216,12 +216,12 @@ ee.MapLayerOverlay =
     } else {
       // Convert tile loading events to our own type.
       goog.array.remove(this.tilesLoading, tileId);
-      var tile;
+      let tile;
       if (e.target && (e.type == goog.events.EventType.LOAD)) {
-        tile = /** @type {Node} */ (e.target);
+        tile = /** @type {!Node} */ (e.target);
         this.tiles_.add(tile);
         if (this.opacity_ != 1.0) {
-          goog.style.setOpacity(/** @type {Element} */ (tile), this.opacity_);
+          goog.style.setOpacity(/** @type {!Element} */ (tile), this.opacity_);
         }
         div.appendChild(tile);
       }
