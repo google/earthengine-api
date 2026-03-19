@@ -78,12 +78,14 @@ ee.Number.reset = function() {
 
 /**
  * @override
+ * @param {function(*): *} encoder A function that encodes an object.
+ * @return {number|!Object}
  */
 ee.Number.prototype.encode = function(encoder) {
   if (typeof this.number_ === 'number') {
     return this.number_;
   } else {
-    return ee.Number.base(this, 'encode', encoder);
+    return /** @type {!Object} */ (ee.Number.base(this, 'encode', encoder));
   }
 };
 
@@ -101,6 +103,7 @@ ee.Number.prototype.encodeCloudValue = function(
 
 /**
  * @override
+ * @return {string}
  */
 ee.Number.prototype.name = function() {
   return 'Number';
