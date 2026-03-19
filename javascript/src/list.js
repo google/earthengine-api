@@ -43,7 +43,7 @@ ee.List = function(list) {
 
   if (Array.isArray(list)) {
     ee.List.base(this, 'constructor', null, null);
-    this.list_ = /** @type {IArrayLike} */ (list);
+    this.list_ = /** @type {!IArrayLike} */ (list);
   } else if (list instanceof ee.ComputedObject) {
     ee.List.base(this, 'constructor', list.func, list.args, list.varName);
     this.list_ = null;
@@ -79,7 +79,9 @@ ee.List.reset = function() {
 
 
 /**
+ * @param {function(*): *} encoder The function to encode inner objects.
  * @override
+ * @return {*}
  */
 ee.List.prototype.encode = function(encoder) {
   if (Array.isArray(this.list_)) {
@@ -104,6 +106,7 @@ ee.List.prototype.encodeCloudValue = function(
 
 /**
  * @override
+ * @return {string}
  */
 ee.List.prototype.name = function() {
   return 'List';
