@@ -35,7 +35,7 @@ ee.FloatTileOverlay =
      * The set of loaded floating point buffer tiles. The keys are the
      * coordinates of the tiles, and the values are the corresponding
      * Float32Arrays.
-     * @private {goog.structs.Map<!google.maps.Point, Float32Array>}
+     * @private {?goog.structs.Map<!google.maps.Point, !Float32Array>}
      */
     this.floatTiles_ = new goog.structs.Map();
 
@@ -43,22 +43,22 @@ ee.FloatTileOverlay =
      * The floating point buffer tile DIV elements returned by getTile().
      * The keys are the coordinates of the tiles, and the values are the
      * corresponding DIV elements.
-     * @private {goog.structs.Map<!google.maps.Point, !Element>}
+     * @private {?goog.structs.Map<!google.maps.Point, !Element>}
      */
     this.floatTileDivs_ = new goog.structs.Map();
   }
 
   /** @override */
   getTile(coord, zoom, ownerDocument) {
-    var tileId = this.getTileId(coord, zoom);
-    var src = [this.url, tileId].join('/') + '?token=' + this.token;
-    var uniqueTileId = [tileId, this.tileCounter, this.token].join('/');
+    const tileId = this.getTileId(coord, zoom);
+    const src = [this.url, tileId].join('/') + '?token=' + this.token;
+    const uniqueTileId = [tileId, this.tileCounter, this.token].join('/');
     this.tilesLoading.push(uniqueTileId);
     this.tileCounter += 1;
 
-    var div = goog.dom.createDom(goog.dom.TagName.DIV);
+    const div = goog.dom.createDom(goog.dom.TagName.DIV);
 
-    var floatTile = this.loadFloatTile_(src, coord, uniqueTileId, div);
+    this.loadFloatTile_(src, coord, uniqueTileId, div);
     this.dispatchTileEvent_();
 
     // The Maps API expects a div for the tile. We don't actually want to render
@@ -69,21 +69,21 @@ ee.FloatTileOverlay =
   /**
    * Requests a floating point tile from the provided URL.
    * @param {string} tileUrl Tile URL
-   * @param {google.maps.Point} coord Coordinates of the floating tile
+   * @param {!google.maps.Point} coord Coordinates of the floating tile
    * @param {string} tileId Unique tile ID
    * @param {!Element} div The corresponding DIV element.
    * @private
    */
   loadFloatTile_(tileUrl, coord, tileId, div) {
-    var tileRequest = goog.net.XmlHttp();
+    let tileRequest = goog.net.XmlHttp();
     tileRequest.open('GET', tileUrl, true);
     tileRequest.responseType = 'arraybuffer';
     tileRequest.onreadystatechange = goog.bind(function() {
       if (tileRequest.readyState === XMLHttpRequest.DONE &&
           tileRequest.status === 200) {
-        var tileResponse = /** @type {Float32Array} */ (tileRequest.response);
+        const tileResponse = /** @type {!Float32Array} */ (tileRequest.response);
         if (tileResponse) {
-          var floatBuffer = new Float32Array(tileResponse);
+          let floatBuffer = new Float32Array(tileResponse);
           this.handleFloatTileLoaded_(floatBuffer, coord, tileId, div);
         } else {
           this.tilesFailed.add(tileId);
@@ -97,8 +97,8 @@ ee.FloatTileOverlay =
   /**
    * Handles float tile loaded events by storing the tile data and dispatching
    * a tile event.
-   * @param {Float32Array} floatTile Successfully requested float tile
-   * @param {google.maps.Point} coord Coordinate of the floating tile
+   * @param {!Float32Array} floatTile Successfully requested float tile
+   * @param {!google.maps.Point} coord Coordinate of the floating tile
    * @param {string} tileId Unique tile ID
    * @param {!Element} div The corresponding DIV element.
    * @private
@@ -113,7 +113,7 @@ ee.FloatTileOverlay =
   /**
    * Returns the map of all visible floating tiles and the corresponding
    * coordinates.
-   * @return {goog.structs.Map}
+   * @return {?goog.structs.Map}
    */
   getAllFloatTiles() {
     return this.floatTiles_;
@@ -122,7 +122,7 @@ ee.FloatTileOverlay =
   /**
    * Returns the map of all the floating tile divs that are visible and
    * the corresponding coordinates.
-   * @return {goog.structs.Map}
+   * @return {?goog.structs.Map}
    */
   getAllFloatTileDivs() {
     return this.floatTileDivs_;
