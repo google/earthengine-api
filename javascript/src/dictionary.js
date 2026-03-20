@@ -15,7 +15,7 @@ goog.requireType('ee.api');
 /**
  * Constructs a new Dictionary.
  *
- * @param {Object|!ee.ComputedObject=} opt_dict An object to convert to
+ * @param {!Object|null|!ee.ComputedObject=} opt_dict An object to convert to
  *    a dictionary. This constructor accepts the following types:
  *      1) Another dictionary.
  *      2) A list of key/value pairs.
