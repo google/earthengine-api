@@ -121,7 +121,11 @@ ee.ComputedObject.prototype.getInfo = function(opt_callback) {
 };
 
 
-/** @override */
+/**
+ * @override
+ * @param {function(*): *} encoder The encoder function.
+ * @return {*} The encoded form of the object.
+ */
 ee.ComputedObject.prototype.encode = function(encoder) {
   if (this.isVariable()) {
     return {
