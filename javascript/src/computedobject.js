@@ -130,16 +130,16 @@ ee.ComputedObject.prototype.encode = function(encoder) {
     };
   } else {
     const encodedArgs = {};
-    for (var name in this.args) {
+    for (const name in this.args) {
       if (this.args[name] !== undefined) {
         encodedArgs[name] = encoder(this.args[name]);
       }
     }
-    var result = {
+    const result = {
       'type': 'Invocation',
       'arguments': encodedArgs
     };
-    var func = encoder(this.func);
+    const func = encoder(this.func);
     result[typeof func === 'string' ? 'functionName' : 'function'] = func;
     return result;
   }
@@ -230,13 +230,13 @@ ee.ComputedObject.prototype.name = function() {
  *   .aside(Map.addLayer, {min: 0, max: 142}, 'Filtered')
  *   .select('a', 'b');
  *
- * @param {Function} func The function to call.
+ * @param {!Function} func The function to call.
  * @param {...*} var_args Any extra arguments to pass to the function.
  * @return {!ee.ComputedObject} The same object, for chaining.
  * @export
  */
 ee.ComputedObject.prototype.aside = function(func, var_args) {
-  var args = Array.from(arguments);
+  const args = Array.from(arguments);
   args[0] = this;
   func.apply(goog.global, args);
   return this;
@@ -245,7 +245,7 @@ ee.ComputedObject.prototype.aside = function(func, var_args) {
 
 /**
  * Cast a ComputedObject to a new instance of the same class as this.
- * @param {ee.ComputedObject} obj The object to cast.
+ * @param {!ee.ComputedObject} obj The object to cast.
  * @return {?} The converted instance.
  * @protected
  */
@@ -257,9 +257,9 @@ ee.ComputedObject.prototype.castInternal = function(obj) {
      * Avoid Object.create() for browser compatibility.
      * @constructor
      */
-    var klass = function() {};
+    const klass = function() {};
     klass.prototype = this.constructor.prototype;
-    var result = new klass();
+    const result = new klass();
     result.func = obj.func;
     result.args = obj.args;
     result.varName = obj.varName;
@@ -271,8 +271,8 @@ ee.ComputedObject.prototype.castInternal = function(obj) {
 /**
  * A helper function to construct a class with variable args.
  *
- * @param {Function} constructor The constructor to construct.
- * @param {IArrayLike} argsArray The args array.
+ * @param {!Function} constructor The constructor to construct.
+ * @param {!IArrayLike} argsArray The args array.
  * @return {!Object} The newly constructed object.
  */
 ee.ComputedObject.construct = function(constructor, argsArray) {
