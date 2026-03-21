@@ -646,6 +646,25 @@
       "optional": true,
       "defaultValue": []
     }, {
+      "argumentName": "maxErrorList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of maximum error (RMSE) values to be used for each band. If not provided, the maxError value will be used for all bands.",
+      "optional": true,
+      "defaultValue": []
+    }, {
+      "argumentName": "spikesToleranceList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of spike tolerance values to be used for each band. A value of 1 indicates no spike removal. If not provided, the spikesTolerance value will be used for all bands.",
+      "optional": true,
+      "defaultValue": []
+    }, {
+      "argumentName": "spikeRemovalMagnitudeList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of spike removal magnitude values to be used for each band. Spikes with a magnitude above this value are removed. If not provided, the spikeRemovalMagnitude value will be used for all bands.",
+      "description": "Maximum number of segments permitted in the fitted tajectory.",
+      "optional": true,
+      "defaultValue": []
+    }, {
       "argumentName": "maxError",
       "type": "Float",
       "description": "Maximum allowed RMSE of the piecewise linear fit; controls segmentation sensitivity.",
@@ -3733,6 +3752,563 @@
     "arguments": [{
       "argumentName": "clusterer",
       "type": "Clusterer"
+    }]
+  }, {
+    "name": "algorithms/Color",
+    "description": "Creates a Color.",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "input",
+      "type": "Object",
+      "description": "Either a W3C compatible color string or a list of RGBA values in the range of [0:1]."
+    }]
+  }, {
+    "name": "algorithms/Color.brighter",
+    "description": "Scale each of the RGB channels to produce a brighter color.",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "color",
+      "type": "Color"
+    }, {
+      "argumentName": "scale",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": 0.7
+    }]
+  }, {
+    "name": "algorithms/Color.darker",
+    "description": "Scale each of the RGB channels to produce a darker color.",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "color",
+      "type": "Color"
+    }, {
+      "argumentName": "scale",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": 0.7
+    }]
+  }, {
+    "name": "algorithms/Color.fromHsl",
+    "description": "Creates a Color given a list of HSL (hue, saturation, luminosity) values and an optional alpha value, all in the range of [0:1].",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "hsl",
+      "type": "List\u003cFloat\u003e"
+    }]
+  }, {
+    "name": "algorithms/Color.fromHsv",
+    "description": "Creates a Color given a list of HSV (hue, saturation, value) values and an optional alpha value, all in the range of [0:1].",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "hsv",
+      "type": "List\u003cFloat\u003e"
+    }]
+  }, {
+    "name": "algorithms/Color.fromLab",
+    "description": "Creates a Color given a list of CIE-LAB values and an optional alpha value. The components are unnormalized and have the approximate ranges of: L\u003d[0:100], a,b\u003d[-127:128].",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "lab",
+      "type": "List\u003cFloat\u003e"
+    }]
+  }, {
+    "name": "algorithms/Color.fromLch",
+    "description": "Creates a Color given a list of CIE-LCH (lightness, chroma, hue) values and an optional alpha value. The components are unnormalized and have an approximate range of L\u003d[0:100], C\u003d[0:180], H\u003d[0:360] (degrees).",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "lch",
+      "type": "List\u003cFloat\u003e"
+    }]
+  }, {
+    "name": "algorithms/Color.gray",
+    "description": "Creates a color with equal R, G and B values.",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "value",
+      "type": "Float"
+    }, {
+      "argumentName": "alpha",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": 1.0
+    }]
+  }, {
+    "name": "algorithms/Color.mix",
+    "description": "Mixes two colors by the given ratio in the specified colorspace.",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "start",
+      "type": "Color"
+    }, {
+      "argumentName": "end",
+      "type": "Color"
+    }, {
+      "argumentName": "ratio",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": 0.5
+    }, {
+      "argumentName": "colorspace",
+      "type": "String",
+      "optional": true,
+      "defaultValue": "rgb"
+    }]
+  }, {
+    "name": "algorithms/Color.toHexString",
+    "description": "Returns value of a color as an RGBA hex string.",
+    "returnType": "String",
+    "arguments": [{
+      "argumentName": "color",
+      "type": "Color"
+    }]
+  }, {
+    "name": "algorithms/Color.toHsl",
+    "description": "Convert a color to HSL and returns the values and alpha channel as a list of doubles in the range [0:1].",
+    "returnType": "List\u003cFloat\u003e",
+    "arguments": [{
+      "argumentName": "color",
+      "type": "Color"
+    }]
+  }, {
+    "name": "algorithms/Color.toHsv",
+    "description": "Convert a color to HSV and returns the values and alpha channel as a list of doubles in the range [0:1].",
+    "returnType": "List\u003cFloat\u003e",
+    "arguments": [{
+      "argumentName": "color",
+      "type": "Color"
+    }]
+  }, {
+    "name": "algorithms/Color.toLab",
+    "description": "Convert a color to CIE-Lab and returns the values and alpha channel as a list of doubles. The components are unnormalized and have  the approximate ranges of: L\u003d[0:100], a,b\u003d[-127:128].",
+    "returnType": "List\u003cFloat\u003e",
+    "arguments": [{
+      "argumentName": "color",
+      "type": "Color"
+    }]
+  }, {
+    "name": "algorithms/Color.toLch",
+    "description": "Convert a color to CIE-LCH and returns the values and alpha channel as a list of doubles. The components are unnormalized and have  an approximate range of L\u003d[0:100], C\u003d[0:180], H\u003d[0:360] (degrees).",
+    "returnType": "List\u003cFloat\u003e",
+    "arguments": [{
+      "argumentName": "color",
+      "type": "Color"
+    }]
+  }, {
+    "name": "algorithms/Color.toRGB",
+    "description": "Returns the RGB and alpha value as a list of numbers in the range of [0:1].",
+    "returnType": "List\u003cFloat\u003e",
+    "arguments": [{
+      "argumentName": "color",
+      "type": "Color"
+    }]
+  }, {
+    "name": "algorithms/Palette",
+    "description": "Creates a palette.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "colors",
+      "type": "Object",
+      "description": "A list of colors or the name of a predefined color palette.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "mode",
+      "type": "String",
+      "description": "The colorspace in which to interpolate. One of \u0027rgb\u0027, \u0027lrgb\u0027, \u0027hsv\u0027, \u0027hsl\u0027, \u0027lab\u0027 or \u0027lch\u0027.",
+      "optional": true,
+      "defaultValue": "RGB"
+    }, {
+      "argumentName": "min",
+      "type": "Float",
+      "description": "The minimum value of the palette. Values less than min will be clamped to min.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "max",
+      "type": "Float",
+      "description": "The maximum value of the palette. Values greater than max will be clamped to max.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "padding",
+      "type": "List\u003cFloat\u003e",
+      "description": "Shifts the color range by padding the end of the color scale (a percentage 0-1). Positive values reduce the spread of the gradient and negative values expand it. If only 1 value is provided, the same padding will be applied to both ends.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "classes",
+      "type": "List\u003cFloat\u003e",
+      "description": "Create a palette representing discrete classes instead of a continuous gradient. Either a list of class break values, or a single number indicating the number of equidistant breaks to generate between \u0027min\u0027 and \u0027max\u0027. This option is mutually exclusive with \u0027positions\u0027.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "positions",
+      "type": "List\u003cFloat\u003e",
+      "description": "Set the positions for the colors. The number of positions must exactly match the number of colors in the palette. Resets \u0027min\u0027 \u0026 \u0027max\u0027 to first and last value. This option is mutually exclusive with \u0027min\u0027/\u0027max\u0027 and \u0027classes\u0027.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "correctLightness",
+      "type": "Boolean",
+      "description": "Correct the color spacing to spread the (Lab) lightness range evenly over the range of values.",
+      "optional": true,
+      "defaultValue": false
+    }, {
+      "argumentName": "gamma",
+      "type": "Float",
+      "description": "A gamma correction for the palette. Numbers greater than 1 increase lightness.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "bezier",
+      "type": "Boolean",
+      "description": "Sets the palette to use Bezier interpolation.",
+      "optional": true,
+      "defaultValue": false
+    }]
+  }, {
+    "name": "algorithms/Palette.bezier",
+    "description": "Sets the palette to use bezier interpolation.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "interpolate",
+      "type": "Boolean",
+      "optional": true,
+      "defaultValue": true
+    }]
+  }, {
+    "name": "algorithms/Palette.classes",
+    "description": "Use discrete classes as opposed to a continuous gradient.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "classes",
+      "type": "Object",
+      "description": "Either a list of class break values, or a single number indicating the number of equidistant breaks to generate. This overrides any values set by positions and if a list of break values is given, explicitly sets min/max to the first/last value."
+    }]
+  }, {
+    "name": "algorithms/Palette.correctLightness",
+    "description": "Correct the color spacing to spread the (Lab) lightness range evenly over the domain.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "correct",
+      "type": "Boolean",
+      "optional": true,
+      "defaultValue": true
+    }]
+  }, {
+    "name": "algorithms/Palette.gamma",
+    "description": "Apply a gamma correction to the palette.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "gamma",
+      "type": "Float"
+    }]
+  }, {
+    "name": "algorithms/Palette.getColor",
+    "description": "Returns the color at the given value, interpolated according to the mode.",
+    "returnType": "Color",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "value",
+      "type": "Float"
+    }]
+  }, {
+    "name": "algorithms/Palette.getColors",
+    "description": "Get colors from this palette.",
+    "returnType": "List\u003cColor\u003e",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "nColors",
+      "type": "Integer",
+      "description": "The number of equally spaced colors to retrieve from the palette. If nColors is 0 or unspecified, the algorithm returns the entire list of colors used to construct the palette.",
+      "optional": true,
+      "defaultValue": 0.0
+    }]
+  }, {
+    "name": "algorithms/Palette.limits",
+    "description": "Set the minimum and maximum limits for the palette. The palette colors will be evenly spaced between these values, overriding any previous settings for \u0027positions\u0027 or \u0027classes\u0027.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "min",
+      "type": "Float",
+      "description": "The minimum value of the palette. Values less than min will be clamped to min."
+    }, {
+      "argumentName": "max",
+      "type": "Float",
+      "description": "The maximum value of the palette. Values greater than max will be clamped to max."
+    }]
+  }, {
+    "name": "algorithms/Palette.mode",
+    "description": "Set the colorspace interpolation mode. One of \u0027rgb\u0027, \u0027lrgb\u0027, \u0027hsv\u0027, \u0027hsl\u0027, \u0027lab\u0027, or \u0027lch\u0027. The palette will mix colors in this color space, using EEColor.mix.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "mode",
+      "type": "String"
+    }]
+  }, {
+    "name": "algorithms/Palette.padding",
+    "description": "Shifts the color range by padding the end of the color scale. Positive values reduce the spread of the gradient and negative values expand it. If only 1 value is provided, the same padding will be applied to both ends.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "left",
+      "type": "Float"
+    }, {
+      "argumentName": "right",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": null
+    }]
+  }, {
+    "name": "algorithms/Palette.positions",
+    "description": "Set the position for each color in the palette.",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "palette",
+      "type": "Palette"
+    }, {
+      "argumentName": "positions",
+      "type": "List\u003cFloat\u003e",
+      "description": "A list of values specifying the position for each color in the palette. This overrides any value of \u0027classes\u0027, and explicitly sets min/max to the first/last position."
+    }]
+  }, {
+    "name": "algorithms/Palette.OrRd",
+    "description": "Returns the Colorbrewer named palette: \u0027OrRd\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.PuBu",
+    "description": "Returns the Colorbrewer named palette: \u0027PuBu\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.BuPu",
+    "description": "Returns the Colorbrewer named palette: \u0027BuPu\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Oranges",
+    "description": "Returns the Colorbrewer named palette: \u0027Oranges\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.BuGn",
+    "description": "Returns the Colorbrewer named palette: \u0027BuGn\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.YlOrBr",
+    "description": "Returns the Colorbrewer named palette: \u0027YlOrBr\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.YlGn",
+    "description": "Returns the Colorbrewer named palette: \u0027YlGn\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Reds",
+    "description": "Returns the Colorbrewer named palette: \u0027Reds\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.RdPu",
+    "description": "Returns the Colorbrewer named palette: \u0027RdPu\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Greens",
+    "description": "Returns the Colorbrewer named palette: \u0027Greens\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.YlGnBu",
+    "description": "Returns the Colorbrewer named palette: \u0027YlGnBu\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Purples",
+    "description": "Returns the Colorbrewer named palette: \u0027Purples\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.GnBu",
+    "description": "Returns the Colorbrewer named palette: \u0027GnBu\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Greys",
+    "description": "Returns the Colorbrewer named palette: \u0027Greys\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.YlOrRd",
+    "description": "Returns the Colorbrewer named palette: \u0027YlOrRd\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.PuRd",
+    "description": "Returns the Colorbrewer named palette: \u0027PuRd\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Blues",
+    "description": "Returns the Colorbrewer named palette: \u0027Blues\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.PuBuGn",
+    "description": "Returns the Colorbrewer named palette: \u0027PuBuGn\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Spectral",
+    "description": "Returns the Colorbrewer named palette: \u0027Spectral\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.RdYlGn",
+    "description": "Returns the Colorbrewer named palette: \u0027RdYlGn\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.RdBu",
+    "description": "Returns the Colorbrewer named palette: \u0027RdBu\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.PiYG",
+    "description": "Returns the Colorbrewer named palette: \u0027PiYG\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.PRGn",
+    "description": "Returns the Colorbrewer named palette: \u0027PRGn\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.RdYlBu",
+    "description": "Returns the Colorbrewer named palette: \u0027RdYlBu\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.BrBG",
+    "description": "Returns the Colorbrewer named palette: \u0027BrBG\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.RdGy",
+    "description": "Returns the Colorbrewer named palette: \u0027RdGy\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.PuOr",
+    "description": "Returns the Colorbrewer named palette: \u0027PuOr\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Accent",
+    "description": "Returns the Colorbrewer named palette: \u0027Accent\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Set1",
+    "description": "Returns the Colorbrewer named palette: \u0027Set1\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Set2",
+    "description": "Returns the Colorbrewer named palette: \u0027Set2\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Set3",
+    "description": "Returns the Colorbrewer named palette: \u0027Set3\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Dark2",
+    "description": "Returns the Colorbrewer named palette: \u0027Dark2\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Paired",
+    "description": "Returns the Colorbrewer named palette: \u0027Paired\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Pastel2",
+    "description": "Returns the Colorbrewer named palette: \u0027Pastel2\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Pastel1",
+    "description": "Returns the Colorbrewer named palette: \u0027Pastel1\u0027. See https://colorbrewer2.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Viridis",
+    "description": "Returns the Colorbrewer named palette: \u0027Viridis\u0027. See https://matplotlib.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Magma",
+    "description": "Returns the Colorbrewer named palette: \u0027Magma\u0027. See https://matplotlib.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Inferno",
+    "description": "Returns the Colorbrewer named palette: \u0027Inferno\u0027. See https://matplotlib.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Plasma",
+    "description": "Returns the Colorbrewer named palette: \u0027Plasma\u0027. See https://matplotlib.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Cool",
+    "description": "Returns the Colorbrewer named palette: \u0027Cool\u0027. See https://matplotlib.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Hot",
+    "description": "Returns the Colorbrewer named palette: \u0027Hot\u0027. See https://matplotlib.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.Copper",
+    "description": "Returns the Colorbrewer named palette: \u0027Copper\u0027. See https://matplotlib.org for more information.",
+    "returnType": "Palette"
+  }, {
+    "name": "algorithms/Palette.cubeHelix",
+    "description": "Creates a palette using cubehelix interpolation. See: D.A. Green \u0027A colour scheme for the display of astronomical intensity images\u0027 (http://astron-soc.in/bulletin/11June/289392011.pdf)",
+    "returnType": "Palette",
+    "arguments": [{
+      "argumentName": "startHue",
+      "type": "Float",
+      "description": "The start hue, normalized [0:1].",
+      "optional": true,
+      "defaultValue": 0.8
+    }, {
+      "argumentName": "rotations",
+      "type": "Float",
+      "description": "The number of rotations through the hue space. Negative values correspond to Blue-\u003eRed direction.",
+      "optional": true,
+      "defaultValue": -1.5
+    }, {
+      "argumentName": "saturation",
+      "type": "Float",
+      "description": "The saturation scaling factor.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "gamma",
+      "type": "Float",
+      "description": "A gamma correction factor. Values less than 1 emphasize low intensity values.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "startLightness",
+      "type": "Float",
+      "description": "Controls how light the colors are. Lightness is linearly interpolated between startLightness and endLightness.",
+      "optional": true,
+      "defaultValue": 0.0
+    }, {
+      "argumentName": "endLightness",
+      "type": "Float",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "endHue",
+      "type": "Float",
+      "description": "The ending hue. If specified, the distance between (startHue + rotations) and endHue will be added to rotations to ensure the last color has a hue of endHue.",
+      "optional": true,
+      "defaultValue": null
     }]
   }, {
     "name": "algorithms/Geometry.fromS2CellId",

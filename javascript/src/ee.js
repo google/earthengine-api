@@ -6,6 +6,7 @@ goog.provide('ee');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.Collection');
+goog.require('ee.Color');
 goog.require('ee.ComputedObject');
 goog.require('ee.CustomFunction');
 goog.require('ee.Date');
@@ -21,6 +22,7 @@ goog.require('ee.Image');
 goog.require('ee.ImageCollection');
 goog.require('ee.List');
 goog.require('ee.Number');
+goog.require('ee.Palette');
 goog.require('ee.String');
 goog.require('ee.Terrain');
 goog.require('ee.Types');
@@ -129,6 +131,7 @@ ee.reset = function() {
   ee.ready_ = ee.InitState.NOT_READY;
   ee.data.reset();
   ee.ApiFunction.reset();
+  ee.Color.reset();
   ee.Date.reset();
   ee.Dictionary.reset();
   ee.Element.reset();
@@ -141,6 +144,7 @@ ee.reset = function() {
   ee.Geometry.reset();
   ee.List.reset();
   ee.Number.reset();
+  ee.Palette.reset();
   ee.String.reset();
   ee.Terrain.reset();
   ee.resetGeneratedClasses_();
