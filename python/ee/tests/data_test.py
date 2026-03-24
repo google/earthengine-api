@@ -651,6 +651,18 @@ class DataTest(parameterized.TestCase):
       }
       self.assertEqual(expected_result, actual_result)
 
+  def test_list_assets_string_response(self):
+    cloud_api_resource = mock.MagicMock()
+    some_string = 'some string'
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      cloud_api_resource.projects().assets().listAssets().execute.return_value = (
+          some_string
+      )
+      cloud_api_resource.projects().assets().listAssets_next.return_value = None
+      message = f'Unexpected response type of str: "{some_string}"'
+      with self.assertRaisesRegex(ee.ee_exception.EEException, message):
+        ee.data.listAssets('path/to/folder')
+
   def test_list_images(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):

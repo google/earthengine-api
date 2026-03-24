@@ -599,6 +599,10 @@ def listAssets(params: str | dict[str, Any]) -> dict[str, list[Any]]:
   assets = {'assets': []}
   while request is not None:
     response = _execute_cloud_call(request)
+    if isinstance(response, str):
+      raise ee_exception.EEException(
+          f'Unexpected response type of str: "{response}"'
+      )
     assets['assets'].extend(response.get('assets', []))
     request = cloud_resource_root.listAssets_next(request, response)
     # We currently treat pageSize as a cap on the results, if this param was
