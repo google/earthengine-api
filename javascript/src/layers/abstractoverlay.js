@@ -67,7 +67,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
     /** @protected {number} The count of tiles that have been requested. */
     this.tileCounter = 0;
 
-    /** @protected {!ee.layers.AbstractTileSource} The overlay's tile source. */
+    /** @protected {?ee.layers.AbstractTileSource} The overlay's tile source. */
     this.tileSource = tileSource;
 
     /** @protected {?goog.events.EventHandler} The overlay's event handler. */
