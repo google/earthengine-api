@@ -19,6 +19,8 @@ goog.require('goog.net.XhrIo');
 goog.require('goog.object');
 goog.require('goog.structs.Map');
 goog.require('goog.style');
+goog.requireType('ee.data.Profiler');
+
 
 
 /**
@@ -34,7 +36,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
   /**
    * @param {!ee.layers.AbstractTileSource} tileSource The source of tiles
    *     for this map layer.
-   * @param {?Object=} opt_options Initialization options, of the same form as a
+   * @param {Object=} opt_options Initialization options, of the same form as a
    *     google.maps.ImageMapTypeOptions object.
    */
   constructor(tileSource, opt_options) {
@@ -42,7 +44,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
 
     // Public options required by the Maps API.
 
-    const options = opt_options || {};
+    var options = opt_options || {};
     this.minZoom = options.minZoom || 0;
     this.maxZoom = options.maxZoom || 20;
     if (!window['google'] || !window['google']['maps']) {
@@ -61,16 +63,16 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
     /** @protected {!ee.layers.AbstractOverlayStats} */
     this.stats = new ee.layers.AbstractOverlayStats(tileSource.getUniqueId());
 
-    /** @protected {?goog.structs.Map<string, ?ee.layers.AbstractTile>} */
+    /** @protected {goog.structs.Map<string, ee.layers.AbstractTile>} */
     this.tilesById = new goog.structs.Map();
 
     /** @protected {number} The count of tiles that have been requested. */
     this.tileCounter = 0;
 
-    /** @protected {!ee.layers.AbstractTileSource} The overlay's tile source. */
+    /** @protected {ee.layers.AbstractTileSource} The overlay's tile source. */
     this.tileSource = tileSource;
 
-    /** @protected {?goog.events.EventHandler} The overlay's event handler. */
+    /** @protected {goog.events.EventHandler} The overlay's event handler. */
     this.handler = new goog.events.EventHandler(this);
 
     // MapType options required by the compiler but which we don't support.
@@ -84,7 +86,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
 
   /**
    * Adds a callback to be fired each time a tile is loaded.
-   * @param {function(!ee.layers.TileLoadEvent)} callback The function to call.
+   * @param {function(ee.layers.TileLoadEvent)} callback The function to call.
    * @return {!Object} An ID which can be passed to removeTileCallback().
    * @export
    */
@@ -99,7 +101,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
    * @export
    */
   removeTileCallback(callbackId) {
-    goog.events.unlistenByKey(/** @type {!goog.events.Key} */ (callbackId));
+    goog.events.unlistenByKey(/** @type {goog.events.Key} */ (callbackId));
   }
 
   /**
@@ -151,7 +153,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
    * @return {?Element} Element to be displayed as a map tile.
    */
   getTile(coord, zoom, ownerDocument) {
-    const maxCoord = 1 << zoom;
+    var maxCoord = 1 << zoom;
 
     // If the position is out of bounds, return an empty tile immediately.
     if (zoom < this.minZoom || coord.y < 0 || coord.y >= maxCoord) {
@@ -159,15 +161,15 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
     }
 
     // Wrap longitude around.
-    let x = coord.x % maxCoord;
+    var x = coord.x % maxCoord;
     if (x < 0) {
       x += maxCoord;
     }
-    const normalizedCoord = new google.maps.Point(x, coord.y);
+    var normalizedCoord = new google.maps.Point(x, coord.y);
 
     // Create the tile.
-    const uniqueId = this.getUniqueTileId_(coord, zoom);
-    const tile = this.createTile(normalizedCoord, zoom, ownerDocument, uniqueId);
+    var uniqueId = this.getUniqueTileId_(coord, zoom);
+    var tile = this.createTile(normalizedCoord, zoom, ownerDocument, uniqueId);
     tile.tileSize = this.tileSize;
     goog.style.setOpacity(tile.div, this.opacity);
     this.tilesById.set(uniqueId, tile);
@@ -186,7 +188,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
     // Requests for tiles that are no longer visible won't clog the queue:
     // if the map is moved around a lot, Maps API calls our releaseTile()
     // method, and the obsolete requests will be removed from the queue.
-    const priority = new Date().getTime() / 1000;
+    var priority = new Date().getTime() / 1000;
 
     this.tileSource.loadTile(tile, priority);
 
@@ -198,7 +200,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
    * Implements releaseTile() for the google.maps.MapType interface.
    */
   releaseTile(tileDiv) {
-    const tile = this.tilesById.get(tileDiv.id);
+    var tile = this.tilesById.get(tileDiv.id);
     this.tilesById.delete(tileDiv.id);
     if (tile) {
       tile.abort();
@@ -208,14 +210,14 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
 
   /**
    * Listen for tile status changes and respond accordingly.
-   * @param {!ee.layers.AbstractTile} tile
+   * @param {ee.layers.AbstractTile} tile
    * @private
    */
   registerStatusChangeListener_(tile) {
     // Notify listeners when the tile has loaded.
     this.handler.listen(
         tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
-          const Status = ee.layers.AbstractTile.Status;
+          var Status = ee.layers.AbstractTile.Status;
 
           switch (tile.getStatus()) {
             case Status.LOADED:
@@ -258,8 +260,8 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
    * @private
    */
   getUniqueTileId_(coord, z) {
-    const tileId = [coord.x, coord.y, z, this.tileCounter++].join('-');
-    const sourceId = this.tileSource.getUniqueId();
+    var tileId = [coord.x, coord.y, z, this.tileCounter++].join('-');
+    var sourceId = this.tileSource.getUniqueId();
     return [tileId, sourceId].join('-');
   }
 
@@ -276,7 +278,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
 
   /**
    * Returns the count of tiles with the provided status.
-   * @param {!ee.layers.AbstractTile.Status} status The tile status.
+   * @param {ee.layers.AbstractTile.Status} status The tile status.
    * @return {number} The count of tiles with the provided status.
    * @private
    */
@@ -318,9 +320,9 @@ ee.layers.AbstractOverlay.DEFAULT_TILE_EDGE_LENGTH = 256;
  * Factory method to create a tile for this overlay.
  * @param {!google.maps.Point} coord The position of the tile.
  * @param {number} zoom The zoom level of the tile.
- * @param {?Node} ownerDocument The owner document.
+ * @param {Node} ownerDocument The owner document.
  * @param {string} uniqueId
- * @return {!ee.layers.AbstractTile}
+ * @return {ee.layers.AbstractTile}
  * @protected
  */
 ee.layers.AbstractOverlay.prototype.createTile = goog.abstractMethod;
@@ -447,7 +449,7 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
   /**
    * @param {!google.maps.Point} coord The position of the tile.
    * @param {number} zoom The zoom level of the tile.
-   * @param {?Node} ownerDocument The tile's owner document.
+   * @param {Node} ownerDocument The tile's owner document.
    * @param {string} uniqueId A unique ID for the tile.
    */
   constructor(coord, zoom, ownerDocument, uniqueId) {
@@ -466,7 +468,7 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
     /** @package {number} The maximum number of tile load retries. */
     this.maxRetries = ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_;
 
-    /** @package {!google.maps.Size} The size of the tile. */
+    /** @package {google.maps.Size} The size of the tile. */
     this.tileSize;
 
     /** @package {string} The URL of the tile's source data. */
@@ -475,7 +477,7 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
     /** @package {!Blob} The source data for the tile. */
     this.sourceData;
 
-    /** @package {!Object} The response headers from the source data request. */
+    /** @package {Object} The response headers from the source data request. */
     this.sourceResponseHeaders;
 
     /**
@@ -484,10 +486,10 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
      */
     this.renderer = function() {};  // No-op by default.
 
-    /** @private {!goog.net.XhrIo} The request for the tile's source data. */
+    /** @private {goog.net.XhrIo} The request for the tile's source data. */
     this.xhrIo_;
 
-    /** @private {!ee.layers.AbstractTile.Status} The tile's current status. */
+    /** @private {ee.layers.AbstractTile.Status} The tile's current status. */
     this.status_ = ee.layers.AbstractTile.Status.NEW;
 
     /** @private {number} The current load retry attempt. */
@@ -591,7 +593,7 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
    * @package
    */
   retryLoad(opt_errorMessage) {
-    const parseError = function(error) {
+    var parseError = function(error) {
       try {
         error = JSON.parse(error);
         if (error['error'] && error['error']['message']) {
@@ -641,14 +643,14 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
     return this.status_ in ee.layers.AbstractTile.DONE_STATUS_SET_;
   }
 
-  /** @package @return {!ee.layers.AbstractTile.Status} The tile's status. */
+  /** @package @return {ee.layers.AbstractTile.Status} The tile's status. */
   getStatus() {
     return this.status_;
   }
 
   /**
    * Sets the tile's status.
-   * @param {!ee.layers.AbstractTile.Status} status The new status.
+   * @param {ee.layers.AbstractTile.Status} status The new status.
    * @package
    */
   setStatus(status) {
@@ -699,7 +701,7 @@ ee.layers.AbstractTile.Status = {
 
 
 
-/** @private @const {!Object<!ee.layers.AbstractTile.Status>} */
+/** @private @const {!Object<ee.layers.AbstractTile.Status>} */
 ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(
     ee.layers.AbstractTile.Status.ABORTED, ee.layers.AbstractTile.Status.FAILED,
     ee.layers.AbstractTile.Status.LOADED,
@@ -707,5 +709,5 @@ ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(
 
 
 
-/** @private @const {number} The default number of maximum tile load attempts. */
+/** @private {number} The default number of maximum tile load attempts. */
 ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_ = 5;
