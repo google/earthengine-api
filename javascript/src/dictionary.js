@@ -90,13 +90,14 @@ ee.Dictionary.reset = function() {
 /**
  * @override
  * @param {function(*):*} encoder
- * @return {*}
+ * @return {!Object}
  */
 ee.Dictionary.prototype.encode = function(encoder) {
   if (this.dict_ !== null) {
-    return encoder(this.dict_);
+    return /** @type {!Object} */ (encoder(this.dict_));
   } else {
-    return ee.Dictionary.base(this, 'encode', encoder);
+    return /** @type {!Object} */ (
+        ee.Dictionary.base(this, 'encode', encoder));
   }
 };
 
