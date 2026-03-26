@@ -33,7 +33,7 @@ goog.require('goog.object');
  *   - An ee.Image: returns the argument,
  *   - Nothing: results in an empty transparent image.
  *
- * @param {number|string|Array.<*>|ee.Image|Object=} opt_args
+ * @param {number|string|!Array.<*>|!ee.Image|!Object|null=} opt_args
  *     Constructor argument.
  * @constructor
  * @extends {ee.Element}
@@ -66,7 +66,7 @@ ee.Image = function(opt_args) {
     } else if (Array.isArray(opt_args)) {
       // Make an image out of each element.
       return ee.Image.combine_(goog.array.map(
-          /** @type {Array.<*>} */ (opt_args),
+          /** @type {!Array.<*>} */ (opt_args),
           function(elem) {
             return new ee.Image(/** @type {?} */ (elem));
           }));
@@ -136,18 +136,19 @@ ee.Image.reset = function() {
  * An imperative function that returns information about this image via an
  * AJAX call.
  *
- * @param {function(ee.data.ImageDescription, string=)=} opt_callback
+ * @param {function(!ee.data.ImageDescription, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  *     If supplied, will be called with the first parameter if successful and
  *     the second if unsuccessful.
- * @return {ee.data.ImageDescription} A description of the image. Includes:
+ * @return {!ee.data.ImageDescription|undefined} A description of the image, or
+ *     undefined if a callback is specified. Includes:
  *     - bands - a list containing metadata about the bands in the collection.
  *     - properties - a dictionary containing the image's metadata properties.
  * @export
  * @override
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
-  return /** @type {ee.data.ImageDescription} */(
+  return /** @type {!ee.data.ImageDescription|undefined} */(
       ee.Image.base(this, 'getInfo', opt_callback));
 };
 
@@ -215,7 +216,7 @@ ee.Image.prototype.getMap = ee.Image.prototype.getMapId;
  * 10000.
  *
  * Use getThumbURL for RGB visualization formats PNG and JPG.
- * @param {Object} params An object containing download options with the
+ * @param {!Object} params An object containing download options with the
  *     following possible values:
  *   <table>
  *     <tr>
@@ -410,10 +411,10 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
  * Create a 3-band image specifically for visualization. This uses the first
  * band in each image.
  *
- * @param {ee.Image} r The red image.
- * @param {ee.Image} g The green image.
- * @param {ee.Image} b The blue image.
- * @return {ee.Image} The combined image.
+ * @param {!ee.Image} r The red image.
+ * @param {!ee.Image} g The green image.
+ * @param {!ee.Image} b The blue image.
+ * @return {!ee.Image} The combined image.
  * @export
  */
 ee.Image.rgb = function(r, g, b) {
@@ -435,8 +436,8 @@ ee.Image.rgb = function(r, g, b) {
  *
  * This function will promote constant values into constant images.
  *
- * @param {...ee.Image} var_args The images to be combined.
- * @return {ee.Image} The combined image.
+ * @param {...!ee.Image} var_args The images to be combined.
+ * @return {!ee.Image} The combined image.
  * @export
  */
 ee.Image.cat = function(var_args) {
@@ -449,14 +450,14 @@ ee.Image.cat = function(var_args) {
  * Combine all the bands from the given images into a single image, with
  * optional renaming.
  *
- * @param {Array.<ee.Image>} images The images to be combined.
- * @param {Array.<string>=} opt_names A list of names for the output bands.
- * @return {ee.Image} The combined image.
+ * @param {!Array.<!ee.Image>} images The images to be combined.
+ * @param {?Array.<string>=} opt_names A list of names for the output bands.
+ * @return {!ee.Image} The combined image.
  * @private
  */
 ee.Image.combine_ = function(images, opt_names) {
   if (images.length == 0) {
-    return /** @type {ee.Image} */ (ee.ApiFunction._call('Image.constant', []));
+    return /** @type {!ee.Image} */ (ee.ApiFunction._call('Image.constant', []));
   }
 
   // Append all the bands.
@@ -542,7 +543,7 @@ ee.Image.prototype.select = function(var_args) {
  * using the '=' operator (e.g.: x = a + b).
  *
  * @param {string} expression The expression to evaluate.
- * @param {Object.<ee.Image>=} opt_map A map of input images available by name.
+ * @param {!Object.<!ee.Image>=} opt_map A map of input images available by name.
  * @return {!ee.Image} The image computed by the provided expression.
  * @export
  */
@@ -580,7 +581,7 @@ ee.Image.prototype.expression = function(expression, opt_map) {
 
   /**
    * @this {ee.Function}
-   * @return {ee.Function.Signature}
+   * @return {!ee.Function.Signature}
    */
   func.getSignature = function() {
     return {
@@ -610,9 +611,9 @@ ee.Image.prototype.expression = function(expression, opt_map) {
  *
  * Use clipToCollection to clip an image to a FeatureCollection.
  *
- * @param {ee.Geometry|ee.Feature|Object} geometry
+ * @param {!ee.Geometry|!ee.Feature|!Object} geometry
  *     The Geometry or Feature to clip to.
- * @return {ee.Image} The clipped image.
+ * @return {!ee.Image} The clipped image.
  * @export
  */
 ee.Image.prototype.clip = function(geometry) {
@@ -623,7 +624,7 @@ ee.Image.prototype.clip = function(geometry) {
   } catch (e) {
     // Not an ee.Geometry or GeoJSON. Just pass it along.
   }
-  return /** @type {ee.Image} */(
+  return /** @type {!ee.Image} */(
       ee.ApiFunction._call('Image.clip', this, geometry));
 };
 
@@ -631,9 +632,9 @@ ee.Image.prototype.clip = function(geometry) {
 /**
  * Rename the bands of an image.
  *
- * @param {...string|Object|Array<string>} var_args The new names for the bands.
+ * @param {...string|!Object|!Array<string>} var_args The new names for the bands.
  *    Must match the number of bands in the Image.
- * @return {ee.Image} The renamed image.
+ * @return {!ee.Image} The renamed image.
  * @export
  */
 ee.Image.prototype.rename = function(var_args) {
@@ -645,12 +646,15 @@ ee.Image.prototype.rename = function(var_args) {
     // Varargs list of strings.
     names = Array.from(arguments);
   }
-  return /** @type {ee.Image} */(
+  return /** @type {!ee.Image} */(
       ee.ApiFunction._call('Image.rename', this, names));
 };
 
 
-/** @override */
+/**
+ * @return {string}
+ * @override
+ */
 ee.Image.prototype.name = function() {
   return 'Image';
 };

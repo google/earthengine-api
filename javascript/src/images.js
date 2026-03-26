@@ -344,9 +344,9 @@ ee.data.images.applyVisualization = function(image, params) {
  * @return {!ee.data.ImageVisualizationParameters} Params for visualize()
  */
 ee.data.images.extractVisParams = function(params, outParams) {
-  var keysToExtract = ["bands", "gain", "bias", "min", "max",
+  const keysToExtract = ["bands", "gain", "bias", "min", "max",
       "gamma", "palette", "opacity", "forceRgbOutput"];
-  var visParams = {};
+  const visParams = {};
   goog.object.forEach(params, function(value, key) {
     if (goog.array.contains(keysToExtract, key)) {
       visParams[key] = value;
