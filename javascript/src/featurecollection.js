@@ -27,8 +27,8 @@ goog.require('goog.array');
  *   - A GeoJSON FeatureCollection
  *   - A computed object: reinterpreted as a collection.
  *
- * @param {string|number|Array.<*>|ee.ComputedObject|
- *         ee.Geometry|ee.Feature|ee.FeatureCollection} args
+ * @param {string|number|!Array.<*>|!ee.ComputedObject|
+ *         !ee.Geometry|!ee.Feature|!ee.FeatureCollection|!ee.List} args
  *     The constructor arguments.
  * @param {string=} opt_column The name of the geometry column to use.  Only
  *     useful when working with a named collection.
@@ -64,7 +64,7 @@ ee.FeatureCollection = function(args, opt_column) {
 
   if (ee.Types.isString(args)) {
     // An ID.
-    var actualArgs = {'tableId': args};
+    const actualArgs = {'tableId': args};
     if (opt_column) {
       actualArgs['geometryColumn'] = opt_column;
     }
@@ -186,12 +186,12 @@ ee.FeatureCollection.prototype.getMap = ee.FeatureCollection.prototype.getMapId;
  * An imperative function that returns all the known information about this
  * collection via an AJAX call.
  *
- * @param {function(ee.data.FeatureCollectionDescription, string=)=}
+ * @param {function(!ee.data.FeatureCollectionDescription, string=)=}
  *     opt_callback An optional callback. If not supplied, the call is made
  *     synchronously. If supplied, will be called with the first parameter if
  *     successful and the second if unsuccessful.
- * @return {ee.data.FeatureCollectionDescription} A collection description
- *     whose fields include:
+ * @return {!ee.data.FeatureCollectionDescription|undefined} A collection
+ *     description whose fields include:
  *     - features: a list containing metadata about the features in the
  *           collection.
  *     - properties: an optional dictionary containing the collection's
@@ -200,7 +200,7 @@ ee.FeatureCollection.prototype.getMap = ee.FeatureCollection.prototype.getMapId;
  * @override
  */
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
-  return /** @type {ee.data.FeatureCollectionDescription} */(
+  return /** @type {!ee.data.FeatureCollectionDescription|undefined} */ (
       ee.FeatureCollection.base(this, 'getInfo', opt_callback));
 };
 
@@ -273,13 +273,13 @@ ee.FeatureCollection.prototype.select = function(
     propertySelectors, opt_newProperties, opt_retainGeometry) {
   if (ee.Types.isString(propertySelectors)) {
     // Varargs.
-    var varargs = Array.prototype.slice.call(arguments);
+    const varargs = Array.prototype.slice.call(arguments);
     return /** @type {!ee.FeatureCollection} */ (this.map(function(feature) {
       return /** @type {!ee.Feature} */(feature).select(varargs);
     }));
   } else {
     // Translate the argument names.
-    var args = ee.arguments.extractFromFunction(
+    const args = ee.arguments.extractFromFunction(
         ee.FeatureCollection.prototype.select, arguments);
     return /** @type {!ee.FeatureCollection} */ (this.map(function(feature) {
       return /** @type {!ee.Feature} */(feature).select(args);
@@ -288,13 +288,20 @@ ee.FeatureCollection.prototype.select = function(
 };
 
 
-/** @override */
+/**
+ * @return {string}
+ * @override
+ */
 ee.FeatureCollection.prototype.name = function() {
   return 'FeatureCollection';
 };
 
 
-/** @override */
+/**
+ * @return {typeof ee.Feature}
+ * @protected
+ * @override
+ */
 ee.FeatureCollection.prototype.elementType = function() {
   return ee.Feature;
 };
