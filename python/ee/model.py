@@ -187,8 +187,6 @@ class Model(computedobject.ComputedObject):
 
     See https://cloud.google.com/vertex-ai.
 
-    Warning: This method is in public preview and may undergo breaking changes.
-
     Args:
       endpoint: The endpoint name for predictions.
       inputProperties: Properties passed with each prediction instance. Image

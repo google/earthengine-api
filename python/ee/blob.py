@@ -88,7 +88,7 @@ class Blob(computedobject.ComputedObject):
 
     Args:
       encoding: The character set encoding to use when decoding the blob.
-        Options include, but are not limited to, 'US-ASCII', 'UTF-8', and
+        Options include, but are not limited to: 'US-ASCII', 'UTF-8', and
         'UTF-16'.
 
     Returns:

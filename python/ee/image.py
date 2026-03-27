@@ -2417,7 +2417,7 @@ class Image(element.Element):
     "behavior" argument: "extrapolate" specifies the output value is
     extrapolated from the two nearest points, "clamp" specifies the output value
     is taken from the nearest point, "input" specifies the output value is
-    copied from the input, and "mask" specifies the output value is masked.
+    copied from the input. "mask" specifies the output value is masked.
 
     Args:
       x: The x axis (input) values in the piecewise function.
@@ -3548,7 +3548,7 @@ class Image(element.Element):
       patchWidth: Patch size for detecting image offsets, in meters. This should
         be set large enough to capture texture, as well as large enough that
         ignorable objects are small within the patch. Default is null. Patch
-        size will be determined automatically if notprovided.
+        size will be determined automatically if not provided.
       stiffness: Enforces a stiffness constraint on the solution. Valid values
         are in the range [0,10]. The stiffness is used for outlier rejection
         when determining displacements at adjacent grid points. Higher values

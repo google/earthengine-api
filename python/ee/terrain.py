@@ -74,12 +74,13 @@ class Terrain:
       image: _arg_types.Image,
       azimuth: _arg_types.Number,
       zenith: _arg_types.Number,
+      # pylint: disable-next=invalid-name
       neighborhoodSize: _arg_types.Integer | None = None,
       hysteresis: _arg_types.Bool | None = None,
   ) -> ee_image.Image:
     """Returns an ee.Image with the hill shadow.
 
-    Creates a shadow band, with output 1 where pixels are illumunated and 0
+    Creates a shadow band, with output 1 where pixels are illuminated and 0
     where they are shadowed. Takes as input an elevation band, azimuth and
     zenith of the light source in degrees, a neighborhood size, and whether or
     not to apply hysteresis when a shadow appears. Currently, this algorithm
