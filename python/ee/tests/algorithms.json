@@ -20,7 +20,7 @@
     }]
   }, {
     "name": "algorithms/CrossCorrelation",
-    "description": "Gives information on the quality of image registration between two (theoretically) co-registered images. The input is two images with the same number of bands. This function outputs an image composed of four bands of information. The first three are distances: the deltaX, deltaY, and the Euclidean distance for each pixel in imageA to the pixel which has the highest corresponding correlation coefficient in imageB. The fourth band is the value of the correlation coefficient for that pixel [-1 : +1].",
+    "description": "Gives information on the quality of image registration between two  (theoretically) co-registered images. The input is two images with  the same number of bands. This function outputs an image composed  of four bands of information. The first three are distances: the  deltaX, deltaY, and the Euclidean distance for each pixel in  imageA to the pixel which has the highest corresponding  correlation coefficient in imageB. The fourth band is the value of  the correlation coefficient for that pixel [-1 : +1]. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "imageA",
@@ -47,7 +47,7 @@
     }]
   }, {
     "name": "algorithms/HoughTransform",
-    "description": "Applies the Hough transform to an image. For every input band, outputs a band where lines are detected by thresholding the Hough transform with a value of lineThreshold. The output band is named [input]_lines, where [input] is the name of the original band. The defaults provided for the parameters are intended as a starting point for use with UINT8 images.",
+    "description": "Applies the Hough transform to an image. For every input band,  outputs a band where lines are detected by thresholding the Hough  transform with a value of lineThreshold.  \u003cp\u003eThe output band is named [input]_lines, where [input] is the  name of the original band. The defaults provided for the  parameters are intended as a starting point for use with UINT8  images. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -188,7 +188,7 @@
     "arguments": [{
       "argumentName": "condition",
       "type": "Object",
-      "description": "The condition that determines which result is returned. If this is not a boolean, it is interpreted as a boolean by the following rules:\n\u003cul\u003e  \u003cli\u003eNumbers that are equal to 0 or a NaN are false.\u003c/li\u003e  \u003cli\u003eEmpty strings, lists and dictionaries are false.\u003c/li\u003e  \u003cli\u003eNull is false.\u003c/li\u003e  \u003cli\u003eEverything else is true.\u003c/li\u003e\u003c/ul\u003e",
+      "description": "The condition that determines which result is returned. If this is not a boolean, it is interpreted as a boolean by the following rules:\u003cp\u003e\u003cul\u003e  \u003cli\u003eNumbers that are equal to 0 or a NaN are false.\u003c/li\u003e  \u003cli\u003eEmpty strings, lists and dictionaries are false.\u003c/li\u003e  \u003cli\u003eNull is false.\u003c/li\u003e  \u003cli\u003eEverything else is true.\u003c/li\u003e\u003c/ul\u003e",
       "optional": true,
       "defaultValue": null
     }, {
@@ -342,7 +342,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Sentinel2.CDI",
-    "description": "Computes the Cloud Displacement Index (CDI) from a Sentinel-2 Level 1C image. CDI is a measure of the optical separation in elevated objects due to sensor parallax. Returns a floating point band named \"cdi\".\n See Frantz, D., Hass, E., Uhl, A., Stoffels, J., \u0026 Hill, J. (2018). Improvement of the Fmask algorithm for Sentinel-2 images: Separating clouds from bright surfaces based on parallax effects. Remote sensing of environment, 215, 471-481.",
+    "description": "Computes the Cloud Displacement Index (CDI) from a Sentinel-2 Level 1C image. CDI is a measure of the optical separation in elevated objects due to sensor parallax.  \u003cp\u003eReturns a floating point band named \"cdi\".  \u003cp\u003eSee Frantz, D., Hass, E., Uhl, A., Stoffels, J., \u0026 Hill, J. (2018). Improvement of the Fmask algorithm for Sentinel-2 images: Separating clouds from bright surfaces based on parallax effects. Remote sensing of environment, 215, 471-481.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "source",
@@ -351,12 +351,12 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.LandTrendr",
-    "description": "Landsat-based detection of Trends in Disturbance and Recovery: temporally segments a time-series of images by extracting the spectral trajectories of change over time. The first band of each image is used to find breakpoints, and those breakpoints are used to perform fitting on all subsequent bands. The breakpoints are returned as a 2-D matrix of 4 rows and as many columns as images. The first two rows are the original X and Y values. The third row contains the Y values fitted to the estimated segments, and the 4th row contains a 1 if the corresponding point was used as a segment vertex or 0 if not. Any additional fitted bands are appended as rows in the output. Breakpoint fitting assumes that increasing values represent disturbance and decreasing values represent recovery.\nSee: Kennedy, R.E., Yang, Z. and Cohen, W.B., 2010. Detecting trends in forest disturbance and recovery using yearly Landsat time series: 1. LandTrendr - Temporal segmentation algorithms. Remote Sensing of Environment, 114(12), pp.2897-2910.",
+    "description": "Landsat-based detection of Trends in Disturbance and Recovery: temporally segments a time-series of images by extracting the spectral trajectories of change over time. The first band of each image is used to find breakpoints, and those breakpoints are used to perform fitting on all subsequent bands. The breakpoints are returned as a 2-D matrix of 4 rows and as many columns as images. The first two rows are the original X and Y values. The third row contains the Y values fitted to the estimated segments, and the 4th row contains a 1 if the corresponding point was used as a segment vertex or 0 if not. Any additional fitted bands are appended as rows in the output. Breakpoint fitting assumes that increasing values represent disturbance and decreasing values represent recovery.  \u003cp\u003eSee: Kennedy, R.E., Yang, Z. and Cohen, W.B., 2010. Detecting trends in forest disturbance and recovery using yearly Landsat time series: 1. LandTrendr - Temporal segmentation algorithms. Remote Sensing of Environment, 114(12), pp.2897-2910. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "timeSeries",
       "type": "ImageCollection",
-      "description": "Yearly time-series from which to extract breakpoints. The first band is usedto find breakpoints, and all subsequent bands are fitted using those breakpoints."
+      "description": "Yearly time-series from which to extract breakpoints. The first band is used to find breakpoints, and all subsequent bands are fitted using those breakpoints."
     }, {
       "argumentName": "maxSegments",
       "type": "Integer",
@@ -406,7 +406,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.LandTrendrFit",
-    "description": "Interpolates a time series using a set of LandTrendr breakpoint years. For each input band in the timeSeries, outputs a new 1D array-valued band containing the input values interpolated between the breakpoint times identified by the vertices image. See the LandTrendr Algorithm for more details.",
+    "description": "Interpolates a time series using a set of LandTrendr breakpoint years. For each input band in the timeSeries, outputs a new 1D array-valued band containing the input values interpolated between the breakpoint times identified by the vertices image. See the LandTrendr Algorithm for more details. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "timeSeries",
@@ -431,7 +431,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.Ewmacd",
-    "description": "Exponentially Weighted Moving Average Change Detection. This algorithm computes a harmonic model for the \u0027training\u0027 portion of the input data and subtracts that from the original results. The residuals are then subjected to Shewhart X-bar charts and an exponentially weighted moving average. Disturbed pixels are indicated when the charts signal a deviation from the given control limits.\n The output is a 5 band image containing the bands:\n    ewma: a 1D array of the EWMA score for each input image. Negative values represent disturbance and positive values represent recovery.\n    harmonicCoefficients: A 1-D array of the computed harmonic coefficient pairs. The coefficients are ordered as [constant, sin0, cos0, sin1, cos1...]\n    rmse: the RMSE from the harmonic regression.\n    rSquared: r-squared value from the harmonic regression.\n    residuals: 1D array of residuals from the harmonic regression.\nSee: Brooks, E.B., Wynne, R.H., Thomas, V.A., Blinn, C.E. and Coulston, J.W., 2014. On-the-fly massively multitemporal change detection using statistical quality control charts and Landsat data. IEEE Transactions on Geoscience and Remote Sensing, 52(6), pp.3316-3332.",
+    "description": "Exponentially Weighted Moving Average Change Detection. This algorithm computes a harmonic model for the \u0027training\u0027 portion of the input data and subtracts that from the original results. The residuals are then subjected to Shewhart X-bar charts and an exponentially weighted moving average. Disturbed pixels are indicated when the charts signal a deviation from the given control limits.  \u003cp\u003eThe output is a 5 band image containing the bands: \u003cul\u003e   \u003cli\u003eewma: a 1D array of the EWMA score for each input image. Negative values represent  disturbance and positive values represent recovery.   \u003cli\u003eharmonicCoefficients: A 1-D array of the computed harmonic coefficient pairs.  The coefficients are ordered as [constant, sin0, cos0, sin1, cos1...]   \u003cli\u003ermse: the RMSE from the harmonic regression.   \u003cli\u003erSquared: r-squared value from the harmonic regression.   \u003cli\u003eresiduals: 1D array of residuals from the harmonic regression. \u003c/ul\u003e See: Brooks, E.B., Wynne, R.H., Thomas, V.A., Blinn, C.E. and Coulston, J.W., 2014. On-the-fly massively multitemporal change detection using statistical quality control charts and Landsat data. IEEE Transactions on Geoscience and Remote Sensing, 52(6), pp.3316-3332. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "timeSeries",
@@ -494,7 +494,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.Verdet",
-    "description": "Vegetation Regeneration and Disturbance Estimates through Time, forest change detection algorithm. This algorithm generates a yearly clear-sky composite from satellite imagery, calculates a spectral vegetation index for each pixel in that composite, spatially segments the vegetation index image into patches, temporally divides the time series into differently sloped segments, and then labels those segments as disturbed, stable, or regenerating. Segmentation at both the spatial and temporal steps are performed using total variation regularization.\nThe output consists of a 1D array per pixel containing the slope of fitted trend lines. Negative values indicate disturbance and positive values regeneration.\nSee: Hughes, M.J., Kaylor, S.D. and Hayes, D.J., 2017.  Patch-based forest change detection from Landsat time series. Forests, 8(5), p.166.",
+    "description": "Vegetation Regeneration and Disturbance Estimates through Time, forest change detection algorithm. This algorithm generates a yearly clear-sky composite from satellite imagery, calculates a spectral vegetation index for each pixel in that composite, spatially segments the vegetation index image into patches, temporally divides the time series into differently sloped segments, and then labels those segments as disturbed, stable, or regenerating. Segmentation at both the spatial and temporal steps are performed using total variation regularization.  \u003cp\u003eThe output consists of a 1D array per pixel containing the slope of fitted trend lines. Negative values indicate disturbance and positive values regeneration.  \u003cp\u003eSee: Hughes, M.J., Kaylor, S.D. and Hayes, D.J., 2017. Patch-based forest change detection from Landsat time series. Forests, 8(5), p.166. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "timeSeries",
@@ -521,7 +521,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.VCT",
-    "description": "Vegetation Change Tracker, an automated approach for reconstructing recent forest disturbance history using dense Landsat time series stacks.\nThe output is a 2D array per pixel containing 6 rows x N years. The output rows contain: input years, VCT landcover mask, magnitude in term of the UD composite, magnitude of distubance in B4, magnitude of distubance in NDVI, magnitude of distubance in dNBR.\nSee: Huang, C., Goward, S.N., Masek, J.G., Thomas, N., Zhu, Z. and Vogelmann, J.E., 2010. An automated approach for reconstructing recent forest disturbance history using dense Landsat time series stacks. Remote Sensing of Environment, 114(1), pp.183-198.",
+    "description": "Vegetation Change Tracker, an automated approach for reconstructing recent forest disturbance history using dense Landsat time series stacks.  \u003cp\u003eThe output is a 2D array per pixel containing 6 rows x N years. The output rows contain: input years, VCT landcover mask, magnitude in terms of the UD composite, magnitude of disturbance in B4, magnitude of disturbance in NDVI, magnitude of disturbance in dNBR.  \u003cp\u003eSee: Huang, C., Goward, S.N., Masek, J.G., Thomas, N., Zhu, Z. and Vogelmann, J.E., 2010. An automated approach for reconstructing recent forest disturbance history using dense Landsat time series stacks. Remote Sensing of Environment, 114(1), pp.183-198. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "timeSeries",
@@ -558,7 +558,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.Ccdc",
-    "description": "Implements the Continuous Change Detection and Classification temporal breakpoint algorithm. This algorithm finds temporal breakpoints in an image collection by iteratively fitting harmonic functions to the data. Fit coefficients are produced for all input bands, but the bands used for breakpoint detection can be specified with the \u0027breakpointBands\u0027 argument.\nFor more details, see Zhu, Z. and Woodcock, C.E., 2014. Continuous change detection and classification of land cover using all available Landsat data. Remote sensing of Environment, 144, pp.152-171.",
+    "description": "Implements the Continuous Change Detection and Classification temporal breakpoint algorithm. This algorithm finds temporal breakpoints in an image collection by iteratively fitting harmonic functions to the data. Fit coefficients are produced for all input bands, but the bands used for breakpoint detection can be specified with the \u0027breakpointBands\u0027 argument.  \u003cp\u003eFor more details, see Zhu, Z. and Woodcock, C.E., 2014. Continuous change detection and classification of land cover using all available Landsat data. Remote sensing of Environment, 144, pp.152-171. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -615,7 +615,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.C2c",
-    "description": "An implementation of the Composite 2 Change (C2C) algorithm. This algorithm segments a time series using a piecewise linear fit with the minimum of segments required to fit the data within the given maximum root mean squared error (RMSE).  For every band given the algorithm will return the following bands:\n    changeDate:A 1D array of doubles representing pairs of start and end dates for each fitted segment. The date format is determined by the dateFormat argument.\n    value: A 1D array of doubles of the value of the band at the changeDate.\n    magnitude: A 1D array of doubles providing the absolute difference between the values before and after a change date.  The first magnitude is always NaN.\n    duration: A 1D array of doubles of the duration of the segment preceding the change date.  The first duration is always NaN.\n    rate: A 1D array of doubles of the rate of change of the data preceding the. change date. The first rate is always NaN.\n    postMagnitude: A 1D array of doubles of the absolute difference between the values after the change date and the value at the change date.  The last postMagnitude is always NaN.\n    postDuration: The duration of the segment following the change date. The last postDuration is always NaN.\n    postRate: The rate of change of the data following the change date. The last postRate is always NaN.\n    indexRegrowth: The difference between the value in change date and the value five data points after.\n    recoveryIndicator: The indexRegrowth/magnitude ratio.\n    regrowth60: Time difference between breakpoint and the  data point where the series value is 60% of the pre-distrubance value.\n    regrowth60: Time difference between breakpoint and the  data point where the series value is 80% of the pre-distrubance value.\n    regrowth60: Time difference between breakpoint and the  data point where the series value is 100% of the pre-distrubance value.\n See: Hermosilla et al. (2015) dx.doi.org/10.1016/j.rse.2014.11.005 for further details on the original algorithm.\n Algorithm implementation can be found on GitHub: https://github.com/saveriofrancini/C2C-GEE\n Acknowledgements: FORWARDS and NextGenCarbon.\n Citation: Txomin Hermosilla, Michael A. Wulder, Joanne C. White, Nicholas C. Coops, Daniel Coelho, Giovanni Ciatto, Noel Gorelick, and Saverio Francini. In preparation. Image compositing, time-series change detection and temporal metrics: Implementation of the Composite2Change (C2C) algorithm on Google Earth Engine.   This algorithm is in preview and is subject to change.",
+    "description": "An implementation of the Composite 2 Change (C2C) algorithm. This algorithm segments a time series using a piecewise linear fit with the minimum number of segments required to fit the data within the given maximum root mean squared error (RMSE).  For each input band, the algorithm returns the following output bands: \u003cul\u003e   \u003cli\u003e\u003cb\u003echangeDate\u003c/b\u003e (Array[Double]): The dates at which changes are detected.   The date format is determined by the dateFormat argument.   \u003cli\u003e\u003cb\u003evalue\u003c/b\u003e (Array[Double]): Value of the band at each changeDate.   \u003cli\u003e\u003cb\u003emagnitude\u003c/b\u003e (Array[Double]): The difference between   the values before and after a change date.  The first magnitude is always NaN.   \u003cli\u003e\u003cb\u003eduration\u003c/b\u003e (Array[Double]): The duration of the segment preceding the   change date.  The first duration is always NaN.   \u003cli\u003e\u003cb\u003erate\u003c/b\u003e (Array[Double]): Rate of change of the data preceding the   change date. The first rate is always NaN. \u003c/ul\u003e If \u003cb\u003eincludePostMetrics\u003c/b\u003e is true the following variables are included per-band. \u003cul\u003e   \u003cli\u003e\u003cb\u003epostMagnitude\u003c/b\u003e (Array[Double]): The absolute difference between the   value at the start of the next segment and the value at the change date.  The last   postMagnitude is always NaN.   \u003cli\u003e\u003cb\u003epostDuration\u003c/b\u003e (Array[Double]): The duration of the segment following   the change date. The last postDuration is always NaN.   \u003cli\u003e\u003cb\u003epostRate\u003c/b\u003e (Array[Double]): The rate of change of the data following   the change date. The last postRate is always NaN. \u003c/ul\u003e If \u003cb\u003eincludeRegrowth\u003c/b\u003e is true the following variables are included per-band. \u003cul\u003e   \u003cli\u003e\u003cb\u003eindexRegrowth\u003c/b\u003e (Array[Double]): The difference between the value   at the change date and the value five data points after.   \u003cli\u003e\u003cb\u003erecoveryIndicator\u003c/b\u003e (Array[Double]): The ratio of indexRegrowth to magnitude.   \u003cli\u003e\u003cb\u003eregrowth60\u003c/b\u003e (Array[Double]): Time difference between the change date and   the data point where the series value is 60% of the pre-disturbance value.   \u003cli\u003e\u003cb\u003eregrowth80\u003c/b\u003e (Array[Double]): Time difference between the change date and   the data point where the series value is 80% of the pre-disturbance value.   \u003cli\u003e\u003cb\u003eregrowth100\u003c/b\u003e (Array[Double]): Time difference between the change date and   the data point where the series value is 100% of the pre-disturbance value. \u003c/ul\u003e  See: Hermosilla et al. (2015) https://doi.org/10.1016/j.rse.2014.11.005 for further details on the original algorithm. Algorithm implementation can be found on GitHub: https://github.com/saveriofrancini/C2C-GEE Acknowledgements: FORWARDS and NextGenCarbon.  \u003cp\u003eCitation: Txomin Hermosilla, Michael A. Wulder, Joanne C. White, Nicholas C. Coops, Daniel Coelho, Giovanni Ciatto, Noel Gorelick, and Saverio Francini. In preparation. Image compositing, time-series change detection and temporal metrics: Implementation of the Composite2Change (C2C) algorithm on Google Earth Engine. \u003cp\u003eThis algorithm is in preview and is subject to change. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -628,69 +628,87 @@
       "optional": true,
       "defaultValue": 0.0
     }, {
+      "argumentName": "maxErrorList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of maximum error (RMSE) values to be used for each band. If not provided, the maxError value will be used for all bands.",
+      "optional": true,
+      "defaultValue": []
+    }, {
+      "argumentName": "spikesToleranceList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of spike tolerance values to be used for each band. A value of 1 indicates no spike removal. If not provided, the spikesTolerance value will be used for all bands.",
+      "optional": true,
+      "defaultValue": []
+    }, {
+      "argumentName": "spikeRemovalMagnitudeList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of spike removal magnitude values to be used for each band. Spikes with a magnitude above this value are removed. If not provided, the spikeRemovalMagnitude value will be used for all bands.",
+      "optional": true,
+      "defaultValue": []
+    }, {
       "argumentName": "maxError",
       "type": "Float",
+      "description": "Maximum allowed RMSE of the piecewise linear fit; controls segmentation sensitivity.",
       "optional": true,
-      "defaultValue": 75.0
+      "defaultValue": 0.075
     }, {
       "argumentName": "maxSegments",
       "type": "Integer",
+      "description": "Maximum number of segments permitted in the fitted tajectory.",
       "optional": true,
       "defaultValue": 6.0
     }, {
-      "argumentName": "startYear",
-      "type": "Integer",
-      "optional": true,
-      "defaultValue": 1984.0
-    }, {
-      "argumentName": "endYear",
-      "type": "Integer",
-      "optional": true,
-      "defaultValue": 2019.0
-    }, {
       "argumentName": "infill",
       "type": "Boolean",
+      "description": "Enables gap infilling within the time series to support stable fitting in the presence of missing values (i.e., values equal to 0).",
       "optional": true,
       "defaultValue": true
     }, {
       "argumentName": "spikesTolerance",
       "type": "Float",
+      "description": "Controls tolerance of spikes in the time series. Ranges from 0 to 1. A value of 1 indicates no spike removal, lower values are more aggressive.",
       "optional": true,
       "defaultValue": 0.85
     }, {
       "argumentName": "spikeRemovalMagnitude",
       "type": "Float",
+      "description": "Spike removal magnitude threshold. Spikes with a magnitude (absolute difference from the average of neighbors) above this value are removed.",
       "optional": true,
-      "defaultValue": 100.0
+      "defaultValue": 0.1
     }, {
       "argumentName": "includePostMetrics",
       "type": "Boolean",
+      "description": "Returns post-change descriptors (postMagnitude, postDuration, postRate).",
       "optional": true,
       "defaultValue": true
     }, {
       "argumentName": "includeRegrowth",
       "type": "Boolean",
+      "description": "Returns recovery/regrowth metrics (indexRegrowth, recoveryIndicator, regrowth60/80/100).",
       "optional": true,
       "defaultValue": false
     }, {
       "argumentName": "interpolateRegrowth",
       "type": "Boolean",
+      "description": "Linearly interpolate the time series using the detected changes before calculating the regrowth metrics.",
       "optional": true,
-      "defaultValue": false
+      "defaultValue": true
     }, {
       "argumentName": "useRelativeRegrowth",
       "type": "Boolean",
+      "description": "Computes regrowth thresholds in relative terms to pre-disturbance conditions.",
       "optional": true,
       "defaultValue": false
     }, {
       "argumentName": "negativeMagnitudeOnly",
       "type": "Boolean",
+      "description": "Retains only breakpoints associated with negative changes (directional filtering).",
       "optional": true,
       "defaultValue": false
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.StructuralChangeBreakpoints",
-    "description": "Runs breakpoint detection, similar to R\u0027s strucchange::breakpoints function.\nEach pixel is fit by a piecewise linear/harmonic model, of the form\nY \u003d A + B * t + C * cos(2 * pi * season(t)) + D * sin(2 * pi * season(t)) + E * cos(4 * pi * season(t)) + F * sin(4 * pi * season(t)) + ...\nIn this equation, \u0027t\u0027 is the start time of the image in the format specified by \u0027dateFormat\u0027, and \u0027season(t)\u0027 is the fractional year of that start time (see the description of dateFormat for details). The maximum order of the harmonic terms is determined by \u0027seasonalModelOrder\u0027.\nThe result is an image containing two bands, plus two bands per band in the input:\n`tStart`, `tEnd`: each of these holds a 1D array, with one entry per segment in the piecewise linear fit; each entry contains the start time of the first or last images in that segment. By default the values here are in fractional years, for easy use with the coefficients.\n`coefs_BANDNAME`: there will be one such output band per input band. Each of these holds a 2D array, with one row per segment. The values in that row are the coefficients of the linear fit for that segment - that is, the values of A, B, C, ... for that segment. As described above, the values here are affected by \u0027dateFormat\u0027\n.`rmse_BANDNAME`: there will be one such output band per input band. This holds a 1D array, with one entry per segment. The value for each segment is the RMSE for the linear fit residuals for that segment.",
+    "description": "Runs breakpoint detection, similar to R\u0027s strucchange::breakpoints function.  \u003cp\u003eEach pixel is fit by a piecewise linear/harmonic model, of the form Y \u003d A + B * t + C * cos(2 * pi * season(t)) + D * sin(2 * pi * season(t)) + E * cos(4 * pi * season(t)) + F * sin(4 * pi * season(t)) + ...  \u003cp\u003eIn this equation, \u0027t\u0027 is the start time of the image in the format specified by  \u0027dateFormat\u0027, and \u0027season(t)\u0027 is the fractional year of that start time (see the  description of dateFormat for details). The maximum order of the harmonic terms is  determined by \u0027seasonalModelOrder\u0027.  \u003cp\u003eThe result is an image containing two bands, plus two bands per band in the  input: \u003cul\u003e \u003cli\u003e`tStart`, `tEnd`: each of these holds a 1D array, with one entry per segment in the  piecewise linear fit; each entry contains the start time of the first or last  images in that segment. By default the values here are in fractional years, for  easy use with the coefficients. \u003cli\u003e`coefs_BANDNAME`: there will be one such output band per input band. Each of these  holds a 2D array, with one row per segment. The values in that row are the  coefficients of the linear fit for that segment - that is, the values of A, B,  C, ... for that segment. As described above, the values here are affected by  \u0027dateFormat\u0027. \u003cli\u003e`rmse_BANDNAME`: there will be one such output band per input band. This holds a  1D array, with one entry per segment. The value for each segment is the RMSE  for the linear fit residuals for that segment. \u003c/ul\u003e ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -1027,7 +1045,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Terrain.products",
-    "description": "Calculates slope, aspect, and a simple hillshade from a terrain DEM.\nExpects an image containing either a single band of elevation, measured in meters, or if there\u0027s more than one band, one named \u0027elevation\u0027. Adds output bands named \u0027slope\u0027 and \u0027aspect\u0027 measured in degrees plus an unsigned byte output band named \u0027hillshade\u0027 for visualization. All other bands and metadata are copied from the input image. The local gradient is computed using the 4-connected neighbors of each pixel, so missing values will occur around the edges of an image.",
+    "description": "Calculates slope, aspect, and a simple hillshade from a terrain DEM.  \u003cp\u003eExpects an image containing either a single band of elevation, measured in meters, or if there\u0027s more than one band, one named \u0027elevation\u0027. Adds output bands named \u0027slope\u0027 and \u0027aspect\u0027 measured in degrees plus an unsigned byte output band named \u0027hillshade\u0027 for visualization. All other bands and metadata are copied from the input image. The local gradient is computed using the 4-connected neighbors of each pixel, so missing values will occur around the edges of an image. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -1036,7 +1054,7 @@
     }]
   }, {
     "name": "algorithms/Terrain",
-    "description": "Calculates slope, aspect, and a simple hillshade from a terrain DEM.\nExpects an image containing either a single band of elevation, measured in meters, or if there\u0027s more than one band, one named \u0027elevation\u0027. Adds output bands named \u0027slope\u0027 and \u0027aspect\u0027 measured in degrees plus an unsigned byte output band named \u0027hillshade\u0027 for visualization. All other bands and metadata are copied from the input image. The local gradient is computed using the 4-connected neighbors of each pixel, so missing values will occur around the edges of an image.",
+    "description": "Calculates slope, aspect, and a simple hillshade from a terrain DEM.  \u003cp\u003eExpects an image containing either a single band of elevation, measured in meters, or if there\u0027s more than one band, one named \u0027elevation\u0027. Adds output bands named \u0027slope\u0027 and \u0027aspect\u0027 measured in degrees plus an unsigned byte output band named \u0027hillshade\u0027 for visualization. All other bands and metadata are copied from the input image. The local gradient is computed using the 4-connected neighbors of each pixel, so missing values will occur around the edges of an image. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -1045,7 +1063,7 @@
     }]
   }, {
     "name": "algorithms/Terrain.aspect",
-    "description": "Calculates aspect in degrees from a terrain DEM.\nThe local gradient is computed using the 4-connected neighbors of each pixel, so missing values will occur around the edges of an image.",
+    "description": "Calculates aspect in degrees from a terrain DEM.  \u003cp\u003eThe local gradient is computed using the 4-connected neighbors of each pixel, so missing values will occur around the edges of an image. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -1075,7 +1093,7 @@
     }]
   }, {
     "name": "algorithms/Terrain.hillShadow",
-    "description": "Creates a shadow band, with output 1 where pixels are illumunated and 0 where they are shadowed. Takes as input an elevation band, azimuth and zenith of the light source in degrees, a neighborhood size, and whether or not to apply hysteresis when a shadow appears. Currently, this algorithm only works for Mercator projections, in which light rays are parallel.",
+    "description": "Creates a shadow band, with output 1 where pixels are illuminated and 0 where they are shadowed.  \u003cp\u003eTakes as input an elevation band, azimuth and zenith of the light source in degrees, a neighborhood size, and whether or not to apply hysteresis when a shadow appears. Currently, this algorithm only works for Mercator projections, in which light rays are parallel. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -1104,7 +1122,7 @@
     }]
   }, {
     "name": "algorithms/HillShadow",
-    "description": "Creates a shadow band, with output 1 where pixels are illumunated and 0 where they are shadowed. Takes as input an elevation band, azimuth and zenith of the light source in degrees, a neighborhood size, and whether or not to apply hysteresis when a shadow appears. Currently, this algorithm only works for Mercator projections, in which light rays are parallel.",
+    "description": "Creates a shadow band, with output 1 where pixels are illuminated and 0 where they are shadowed.  \u003cp\u003eTakes as input an elevation band, azimuth and zenith of the light source in degrees, a neighborhood size, and whether or not to apply hysteresis when a shadow appears. Currently, this algorithm only works for Mercator projections, in which light rays are parallel. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -1175,7 +1193,7 @@
     }]
   }, {
     "name": "algorithms/Terrain.slope",
-    "description": "Calculates slope in degrees from a terrain DEM.\nThe local gradient is computed using the 4-connected neighbors of each pixel, so missing values will occur around the edges of an image.",
+    "description": "Calculates slope in degrees from a terrain DEM.  \u003cp\u003eThe local gradient is computed using the 4-connected neighbors of each pixel, so missing values will occur around the edges of an image. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -3116,7 +3134,7 @@
     "arguments": [{
       "argumentName": "metric",
       "type": "String",
-      "description": "The distance metric to use. Options are:\n\u003cul\u003e  \u003cli\u003e\u0027euclidean\u0027 - Euclidean distance from the unnormalized class mean.\u003c/li\u003e  \u003cli\u003e\u0027cosine\u0027 - spectral angle from the unnormalized class mean.\u003c/li\u003e  \u003cli\u003e\u0027mahalanobis\u0027 - Mahalanobis distance from the class mean.\u003c/li\u003e  \u003cli\u003e\u0027manhattan\u0027 - Manhattan distance from the unnormalized class mean.\u003c/li\u003e\u003c/ul\u003e",
+      "description": "The distance metric to use. Options are:\u003cbr\u003e\u003cul\u003e  \u003cli\u003e\u0027euclidean\u0027 - Euclidean distance from the unnormalized class mean.\u003c/li\u003e  \u003cli\u003e\u0027cosine\u0027 - spectral angle from the unnormalized class mean.\u003c/li\u003e  \u003cli\u003e\u0027mahalanobis\u0027 - Mahalanobis distance from the class mean.\u003c/li\u003e  \u003cli\u003e\u0027manhattan\u0027 - Manhattan distance from the unnormalized class mean.\u003c/li\u003e\u003c/ul\u003e",
       "optional": true,
       "defaultValue": "euclidean"
     }, {
@@ -3128,7 +3146,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.smileCart",
-    "description": "Creates an empty CART classifier. See:\n  \"Classification and Regression Trees,\"\n  L. Breiman, J. Friedman, R. Olshen, C. Stone\n  Chapman and Hall, 1984.",
+    "description": "Creates an empty CART classifier. See: \u003cp\u003e\"Classification and Regression Trees,\" L. Breiman, J. Friedman,  R. Olshen, C. Stone. \u003cbr\u003eChapman and Hall, 1984.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "maxNodes",
@@ -3184,7 +3202,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.smileKNN",
-    "description": "Creates an empty k-NN classifier.\nThe k-nearest neighbor algorithm (k-NN) is a method for classifying objects by a majority vote of its neighbors, with the object being assigned to the class most common amongst its k nearest neighbors (k is a positive integer, typically small, typically odd).",
+    "description": "Creates an empty k-NN classifier.\u003cp\u003eThe k-nearest neighbor algorithm (k-NN) is a method for classifying objects by a majority vote of its neighbors, with the object being assigned to the class most common amongst its k nearest neighbors (k is a positive integer, typically small, typically odd).",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "k",
@@ -3195,13 +3213,13 @@
     }, {
       "argumentName": "searchMethod",
       "type": "String",
-      "description": "Search method. The following are valid [AUTO, LINEAR_SEARCH, KD_TREE, COVER_TREE].\nAUTO will choose between KD_TREE and COVER_TREE depending on the dimension count. Results may vary between the different search methods for distance ties and probability values. Since performance and results may vary consult with SMILE\u0027s documentation and other literature.",
+      "description": "Search method. The following are valid [AUTO, LINEAR_SEARCH, KD_TREE, COVER_TREE]:\u003cp\u003e\u003cul\u003e\u003cli\u003e`AUTO` Chooses between KD_TREE and COVER_TREE depending on the dimension count. If the features have less than 10 dimensions KD_TREE is used.\u003cli\u003e`LINEAR_SEARCH` More performant than space partitioning approaches (such as K-D trees) in higher dimensional spaces.\u003cli\u003e`KD_TREE` Nearest neighbor search method using a space-partitioning dataset structure for organizing points in a k-dimensional space. KD-trees are not suitable for efficiently finding the nearest neighbor in high dimensional spaces. As a general rule, if the dimensionality is D then number of points in the dataset, N, should be N \u003e\u003e 2^D.\u003cli\u003e`COVER_TREE` Cover tree is a data structure for generic nearest neighbor search, which is especially efficient in spaces with small intrinsic dimension.\u003c/ul\u003e\u003cp\u003eResults may vary between the different search methods for distance ties and probability values. Since performance and results may vary, consult with SMILE\u0027s documentation and other literature.",
       "optional": true,
       "defaultValue": "AUTO"
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The distance metric to use. NOTE: KD_TREE (and AUTO for low dimensions) will not use the metric selected. Options are:\n  \u0027EUCLIDEAN\u0027 - Euclidean distance.\n  \u0027MAHALANOBIS\u0027 - Mahalanobis distance.\n  \u0027MANHATTAN\u0027 - Manhattan distance.\n  \u0027BRAYCURTIS\u0027 - Bray-Curtis distance.",
+      "description": "The distance metric to use. NOTE: KD_TREE (and AUTO for low dimensions) will not use the metric selected. Options are:\u003cbr\u003e\u003cul\u003e\u003cli\u003e`EUCLIDEAN` - Euclidean distance.\u003cli\u003e`MAHALANOBIS` - Mahalanobis distance.\u003cli\u003e`MANHATTAN` - Manhattan distance.\u003cli\u003e`BRAYCURTIS` - Bray-Curtis distance.\u003c/ul\u003e",
       "optional": true,
       "defaultValue": "EUCLIDEAN"
     }]
@@ -3297,7 +3315,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.confusionMatrix",
-    "description": "Computes a 2D confusion matrix for a classifier based on its training data (e.g., resubstitution error). Axis 0 of the matrix corresponds to the input classes and axis 1 corresponds to the output classes. The rows and columns start at class 0 and increase sequentially up to the maximum class value, so some rows or columns might be empty if the input classes aren\u0027t 0-based or sequential.",
+    "description": "Computes a 2D confusion matrix for a classifier based on its training data (e.g., resubstitution error). Axis 0 of the matrix corresponds to the input classes and axis 1 corresponds to the output classes. The rows and columns start at class 0 and increase sequentially up to the maximum class value, so some rows or columns might be empty if the input classes aren\u0027t 0-based or sequential. ",
     "returnType": "ConfusionMatrix",
     "arguments": [{
       "argumentName": "classifier",
@@ -3315,7 +3333,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.setOutputMode",
-    "description": "Sets a classifier\u0027s output format.\nRefer to https://developers.google.com/earth-engine/guides/classification for a list of supported modes for each classifier.",
+    "description": "Sets a classifier\u0027s output format.\u003cp\u003eRefer to https://developers.google.com/earth-engine/guides/classification for a list of supported modes for each classifier.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "classifier",
@@ -3324,7 +3342,7 @@
     }, {
       "argumentName": "mode",
       "type": "String",
-      "description": "The output mode. One of:\n\u003cul\u003e  \u003cli\u003eCLASSIFICATION (default): The output is the class number.\u003c/li\u003e  \u003cli\u003eREGRESSION: The output is the result of standard regression.\u003c/li\u003e  \u003cli\u003ePROBABILITY: The output is the probability that the classification     is correct.\u003c/li\u003e  \u003cli\u003eMULTIPROBABILITY: The output is an array of probabilities that each    class is correct ordered by classes seen.\u003c/li\u003e  \u003cli\u003eRAW: The output is an array of the internal representation of the    classification process. For example, the raw votes in multi-decision tree    models.\u003c/li\u003e  \u003cli\u003eRAW_REGRESSION: The output is an array of the internal representation of the    regression process. For example, the raw predictions of multiple regression    trees.\u003c/li\u003e\u003c/ul\u003e"
+      "description": "The output mode. One of:\u003cbr\u003e\u003cul\u003e  \u003cli\u003eCLASSIFICATION (default): The output is the class number.\u003c/li\u003e  \u003cli\u003eREGRESSION: The output is the result of standard regression.\u003c/li\u003e  \u003cli\u003ePROBABILITY: The output is the probability that the classification     is correct.\u003c/li\u003e  \u003cli\u003eMULTIPROBABILITY: The output is an array of probabilities that each    class is correct ordered by classes seen.\u003c/li\u003e  \u003cli\u003eRAW: The output is an array of the internal representation of the    classification process. For example, the raw votes in multi-decision tree    models.\u003c/li\u003e  \u003cli\u003eRAW_REGRESSION: The output is an array of the internal representation of the    regression process. For example, the raw predictions of multiple regression    trees.\u003c/li\u003e\u003c/ul\u003e"
     }]
   }, {
     "name": "algorithms/Classifier.train",
@@ -4271,7 +4289,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.simplify",
-    "description": "Simplifies the geometry to within a given error margin. Note that this does not respect the error margin requested by the consumer of this algorithm, unless maxError is explicitly specified to be null.\nThis overrides the default Earth Engine policy for propagating error margins, so regardless of the geometry accuracy requested from the output, the inputs will be requested with the error margin specified in the arguments to this algorithm. This results in consistent rendering at all zoom levels of a rendered vector map, but at lower zoom levels (i.e. zoomed out), the geometry won\u0027t be simplified, which may harm performance.",
+    "description": "Simplifies the geometry to within a given error margin. Note that this does not respect the error margin requested by the consumer of this algorithm, unless maxError is explicitly specified to be null.  \u003cp\u003eThis overrides the default Earth Engine policy for propagating error margins, so regardless of the geometry accuracy requested from the output, the inputs will be requested with the error margin specified in the arguments to this algorithm. This results in consistent rendering at all zoom levels of a rendered vector map, but at lower zoom levels (i.e. zoomed out), the geometry won\u0027t be simplified, which may harm performance.",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "geometry",
@@ -4371,7 +4389,7 @@
     }]
   }, {
     "name": "algorithms/GeometryConstructors.BBox",
-    "description": "Constructs a rectangle whose edges are lines of latitude and longitude.\nThe result is a planar WGS84 rectangle.\nIf (east - west) ≥ 360 then the longitude range will be normalized to -180 to +180; otherwise they will be treated as designating points on a circle (e.g., east may be numerically less than west).",
+    "description": "Constructs a rectangle whose edges are lines of latitude and longitude. \u003cp\u003eThe result is a planar WGS84 rectangle. \u003cp\u003eIf (east - west) ≥ 360 then the longitude range will be normalized to -180 to +180; otherwise they will be treated as designating points on a circle (e.g., east may be numerically less than west).",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "west",
@@ -5094,7 +5112,7 @@
     }]
   }, {
     "name": "algorithms/Feature.simplify",
-    "description": "Simplifies the geometry of a feature to within a given error margin. Note that this does not respect the error margin requested by the consumer of this algorithm, unless maxError is explicitly specified to be null.\nThis overrides the default Earth Engine policy for propagating error margins, so regardless of the geometry accuracy requested from the output, the inputs will be requested with the error margin specified in the arguments to this algorithm. This results in consistent rendering at all zoom levels of a rendered vector map, but at lower zoom levels (i.e. zoomed out), the geometry won\u0027t be simplified, which may harm performance.",
+    "description": "Simplifies the geometry of a feature to within a given error margin. Note that this does not respect the error margin requested by the consumer of this algorithm, unless maxError is explicitly specified to be null.  \u003cp\u003eThis overrides the default Earth Engine policy for propagating error margins, so regardless of the geometry accuracy requested from the output, the inputs will be requested with the error margin specified in the arguments to this algorithm. This results in consistent rendering at all zoom levels of a rendered vector map, but at lower zoom levels (i.e. zoomed out), the geometry won\u0027t be simplified, which may harm performance.",
     "returnType": "Feature",
     "arguments": [{
       "argumentName": "feature",
@@ -5908,7 +5926,7 @@
     }]
   }, {
     "name": "algorithms/Collection.merge",
-    "description": "Merges two collections into one. The result has all the elements that were in either collection.\nElements from the first collection will have IDs prefixed with \"1_\" and elements from the second collection will have IDs prefixed with \"2_\".\nNote: If many collections need to be merged, consider placing them all in a collection and using FeatureCollection.flatten() instead. Repeated use of FeatureCollection.merge() will result in increasingly long element IDs and reduced performance.",
+    "description": "Merges two collections into one. The result has all the elements that were in either collection.  \u003cp\u003eElements from the first collection will have IDs prefixed with \"1_\" and elements from the second collection will have IDs prefixed with \"2_\".  \u003cp\u003eNote: If many collections need to be merged, consider placing them all in a collection and using FeatureCollection.flatten() instead. Repeated use of FeatureCollection.merge() will result in increasingly long element IDs and reduced performance. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "collection1",
@@ -5921,7 +5939,7 @@
     }]
   }, {
     "name": "algorithms/Collection.reduceColumns",
-    "description": "Apply a reducer to each element of a collection, using the given selectors to determine the inputs.\nReturns a dictionary of results, keyed with the output names.",
+    "description": "Apply a reducer to each element of a collection, using the given selectors to determine the inputs.  \u003cp\u003eReturns a dictionary of results, keyed with the output names.",
     "returnType": "Dictionary\u003cObject\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -5944,7 +5962,7 @@
     }]
   }, {
     "name": "algorithms/Collection.remap",
-    "description": "Remaps the value of a specific property in a collection. Takes two parallel lists and maps values found in one to values in the other. Any element with a value that is not specified in the first list is dropped from the output collection.",
+    "description": "Remaps the value of a specific property in a collection. Takes two parallel lists and maps values found in one to values in the other. Any element with a value that is not specified in the first list is dropped from the output collection. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "collection",
@@ -5984,7 +6002,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Collection.distance",
-    "description": "Produces a DOUBLE image where each pixel is the distance in meters from the pixel center to the nearest Point, LineString, or polygonal boundary in the collection. Note distance is also measured within interiors of polygons. Pixels that are not within \u0027searchRadius\u0027 meters of a geometry will be masked out.\nDistances are computed on a sphere, so there is a small error proportional to the latitude difference between each pixel and the nearest geometry.",
+    "description": "Produces a DOUBLE image where each pixel is the distance in meters from the pixel center to the nearest Point, LineString, or polygonal boundary in the collection.  \u003cp\u003eNote distance is also measured within interiors of polygons. Pixels that are not within \u0027searchRadius\u0027 meters of a geometry will be masked out.  \u003cp\u003eDistances are computed on a sphere, so there is a small error proportional to the latitude difference between each pixel and the nearest geometry. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "features",
@@ -6043,7 +6061,7 @@
     }]
   }, {
     "name": "algorithms/Collection.errorMatrix",
-    "description": "Computes a 2D error matrix for a collection by comparing two columns of a collection: one containing the actual values, and one containing predicted values. The values are expected to be small contiguous integers, starting from 0. Axis 0 (the rows) of the matrix correspond to the actual values, and Axis 1 (the columns) to the predicted values.",
+    "description": "Computes a 2D error matrix for a collection by comparing two columns of a collection: one containing the actual values, and one containing predicted values. The values are expected to be small contiguous integers, starting from 0. Axis 0 (the rows) of the matrix correspond to the actual values, and Axis 1 (the columns) to the predicted values. ",
     "returnType": "ConfusionMatrix",
     "arguments": [{
       "argumentName": "collection",
@@ -6084,7 +6102,7 @@
     }]
   }, {
     "name": "algorithms/Collection.iterate",
-    "description": "Applies a user-supplied function to each element of a collection. The user-supplied function is given two arguments: the current element, and the value returned by the previous call to iterate() or the first argument, for the first iteration. The result is the value returned by the final call to the user-supplied function.",
+    "description": "Applies a user-supplied function to each element of a collection. The user-supplied function is given two arguments: the current element, and the value returned by the previous call to iterate() or the first argument, for the first iteration. The result is the value returned by the final call to the user-supplied function. ",
     "returnType": "Object",
     "arguments": [{
       "argumentName": "collection",
@@ -6379,7 +6397,7 @@
     }]
   }, {
     "name": "algorithms/FeatureCollection.randomPoints",
-    "description": "Generates points that are uniformly random in the given geometry. If the geometry is two-dimensional (polygon or multi-polygon) then the returned points are uniformly distributed on the given region of the sphere. If the geometry is one-dimensional (linestrings), the returned points are interpolated uniformly along the geometry\u0027s edges. If the geometry has dimension zero (points), the returned points are sampled uniformly from the input points. If a multi-geometry of mixed dimension is given, points are sampled from the component geometries with the highest dimension.",
+    "description": "Generates points that are uniformly random in the given geometry. If the geometry is two-dimensional (polygon or multi-polygon) then the returned points are uniformly distributed on the given region of the sphere. If the geometry is one-dimensional (linestrings), the returned points are interpolated uniformly along the geometry\u0027s edges. If the geometry has dimension zero (points), the returned points are sampled uniformly from the input points. If a multi-geometry of mixed dimension is given, points are sampled from the component geometries with the highest dimension. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "region",
@@ -6995,7 +7013,7 @@
     }]
   }, {
     "name": "algorithms/Filter.calendarRange",
-    "description": "Returns a filter that passes if the object\u0027s timestamp falls within the given range of a calendar field. The `month`, `day_of_year`, `day_of_month`, and `day_of_week` are 1-based. Times are assumed to be in UTC. Weeks are assumed to begin on Monday as day 1. If `end` \u003c `start` then this tests for `value` \u003e\u003d `start` OR `value` \u003c\u003d `end`, to allow for wrapping.",
+    "description": "Returns a filter that passes if the object\u0027s timestamp falls within the given range of a calendar field. The `month`, `day_of_year`, `day_of_month`, and `day_of_week` are 1-based. Times are assumed to be in UTC. Weeks are assumed to begin on Monday as day 1.  \u003cp\u003eIf `end` \u003c `start` then this tests for `value` \u003e\u003d `start` OR `value` \u003c\u003d `end`, to allow for wrapping. ",
     "returnType": "Filter",
     "arguments": [{
       "argumentName": "start",
@@ -7328,15 +7346,15 @@
     }]
   }, {
     "name": "algorithms/Join.simple",
-    "description": "Returns a join that produces the elements of the primary collection that match any element of the secondary collection. No properties are added to the results.",
+    "description": "Returns a join that produces the elements of the primary collection that match any element of the secondary collection. No properties are added to the results. ",
     "returnType": "Join"
   }, {
     "name": "algorithms/Join.inverted",
-    "description": "Returns a join that produces the elements of the primary collection that match no elements of the secondary collection. No properties are added to the results.",
+    "description": "Returns a join that produces the elements of the primary collection that match no elements of the secondary collection. No properties are added to the results. ",
     "returnType": "Join"
   }, {
     "name": "algorithms/Join.saveFirst",
-    "description": "Returns a join that pairs each element from the first collection with a matching element from the second collection. The first match is added to the result as an additional property.",
+    "description": "Returns a join that pairs each element from the first  collection with a matching element from the second  collection. The first match is added to the result  as an additional property. ",
     "returnType": "Join",
     "arguments": [{
       "argumentName": "matchKey",
@@ -7369,7 +7387,7 @@
     }]
   }, {
     "name": "algorithms/Join.saveBest",
-    "description": "Returns a join that pairs each element from the first collection with a matching element from the second collection. The match with the best join measure is added to each result as an additional property. Join measures are produced when withinDistance or maxDifference filters are used as the join condition.",
+    "description": "Returns a join that pairs each element from the first collection with a matching element from the second collection. The match with the best join measure is added to each result as an additional property.  \u003cp\u003eJoin measures are produced when withinDistance or maxDifference filters are used as the join condition. ",
     "returnType": "Join",
     "arguments": [{
       "argumentName": "matchKey",
@@ -7388,7 +7406,7 @@
     }]
   }, {
     "name": "algorithms/Join.saveAll",
-    "description": "Returns a join that pairs each element from the first collection with a group of matching elements from the second collection. The list of matches is added to each result as an additional property. If measureKey is specified, each match has the value of its join measure attached. Join measures are produced when withinDistance or maxDifference filters are used as the join condition.",
+    "description": "Returns a join that pairs each element from the first collection with a group of matching elements from the second collection. The list of matches is added to each result as an additional property. If measureKey is specified, each match has the value of its join measure attached.  \u003cp\u003eJoin measures are produced when withinDistance or maxDifference filters are used as the join condition. ",
     "returnType": "Join",
     "arguments": [{
       "argumentName": "matchesKey",
@@ -7421,7 +7439,7 @@
     }]
   }, {
     "name": "algorithms/Join.inner",
-    "description": "Returns a join that pairs elements from the primary collection with matching elements from the secondary collection. Each result has a \u0027primary\u0027 property that contains the element from the primary collection, and a \u0027secondary\u0027 property containing the matching element from the secondary collection. If measureKey is specified, the join measure is also attached to the object as a property.",
+    "description": "Returns a join that pairs elements from the primary collection with matching elements from the secondary collection. Each result has a \u0027primary\u0027 property that contains the element from the primary collection, and a \u0027secondary\u0027 property containing the matching element from the secondary collection. If measureKey is specified, the join measure is also attached to the object as a property. ",
     "returnType": "Join",
     "arguments": [{
       "argumentName": "primaryKey",
@@ -9080,7 +9098,7 @@
     }]
   }, {
     "name": "algorithms/Image.cat",
-    "description": "Combines a list of images into a single image which contains all bands from all of the images.\nIf two or more bands share a name, they are suffixed with an incrementing index.\nThe resulting image will have the metadata from the first input image, only.\nThis function will promote constant values into constant images.",
+    "description": "Combines a list of images into a single image which contains all bands from all of the  images.  \u003cp\u003eIf two or more bands share a name, they are suffixed with an incrementing index.  \u003cp\u003eThe resulting image will have the metadata from the first input image, only.  \u003cp\u003eThis function will promote constant values into constant images. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "images",
@@ -9220,7 +9238,7 @@
     }]
   }, {
     "name": "algorithms/Image.cumulativeCost",
-    "description": "Computes a cumulative cost map based on an image containing costs to traverse each pixel and an image containing source locations.\nEach output band represents the cumulative cost over the corresponding input cost band.",
+    "description": "Computes a cumulative cost map based on an image containing costs to traverse each pixel and an image containing source locations.  \u003cp\u003eEach output band represents the cumulative cost over the corresponding input cost band.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "cost",
@@ -9252,7 +9270,7 @@
     }]
   }, {
     "name": "algorithms/Image.derivative",
-    "description": "Computes the X and Y discrete derivatives for each band in the input image, in pixel coordinates.\nFor each band of the input image, the output image will have two bands named with the suffixes `_x` and `_y`, containing the respective derivatives.",
+    "description": "Computes the X and Y discrete derivatives for each band in the input image, in pixel coordinates.  \u003cp\u003eFor each band of the input image, the output image will have two bands named with the suffixes `_x` and `_y`, containing the respective derivatives.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9286,7 +9304,7 @@
     }]
   }, {
     "name": "algorithms/Image.displacement",
-    "description": "Determines displacements required to register an image to a reference image while allowing local, rubber sheet deformations. Displacements are computed in the CRS of the reference image, at a scale dictated by the lowest resolution of the following three projections: input image projection, reference image projection, and requested projection. The displacements are then transformed into the user-specified projection for output.",
+    "description": "Determines displacements required to register an image to a reference image while  allowing local, rubber sheet deformations. Displacements are computed in the CRS  of the reference image, at a scale dictated by the lowest resolution of the following  three projections: input image projection, reference image projection, and requested  projection. The displacements are then transformed into the user-specified projection  for output. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9382,7 +9400,7 @@
     }]
   }, {
     "name": "algorithms/Image.directionalDistanceTransform",
-    "description": "For each zero-valued pixel in the source, get the distance to the nearest non-zero pixels in the given direction.\nReturns a band of floating point distances called \"distance\".",
+    "description": "For each zero-valued pixel in the source, get the distance to the nearest non-zero pixels in the given direction.  \u003cp\u003eReturns a band of floating point distances called distance.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "source",
@@ -9405,7 +9423,7 @@
     }]
   }, {
     "name": "algorithms/Image.glcmTexture",
-    "description": "Computes texture metrics from the Gray Level Co-occurrence Matrix around each pixel of every band. The GLCM is a tabulation of how often different combinations of pixel brightness values (grey levels) occur in an image. It counts the number of times a pixel of value X lies next to a pixel of value Y, in a particular direction and distance. and then derives statistics from this tabulation.\nThis implementation computes the 14 GLCM metrics proposed by Haralick, and 4 additional metrics from Conners. Inputs are required to be integer valued.\nThe output consists of 18 bands per input band if directional averaging is on and 18 bands per directional pair in the kernel, if not:\nASM: f1, Angular Second Moment; measures the number of repeated pairs\nCONTRAST: f2, Contrast; measures the local contrast of an image\nCORR: f3, Correlation; measures the correlation between pairs of pixels\nVAR: f4, Variance; measures how spread out the distribution of gray-levels is\nIDM: f5, Inverse Difference Moment; measures the homogeneity\nSAVG: f6, Sum Average\nSVAR: f7, Sum Variance\nSENT: f8, Sum Entropy\nENT: f9, Entropy. Measures the randomness of a gray-level distribution\nDVAR: f10, Difference variance\nDENT: f11, Difference entropy\nIMCORR1: f12, Information Measure of Corr. 1\nIMCORR2: f13, Information Measure of Corr. 2\nMAXCORR: f14, Max Corr. Coefficient. (not computed)\nDISS: Dissimilarity\nINERTIA: Inertia\nSHADE: Cluster Shade\nPROM: Cluster prominence\nMore information can be found in the two papers: Haralick et. al, \u0027Textural Features for Image Classification\u0027, https://doi.org/10.1109/TSMC.1973.4309314 and Conners, et al, Segmentation of a high-resolution urban scene using texture operators\u0027, https://doi.org/10.1016/0734-189X(84)90197-X.",
+    "description": "Computes texture metrics from the Gray Level Co-occurrence Matrix around each pixel of every band. The GLCM is a tabulation of how often different combinations of pixel brightness values (grey levels) occur in an image. It counts the number of times a pixel of value X lies next to a pixel of value Y, in a particular direction and distance. and then derives statistics from this tabulation.  \u003cp\u003eThis implementation computes the 14 GLCM metrics proposed by Haralick, and 4 additional metrics from Conners. Inputs are required to be integer valued.  \u003cp\u003eThe output consists of 18 bands per input band if directional averaging is on and 18 bands per directional pair in the kernel, if not: \u003cul\u003e   \u003cli\u003e\u003cb\u003eASM:\u003c/b\u003e f1, Angular Second Moment; measures the number of repeated pairs\u003c/li\u003e   \u003cli\u003e\u003cb\u003eCONTRAST:\u003c/b\u003e f2, Contrast; measures the local contrast of an image\u003c/li\u003e   \u003cli\u003e\u003cb\u003eCORR:\u003c/b\u003e f3, Correlation; measures the correlation between pairs of pixels\u003c/li\u003e   \u003cli\u003e\u003cb\u003eVAR:\u003c/b\u003e f4, Variance; measures how spread out the distribution of gray-levels is\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIDM:\u003c/b\u003e f5, Inverse Difference Moment; measures the homogeneity\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSAVG:\u003c/b\u003e f6, Sum Average\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSVAR:\u003c/b\u003e f7, Sum Variance\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSENT:\u003c/b\u003e f8, Sum Entropy\u003c/li\u003e   \u003cli\u003e\u003cb\u003eENT:\u003c/b\u003e f9, Entropy. Measures the randomness of a gray-level distribution\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDVAR:\u003c/b\u003e f10, Difference variance\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDENT:\u003c/b\u003e f11, Difference entropy\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIMCORR1:\u003c/b\u003e f12, Information Measure of Corr. 1\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIMCORR2:\u003c/b\u003e f13, Information Measure of Corr. 2\u003c/li\u003e   \u003cli\u003e\u003cb\u003eMAXCORR:\u003c/b\u003e f14, Max Corr. Coefficient. (not computed)\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDISS:\u003c/b\u003e Dissimilarity\u003c/li\u003e   \u003cli\u003e\u003cb\u003eINERTIA:\u003c/b\u003e Inertia\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSHADE:\u003c/b\u003e Cluster Shade\u003c/li\u003e   \u003cli\u003e\u003cb\u003ePROM:\u003c/b\u003e Cluster prominence\u003c/li\u003e \u003c/ul\u003e More information can be found in the two papers: Haralick et. al, \u0027Textural Features for Image Classification\u0027, https://doi.org/10.1109/TSMC.1973.4309314 and Conners, et al, \u0027Segmentation of a high-resolution urban scene using texture operators\u0027, https://doi.org/10.1016/0734-189X(84)90197-X. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9450,7 +9468,7 @@
     }]
   }, {
     "name": "algorithms/Image.interpolate",
-    "description": "Interpolates each point in the first band of the input image into the piecewise-linear function specified by the x and y arrays. The x values must be strictly increasing. If an input point is less than the first or greater than the last x value, then the output is specified by the \"behavior\" argument: \"extrapolate\" specifies the output value is extrapolated from the two nearest points, \"clamp\" specifies the output value is taken from the nearest point, \"input\"  specifies the output value is copied from the input, and \"mask\" specifies the output value is masked.",
+    "description": "Interpolates each point in the first band of the input image into the piecewise-linear function specified by the x and y arrays. The x values must be strictly increasing. If an input point is less than the first or greater than the last x value, then the output is specified by the \"behavior\" argument:  \u003col\u003e  \u003cli\u003e\"extrapolate\" specifies the output value is extrapolated  from the two nearest points.  \u003cli\u003e\"clamp\" specifies the output value is taken from the nearest point.  \u003cli\u003e\"input\" specifies the output value is copied from the input.  \u003cli\u003e\"mask\" specifies the output value is masked. \u003c/ol\u003e ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9473,7 +9491,7 @@
     }]
   }, {
     "name": "algorithms/Image.linkCollection",
-    "description": "Links the source image to a matching image from an image collection.\nAny specified bands or metadata will be added to the source image from the image found in the collection, and if the bands or metadata are already present they will be overwritten. If a matching image is not found, any new or updated bands will be fully masked and any new or updated metadata will be null. The output footprint will be the same as the source image footprint.\nA match is determined if the source image and an image in the collection have a specific equivalent metadata property. If more than one collection image would match, the collection image selected is arbitrary. By default, images are matched on their \u0027system:index\u0027 metadata property.\nThis linking function is a convenience method for adding bands to a target image based on a specified shared metadata property and is intended to support linking collections that apply different processing/product generation to the same source imagery. For more expressive linking known as \u0027joining\u0027, see https://developers.google.com/earth-engine/guides/joins_intro.",
+    "description": "Links the source image to a matching image from an image collection.  \u003cp\u003eAny specified bands or metadata will be added to the source image from the image found in the collection, and if the bands or metadata are already present they will be overwritten. If a matching image is not found, any new or updated bands will be fully masked and any new or updated metadata will be null. The output footprint will be the same as the source image footprint.  \u003cp\u003eA match is determined if the source image and an image in the collection have a specific equivalent metadata property. If more than one collection image would match, the collection image selected is arbitrary. By default, images are matched on their \u0027system:index\u0027 metadata property.  \u003cp\u003eThis linking function is a convenience method for adding bands to a target image based on a specified shared metadata property and is intended to support linking collections that apply different processing/product generation to the same source imagery. For more expressive linking known as \u0027joining\u0027, see https://developers.google.com/earth-engine/guides/joins_intro. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -9563,7 +9581,7 @@
     }]
   }, {
     "name": "algorithms/Image.mask",
-    "description": "Gets or sets an image\u0027s mask. The output image retains the metadata and footprint of the input image. Pixels where the mask changes from zero to another value will be filled with zeros, or the values closest to zero within the range of the pixel type.\nNote: the version that sets a mask will be deprecated. To set a mask from an image on previously unmasked pixels, use Image.updateMask. To unmask previously masked pixels, use Image.unmask.",
+    "description": "Gets or sets an image\u0027s mask. The output image retains the metadata and footprint of the input image. Pixels where the mask changes from zero to another value will be filled with zeros, or the values closest to zero within the range of the pixel type.  \u003cp\u003eNote: the version that sets a mask will be deprecated. To set a mask from an image on previously unmasked pixels, use Image.updateMask. To unmask previously masked pixels, use Image.unmask. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9578,7 +9596,7 @@
     }]
   }, {
     "name": "algorithms/Image.medialAxis",
-    "description": "Computes the discrete medial axis of the zero valued pixels of the first band of the input. Outputs 4 bands:\n medial - the medial axis points, scaled by the distance.\n coverage - the number of points supporting each medial axis point.\n xlabel - the horizontal distance to the power point for each pixel.\n ylabel - the vertical distance to the power point for each pixel.",
+    "description": "Computes the discrete medial axis of the zero valued pixels of the first band of the input. Outputs 4 bands:  \u003cp\u003e\u003col\u003e  \u003cli\u003emedial - the medial axis points, scaled by the distance.  \u003cli\u003ecoverage - the number of points supporting each medial axis point.  \u003cli\u003exlabel - the horizontal distance to the power point for each pixel.  \u003cli\u003eylabel - the vertical distance to the power point for each pixel.  \u003c/ol\u003e ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9618,7 +9636,7 @@
     }]
   }, {
     "name": "algorithms/Image.neighborhoodToBands",
-    "description": "Turns the neighborhood of a pixel into a set of bands. The neighborhood is specified using a Kernel and only non-zero-weight kernel values are used. The weights of the kernel is otherwise ignored.\nEach input band produces x * y output bands. Each output band is named \u0027input_x_y\u0027 where x and y indicate the pixel\u0027s location in the kernel. For example, a 3x3 kernel operating on a 2-band image produces 18 output bands.",
+    "description": "Turns the neighborhood of a pixel into a set of bands. The neighborhood is specified using a Kernel and only non-zero-weight kernel values are used. The weights of the kernel is otherwise ignored.  \u003cp\u003eEach input band produces x * y output bands. Each output band is named \u0027input_x_y\u0027 where x and y indicate the pixel\u0027s location in the kernel. For example, a 3x3 kernel operating on a 2-band image produces 18 output bands. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9650,7 +9668,7 @@
     }]
   }, {
     "name": "algorithms/Image.normalizedDifference",
-    "description": "Computes the normalized difference between two bands. If the bands to use are not specified, uses the first two bands. The normalized difference is computed as (first − second) / (first + second). Note that the returned image band name is \u0027nd\u0027, the input image properties are not retained in the output image, and a negative pixel value in either input band will cause the output pixel to be masked. To avoid masking negative input values, use `ee.Image.expression()` to compute normalized difference.",
+    "description": "Computes the normalized difference between two bands. If the bands to use are not specified, uses the first two bands. The normalized difference is computed as (first − second) / (first + second).  \u003cp\u003eNote that the returned image band name is \u0027nd\u0027, the input image properties are not retained in the output image, and a negative pixel value in either input band will cause the output pixel to be masked. To avoid masking negative input values, use `ee.Image.expression()` to compute normalized difference. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -9665,7 +9683,7 @@
     }]
   }, {
     "name": "algorithms/Image.paint",
-    "description": "Paints the geometries of a collection onto an image, using the given \u0027color\u0027 value to replace each band\u0027s values where any geometry covers the image (or, if a line width is specified, where the perimeters do).\nThis algorithm is most suitable for converting categorical data from feature properties to pixels in an image; if you wish to visualize a collection, consider using FeatureCollection.style instead, which supports RGB colors whereas this algorithm is strictly \u0027monochrome\u0027 (using single numeric values).",
+    "description": "Paints the geometries of a collection onto an image, using the given \u0027color\u0027 value to replace each band\u0027s values where any geometry covers the image (or, if a line width is specified, where the perimeters do).  \u003cp\u003eThis algorithm is most suitable for converting categorical data from feature properties to pixels in an image; if you wish to visualize a collection, consider using FeatureCollection.style instead, which supports RGB colors whereas this algorithm is strictly \u0027monochrome\u0027 (using single numeric values). ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9690,7 +9708,7 @@
     }]
   }, {
     "name": "algorithms/Image.parseExpression",
-    "description": "Generates an algorithm from an arithmetic expression on images. By default the generated algorithm takes one argument to denote the \u0027default\u0027 image. Other variables in the expression are interpreted as image arguments that will be passed to the returned algorithm. The bands of each image can be accessed as image.band_name or image[0]. The bands of the default image are available using the built-in function b(), as b(0) or b(\u0027band_name\u0027). Both b() and image[] allow multiple arguments, to specify multiple bands, such as b(1, \u0027name\u0027, 3). Calling b() with no arguments returns all bands of the image. If the result of an expression is a single band, it can be assigned a name using the \u0027\u003d\u0027 operator (e.g., x \u003d a + b).",
+    "description": "Generates an algorithm from an arithmetic expression on images.  \u003cp\u003eBy default the generated algorithm takes one argument to denote  the \u0027default\u0027 image. Other variables in the expression are  interpreted as image arguments that will be passed to  the returned algorithm. The bands of each image can be accessed  as image.band_name or image[0]. The bands of the default image  are available using the built-in function b(), as b(0) or  b(\u0027band_name\u0027). Both b() and image[] allow multiple arguments,  to specify multiple bands, such as b(1, \u0027name\u0027, 3). Calling  b() with no arguments returns all bands of the image. If the  result of an expression is a single band, it can be assigned a name  using the \u0027\u003d\u0027 operator (e.g., x \u003d a + b). ",
     "returnType": "Algorithm",
     "arguments": [{
       "argumentName": "expression",
@@ -9779,7 +9797,7 @@
     }]
   }, {
     "name": "algorithms/Image.reduceNeighborhood",
-    "description": "Applies the given reducer to the neighborhood around each pixel, as determined by the given kernel. If the reducer has a single input, it will be applied separately to each band of the collection; otherwise it must have the same number of inputs as the input image has bands.\nThe reducer output names determine the names of the output bands: reducers with multiple inputs will use the output names directly, while reducers with a single input will prefix the output name with the input band name (e.g., \u002710_mean\u0027, \u002720_mean\u0027).\nReducers with weighted inputs can have the input weight based on the input mask, the kernel value, or the smaller of those two.",
+    "description": "Applies the given reducer to the neighborhood around each pixel, as determined by the given kernel. If the reducer has a single input, it will be applied separately to each band of the collection; otherwise it must have the same number of inputs as the input image has bands.  \u003cp\u003eThe reducer output names determine the names of the output bands: \u003cul\u003e   \u003cli\u003eReducers with multiple inputs will use the output names directly.   \u003cli\u003eReducers with a single input will prefix the output name with the   input band name (e.g., \u002710_mean\u0027, \u002720_mean\u0027). \u003c/ul\u003e  \u003cp\u003eReducers with weighted inputs can have the input weight based on the input mask, the kernel value, or the smaller of those two.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9814,7 +9832,7 @@
     }]
   }, {
     "name": "algorithms/Image.reduce",
-    "description": "Applies a reducer to all of the bands of an image.\nThe reducer must have a single input and will be called at each pixel to reduce the stack of band values.\nThe output image will have one band for each reducer output.",
+    "description": "Applies a reducer to all of the bands of an image.  \u003cp\u003eThe reducer must have a single input and will be called at each pixel to reduce the stack of band values.  \u003cp\u003eThe output image will have one band for each reducer output.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9827,7 +9845,7 @@
     }]
   }, {
     "name": "algorithms/Image.reduceRegion",
-    "description": "Apply a reducer to all the pixels in a specific region.\nEither the reducer must have the same number of inputs as the input image has bands, or it must have a single input and will be repeated for each band.\nReturns a dictionary of the reducer\u0027s outputs.",
+    "description": "Apply a reducer to all the pixels in a specific region.  \u003cp\u003eEither the reducer must have the same number of inputs as the input image has bands, or it must have a single input and will be repeated for each band.  \u003cp\u003eReturns a dictionary of the reducer\u0027s outputs.",
     "returnType": "Dictionary\u003cObject\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9882,7 +9900,7 @@
     }]
   }, {
     "name": "algorithms/Image.reduceRegions",
-    "description": "Apply a reducer over the area of each feature in the given collection.\nThe reducer must have the same number of inputs as the input image has bands.\nReturns the input features, each augmented with the corresponding reducer outputs.",
+    "description": "Apply a reducer over the area of each feature in the given collection.  \u003cp\u003eThe reducer must have the same number of inputs as the input image has bands.  \u003cp\u003eReturns the input features, each augmented with the corresponding reducer outputs.",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "image",
@@ -9954,7 +9972,7 @@
     }]
   }, {
     "name": "algorithms/Image.reduceToVectors",
-    "description": "Convert an image to a feature collection by reducing homogeneous regions. Given an image containing a band of labeled segments and zero or more additional bands, runs a reducer over the pixels in each segment producing a feature per segment.\nEither the reducer must have one fewer inputs than the image has bands, or it must have a single input and will be repeated for each band.",
+    "description": "Convert an image to a feature collection by reducing homogeneous regions.  \u003cp\u003eGiven an image containing a band of labeled segments and zero or more additional bands, runs a reducer over the pixels in each segment producing a feature per segment.  \u003cp\u003eEither the reducer must have one fewer inputs than the image has bands, or it must have a single input and will be repeated for each band. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "image",
@@ -10035,7 +10053,7 @@
     }]
   }, {
     "name": "algorithms/Image.reduceToVectorsStreaming",
-    "description": "Convert an image to a feature collection by reducing homogeneous regions. Given an image containing a band of labeled segments and zero or more additional bands, runs a reducer over the pixels in each segment producing a feature per segment.\nEither the reducer must have one fewer inputs than the image has bands, or it must have a single input and will be repeated for each band.",
+    "description": "Convert an image to a feature collection by reducing homogeneous regions. Given an image containing a band of labeled segments and zero or more additional bands, runs a reducer over the pixels in each segment producing a feature per segment.  \u003cp\u003eEither the reducer must have one fewer inputs than the image has bands, or it must have a single input and will be repeated for each band. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "image",
@@ -10153,7 +10171,7 @@
     }]
   }, {
     "name": "algorithms/Image.remap",
-    "description": "Maps from input values to output values, represented by two parallel lists. Any input values not included in the input list are either set to defaultValue if it is given or masked if it isn\u0027t. Note that inputs containing floating point values might sometimes fail to match due to floating point precision errors.",
+    "description": "Maps from input values to output values, represented by two parallel lists. Any input values not included in the input list are either set to defaultValue if it is given or masked if it isn\u0027t. Note that inputs containing floating point values might sometimes fail to match due to floating point precision errors. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10216,7 +10234,7 @@
     }]
   }, {
     "name": "algorithms/Image.resample",
-    "description": "An algorithm that returns an image identical to its argument, but which uses bilinear or bicubic interpolation (rather than the default nearest-neighbor) to compute pixels in projections other than its native projection or other levels of the same image pyramid.\nThis relies on the input image\u0027s default projection being meaningful, and so cannot be used on composites, for example. (Instead, you should resample the images that are used to create the composite.)",
+    "description": "An algorithm that returns an image identical to its argument, but which uses bilinear or bicubic interpolation (rather than the default nearest-neighbor) to compute pixels in projections other than its native projection or other levels of the same image pyramid.  \u003cp\u003eThis relies on the input image\u0027s default projection being meaningful, and so cannot be used on composites, for example. (Instead, you should resample the images that are used to create the composite.) ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10231,7 +10249,7 @@
     }]
   }, {
     "name": "algorithms/Image.rsedTransform",
-    "description": "Reverse Squared Euclidean Distance (RSED) computes the 2D maximal height surface created by placing an inverted parabola over each non-zero pixel of the input image, where the pixel\u0027s value is the height of the parabola. Viewed as a binary image (zero/not-zero) this is equivalent to buffering each non-zero input pixel by the square root of its value, in pixels.",
+    "description": "Reverse Squared Euclidean Distance (RSED) computes the 2D maximal height surface created by placing an inverted parabola over each non-zero pixel of the input image, where the pixel\u0027s value is the height of the parabola. Viewed as a binary image (zero/not-zero) this is equivalent to buffering each non-zero input pixel by the square root of its value, in pixels. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10315,7 +10333,7 @@
     }]
   }, {
     "name": "algorithms/Image.sampleRegions",
-    "description": "Converts each pixel of an image (at a given scale) that intersects one or more regions to a Feature, returning them as a FeatureCollection. Each output feature will have one property per band of the input image, as well as any specified properties copied from the input feature.\nNote that geometries will be snapped to pixel centers.",
+    "description": "Converts each pixel of an image (at a given scale) that intersects one or more regions to a Feature, returning them as a FeatureCollection. Each output feature will have one property per band of the input image, as well as any specified properties copied from the input feature.  \u003cp\u003eNote that geometries will be snapped to pixel centers. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "image",
@@ -10358,7 +10376,7 @@
     }]
   }, {
     "name": "algorithms/Image.sampleRectangle",
-    "description": "Extracts a rectangular region of pixels from an image into a ND array per band. The arrays are returned in a feature retaining the same properties as the image and a geometry the same as that used to sample the image (or the image footprint if unspecified). Each band is sampled in its input projection, and if no geometry is specified, sampled using its footprint. For scalar bands, the output array is 2D. For array bands the output array is (2+N)D where N is the number of dimensions in the original band. If sampling array bands, all arrays must have the same number of elements. If a band\u0027s sampled region is entirely masked and a default array value is specified, the default array value is used in-lieu of sampling the image.",
+    "description": "Extracts a rectangular region of pixels from an image into a ND array per band. The arrays are returned in a feature retaining the same properties as the image and a geometry the same as that used to sample the image (or the image footprint if unspecified). Each band is sampled in its input projection, and if no geometry is specified, sampled using its footprint. For scalar bands, the output array is 2D. For array bands the output array is (2+N)D where N is the number of dimensions in the original band. If sampling array bands, all arrays must have the same number of elements. If a band\u0027s sampled region is entirely masked and a default array value is specified, the default array value is used in-lieu of sampling the image. ",
     "returnType": "Feature",
     "arguments": [{
       "argumentName": "image",
@@ -10444,7 +10462,7 @@
     }]
   }, {
     "name": "algorithms/Image.sldStyle",
-    "description": "Styles a raster input with the provided OGC SLD styling.\nPoints of note:\n * OGC SLD 1.0 and OGC SE 1.1 are supported.\n * The XML document passed in can be complete, or just the   SldRasterSymbolizer element and down.\n * Exactly one SldRasterSymbolizer is required.\n * Bands may be selected by their proper Earth Engine names or   using numeric identifiers (\"1\", \"2\", ...). Proper   Earth Engine names are tried first.\n * The Histogram and Normalize contrast stretch mechanisms are   supported.\n * The type\u003d\"values\", type\u003d\"intervals\" and type\u003d\"ramp\"   attributes for ColorMap element in SLD 1.0 (GeoServer   extensions) are supported.\n * Opacity is only taken into account when it is 0.0   (transparent). Non-zero opacity values are treated as   completely opaque.\n * The OverlapBehavior definition is currently ignored.\n * The ShadedRelief mechanism is not currently supported.\n * The ImageOutline mechanism is not currently supported.\n * The Geometry element is ignored.\nThe output image will have histogram_bandname metadata if histogram equalization or normalization is requested.",
+    "description": "Styles a raster input with the provided OGC SLD styling.  \u003cp\u003ePoints of note: \u003cul\u003e   \u003cli\u003eOGC SLD 1.0 and OGC SE 1.1 are supported.\u003c/li\u003e   \u003cli\u003eThe XML document passed in can be complete, or just the      SldRasterSymbolizer element and down.\u003c/li\u003e   \u003cli\u003eExactly one SldRasterSymbolizer is required.\u003c/li\u003e   \u003cli\u003eBands may be selected by their proper Earth Engine names or      using numeric identifiers (\"1\", \"2\", ...). Proper      Earth Engine names are tried first.\u003c/li\u003e   \u003cli\u003eThe Histogram and Normalize contrast stretch mechanisms are      supported.\u003c/li\u003e   \u003cli\u003eThe type\u003d\"values\", type\u003d\"intervals\" and type\u003d\"ramp\"      attributes for ColorMap element in SLD 1.0 (GeoServer      extensions) are supported.\u003c/li\u003e   \u003cli\u003eOpacity is only taken into account when it is 0.0      (transparent). Non-zero opacity values are treated as      completely opaque.\u003c/li\u003e   \u003cli\u003eThe OverlapBehavior definition is currently ignored.\u003c/li\u003e   \u003cli\u003eThe ShadedRelief mechanism is not currently supported.\u003c/li\u003e   \u003cli\u003eThe ImageOutline mechanism is not currently supported.\u003c/li\u003e   \u003cli\u003eThe Geometry element is ignored.\u003c/li\u003e \u003c/ul\u003e The output image will have histogram_bandname metadata if histogram equalization or normalization is requested. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10476,7 +10494,7 @@
     }]
   }, {
     "name": "algorithms/Image.stratifiedSample",
-    "description": "Extracts a stratified random sample of points from an image. Extracts the specified number of samples for each distinct value discovered within the \u0027classBand\u0027. Returns a FeatureCollection of 1 Feature per extracted point, with each feature having 1 property per band in the input image. If there are less than the specified number of samples available for a given class value, then all of the points for that class will be included. Requires that the classBand contain integer values.",
+    "description": "Extracts a stratified random sample of points from an image. Extracts the specified  number of samples for each distinct value discovered within the \u0027classBand\u0027. Returns a  FeatureCollection of 1 Feature per extracted point, with each feature having 1  property per band in the input image. If there are less than the specified number  of samples available for a given class value, then all of the points for  that class will be included. Requires that the classBand contain integer values. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "image",
@@ -10549,7 +10567,7 @@
     }]
   }, {
     "name": "algorithms/Image.register",
-    "description": "Registers an image to a reference image while allowing local, rubber sheet deformations. Displacements are computed in the CRS of the reference image, at a scale dictated by the lowest resolution of the following three projections: input image projection, reference image projection, and requested projection. The displacements then applied to the input image to register it with the reference.",
+    "description": "Registers an image to a reference image while allowing local, rubber sheet deformations. Displacements are computed in the CRS of the reference image, at a scale dictated by the lowest resolution of the following three projections: input image projection, reference image projection, and requested projection. The displacements then applied to the input image to register it with the reference. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10566,7 +10584,7 @@
     }, {
       "argumentName": "patchWidth",
       "type": "Float",
-      "description": "Patch size for detecting image offsets, in meters. This should be set large enough to capture texture, as well as large enough that ignorable objects are small within the patch. Default is null. Patch size will be determined automatically if notprovided.",
+      "description": "Patch size for detecting image offsets, in meters. This should be set large enough to capture texture, as well as large enough that ignorable objects are small within the patch. Default is null. Patch size will be determined automatically if not provided.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -10637,7 +10655,7 @@
     }]
   }, {
     "name": "algorithms/Image.unmask",
-    "description": "Replaces mask and value of the input image with the mask and value of another image at all positions where the input mask is zero. The output image retains the metadata of the input image. By default, the output image also retains the footprint of the input, but setting sameFootprint to false allows to extend the footprint.",
+    "description": "Replaces mask and value of the input image with the mask and value of another image at all positions where the input mask is zero.  \u003cp\u003eThe output image retains the metadata of the input image. By default, the output image also retains the footprint of the input, but setting sameFootprint to false allows to extend the footprint. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10759,7 +10777,7 @@
     }]
   }, {
     "name": "algorithms/Image.where",
-    "description": "Performs conditional replacement of values.\nFor each pixel in each band of \u0027input\u0027, if the corresponding pixel in \u0027test\u0027 is nonzero, output the corresponding pixel in value, otherwise output the input pixel.\nIf at a given pixel, either test or value is masked, the input value is used. If the input is masked, nothing is done.\nThe output bands have the same names as the input bands. The output type of each band is the larger of the input and value types. The output image retains the metadata and footprint of the input image.",
+    "description": "Performs conditional replacement of values.  \u003cp\u003eFor each pixel in each band of \u0027input\u0027, if the corresponding  pixel in \u0027test\u0027 is nonzero, output the corresponding pixel in  value, otherwise output the input pixel.  \u003cp\u003eIf at a given pixel, either test or value is masked, the input  value is used. If the input is masked, nothing is done.  \u003cp\u003eThe output bands have the same names as the input bands. The  output type of each band is the larger of the input and value  types. The output image retains the metadata and footprint of  the input image. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10833,7 +10851,7 @@
     }]
   }, {
     "name": "algorithms/Image.clip",
-    "description": "Clips an image to a Geometry or Feature (use clipToCollection to clip an image to a FeatureCollection). The output bands correspond exactly to the input bands, except data not covered by the geometry is masked. The output image retains the metadata of the input image.",
+    "description": "Clips an image to a Geometry or Feature (use clipToCollection to clip an image to a FeatureCollection). The output bands correspond exactly to the input bands, except data not covered by the geometry is masked. The output image retains the metadata of the input image. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10898,7 +10916,7 @@
     }]
   }, {
     "name": "algorithms/Image.Segmentation.SNIC",
-    "description": "Superpixel clustering based on SNIC (Simple Non-Iterative Clustering). Outputs a band of cluster IDs and the per-cluster averages for each of the input bands. If the \u0027seeds\u0027 image isn\u0027t provided as input, the output will include a \u0027seeds\u0027 band containing the generated seed locations. See: Achanta, Radhakrishna and Susstrunk, Sabine, \u0027Superpixels and Polygons using Simple Non-Iterative Clustering\u0027, CVPR, 2017.",
+    "description": "Superpixel clustering based on SNIC (Simple Non-Iterative Clustering). Outputs a band of cluster IDs and the per-cluster averages for each of the input bands. If the \u0027seeds\u0027 image isn\u0027t provided as input, the output will include a \u0027seeds\u0027 band containing the generated seed locations.  \u003cp\u003eSee: Achanta, Radhakrishna and Susstrunk, Sabine, \u0027Superpixels and Polygons using Simple Non-Iterative Clustering\u0027, CVPR, 2017. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10954,7 +10972,7 @@
     }]
   }, {
     "name": "algorithms/Image.spectralErosion",
-    "description": "Computes the spectral/spatial erosion of an image by computing the spectral distance of each pixel under a structuring kernel from the centroid of all pixels under the kernel and taking the closest result. See \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041.",
+    "description": "Computes the spectral/spatial erosion of an image by computing the spectral distance of each pixel under a structuring kernel from the centroid of all pixels under the kernel and taking the closest result.  \u003cp\u003eSee \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10981,7 +10999,7 @@
     }]
   }, {
     "name": "algorithms/Image.spectralGradient",
-    "description": "Computes the spectral gradient over all bands of an image (or the first band if the image is Array typed) by computing the per-pixel difference between the spectral erosion and dilation with a given structuring kernel and distance metric. See: Plaza, Antonio, et al. \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041.",
+    "description": "Computes the spectral gradient over all bands of an image (or the first band if the image is Array typed) by computing the per-pixel difference between the spectral erosion and dilation with a given structuring kernel and distance metric.  \u003cp\u003eSee: Plaza, Antonio, et al. \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -11008,7 +11026,7 @@
     }]
   }, {
     "name": "algorithms/Image.spectralDilation",
-    "description": "Computes the spectral/spatial dilation of an image by computing the spectral distance of each pixel under a structuring kernel from the centroid of all pixels under the kernel and taking the most distant result. See \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041.",
+    "description": "Computes the spectral/spatial dilation of an image by computing the spectral distance of each pixel under a structuring kernel from the centroid of all pixels under the kernel and taking the most distant result.  \u003cp\u003eSee \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -11079,7 +11097,7 @@
     }]
   }, {
     "name": "algorithms/Image.Segmentation.GMeans",
-    "description": "Performs G-Means clustering on the input image. Iteratively applies k-means followed by a normality test to automatically determine the number of clusters to use. The output contains a \u0027clusters\u0027 band containing the integer ID of the cluster that each pixel belongs to. The algorithm can work either on a fixed grid of non-overlapping cells (gridSize, which can be smaller than a tile) or on tiles with overlap (neighborhoodSize). The default is to use tiles with no overlap. Clusters in one cell or tile are unrelated to clusters in another. Any cluster that spans a cell or tile boundary may receive two different labels in the two halves. Any input pixels with partial masks are fully masked in the output. This algorithm is only expected to perform well for images with a narrow dynamic range (i.e., bytes or shorts).\nSee: G. Hamerly and C. Elkan. \u0027Learning the k in k-means\u0027. NIPS, 2003.",
+    "description": "Performs G-Means clustering on the input image. Iteratively applies k-means followed by a normality test to automatically determine the number of clusters to use. The output contains a \u0027clusters\u0027 band containing the integer ID of the cluster that each pixel belongs to.  \u003cp\u003eThe algorithm can work either on a fixed grid of non-overlapping cells (gridSize, which can be smaller than a tile) or on tiles with overlap (neighborhoodSize). The default is to use tiles with no overlap. Clusters in one cell or tile are unrelated to clusters in another. Any cluster that spans a cell or tile boundary may receive two different labels in the two halves. Any input pixels with partial masks are fully masked in the output. This algorithm is only expected to perform well for images with a narrow dynamic range (i.e., bytes or shorts).  \u003cp\u003eSee: G. Hamerly and C. Elkan. \u0027Learning the k in k-means\u0027. NIPS, 2003. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -11118,7 +11136,7 @@
     }]
   }, {
     "name": "algorithms/Image.Segmentation.KMeans",
-    "description": "Performs K-Means clustering on the input image. Outputs a 1-band image containing the ID of the cluster that each pixel belongs to. The algorithm can work either on a fixed grid of non-overlapping cells (gridSize, which can be smaller than a tile) or on tiles with overlap (neighborhoodSize). The default is to use tiles with no overlap. Clusters in one cell or tile are unrelated to clusters in another. Any cluster that spans a cell or tile boundary may receive two different labels in the two halves. Any input pixels with partial masks are fully masked in the output.",
+    "description": "Performs K-Means clustering on the input image. Outputs a 1-band image containing the ID of the cluster that each pixel belongs to. The algorithm can work either on a fixed grid of non-overlapping cells (gridSize, which can be smaller than a tile) or on tiles with overlap (neighborhoodSize). The default is to use tiles with no overlap.  \u003cp\u003eClusters in one cell or tile are unrelated to clusters in another. Any cluster that spans a cell or tile boundary may receive two different labels in the two halves. Any input pixels with partial masks are fully masked in the output. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -11253,7 +11271,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.combine",
-    "description": "Makes a new collection that is a copy of the images in primary, adding all the bands from the image in secondary with a matching ID. If there are no matching IDs, the resulting collection will be empty. This is equivalent to an inner join on ID with merging of the bands of the result.\nNote that this algorithm assumes that for a matching pair of inputs, both have the same footprint and metadata.",
+    "description": "Makes a new collection that is a copy of the images in primary, adding all the bands from the image in secondary with a matching ID. If there are no matching IDs, the resulting collection will be empty. This is equivalent to an inner join on ID with merging of the bands of the result.  \u003cp\u003eNote that this algorithm assumes that for a matching pair of inputs, both have the same footprint and metadata. ",
     "returnType": "ImageCollection",
     "arguments": [{
       "argumentName": "primary",
@@ -11272,7 +11290,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.formaTrend",
-    "description": "Computes the long and short term trends of a time series or optionally, the trends of the ratio of the time series and a covariate. The long term trend is estimated from the linear term of a regression on the full time series. The short term trend is computed as the windowed minimum over the time series.\nThe time series and covariate series are expected to contain a single band each, and the time series is expected to be evenly spaced in time. The output is 4 float bands: the long and short term trends, the t-test of the long term trend against the time series, and the Bruce Hansen test of parameter stability.",
+    "description": "Computes the long and short term trends of a time series or  optionally, the trends of the ratio of the time series and a  covariate. The long term trend is estimated from the linear term  of a regression on the full time series. The short term trend is  computed as the windowed minimum over the time series.  \u003cp\u003eThe time series and covariate series are expected to contain a  single band each, and the time series is expected to be evenly  spaced in time. The output is 4 float bands: the long and short  term trends, the t-test of the long term trend against the time  series, and the Bruce Hansen test of parameter stability. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "timeSeries",
@@ -11302,7 +11320,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.getRegion",
-    "description": "Output an array of values for each [pixel, band, image] tuple in an ImageCollection. The output contains rows of id, lon, lat, time, and all bands for each image that intersects each pixel in the given region. Attempting to extract more than 1048576 values will result in an error.",
+    "description": "Output an array of values for each [pixel, band, image] tuple in  an ImageCollection. The output contains rows of  id, lon, lat, time, and all bands for each image that intersects  each pixel in the given region. Attempting to extract more than 1048576  values will result in an error.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -11391,7 +11409,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.toBands",
-    "description": "Converts a collection to a single multi-band image containing all of the bands of every image in the collection. Output bands are named by prefixing the existing band names with the image id from which it came (e.g., \u0027image1_band1\u0027). Note: The maximum number of bands is 5000.",
+    "description": "Converts a collection to a single multi-band image containing all of the bands  of every image in the collection. Output bands are named by prefixing the  existing band names with the image id from which it came (e.g., \u0027image1_band1\u0027).  \u003cp\u003eNote: The maximum number of bands is 5000. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -11688,7 +11706,7 @@
     }]
   }, {
     "name": "algorithms/List.join",
-    "description": "Returns a string containing the elements of the list joined together with the specified separator between elements.\nNote: The string form of list elements which are not strings, numbers, or booleans is currently not well-defined and subject to change.",
+    "description": "Returns a string containing the elements of the list joined together with the specified separator between elements.\u003cp\u003eNote: The string form of list elements which are not strings, numbers, or booleans is currently not well-defined and subject to change.",
     "returnType": "String",
     "arguments": [{
       "argumentName": "list",
@@ -13581,7 +13599,7 @@
     "arguments": [{
       "argumentName": "url",
       "type": "String",
-      "description": "The Blob\u0027s Google Cloud Storage URL. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or theUS-CENTRAL1 region."
+      "description": "The Blob\u0027s Google Cloud Storage URL. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or the US-CENTRAL1 region."
     }]
   }, {
     "name": "algorithms/Blob.string",
@@ -13593,13 +13611,13 @@
     }, {
       "argumentName": "encoding",
       "type": "String",
-      "description": "The character set encoding to use when decoding the blob.\nOptions include, but are not limited to, \u0027US-ASCII\u0027, \u0027UTF-8\u0027, and \u0027UTF-16\u0027.",
+      "description": "The character set encoding to use when decoding the blob. Options include, but are not limited to: \u003cp\u003e\u003cul\u003e\u003cli\u003e`US-ASCII`\u003cli\u003e`UTF-8`\u003cli\u003e`UTF-16`\u003c/ul\u003e",
       "optional": true,
       "defaultValue": null
     }]
   }, {
     "name": "algorithms/Blob.url",
-    "description": "Returns the Blob\u0027s Google Cloud Storage URL. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or theUS-CENTRAL1 region.",
+    "description": "Returns the Blob\u0027s Google Cloud Storage URL. The bucket metadata must be accessible (requires the `storage.buckets.get` permission which is provided by the role \"Storage Legacy Bucket Reader\" among others, see https://cloud.google.com/storage/docs/access-control/iam-roles) and the bucket must be located in the US multi-region, a dual-region including US-CENTRAL1, or the US-CENTRAL1 region.",
     "returnType": "String",
     "arguments": [{
       "argumentName": "blob",
@@ -13620,7 +13638,7 @@
     }]
   }, {
     "name": "algorithms/FeatureCollection.makeArray",
-    "description": "Add a 1-D Array to each feature in a collection by combining a list of properties for each feature into a 1-D Array. All of the properties must be numeric values. If a feature doesn\u0027t contain all of the named properties, or any of them aren\u0027t numeric, the feature will be dropped from the resulting collection.",
+    "description": "Add a 1-D Array to each feature in a collection by combining a list of properties for each feature into a 1-D Array. All of the properties must be numeric values. If a feature doesn\u0027t contain all of the named properties, or any of them aren\u0027t numeric, the feature will be dropped from the resulting collection. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "collection",
@@ -13639,7 +13657,7 @@
     }]
   }, {
     "name": "algorithms/Image.arrayAccum",
-    "description": "Accumulates elements of each array pixel along the given axis, by setting each element of the result array pixel to the reduction of elements in that pixel along the given axis, up to and including the current position on the axis. May be used to make a cumulative sum, a monotonically increasing sequence, etc.",
+    "description": "Accumulates elements of each array pixel along the given axis, by  setting each element of the result array pixel to the reduction of  elements in that pixel along the given axis, up to and including  the current position on the axis. May be used to make a cumulative  sum, a monotonically increasing sequence, etc. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -13845,7 +13863,7 @@
     }]
   }, {
     "name": "algorithms/Image.arraySlice",
-    "description": "Creates a subarray by slicing out each position along the given axis from the \u0027start\u0027 (inclusive) to \u0027end\u0027 (exclusive) by increments of \u0027step\u0027. The result will have as many dimensions as the input, and the same length in all directions except the slicing axis, where the length will be the number of positions from \u0027start\u0027 to \u0027end\u0027 by \u0027step\u0027 that are in range of the input array\u0027s length along \u0027axis\u0027. This means the result can be length 0 along the given axis if start\u003dend, or if the start or end values are entirely out of range.",
+    "description": "Creates a subarray by slicing out each position along the given axis from the \u0027start\u0027 (inclusive) to \u0027end\u0027 (exclusive) by increments of \u0027step\u0027.  \u003cp\u003eThe result will have as many dimensions as the input, and the same length in all directions except the slicing axis, where the length will be the number of positions from \u0027start\u0027 to \u0027end\u0027 by \u0027step\u0027 that are in range of the input array\u0027s length along \u0027axis\u0027. This means the result can be length 0 along the given axis if start\u003dend, or if the start or end values are entirely out of range. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -13976,7 +13994,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.toArray",
-    "description": "Converts an image collection into an image of 2D arrays. At each pixel, the images that have valid (unmasked) values in all bands are laid out along the first axis of the array in the order they appear in the image collection. The bands of each image are laid out along the second axis of the array, in the order the bands appear in that image. The array element type will be the union of the types of each band.",
+    "description": "Converts an image collection into an image of 2D arrays. At each  pixel, the images that have valid (unmasked) values in all bands  are laid out along the first axis of the array in the order they  appear in the image collection. The bands of each image are laid  out along the second axis of the array, in the order the bands  appear in that image. The array element type will be the union of  the types of each band. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -14168,7 +14186,7 @@
     }]
   }, {
     "name": "algorithms/Array.reduce",
-    "description": "Apply a reducer to an array by collapsing all the input values along each specified axis into a single output value computed by the reducer.\nThe output always has the same dimensionality as the input, and the individual axes are affected as follows:\n- The axes specified in the \u0027axes\u0027 parameter have their length reduced to 1 (by applying the reducer).\n- If the reducer has multiple inputs or multiple outputs, the axis specified in \u0027fieldAxis\u0027 will be used to provide the reducer\u0027s inputs and store the reducer\u0027s outputs.\n- All other axes are unaffected (independent reductions are performed).",
+    "description": "Apply a reducer to an array by collapsing all the input values along each specified axis into a single output value computed by the reducer. \u003cp\u003eThe output always has the same dimensionality as the input, and the individual axes are affected as follows: \u003cp\u003e\u003cul\u003e\u003cli\u003eThe axes specified in the \u0027axes\u0027 parameter have their length reduced to 1 (by applying the reducer). \u003cli\u003eIf the reducer has multiple inputs or multiple outputs, the axis specified in \u0027fieldAxis\u0027 will be used to provide the reducer\u0027s inputs and store the reducer\u0027s outputs.\u003cli\u003eAll other axes are unaffected (independent reductions are performed).\u003c/ul\u003e",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "array",
@@ -14315,7 +14333,7 @@
     }]
   }, {
     "name": "algorithms/Array.eigen",
-    "description": "Computes the real eigenvectors and eigenvalues of a square 2D array of A rows and A columns. Returns an array with A rows and A+1 columns, where each row contains an eigenvalue in the first column, and the corresponding eigenvector in the remaining A columns. The rows are sorted by eigenvalue, in descending order.\n This implementation uses DecompositionFactory.eig() from https://ejml.org.",
+    "description": "Computes the real eigenvectors and eigenvalues of a square 2D array of A rows and A columns. Returns an array with A rows and A+1 columns, where each row contains an eigenvalue in the first column, and the corresponding eigenvector in the remaining A columns. The rows are sorted by eigenvalue, in descending order.  \u003cp\u003eThis implementation uses DecompositionFactory.eig() from https://ejml.org. ",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "input",
@@ -15636,7 +15654,7 @@
     "deprecationReason": "Cloud AI Platform is deprecated migrate to Vertex AI: https://developers.google.com/earth-engine/guides/ee-vertex-migrate"
   }, {
     "name": "algorithms/Model.fromVertexAi",
-    "description": "Returns an ee.Model from a description of a Vertex AI model endpoint. (See https://cloud.google.com/vertex-ai).\nWarning: This method is in public preview and may undergo breaking changes.",
+    "description": "Returns an ee.Model from a description of a Vertex AI model endpoint. (See https://cloud.google.com/vertex-ai).",
     "returnType": "Model",
     "arguments": [{
       "argumentName": "endpoint",
@@ -15723,7 +15741,7 @@
     }]
   }, {
     "name": "algorithms/Model.predictImage",
-    "description": "Make predictions from pixel tiles of an image. The predictions are merged as bands with the input image.\nThe model will receive 0s in place of masked pixels. The masks of predicted output bands are the minimum of the masks of the inputs.",
+    "description": "Make predictions from pixel tiles of an image. The predictions are merged as bands with the input image. \u003cp\u003eThe model will receive 0s in place of masked pixels. The masks of predicted output bands are the minimum of the masks of the inputs.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "model",
@@ -15909,7 +15927,7 @@
     "returnType": "Reducer"
   }, {
     "name": "algorithms/Reducer.combine",
-    "description": "Creates a Reducer that runs two reducers in parallel. The combined reducer\u0027s outputs will be those of reducer1 followed by those of reducer2, where the output names of reducer2 are prefixed with the given string.\nIf sharedInputs is true, the reducers must have the same number of inputs, and the combined reducer\u0027s will match them; if it is false, the inputs of the combined reducer will be those of reducer1 followed by those of reducer2.",
+    "description": "Creates a Reducer that runs two reducers in parallel. The combined reducer\u0027s outputs will be those of reducer1 followed by those of reducer2, where the output names of reducer2 are prefixed with the given string.\u003cp\u003eIf sharedInputs is true, the reducers must have the same number of inputs, and the combined reducer\u0027s will match them; if it is false, the inputs of the combined reducer will be those of reducer1 followed by those of reducer2.",
     "returnType": "Reducer",
     "arguments": [{
       "argumentName": "reducer1",
@@ -16016,7 +16034,7 @@
     }]
   }, {
     "name": "algorithms/Reducer.forEachElement",
-    "description": "Separately reduces each position in array inputs of equal shape, producing an array output of the same shape.\nFor example, with the \u0027sum\u0027 reducer applied to 5 arrays with shape 2x2, the output will be a 2x2 array, where each position is the sum of the 5 values at that position.",
+    "description": "Separately reduces each position in array inputs of equal shape, producing an array output of the same shape. \u003cp\u003eFor example, with the \u0027sum\u0027 reducer applied to 5 arrays with shape 2x2, the output will be a 2x2 array, where each position is the sum of the 5 values at that position.",
     "returnType": "Reducer",
     "arguments": [{
       "argumentName": "reducer",
@@ -16151,7 +16169,7 @@
     }]
   }, {
     "name": "algorithms/Reducer.linearRegression",
-    "description": "Creates a reducer that computes a linear least squares regression with numX independent variables and numY dependent variables.\nEach input tuple will have values for the independent variables followed by the dependent variables.\nThe first output is a coefficients array with dimensions (numX, numY); each column contains the coefficients for the corresponding dependent variable. The second output is a vector of the root mean square of the residuals of each dependent variable. Both outputs are null if the system is underdetermined, e.g., the number of inputs is less than or equal to numX.",
+    "description": "Creates a reducer that computes a linear least squares regression with numX independent variables and numY dependent variables. \u003cp\u003eEach input tuple will have values for the independent variables followed by the dependent variables. \u003cp\u003eThe first output is a coefficients array with dimensions (numX, numY); each column contains the coefficients for the corresponding dependent variable. The second output is a vector of the root mean square of the residuals of each dependent variable. Both outputs are null if the system is underdetermined, e.g., the number of inputs is less than or equal to numX.",
     "returnType": "Reducer",
     "arguments": [{
       "argumentName": "numX",
@@ -16423,7 +16441,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Test.Clustering.BerkeleySegmentation",
-    "description": "Performs region merging image segmentation. Initially, each pixel is its own segment. Over a series of iterations, adjacent segments with sufficient criteria are merged. Merging criteria is determined by user specified parameters. The output image will have a segment label band and bands corresponding to each of the input bands with the spectral mean for each segment.",
+    "description": "Performs region merging image segmentation. Initially, each pixel is its own segment. Over a series of iterations, adjacent segments with sufficient criteria are merged. Merging criteria is determined by user specified parameters.  \u003cp\u003eThe output image will have a segment label band and bands corresponding to each of the input bands with the spectral mean for each segment. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -16457,7 +16475,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Test.Clustering.InterTileRegionMerge",
-    "description": "Performs post-processing inter-tile region merging phase according to Berkeley image segmentation algorithm. Takes image that is a result of running tile-independent segmentation. Input image should have first band named \u0027clusters\u0027 containing segment labels. The other bands are spectral bands. Examines tile boundaries and merges adjacent segments across tiles if sufficient merging criteria is satisfied. Merging criteria is determined by user specified parameters indicating relative importance of spectral and shape properties.",
+    "description": "Performs post-processing inter-tile region merging phase according to Berkeley image segmentation algorithm. Takes image that is a result of running tile-independent segmentation. Input image should have first band named \u0027clusters\u0027 containing segment labels. The other bands are spectral bands. Examines tile boundaries and merges adjacent segments across tiles if sufficient merging criteria is satisfied.  \u003cp\u003eMerging criteria is determined by user specified parameters indicating relative importance of spectral and shape properties. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -16497,7 +16515,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Test.Clustering.RegionGrow",
-    "description": "An algorithm that performs clustering on the input image by region growing. It performs a flood fill like procedure based on either the Euclidean or the cosine distance between the value of the starting growth point of the cluster and the neighboring points. The cluster grows until this distance is above the threshold; at this point, a new cluster starts to grow. The algorithm works independently on cells of a grid. This grid is defined by maxObjectSize and can be different from the tile size. Per-cell clusters are unrelated. A cluster that spans a cell boundary may receive two different labels in the two cells. The output is an INT32 image in which each value is the cluster to which the pixel belongs. A pixel in the output band is only defined (i.e., has a non-zero mask) if all the inputs are defined.",
+    "description": "An algorithm that performs clustering on the input image by region growing. It performs a flood fill like procedure based on either the Euclidean or the cosine distance between the value of the starting growth point of the cluster and the neighboring points.  \u003cp\u003eThe cluster grows until this distance is above the threshold; at this point, a new cluster starts to grow. The algorithm works independently on cells of a grid. This grid is defined by maxObjectSize and can be different from the tile size. Per-cell clusters are unrelated. A cluster that spans a cell boundary may receive two different labels in the two cells. The output is an INT32 image in which each value is the cluster to which the pixel belongs. A pixel in the output band is only defined (i.e., has a non-zero mask) if all the inputs are defined. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -16557,7 +16575,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Test.Clustering.HashedConsistency",
-    "description": "Perform consistent clustering across tiles by binning per-tile clustered labels into slots according to the cluster means. Input should be an image where one of the bands is named \u0027clusters\u0027 and represents the cluster labels. The remaining bands are spectral data.\nWorks better when dealing with a small number of clusters. The output is an INT32 image in which each value is the cluster to which the pixel belongs.",
+    "description": "Perform consistent clustering across tiles by binning per-tile clustered labels into slots according to the cluster means. Input should be an image where one of the bands is named \u0027clusters\u0027 and represents the cluster labels. The remaining bands are spectral data.  \u003cp\u003eWorks better when dealing with a small number of clusters. The output is an INT32 image in which each value is the cluster to which the pixel belongs. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -16579,7 +16597,7 @@
     "hidden": true
   }, {
     "name": "algorithms/CcdcCoefficients",
-    "description": "Provides Continuous Change Detection and Classification (CCDC) coefficients by fitting a simple piecewise linear model to a given image collection.\nThe linear model used for each fit is \u0027Y \u003d A + B*t + C*sin(season(t)) + D*cos(season(t))\u0027, where \u0027t\u0027 is the start time of the image in years, and season(t) returns the phase of the year from 0 to 2*PI.\nThe result is a 3D array per pixel, with axis 0 having as many elements as there are pieces in the piecewise fit, axis 1 having as many elements as there are bands, and axis 2 having length 7, for each parameter of the fit:\n1. Start time in years (e.g., 2005.678.)\n2. End time in years (e.g., 2006.0123.)\n3. Total root mean square error (RMSE) summed from each separately fit band\u0027s RMSE.\n4. A coefficient.\n5. B coefficient.\n6. C coefficient.\n7. D coefficient.\nThe function is fit for each band separately, and the RMSE is summed from all the fits. If the sum exceeds the given RMSE, that sample is considered disturbed. If there are \u0027disturbanceWindow\u0027 disturbed samples in a row, the last good fit that did not involve disturbed samples is added to the output array, and a new fit is started after the last disturbed sample. The samples in the disturbed area are thus not part of any of the fit results.",
+    "description": "Provides Continuous Change Detection and Classification (CCDC) coefficients by fitting a simple piecewise linear model to a given image collection.  \u003cp\u003eThe linear model used for each fit is \u0027 Y \u003d A + B*t + C*sin(season(t)) + D*cos(season(t))\u0027, where \u0027t\u0027 is the start time of the image in years, and season(t) returns the phase of the year from 0 to 2*PI.  \u003cp\u003eThe result is a 3D array per pixel, with axis 0 having as many elements as there are pieces in the piecewise fit, axis 1 having as many elements as there are bands, and axis 2 having length 7, for each parameter of the fit: \u003col\u003e   \u003cli\u003eStart time in years (e.g., 2005.678.)\u003c/li\u003e   \u003cli\u003eEnd time in years (e.g., 2006.0123.)\u003c/li\u003e   \u003cli\u003eTotal root mean square error (RMSE) summed from each separately   fit band\u0027s RMSE.\u003c/li\u003e   \u003cli\u003eA coefficient.\u003c/li\u003e   \u003cli\u003eB coefficient.\u003c/li\u003e   \u003cli\u003eC coefficient.\u003c/li\u003e   \u003cli\u003eD coefficient.\u003c/li\u003e \u003c/ol\u003e The function is fit for each band separately, and the RMSE is summed from all the fits. If the sum exceeds the given RMSE, that sample is considered disturbed. If there are \u0027disturbanceWindow\u0027 disturbed samples in a row, the last good fit that did not involve disturbed samples is added to the output array, and a new fit is started after the last disturbed sample. The samples in the disturbed area are thus not part of any of the fit results. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "timeSeries",
