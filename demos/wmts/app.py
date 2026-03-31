@@ -27,10 +27,6 @@ server = flask.Flask(__name__)
 
 server.config["WTF_CSRF_TIME_LIMIT"] = config.CSRF_TIME_LIMIT
 
-# Turn on CSRF protection and grab the instance so we can exempt
-# the error handler.
-csrf_instance = csrf.CsrfProtect(server)
-
 urlfetch.set_default_fetch_deadline(250)
 
 
@@ -57,7 +53,7 @@ def restrict_frames(response):
   return response
 
 
-@csrf_instance.error_handler
+@server.errorhandler(csrf.CSRFError)
 def csrf_error():
   return flask.make_response(
       flask.jsonify(error="CSRF token is expired; please refresh the page."),
