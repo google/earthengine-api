@@ -646,6 +646,25 @@
       "optional": true,
       "defaultValue": []
     }, {
+      "argumentName": "maxErrorList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of maximum error (RMSE) values to be used for each band. If not provided, the maxError value will be used for all bands.",
+      "optional": true,
+      "defaultValue": []
+    }, {
+      "argumentName": "spikesToleranceList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of spike tolerance values to be used for each band. A value of 1 indicates no spike removal. If not provided, the spikesTolerance value will be used for all bands.",
+      "optional": true,
+      "defaultValue": []
+    }, {
+      "argumentName": "spikeRemovalMagnitudeList",
+      "type": "List\u003cFloat\u003e",
+      "description": "List of spike removal magnitude values to be used for each band. Spikes with a magnitude above this value are removed. If not provided, the spikeRemovalMagnitude value will be used for all bands.",
+      "description": "Maximum number of segments permitted in the fitted tajectory.",
+      "optional": true,
+      "defaultValue": []
+    }, {
       "argumentName": "maxError",
       "type": "Float",
       "description": "Maximum allowed RMSE of the piecewise linear fit; controls segmentation sensitivity.",
