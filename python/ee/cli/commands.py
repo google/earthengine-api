@@ -1548,7 +1548,6 @@ class UploadExternalImageCommand:
         '--manifest',
         help='Local path to a JSON asset manifest file.')
 
-  @_using_v1alpha
   def run(
       self, args: argparse.Namespace, config: utils.CommandLineConfig
   ) -> None:
@@ -1756,6 +1755,7 @@ class UploadCommand(Dispatcher):
   name = 'upload'
 
   COMMANDS = [
+      UploadExternalImageCommand,
       UploadImageCommand,
       UploadTableCommand,
   ]
