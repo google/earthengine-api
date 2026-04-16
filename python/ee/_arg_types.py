@@ -64,7 +64,14 @@ FeatureCollection = Union[
 ]
 Filter = Union[ee_filter.Filter, computedobject.ComputedObject]
 Geometry = Union[AnyType, computedobject.ComputedObject]
-Image = Union[str, ee_string.String, image.Image, computedobject.ComputedObject]
+Image = Union[
+    float,
+    str,
+    ee_number.Number,
+    ee_string.String,
+    image.Image,
+    computedobject.ComputedObject,
+]
 ImageCollection = Union[
     str,
     ee_string.String,
