@@ -46,6 +46,8 @@ Date = Union[
 ]
 DateRange = Union[daterange.DateRange, computedobject.ComputedObject]
 Dictionary = Union[
+    tuple[AnyType, AnyType],
+    Sequence[Sequence[AnyType]],
     Mapping[AnyType, AnyType],
     dictionary.Dictionary,
     computedobject.ComputedObject,
