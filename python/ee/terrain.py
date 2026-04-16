@@ -37,6 +37,7 @@ class Terrain:
     return 'Terrain'
 
   @staticmethod
+  # pylint: disable-next=redefined-builtin
   def aspect(input: _arg_types.Image) -> ee_image.Image:
     """Returns an ee.Image with aspect in degrees from a terrain DEM.
 
@@ -44,14 +45,16 @@ class Terrain:
     pixel, so missing values will occur around the edges of an image.
 
     Args:
-      input: An elevation image, in meters.
+      input: An elevation image in meters.
     """
 
     return apifunction.ApiFunction.call_('Terrain.aspect', input)
 
   @staticmethod
+  # pylint: disable-next=invalid-name
   def fillMinima(
       image: _arg_types.Image,
+      # pylint: disable-next=invalid-name
       borderValue: _arg_types.Integer | None = None,
       neighborhood: _arg_types.Integer | None = None,
   ) -> ee_image.Image:
@@ -70,6 +73,7 @@ class Terrain:
     )
 
   @staticmethod
+  # pylint: disable-next=invalid-name
   def hillShadow(
       image: _arg_types.Image,
       azimuth: _arg_types.Number,
@@ -107,6 +111,7 @@ class Terrain:
 
   @staticmethod
   def hillshade(
+      # pylint: disable-next=redefined-builtin
       input: _arg_types.Image,
       azimuth: _arg_types.Number | None = None,
       elevation: _arg_types.Number | None = None,
@@ -114,7 +119,7 @@ class Terrain:
     """Returns an ee.Image with a simple hillshade from a DEM.
 
     Args:
-      input: An elevation image, in meters.
+      input: An elevation image in meters.
       azimuth: The illumination azimuth in degrees from north.
       elevation: The illumination elevation in degrees.
     """
@@ -124,6 +129,7 @@ class Terrain:
     )
 
   @staticmethod
+  # pylint: disable-next=redefined-builtin
   def products(input: _arg_types.Image) -> ee_image.Image:
     """Returns slope, aspect, and a simple hillshade from a terrain DEM.
 
@@ -136,12 +142,13 @@ class Terrain:
     around the edges of an image.
 
     Args:
-      input: An elevation image, in meters.
+      input: An elevation image in meters.
     """
 
     return apifunction.ApiFunction.call_('Terrain.products', input)
 
   @staticmethod
+  # pylint: disable-next=redefined-builtin
   def slope(input: _arg_types.Image) -> ee_image.Image:
     """Returns slope in degrees from a terrain DEM.
 
@@ -149,7 +156,7 @@ class Terrain:
     pixel, so missing values will occur around the edges of an image.
 
     Args:
-      input: An elevation image, in meters.
+      input: An elevation image in meters.
     """
 
     return apifunction.ApiFunction.call_('Terrain.slope', input)
