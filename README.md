@@ -2,11 +2,6 @@
 
 Python and JavaScript client libraries for calling the Google Earth Engine API.
 
-_**Important Note: Access to Google Earth Engine is currently only available to
-registered users. The API is in active development, and users should expect the
-API to change.  When (not if) API changes occur, applications that use the API
-will likely need to be updated.**_
-
 -   [Earth Engine Homepage](https://earthengine.google.com/)
 -   [Web Code Editor](https://code.earthengine.google.com/)
 -   [Python
