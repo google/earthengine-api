@@ -3745,7 +3745,7 @@
     }]
   }, {
     "name": "algorithms/Color.brighter",
-    "description": "Scale each of the RGB channels to produce a brighter color.",
+    "description": "Scales each of the RGB channels to produce a brighter color.",
     "returnType": "Color",
     "arguments": [{
       "argumentName": "color",
@@ -3758,7 +3758,7 @@
     }]
   }, {
     "name": "algorithms/Color.darker",
-    "description": "Scale each of the RGB channels to produce a darker color.",
+    "description": "Scales each of the RGB channels to produce a darker color.",
     "returnType": "Color",
     "arguments": [{
       "argumentName": "color",
@@ -3771,7 +3771,7 @@
     }]
   }, {
     "name": "algorithms/Color.fromHsl",
-    "description": "Creates a Color given a list of HSL (hue, saturation, luminosity) values and an optional alpha value, all in the range of [0:1].",
+    "description": "Creates a Color given a list of HSL (hue, saturation, luminosity) values and an optional alpha value in the range of [0:1].",
     "returnType": "Color",
     "arguments": [{
       "argumentName": "hsl",
@@ -3779,7 +3779,7 @@
     }]
   }, {
     "name": "algorithms/Color.fromHsv",
-    "description": "Creates a Color given a list of HSV (hue, saturation, value) values and an optional alpha value, all in the range of [0:1].",
+    "description": "Creates a Color given a list of HSV (hue, saturation, value) values and an optional alpha value in the range of [0:1].",
     "returnType": "Color",
     "arguments": [{
       "argumentName": "hsv",
@@ -3787,7 +3787,7 @@
     }]
   }, {
     "name": "algorithms/Color.fromLab",
-    "description": "Creates a Color given a list of CIE-LAB values and an optional alpha value. The components are unnormalized and have the approximate ranges of: L\u003d[0:100], a,b\u003d[-127:128].",
+    "description": "Creates a Color given a list of CIE-LAB values and an optional alpha value. The components are unnormalized and have approximate ranges of L\u003d[0:100], a,b\u003d[-127:128].",
     "returnType": "Color",
     "arguments": [{
       "argumentName": "lab",
@@ -3795,7 +3795,7 @@
     }]
   }, {
     "name": "algorithms/Color.fromLch",
-    "description": "Creates a Color given a list of CIE-LCH (lightness, chroma, hue) values and an optional alpha value. The components are unnormalized and have an approximate range of L\u003d[0:100], C\u003d[0:180], H\u003d[0:360] (degrees).",
+    "description": "Creates a Color given a list of CIE-LCH (lightness, chroma, hue) values and an optional alpha value. The components are unnormalized and have approximate ranges of L\u003d[0:100], C\u003d[0:180], H\u003d[0:360] (degrees).",
     "returnType": "Color",
     "arguments": [{
       "argumentName": "lch",
@@ -3845,7 +3845,7 @@
     }]
   }, {
     "name": "algorithms/Color.toHsl",
-    "description": "Convert a color to HSL and returns the values and alpha channel as a list of doubles in the range [0:1].",
+    "description": "Converts a color to HSL and returns the values and alpha channel as a list of doubles in the range [0:1].",
     "returnType": "List\u003cFloat\u003e",
     "arguments": [{
       "argumentName": "color",
@@ -3853,7 +3853,7 @@
     }]
   }, {
     "name": "algorithms/Color.toHsv",
-    "description": "Convert a color to HSV and returns the values and alpha channel as a list of doubles in the range [0:1].",
+    "description": "Converts a color to HSV and returns the values and alpha channel as a list of doubles in the range [0:1].",
     "returnType": "List\u003cFloat\u003e",
     "arguments": [{
       "argumentName": "color",
@@ -3861,7 +3861,7 @@
     }]
   }, {
     "name": "algorithms/Color.toLab",
-    "description": "Convert a color to CIE-Lab and returns the values and alpha channel as a list of doubles. The components are unnormalized and have  the approximate ranges of: L\u003d[0:100], a,b\u003d[-127:128].",
+    "description": "Converts a color to CIE-Lab and returns the values and alpha channel as a list of doubles. The components are unnormalized and have approximate ranges of L\u003d[0:100], a,b\u003d[-127:128].",
     "returnType": "List\u003cFloat\u003e",
     "arguments": [{
       "argumentName": "color",
@@ -3869,7 +3869,7 @@
     }]
   }, {
     "name": "algorithms/Color.toLch",
-    "description": "Convert a color to CIE-LCH and returns the values and alpha channel as a list of doubles. The components are unnormalized and have  an approximate range of L\u003d[0:100], C\u003d[0:180], H\u003d[0:360] (degrees).",
+    "description": "Converts a color to CIE-LCH and returns the values and alpha channel as a list of doubles. The components are unnormalized and have approximate ranges of L\u003d[0:100], C\u003d[0:180], H\u003d[0:360] (degrees).",
     "returnType": "List\u003cFloat\u003e",
     "arguments": [{
       "argumentName": "color",

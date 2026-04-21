@@ -7,6 +7,7 @@ from typing import Any as AnyType, Union
 
 from ee import classifier
 from ee import clusterer
+from ee import color
 from ee import computedobject
 from ee import confusionmatrix
 from ee import daterange
@@ -38,6 +39,7 @@ Array = Union[
 Bool = Union[bool, int, ee_number.Number, computedobject.ComputedObject]
 Classifier = Union[classifier.Classifier, computedobject.ComputedObject]
 Clusterer = Union[clusterer.Clusterer, computedobject.ComputedObject]
+Color = Union[str, Sequence[float], color.Color, computedobject.ComputedObject]
 ConfusionMatrix = Union[
     confusionmatrix.ConfusionMatrix, computedobject.ComputedObject
 ]

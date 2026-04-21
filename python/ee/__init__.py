@@ -33,6 +33,7 @@ from .blob import Blob
 from .classifier import Classifier
 from .clusterer import Clusterer
 from .collection import Collection
+from .color import Color
 from .computedobject import ComputedObject
 from .confusionmatrix import ConfusionMatrix
 from .customfunction import CustomFunction
@@ -71,6 +72,7 @@ if TYPE_CHECKING:
         'Classifier',
         'Clusterer',
         'Collection',
+        'Color',
         'ComputedObject',
         'ConfusionMatrix',
         'CustomFunction',
@@ -143,6 +145,7 @@ _DYNAMIC_CLASSES = [
     Blob,
     Classifier,
     Clusterer,
+    Color,
     ConfusionMatrix,
     Date,
     DateRange,

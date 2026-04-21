@@ -496,22 +496,15 @@ class PaletteTest(apitestcase.ApiTestCase, parameterized.TestCase):
   def test_get_color(self):
     value = 0.5
     expect = make_expression_graph({
-        'functionName': 'Color',
+        'functionName': 'Palette.getColor',
         'arguments': {
-            'input': {
+            'palette': {
                 'functionInvocationValue': {
-                    'functionName': 'Palette.getColor',
-                    'arguments': {
-                        'palette': {
-                            'functionInvocationValue': {
-                                'functionName': 'Palette',
-                                'arguments': {},
-                            }
-                        },
-                        'value': {'constantValue': value},
-                    },
+                    'functionName': 'Palette',
+                    'arguments': {},
                 }
-            }
+            },
+            'value': {'constantValue': value},
         },
     })
 

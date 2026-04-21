@@ -58,15 +58,8 @@ class ColorTest(apitestcase.ApiTestCase, parameterized.TestCase):
   )
   def test_from_color_space(self, method_name, color_value, arg_name):
     expect = make_expression_graph({
-        'functionName': 'Color',
-        'arguments': {
-            'input': {
-                'functionInvocationValue': {
-                    'functionName': f'Color.{method_name}',
-                    'arguments': {arg_name: {'constantValue': color_value}},
-                }
-            }
-        },
+        'functionName': f'Color.{method_name}',
+        'arguments': {arg_name: {'constantValue': color_value}},
     })
     method = getattr(ee.Color, method_name)
     self.assertEqual(expect, json.loads(method(color_value).serialize()))
@@ -79,19 +72,13 @@ class ColorTest(apitestcase.ApiTestCase, parameterized.TestCase):
     value = 0.5
     alpha = 0.8
     expect = make_expression_graph({
-        'functionName': 'Color',
+        'functionName': 'Color.gray',
         'arguments': {
-            'input': {
-                'functionInvocationValue': {
-                    'functionName': 'Color.gray',
-                    'arguments': {
-                        'value': {'constantValue': value},
-                        'alpha': {'constantValue': alpha},
-                    },
-                }
-            }
+            'alpha': {'constantValue': alpha},
+            'value': {'constantValue': value},
         },
     })
+
     self.assertEqual(
         expect, json.loads(ee.Color.gray(value, alpha).serialize())
     )
@@ -103,24 +90,15 @@ class ColorTest(apitestcase.ApiTestCase, parameterized.TestCase):
     color = 'red'
     scale = 0.9
     expect = make_expression_graph({
-        'functionName': 'Color',
+        'functionName': 'Color.brighter',
         'arguments': {
-            'input': {
+            'color': {
                 'functionInvocationValue': {
-                    'functionName': 'Color.brighter',
-                    'arguments': {
-                        'color': {
-                            'functionInvocationValue': {
-                                'functionName': 'Color',
-                                'arguments': {
-                                    'input': {'constantValue': 'red'}
-                                },
-                            }
-                        },
-                        'scale': {'constantValue': 0.9},
-                    },
+                    'functionName': 'Color',
+                    'arguments': {'input': {'constantValue': 'red'}},
                 }
-            }
+            },
+            'scale': {'constantValue': 0.9},
         },
     })
 
@@ -135,24 +113,15 @@ class ColorTest(apitestcase.ApiTestCase, parameterized.TestCase):
     color = 'red'
     scale = 0.1
     expect = make_expression_graph({
-        'functionName': 'Color',
+        'functionName': 'Color.darker',
         'arguments': {
-            'input': {
+            'color': {
                 'functionInvocationValue': {
-                    'functionName': 'Color.darker',
-                    'arguments': {
-                        'color': {
-                            'functionInvocationValue': {
-                                'functionName': 'Color',
-                                'arguments': {
-                                    'input': {'constantValue': 'red'}
-                                },
-                            }
-                        },
-                        'scale': {'constantValue': 0.1},
-                    },
+                    'functionName': 'Color',
+                    'arguments': {'input': {'constantValue': 'red'}},
                 }
-            }
+            },
+            'scale': {'constantValue': 0.1},
         },
     })
 
@@ -169,45 +138,25 @@ class ColorTest(apitestcase.ApiTestCase, parameterized.TestCase):
     ratio = 0.8
     colorspace = 'hsv'
 
-    expect = {
-        'result': '0',
-        'values': {
-            '0': {
+    expect = make_expression_graph({
+        'functionName': 'Color.mix',
+        'arguments': {
+            'colorspace': {'constantValue': colorspace},
+            'end': {
                 'functionInvocationValue': {
                     'functionName': 'Color',
-                    'arguments': {
-                        'input': {
-                            'functionInvocationValue': {
-                                'functionName': 'Color.mix',
-                                'arguments': {
-                                    'colorspace': {'constantValue': colorspace},
-                                    'end': {
-                                        'functionInvocationValue': {
-                                            'functionName': 'Color',
-                                            'arguments': {
-                                                'input': {'constantValue': end}
-                                            },
-                                        }
-                                    },
-                                    'ratio': {'constantValue': ratio},
-                                    'start': {
-                                        'functionInvocationValue': {
-                                            'functionName': 'Color',
-                                            'arguments': {
-                                                'input': {
-                                                    'constantValue': start
-                                                }
-                                            },
-                                        }
-                                    },
-                                },
-                            }
-                        }
-                    },
+                    'arguments': {'input': {'constantValue': end}},
                 }
-            }
+            },
+            'ratio': {'constantValue': ratio},
+            'start': {
+                'functionInvocationValue': {
+                    'functionName': 'Color',
+                    'arguments': {'input': {'constantValue': start}},
+                }
+            },
         },
-    }
+    })
 
     start_color = ee.Color(start)
     end_color = ee.Color(end)
