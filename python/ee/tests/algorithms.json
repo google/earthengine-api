@@ -3896,7 +3896,7 @@
     }, {
       "argumentName": "mode",
       "type": "String",
-      "description": "The colorspace in which to interpolate. One of \u0027rgb\u0027, \u0027lrgb\u0027, \u0027hsv\u0027, \u0027hsl\u0027, \u0027lab\u0027 or \u0027lch\u0027.",
+      "description": "The colorspace in which to interpolate. One of \u0027rgb\u0027, \u0027lrgb\u0027, \u0027hsv\u0027, \u0027hsl\u0027, \u0027lab\u0027, or \u0027lch\u0027.",
       "optional": true,
       "defaultValue": "RGB"
     }, {
@@ -3975,7 +3975,7 @@
     }]
   }, {
     "name": "algorithms/Palette.correctLightness",
-    "description": "Correct the color spacing to spread the (Lab) lightness range evenly over the domain.",
+    "description": "Corrects the color spacing to spread the (Lab) lightness range evenly over the domain.",
     "returnType": "Palette",
     "arguments": [{
       "argumentName": "palette",
@@ -4040,7 +4040,7 @@
     }]
   }, {
     "name": "algorithms/Palette.mode",
-    "description": "Set the colorspace interpolation mode. One of \u0027rgb\u0027, \u0027lrgb\u0027, \u0027hsv\u0027, \u0027hsl\u0027, \u0027lab\u0027, or \u0027lch\u0027. The palette will mix colors in this color space, using EEColor.mix.",
+    "description": "Set the colorspace interpolation mode. One of \u0027rgb\u0027, \u0027lrgb\u0027, \u0027hsv\u0027, \u0027hsl\u0027, \u0027lab\u0027, or \u0027lch\u0027. The palette will mix colors in this color space, using ee.Color.mix.",
     "returnType": "Palette",
     "arguments": [{
       "argumentName": "palette",
