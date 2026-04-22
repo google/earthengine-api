@@ -604,7 +604,12 @@ class Export:
       """Forbids class instantiation."""
       raise AssertionError('This class cannot be instantiated.')
 
-    def __new__(cls, collection, description='myExportTableTask', config=None):
+    def __new__(
+        cls,
+        collection: _arg_types.FeatureCollection,
+        description: str = 'myExportTableTask',
+        config: dict[str, Any] | None = None,
+    ) -> Task:
       """Export an EE FeatureCollection as a table.
 
       The exported table will reside in Google Drive, Cloud Storage, or as a
@@ -888,7 +893,12 @@ class Export:
       """Forbids class instantiation."""
       raise AssertionError('This class cannot be instantiated.')
 
-    def __new__(cls, collection, description='myExportVideoTask', config=None):
+    def __new__(
+        cls,
+        collection: _arg_types.ImageCollection,
+        description: str = 'myExportVideoTask',
+        config: dict[str, Any] | None = None,
+    ) -> Task:
       """Exports an EE ImageCollection as a video.
 
       The exported video will reside in Google Drive or Cloud Storage.
@@ -1088,14 +1098,16 @@ class Export:
       """Forbids class instantiation."""
       raise AssertionError('This class cannot be instantiated.')
 
-    def __new__(cls,
-                classifier,
-                description='myExportClassifierTask',
-                config=None):
+    def __new__(
+        cls,
+        classifier: _arg_types.Classifier,
+        description: str = 'myExportClassifierTask',
+        config: dict[str, Any] | None = None,
+    ) -> Task:
       """Export an EE Classifier.
 
       Args:
-        classifier: The feature collection to be exported.
+        classifier: The classifier to be exported.
         description: Human-readable name of the task.
         config: A dictionary that will be copied and used as parameters
             for the task:
@@ -1104,7 +1116,7 @@ class Export:
               priority tasks are scheduled sooner. Must be an integer between 0
               and 9999. Defaults to 100.
       Returns:
-        An unstarted Task that exports the table.
+        An unstarted Task that exports the classifier.
       """
       config = (config or {}).copy()
       return Export.classifier.toAsset(classifier, description, **config)
@@ -1841,7 +1853,9 @@ def _get_ranking_rule(
   )
 
 
-def _build_thinning_options(config: dict[str, Any]) -> dict[str, Any] | None:
+def _build_thinning_options(
+    config: dict[str, Any] | None,
+) -> dict[str, Any] | None:
   """Returns a ThinningOptions dict created from the config.
 
   Args:
@@ -1861,7 +1875,9 @@ def _build_thinning_options(config: dict[str, Any]) -> dict[str, Any] | None:
   return output
 
 
-def _build_ranking_options(config: dict[str, Any]) -> dict[str, Any] | None:
+def _build_ranking_options(
+    config: dict[str, Any] | None,
+) -> dict[str, Any] | None:
   """Returns a RankingOptions dict created from the config.
 
   Args:
@@ -1887,7 +1903,7 @@ def _build_ranking_options(config: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def build_ingestion_time_parameters(
-    input_params: dict[str, Any]
+    input_params: dict[str, Any] | None,
 ) -> dict[str, Any]:
   """Builds a FeatureViewIngestionTimeParameters from values in a params dict.
 
@@ -1931,7 +1947,7 @@ def _create_export_task(config: dict[str, Any], task_type: Task.Type) -> Task:
 
 
 def _capture_parameters(
-    all_locals, parameters_to_exclude: Sequence[str]
+    all_locals: dict[str, Any], parameters_to_exclude: Sequence[str]
 ) -> dict[str, Any]:
   """Creates a parameter dict by copying all non-None locals.
 
