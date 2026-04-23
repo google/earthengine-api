@@ -58,6 +58,7 @@ from .imagecollection import ImageCollection
 from .join import Join
 from .kernel import Kernel
 from .model import Model
+from .palette import Palette
 from .pixeltype import PixelType
 from .projection import Projection
 from .reducer import Reducer
@@ -97,6 +98,7 @@ if TYPE_CHECKING:
         'Join',
         'Kernel',
         'Model',
+        'Palette',
         'PixelType',
         'Projection',
         'Reducer',
@@ -162,6 +164,7 @@ _DYNAMIC_CLASSES = [
     List,
     Model,
     Number,
+    Palette,
     PixelType,
     Projection,
     Reducer,

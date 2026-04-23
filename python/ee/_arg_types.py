@@ -24,6 +24,7 @@ from ee import filter as ee_filter
 from ee import image
 from ee import imagecollection
 from ee import kernel
+from ee import palette
 from ee import projection
 from ee import reducer
 
@@ -92,6 +93,13 @@ List = Union[
     computedobject.ComputedObject,
 ]
 Number = Union[float, ee_number.Number, computedobject.ComputedObject]
+Palette = Union[
+    str,
+    ee_string.String,
+    Sequence[Union[str, computedobject.ComputedObject]],
+    palette.Palette,
+    computedobject.ComputedObject,
+]
 Projection = Union[
     str,
     ee_string.String,
