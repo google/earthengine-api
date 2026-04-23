@@ -580,20 +580,30 @@ class ImageCollection(collection.Collection[image.Image]):
     return apifunction.ApiFunction.call_(self.name() + '.toArray', self)
 
   def toArrayPerBand(
-      self, axis: _arg_types.Integer | None = None
+      self,
+      axis: _arg_types.Integer | None = None,
+      dropMasked: _arg_types.Bool | None = None,
   ) -> image.Image:
     """Returns an image of an image collection converted into 2D arrays.
 
-    Concatenates multiple images into a single array image. The result will be
-    masked if any input is masked.
+    Concatenates multiple images into a single array image.
 
     Args:
       axis: Axis to concatenate along; must be at least 0 and at most the
         minimum dimension of any band in the collection.
+      dropMasked: If false (the default), the mask value of the output pixel is
+        the minimum of the mask of the input pixels. If any image in the
+        collection within the computation bounding box does not have data at a
+        pixel, the output for that pixel will be masked. As a result, every
+        unmasked output pixel array will have the same size.  If true, the mask
+        value of the output pixel is the maximum of the mask of the inputs.
+        Completely masked images at that pixel are ignored and do not contribute
+        data to the output array. The output arrays will therefore not
+        necessarily have the same size for each pixel.
     """
 
     return apifunction.ApiFunction.call_(
-        self.name() + '.toArrayPerBand', self, axis
+        self.name() + '.toArrayPerBand', self, axis, dropMasked
     )
 
   def toBands(self) -> image.Image:

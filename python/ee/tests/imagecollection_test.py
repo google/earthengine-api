@@ -1101,6 +1101,24 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'axis': {'constantValue': axis},
+            'dropMasked': {'constantValue': True},
+        },
+        'functionName': 'ImageCollection.toArrayPerBand',
+    })
+    expression = ee.ImageCollection('a').toArrayPerBand(axis, True)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').toArrayPerBand(
+        axis=axis, dropMasked=True
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_to_bands(self):
     expect = make_expression_graph({
         'arguments': {
