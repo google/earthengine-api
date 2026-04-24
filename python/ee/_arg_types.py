@@ -7,7 +7,6 @@ from typing import Any as AnyType, Union
 
 from ee import classifier
 from ee import clusterer
-from ee import color
 from ee import computedobject
 from ee import confusionmatrix
 from ee import daterange
@@ -24,7 +23,6 @@ from ee import filter as ee_filter
 from ee import image
 from ee import imagecollection
 from ee import kernel
-from ee import palette
 from ee import projection
 from ee import reducer
 
@@ -40,7 +38,6 @@ Array = Union[
 Bool = Union[bool, int, ee_number.Number, computedobject.ComputedObject]
 Classifier = Union[classifier.Classifier, computedobject.ComputedObject]
 Clusterer = Union[clusterer.Clusterer, computedobject.ComputedObject]
-Color = Union[str, Sequence[float], color.Color, computedobject.ComputedObject]
 ConfusionMatrix = Union[
     confusionmatrix.ConfusionMatrix, computedobject.ComputedObject
 ]
@@ -93,13 +90,6 @@ List = Union[
     computedobject.ComputedObject,
 ]
 Number = Union[float, ee_number.Number, computedobject.ComputedObject]
-Palette = Union[
-    str,
-    ee_string.String,
-    Sequence[Union[str, computedobject.ComputedObject]],
-    palette.Palette,
-    computedobject.ComputedObject,
-]
 Projection = Union[
     str,
     ee_string.String,

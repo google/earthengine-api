@@ -33,7 +33,6 @@ from .blob import Blob
 from .classifier import Classifier
 from .clusterer import Clusterer
 from .collection import Collection
-from .color import Color
 from .computedobject import ComputedObject
 from .confusionmatrix import ConfusionMatrix
 from .customfunction import CustomFunction
@@ -58,7 +57,6 @@ from .imagecollection import ImageCollection
 from .join import Join
 from .kernel import Kernel
 from .model import Model
-from .palette import Palette
 from .pixeltype import PixelType
 from .projection import Projection
 from .reducer import Reducer
@@ -73,7 +71,6 @@ if TYPE_CHECKING:
         'Classifier',
         'Clusterer',
         'Collection',
-        'Color',
         'ComputedObject',
         'ConfusionMatrix',
         'CustomFunction',
@@ -98,7 +95,6 @@ if TYPE_CHECKING:
         'Join',
         'Kernel',
         'Model',
-        'Palette',
         'PixelType',
         'Projection',
         'Reducer',
@@ -147,7 +143,6 @@ _DYNAMIC_CLASSES = [
     Blob,
     Classifier,
     Clusterer,
-    Color,
     ConfusionMatrix,
     Date,
     DateRange,
@@ -164,7 +159,6 @@ _DYNAMIC_CLASSES = [
     List,
     Model,
     Number,
-    Palette,
     PixelType,
     Projection,
     Reducer,
