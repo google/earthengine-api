@@ -30,14 +30,12 @@ server.config["WTF_CSRF_TIME_LIMIT"] = config.CSRF_TIME_LIMIT
 urlfetch.set_default_fetch_deadline(250)
 
 
-@server.before_first_request
 def setup_catalog_bucket():
   gae_credentials = app_engine.Credentials()
   client = storage.Client(credentials=gae_credentials)
   config.CATALOG_BUCKET = client.get_bucket("earthengine-catalog")
 
 
-@server.before_first_request
 def setup_ee():
   """Sets up Earth Engine authentication."""
   with open("privatekey.json") as keyfile:
@@ -45,6 +43,23 @@ def setup_ee():
     credentials = ee.ServiceAccountCredentials(
         config.EE_SERVICE_ACCOUNT, key_data=extracted_key_data)
   ee.Initialize(credentials)
+
+
+_setup_completed = False
+_setup_lock = threading.Lock()
+
+
+@server.before_request
+def setup_on_first_request():
+  """Uses a lock to ensure setup is done only by the first request thread."""
+  global _setup_completed
+  if _setup_completed:
+    return
+  with _setup_lock:
+    if not _setup_completed:
+      setup_catalog_bucket()
+      setup_ee()
+      _setup_completed = True
 
 
 @server.after_request
