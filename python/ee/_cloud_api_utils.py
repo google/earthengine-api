@@ -535,12 +535,13 @@ def convert_asset_id_to_asset_name(asset_id: str) -> str:
   Returns:
     An asset name string in the format 'projects/*/assets/**'.
   """
-  if re.match(ASSET_NAME_PATTERN, asset_id) or is_asset_root(asset_id):
+  if re.fullmatch(ASSET_NAME_PATTERN, asset_id):
     return asset_id
-  elif asset_id.split('/')[0] in ['users', 'projects']:
+  if is_asset_root(asset_id):
+    return f'{asset_id}/'
+  if asset_id.split('/')[0] in ['users', 'projects']:
     return f'projects/earthengine-legacy/assets/{asset_id}'
-  else:
-    return f'projects/earthengine-public/assets/{asset_id}'
+  return f'projects/earthengine-public/assets/{asset_id}'
 
 
 def split_asset_name(asset_name: str) -> tuple[str, str]:

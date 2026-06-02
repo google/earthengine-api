@@ -432,12 +432,15 @@ ee.rpc_convert.projectParentFromPath = function(path) {
 ee.rpc_convert.assetIdToAssetName = function(param) {
   if (ee.rpc_convert.CLOUD_ASSET_ID_RE.exec(param)) {
     return param;
+  } else if (ee.rpc_convert.CLOUD_ASSET_ROOT_RE.exec(param)) {
+    return param + '/';
   } else if (/^(users|projects)\/.*/.exec(param)) {
     return `projects/${ee.rpc_convert.DEFAULT_PROJECT}/assets/${param}`;
   } else {
     return `projects/${ee.rpc_convert.PUBLIC_PROJECT}/assets/${param}`;
   }
 };
+
 
 
 /**

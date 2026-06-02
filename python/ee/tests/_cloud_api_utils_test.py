@@ -141,6 +141,18 @@ class CloudApiUtilsTest(unittest.TestCase):
         'projects/foobar/assets/baz',
         _cloud_api_utils.convert_asset_id_to_asset_name(
             'projects/foobar/assets/baz'))
+    self.assertEqual(
+        'projects/foobar/assets/',
+        _cloud_api_utils.convert_asset_id_to_asset_name(
+            'projects/foobar/assets'
+        ),
+    )
+    self.assertEqual(
+        'projects/foobar/assets/',
+        _cloud_api_utils.convert_asset_id_to_asset_name(
+            'projects/foobar/assets/'
+        ),
+    )
 
   def test_split_asset_name(self):
     parent, asset_id = _cloud_api_utils.split_asset_name(
