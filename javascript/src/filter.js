@@ -12,6 +12,7 @@ goog.provide('ee.Filter');
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Geometry');
+goog.require('ee.List');
 goog.require('ee.arguments');
 goog.require('goog.array');
 goog.require('goog.string');
@@ -254,6 +255,10 @@ ee.Filter.lte = function(name, value) {
  */
 ee.Filter.and = function(var_args) {
   const args = Array.prototype.slice.call(arguments);
+  if (args.length === 1 && args[0] instanceof ee.List) {
+    return /** @type {!ee.Filter} */ (
+        ee.ApiFunction._call('Filter.and', args[0]));
+  }
   return /** @type {!ee.Filter} */(ee.ApiFunction._call('Filter.and', args));
 };
 
@@ -267,6 +272,10 @@ ee.Filter.and = function(var_args) {
  */
 ee.Filter.or = function(var_args) {
   const args = Array.prototype.slice.call(arguments);
+  if (args.length === 1 && args[0] instanceof ee.List) {
+    return /** @type {!ee.Filter} */ (
+        ee.ApiFunction._call('Filter.or', args[0]));
+  }
   return /** @type {!ee.Filter} */(ee.ApiFunction._call('Filter.or', args));
 };
 
