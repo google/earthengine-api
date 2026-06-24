@@ -4317,7 +4317,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection. This default can be overridden by the geodesic parameter.",
       "optional": true,
       "defaultValue": {
         "type": "Projection",
@@ -4328,6 +4328,12 @@
       "argumentName": "maxError",
       "type": "ErrorMargin",
       "description": "The maximum projection error.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "geodesic",
+      "type": "Boolean",
+      "description": "Whether to interpret edges as geodesics. If true, edges are interpreted as the shortest path on the surface of the earth. If false, edges are interpreted as straight lines in the projection. Defaults to true if the target projection is geographic, and false otherwise.",
       "optional": true,
       "defaultValue": null
     }]
@@ -5165,7 +5171,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection. This default can be overridden by the geodesic parameter.",
       "optional": true,
       "defaultValue": {
         "type": "Projection",
@@ -5176,6 +5182,12 @@
       "argumentName": "maxError",
       "type": "ErrorMargin",
       "description": "The maximum projection error.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "geodesic",
+      "type": "Boolean",
+      "description": "Whether to interpret edges as geodesics. If true, edges are interpreted as the shortest path on the surface of the earth. If false, edges are interpreted as straight lines in the projection. Defaults to true if the target projection is geographic, and false otherwise.",
       "optional": true,
       "defaultValue": null
     }]
@@ -5190,7 +5202,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection. This default can be overridden by the geodesic parameter.",
       "optional": true,
       "defaultValue": {
         "type": "Projection",
@@ -5201,6 +5213,12 @@
       "argumentName": "maxError",
       "type": "ErrorMargin",
       "description": "The maximum projection error.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "geodesic",
+      "type": "Boolean",
+      "description": "Whether to interpret edges as geodesics. If true, edges are interpreted as the shortest path on the surface of the earth. If false, edges are interpreted as straight lines in the projection. Defaults to true if the target projection is geographic, and false otherwise.",
       "optional": true,
       "defaultValue": null
     }]
