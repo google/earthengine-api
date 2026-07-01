@@ -294,7 +294,9 @@ class BatchTestCase(apitestcase.ApiTestCase):
           tiffCloudOptimized=True,
           shardSize=512,
           fileDimensions=1024,
-          formatOptions={'noData': 1},
+          formatOptions={
+              'noData': 1,
+          },
       )
       task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
       expected_expression = (

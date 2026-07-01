@@ -1056,7 +1056,9 @@ Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
           `"may have the following options: ${validKeysMsg}".`);
     }
     const prefixedKey = prefix + key[0].toUpperCase() + key.substring(1);
-    if (Array.isArray(value)) {
+    if (
+            Array.isArray(value)
+            ) {
       // Legacy format options are comma delimited strings.
       prefixedOptions[prefixedKey] = value.join();
     } else {

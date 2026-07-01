@@ -3512,6 +3512,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   tiffCloudOptimized: (undefined|boolean),
  *   tiffFileDimensions: (undefined|string),
  *   tiffShardSize: (undefined|number),
+ *   tiffMetadataKeys: (undefined|!Array<string>),
  *   tfrecordPatchDimensions: (undefined|string),
  *   tfrecordKernelSize: (undefined|string),
  *   tfrecordCompressed: (undefined|boolean),
@@ -3552,6 +3553,7 @@ ee.data.ImageTaskConfig;
  *   maskedThreshold: (undefined|number),
  *   shardSize: (undefined|number),
  *   workloadTag: (undefined|string),
+ *   metadataKeys: (undefined|!Array<string>),
  * }}
  */
 ee.data.ImageExportFormatConfig;
