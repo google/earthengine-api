@@ -2205,15 +2205,16 @@ def updateAsset(asset_id: str, asset: Any, update_mask: Sequence[str]) -> None:
   Args:
     asset_id: The ID of the asset to update.
     asset: The updated version of the asset, containing only the new values of
-      the fields to be updated. Only the "start_time", "end_time", and
-      "properties" fields can be updated. If a value is named in "update_mask",
+      the fields to be updated. Only the "start_time", "end_time", "properties",
+      and "bands" fields can be updated. If a value is named in "update_mask",
       but is unset in "asset", then that value will be deleted from the asset.
-    update_mask: A list of the values to update. This should contain the strings
+    update_mask: A list of the values to update. This must contain the strings
       "start_time" or "end_time" to update the corresponding timestamp. If
-      a property is to be updated or deleted, it should be named here as
+      a property is to be updated or deleted, it must be named here as
       "properties.THAT_PROPERTY_NAME". If the entire property set is to be
-      replaced, this should contain the string "properties". If this list is
-      empty, all properties and both timestamps will be updated.
+      replaced, this must contain the string "properties". If band names are
+      to be updated, this must contain the string "bands". If this list is
+      empty, all properties, band names, and both timestamps will be updated.
   """
   name = _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
   _execute_cloud_call(

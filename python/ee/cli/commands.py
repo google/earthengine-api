@@ -783,6 +783,30 @@ class AssetSetCommand:
     return
 
 
+class AssetSetBandsCommand:
+  """Sets the band names of an Earth Engine asset.
+
+  The number of names must match the number of bands in the asset.
+  Use earthengine asset info to fetch the current bands.
+  """
+
+  name = 'setbands'
+
+  def __init__(self, parser: argparse.ArgumentParser):
+    parser.add_argument('asset_id', help='ID of the asset to update.')
+    parser.add_argument('band_names', nargs='+', help='The new band names.')
+
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    """Runs the asset update."""
+    config.ee_init()
+    asset = {'bands': [{'id': band_name} for band_name in args.band_names]}
+    update_mask = ['bands']
+    ee.data.updateAsset(args.asset_id, asset, update_mask)
+    return
+
+
 class AssetCommand(Dispatcher):
   """Prints or updates metadata associated with an Earth Engine asset."""
 
@@ -791,6 +815,7 @@ class AssetCommand(Dispatcher):
   COMMANDS = [
       AssetInfoCommand,
       AssetSetCommand,
+      AssetSetBandsCommand,
   ]
 
 
