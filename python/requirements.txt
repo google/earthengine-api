@@ -1,6 +1,6 @@
 google-cloud-storage
-google-api-python-client>=2.0.2
-google-auth>=2.40.0
-google-auth-httplib2>=0.3.0
-httplib2>=0.20.4,<1dev
+google-api-python-client>=2.71.0
+google-auth>=2.48.0
+google-auth-httplib2>=0.3.1
+httplib2>=0.30.2,<1dev
 requests
