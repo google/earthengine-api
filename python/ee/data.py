@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterator, Sequence
 import contextlib
 import json
+import os
 import platform
 import re
 import sys
@@ -201,14 +202,20 @@ def is_initialized() -> bool:
 
 
 def get_persistent_credentials() -> credentials_lib.Credentials:
-  """Read persistent credentials from ~/.config/earthengine or ADC.
+  """Read persistent credentials from environment, ~/.config/earthengine or ADC.
 
   Raises EEException with helpful explanation if credentials don't exist.
 
   Returns:
-    OAuth2Credentials built from persistently stored refresh_token, containing
-    the client project in the quota_project_id field, if available.
+    OAuth2Credentials built from persistently stored refresh_token or environment
+    access token, containing the client project in the quota_project_id field, if available.
   """
+  env_token = os.environ.get('CLOUDSDK_AUTH_ACCESS_TOKEN')
+  if env_token:
+    credentials = credentials_lib.Credentials(env_token)
+    if oauth.is_valid_credentials(credentials):
+      return credentials
+
   credentials = None
   args = {}
   try:
