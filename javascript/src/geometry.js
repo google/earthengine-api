@@ -79,7 +79,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
           'Setting the CRS, geodesic, or evenOdd flag on a computed Geometry ' +
           'is not supported.  Use Geometry.transform().');
     } else {
-      ee.Geometry.base(this, 'constructor', geoJson.func, geoJson.args, geoJson.varName);
+      ee.Geometry.base(this, 'constructor', geoJson.func, geoJson.args, geoJson.varName, geoJson.unbound);
       return;
     }
   }
