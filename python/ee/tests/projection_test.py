@@ -44,15 +44,15 @@ class ProjectionTest(apitestcase.ApiTestCase):
     projection_func = ee.ApiFunction.lookup('Projection')
     self.assertEqual(projection_func, projection.func)
     self.assertFalse(projection.isVariable())
-    self.assertEqual({'crs', 'transform'}, set(projection.args))
-    self.assertEqual(EPSG_4326, projection.args['crs'])
+    self.assertEqual({'crs', 'transform'}, set(projection.args))  # pyrefly: ignore[bad-argument-type]
+    self.assertEqual(EPSG_4326, projection.args['crs'])  # pyrefly: ignore[unsupported-operation]
     expected_transform = {
         'result': '0',
         'values': {'0': {'constantValue': [1, 2, 3, 4, 5, 6]}},
     }
     self.assertEqual(
         expected_transform,
-        json.loads(projection.args['transform'].serialize()),
+        json.loads(projection.args['transform'].serialize()),  # pyrefly: ignore[unsupported-operation]
     )
 
   def test_init_transform_wkt(self):
@@ -71,8 +71,8 @@ class ProjectionTest(apitestcase.ApiTestCase):
 
     projection_func = ee.ApiFunction.lookup('Projection')
     self.assertEqual(projection_func, projection.func)
-    self.assertEqual({'crs', 'transformWkt'}, set(projection.args))
-    self.assertEqual(EPSG_4326, projection.args['crs'])
+    self.assertEqual({'crs', 'transformWkt'}, set(projection.args))  # pyrefly: ignore[bad-argument-type]
+    self.assertEqual(EPSG_4326, projection.args['crs'])  # pyrefly: ignore[unsupported-operation]
     expected_transform_wkt = {
         'result': '0',
         'values': {
@@ -87,7 +87,7 @@ class ProjectionTest(apitestcase.ApiTestCase):
     }
     self.assertEqual(
         expected_transform_wkt,
-        json.loads(projection.args['transformWkt'].serialize()),
+        json.loads(projection.args['transformWkt'].serialize()),  # pyrefly: ignore[unsupported-operation]
     )
     projection_func = ee.ApiFunction.lookup('Projection')
     self.assertEqual(projection_func, projection.func)

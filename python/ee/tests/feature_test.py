@@ -115,11 +115,11 @@ class FeatureTest(apitestcase.ApiTestCase):
         'properties': {'foo': 42}
     })
     self.assertEqual(ee.ApiFunction('Feature'), from_geo_json_feature.func)
-    self.assertEqual(point, from_geo_json_feature.args['geometry'])
+    self.assertEqual(point, from_geo_json_feature.args['geometry'])  # pyrefly: ignore[unsupported-operation]
     self.assertEqual({
         'foo': 42,
         'system:index': 'bar'
-    }, from_geo_json_feature.args['metadata'])
+    }, from_geo_json_feature.args['metadata'])  # pyrefly: ignore[unsupported-operation]
 
   def test_feature_copy(self):
     feature = ee.Feature(ee.Geometry.Point(1, 2), {'x': 1})

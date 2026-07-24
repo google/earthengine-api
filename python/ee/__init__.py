@@ -235,7 +235,7 @@ def Initialize(
   # Convert falsey values to None.
   project = project or None
   # A project must be given, but SDK projects are not authorized for EE.
-  is_valid_project = project and not oauth.is_sdk_project(project)
+  is_valid_project = project and not oauth.is_sdk_project(project)  # pyrefly: ignore[bad-argument-type]
   # An explicit project is not required for service accounts, since they use
   # their containing project by default.
   empty_project_ok = isinstance(credentials, service_account.Credentials)
@@ -248,7 +248,7 @@ def Initialize(
       tile_base_url=url,
       cloud_api_base_url=url,
       cloud_api_key=cloud_api_key,
-      project=project,
+      project=project,  # pyrefly: ignore[bad-argument-type]
       http_transport=http_transport,
   )
 

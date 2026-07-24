@@ -27,8 +27,8 @@ def _transform_operation_to_task(operation: dict[str, Any]) -> Task:
   status = _cloud_api_utils.convert_operation_to_task(operation)
   return Task(
       status['id'],
-      status.get('task_type'),
-      status.get('state'),
+      status.get('task_type'),  # pyrefly: ignore[bad-argument-type]
+      status.get('state'),  # pyrefly: ignore[bad-argument-type]
       {'description': status.get('description')},
       status.get('name'),
   )
@@ -187,7 +187,7 @@ class Task:
 
   def cancel(self) -> None:
     """Cancels the task."""
-    data.cancelOperation(self.operation_name)
+    data.cancelOperation(self.operation_name)  # pyrefly: ignore[bad-argument-type]
 
   @staticmethod
   def list() -> list[Task]:

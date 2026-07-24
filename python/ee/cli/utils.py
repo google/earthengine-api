@@ -74,14 +74,14 @@ class CommandLineConfig:
     if not config_file:
       config_file = os.environ.get(EE_CONFIG_FILE, DEFAULT_EE_CONFIG_FILE)
     self.config_file = config_file
-    self.project_override = project_override
+    self.project_override = project_override  # pyrefly: ignore[bad-assignment]
     config = {}
     if os.path.exists(config_file):
       with open(config_file) as config_file_json:
         config = json.load(config_file_json)
     for key, default_value in CONFIG_PARAMS.items():
       setattr(self, key, config.get(key, default_value))
-    self.service_account_file = service_account_file
+    self.service_account_file = service_account_file  # pyrefly: ignore[bad-assignment]
     if service_account_file:
       # Load the file to verify that it exists.
       with open(service_account_file) as service_file_json:
@@ -249,7 +249,7 @@ def _task_id_to_operation_name(task_id: str) -> str:
   """Converts a task ID to an operation name."""
   # pylint: disable=protected-access
   return ee._cloud_api_utils.convert_task_id_to_operation_name(
-      ee.data._get_state().cloud_api_user_project, task_id
+      ee.data._get_state().cloud_api_user_project, task_id  # pyrefly: ignore[bad-argument-type]
   )
   # pylint: enable=protected-access
 

@@ -52,7 +52,7 @@ class DateTest(apitestcase.ApiTestCase):
 
     self.assertEqual(d1.args, {'value': '2000-01-01'})
     for d in dates[1:]:
-      self.assertEqual(d.args['value'], 946684800000)
+      self.assertEqual(d.args['value'], 946684800000)  # pyrefly: ignore[unsupported-operation]
 
     d5 = ee.Date(ee.CustomFunction.variable('Date', 'foo'))
     self.assertIsInstance(d5, ee.Date)

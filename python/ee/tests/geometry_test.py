@@ -755,7 +755,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
     self.assertIsInstance(bounds, ee.Geometry)
     self.assertEqual(ee.ApiFunction.lookup('Geometry.bounds'), bounds.func)
-    self.assertEqual(line, bounds.args['geometry'])
+    self.assertEqual(line, bounds.args['geometry'])  # pyrefly: ignore[unsupported-operation]
     self.assertTrue(hasattr(bounds, 'bounds'))
 
   def test_computed_coordinate(self):

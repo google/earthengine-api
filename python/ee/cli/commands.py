@@ -263,7 +263,7 @@ def _task_id_to_operation_name(task_id: str) -> str:
   """Converts a task ID to an operation name."""
   # pylint: disable=protected-access
   return ee._cloud_api_utils.convert_task_id_to_operation_name(
-      ee.data._get_state().cloud_api_user_project, task_id
+      ee.data._get_state().cloud_api_user_project, task_id  # pyrefly: ignore[bad-argument-type]
   )
   # pylint: enable=protected-access
 
@@ -472,10 +472,10 @@ class SetProjectCommand:
         config = json.load(json_config_file)
     except FileNotFoundError:
       # File may not exist if we initialized from default credentials.
-      config = {}
+      config = {}  # pyrefly: ignore[bad-assignment]
 
-    config['project'] = args.project
-    ee.oauth.write_private_json(config_path, config)
+    config['project'] = args.project  # pyrefly: ignore[unsupported-operation]
+    ee.oauth.write_private_json(config_path, config)  # pyrefly: ignore[bad-argument-type]
     print('Successfully saved project id')
 
 
@@ -499,11 +499,11 @@ class UnSetProjectCommand:
         config = json.load(json_config_file)
     except FileNotFoundError:
       # File may not exist if we initialized from default credentials.
-      config = {}
+      config = {}  # pyrefly: ignore[bad-assignment]
 
-    if 'project' in config:
-      del config['project']
-    ee.oauth.write_private_json(config_path, config)
+    if 'project' in config:  # pyrefly: ignore[not-iterable]
+      del config['project']  # pyrefly: ignore[unsupported-operation]
+    ee.oauth.write_private_json(config_path, config)  # pyrefly: ignore[bad-argument-type]
     print('Successfully unset project id')
 
 
@@ -1541,14 +1541,14 @@ class UploadImageCommand:
         manifest['pyramidingPolicy'] = args.pyramiding_policy[0]
       else:
         for index, policy in enumerate(args.pyramiding_policy):
-          file_bands[index]['pyramidingPolicy'] = policy
+          file_bands[index]['pyramidingPolicy'] = policy  # pyrefly: ignore[unbound-name]
 
     if args.nodata_value:
       if len(args.nodata_value) == 1:
         manifest['missingData'] = {'values': [args.nodata_value[0]]}
       else:
         for index, value in enumerate(args.nodata_value):
-          file_bands[index]['missingData'] = {'values': [value]}
+          file_bands[index]['missingData'] = {'values': [value]}  # pyrefly: ignore[unbound-name]
 
     if args.last_band_alpha:
       manifest['maskBands'] = {'tilesetId': tileset['id']}

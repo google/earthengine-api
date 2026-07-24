@@ -95,10 +95,10 @@ class EETestCase(apitestcase.ApiTestCase):
       expected_project = 'qp1'
       ee.Initialize()
 
-      cred_args['refresh_token'] = None
+      cred_args['refresh_token'] = None  # pyrefly: ignore[bad-assignment]
       ee.Initialize()
 
-      cred_args['quota_project_id'] = None
+      cred_args['quota_project_id'] = None  # pyrefly: ignore[bad-assignment]
       expected_project = 'qp2'
       ee.Initialize()
       self.assertEqual(4, inits.call_count)
@@ -185,12 +185,12 @@ class EETestCase(apitestcase.ApiTestCase):
     func = ee.CustomFunction(sig, lambda foo: ee.call('fakeFunction', 42, foo))
     expected_custom_function_call = ee.Image(
         ee.ComputedObject(func, {'foo': ee.Image(13)}))
-    self.assertEqual(expected_custom_function_call, ee.call(func, 13))
-    self.assertEqual(expected_custom_function_call, ee.apply(func, {'foo': 13}))
+    self.assertEqual(expected_custom_function_call, ee.call(func, 13))  # pyrefly: ignore[bad-argument-type]
+    self.assertEqual(expected_custom_function_call, ee.apply(func, {'foo': 13}))  # pyrefly: ignore[bad-argument-type]
 
     # Test None promotion.
     called_with_null = ee.call('fakeFunction', None, 1)
-    self.assertIsNone(called_with_null.args['image1'])
+    self.assertIsNone(called_with_null.args['image1'])  # pyrefly: ignore[unsupported-operation]
 
   def test_dynamic_classes(self):
     """Verifies dynamic class initialization."""
@@ -351,23 +351,23 @@ class EETestCase(apitestcase.ApiTestCase):
     ee.Initialize(None, project='my-project')
 
     # Try to cast something that's already of the right class.
-    x = ee.Foo('argument')
-    self.assertEqual(ee.Foo(x), x)
+    x = ee.Foo('argument')  # pyrefly: ignore[missing-attribute]
+    self.assertEqual(ee.Foo(x), x)  # pyrefly: ignore[missing-attribute]
 
     # Tests for dynamic classes, where there is a constructor.
     #
     # If there's more than 1 arg, call the constructor.
-    x = ee.Foo('a')
-    y = ee.Foo(x, 'b')
+    x = ee.Foo('a')  # pyrefly: ignore[missing-attribute]
+    y = ee.Foo(x, 'b')  # pyrefly: ignore[missing-attribute]
     ctor = ee.ApiFunction.lookup('Foo')
     self.assertEqual(y.func, ctor)
     self.assertEqual(y.args, {'arg1': x, 'arg2': 'b'})
 
     # Can't cast a primitive; call the constructor.
-    self.assertEqual(ctor, ee.Foo(1).func)
+    self.assertEqual(ctor, ee.Foo(1).func)  # pyrefly: ignore[missing-attribute]
 
     # A computed object, but not this class; call the constructor.
-    self.assertEqual(ctor, ee.Foo(ee.List([1, 2, 3])).func)
+    self.assertEqual(ctor, ee.Foo(ee.List([1, 2, 3])).func)  # pyrefly: ignore[missing-attribute]
 
     # Tests for dynamic classes, where there isn't a constructor.
     #
@@ -375,20 +375,20 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue(hasattr(ee, 'Bar'))
 
     # Make sure we can create a Bar.
-    bar = ee.Foo(1).makeBar()
+    bar = ee.Foo(1).makeBar()  # pyrefly: ignore[missing-attribute]
     self.assertIsInstance(bar, ee.Bar)
 
     # Now cast something else to a Bar and verify it was just a cast.
-    cast = ee.Bar(ee.Foo(1))
+    cast = ee.Bar(ee.Foo(1))  # pyrefly: ignore[missing-attribute]
     self.assertIsInstance(cast, ee.Bar)
     self.assertEqual(ctor, cast.func)
 
     # Tests for kwargs.
-    foo = ee.Foo(arg1='a', arg2='b')
+    foo = ee.Foo(arg1='a', arg2='b')  # pyrefly: ignore[missing-attribute]
     self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
-    foo = ee.Foo('a', arg2='b')
+    foo = ee.Foo('a', arg2='b')  # pyrefly: ignore[missing-attribute]
     self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
-    foo = ee.Foo(arg2='b', arg1='a')
+    foo = ee.Foo(arg2='b', arg1='a')  # pyrefly: ignore[missing-attribute]
     self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
 
     # We should get an error for an invalid kwarg.
@@ -396,7 +396,7 @@ class EETestCase(apitestcase.ApiTestCase):
         ee.EEException,
         "Unrecognized arguments {'arg_invalid'} to function: Foo",
     ):
-      ee.Foo('a', arg_invalid='b')
+      ee.Foo('a', arg_invalid='b')  # pyrefly: ignore[missing-attribute]
 
     # We shouldn't be able to cast with more than 1 arg.
     with self.assertRaisesRegex(
@@ -431,7 +431,7 @@ class EETestCase(apitestcase.ApiTestCase):
     # Promote an untyped variable to an Element.
     untyped = ee.ComputedObject(None, None, 'foo')
     self.assertIsInstance(ee._Promote(untyped, 'Element'), ee.Element)
-    self.assertEqual('foo', ee._Promote(untyped, 'Element').varName)
+    self.assertEqual('foo', ee._Promote(untyped, 'Element').varName)  # pyrefly: ignore[missing-attribute]
 
   def test_unbound_methods(self):
     """Verifies unbound method attachment to ee.Algorithms."""
@@ -471,7 +471,7 @@ class EETestCase(apitestcase.ApiTestCase):
     ee._InitializeUnboundMethods()
 
     self.assertTrue(callable(ee.Algorithms.Foo))
-    self.assertTrue(callable(ee.Algorithms.Foo.bar))
+    self.assertTrue(callable(ee.Algorithms.Foo.bar))  # pyrefly: ignore[missing-attribute]
     self.assertNotIn('Quux', ee.Algorithms)
     self.assertEqual(ee.call('Foo.bar'), ee.Algorithms.Foo.bar())
     self.assertNotEqual(ee.Algorithms.Foo.bar(), ee.Algorithms.last())
