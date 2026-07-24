@@ -1546,7 +1546,7 @@ def DoCloudProfileStubHttp(test, expect_profiling):
                      in headers)
     response = requests.Response()
     response.status_code = 200
-    response._content = '{"data": "dummy_data"}'
+    response._content = '{"data": "dummy_data"}'  # pyrefly: ignore[bad-assignment]
     if expect_profiling:
       response.headers[
           ee.data._PROFILE_RESPONSE_HEADER_LOWERCASE] = 'someProfileId'

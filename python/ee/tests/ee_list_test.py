@@ -60,7 +60,7 @@ class ListTest(apitestcase.ApiTestCase):
 
     self.assertIsInstance(mapped, ee.List)
     self.assertEqual(ee.ApiFunction.lookup('List.map'), mapped.func)
-    self.assertEqual(lst, mapped.args['list'])
+    self.assertEqual(lst, mapped.args['list'])  # pyrefly: ignore[unsupported-operation]
 
     # Need to do a serialized comparison for the function body because
     # variables returned from CustomFunction.variable() do not implement
@@ -71,10 +71,10 @@ class ListTest(apitestcase.ApiTestCase):
     }
     expected_function = ee.CustomFunction(sig, body)
     self.assertEqual(expected_function.serialize(),
-                     mapped.args['baseAlgorithm'].serialize())
+                     mapped.args['baseAlgorithm'].serialize())  # pyrefly: ignore[unsupported-operation]
     self.assertEqual(
         expected_function.serialize(for_cloud_api=True),
-        mapped.args['baseAlgorithm'].serialize(for_cloud_api=True))
+        mapped.args['baseAlgorithm'].serialize(for_cloud_api=True))  # pyrefly: ignore[unsupported-operation]
 
   def test_internals(self):
     """Test eq(), ne() and hash()."""
@@ -372,8 +372,8 @@ class ListTest(apitestcase.ApiTestCase):
 
     self.assertIsInstance(iterated, ee.ComputedObject)
     self.assertEqual(ee.ApiFunction.lookup('List.iterate'), iterated.func)
-    self.assertEqual(lst, iterated.args['list'])
-    self.assertEqual(0, iterated.args['first'])
+    self.assertEqual(lst, iterated.args['list'])  # pyrefly: ignore[unsupported-operation]
+    self.assertEqual(0, iterated.args['first'])  # pyrefly: ignore[unsupported-operation]
 
     sig = {
         'returns': 'Object',
@@ -384,11 +384,11 @@ class ListTest(apitestcase.ApiTestCase):
     }
     expected_function = ee.CustomFunction(sig, body)
     self.assertEqual(
-        expected_function.serialize(), iterated.args['function'].serialize()
+        expected_function.serialize(), iterated.args['function'].serialize()  # pyrefly: ignore[unsupported-operation]
     )
     self.assertEqual(
         expected_function.serialize(for_cloud_api=True),
-        iterated.args['function'].serialize(for_cloud_api=True),
+        iterated.args['function'].serialize(for_cloud_api=True),  # pyrefly: ignore[unsupported-operation]
     )
 
   def test_join(self):
