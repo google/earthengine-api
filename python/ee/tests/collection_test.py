@@ -118,7 +118,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
 
     self.assertIsInstance(mapped, ee.ImageCollection)
     self.assertEqual(ee.ApiFunction.lookup('Collection.map'), mapped.func)
-    self.assertEqual(collection, mapped.args['collection'])
+    self.assertEqual(collection, mapped.args['collection'])  # pyrefly: ignore[unsupported-operation]
 
     # Need to do a serialized comparison for the function body because
     # variables returned from CustomFunction.variable() do not implement
@@ -129,7 +129,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     }
     expected_function = ee.CustomFunction(sig, algorithm)
     self.assertEqual(expected_function.serialize(),
-                     mapped.args['baseAlgorithm'].serialize())
+                     mapped.args['baseAlgorithm'].serialize())  # pyrefly: ignore[unsupported-operation]
 
   def test_nested_mapping(self):
     """Verifies that nested map() calls produce distinct variables."""
