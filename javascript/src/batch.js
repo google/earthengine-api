@@ -313,6 +313,7 @@ Export.table.toAsset = function(
  * @param {string=} opt_thinningStrategy
  * @param {string|!Array<string>=} opt_thinningRanking
  * @param {string|!Array<string>=} opt_zOrderRanking
+ * @param {number=} opt_minVisibleSizePx
  * @param {number=} opt_priority
  * @return {!ExportTask}
  * @export
@@ -320,7 +321,7 @@ Export.table.toAsset = function(
 Export.table.toFeatureView = function(
     collection, opt_description, opt_assetId, opt_maxFeaturesPerTile,
     opt_thinningStrategy, opt_thinningRanking, opt_zOrderRanking,
-    opt_priority) {
+    opt_minVisibleSizePx, opt_priority) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toFeatureView, arguments);
   const serverConfig = Export.convertToServerParams(
