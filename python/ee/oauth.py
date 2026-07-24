@@ -103,7 +103,7 @@ def get_credentials_arguments() -> dict[str, Any]:
 
 
 def is_sdk_credentials(credentials: Any | None) -> bool:
-  return is_sdk_project(project_number_from_credentials(credentials))
+  return is_sdk_project(project_number_from_credentials(credentials))  # pyrefly: ignore[bad-argument-type]
 
 
 def project_number_from_credentials(
@@ -233,7 +233,7 @@ def write_private_json(json_path: str, info_dict: dict[str, Any]) -> None:
 def in_colab_shell() -> bool:
   """Tests if the code is being executed within Google Colab."""
   try:
-    import google.colab  # pylint: disable=unused-import,redefined-outer-name
+    import google.colab  # pylint: disable=unused-import,redefined-outer-name  # pyrefly: ignore[missing-import]
     return True
   except ImportError:
     return False
@@ -289,7 +289,7 @@ def _obtain_and_write_token(
       )
     client_info = {k: fetched_info[k] for k in ['client_id', 'client_secret']}
     scopes = fetched_info.get('scopes') or scopes
-  token = request_token(auth_code.strip(), code_verifier, **client_info)
+  token = request_token(auth_code.strip(), code_verifier, **client_info)  # pyrefly: ignore[bad-argument-type]
   client_info['refresh_token'] = token
   client_info['scopes'] = scopes
   project = _project_number_from_client_id(client_info.get('client_id'))
@@ -407,7 +407,7 @@ def _load_gcloud_credentials(
   client_id_file = None
   requested_scopes = scopes or SCOPES
   command = GCLOUD_COMMAND.split()
-  command[0] = shutil.which(command[0]) or command[0]  # Windows fix
+  command[0] = shutil.which(command[0]) or command[0]  # Windows fix  # pyrefly: ignore[unsupported-operation]
   command += ['--scopes=%s' % (','.join(requested_scopes))]
   if run_gcloud_legacy:
     client_id_json = dict(
@@ -468,7 +468,7 @@ def _start_server(port: int):
           b'  \xf0\x9f\x8c\x8d  \xe2\x9a\x99\xef\xb8\x8f  \xf0\x9f\x8c\x8f'
           b'  \xe2\x9a\x99\xef\xb8\x8f  \xf0\x9f\x8c\x8e ')  # Earth emoji
 
-    def log_message(self, *_) -> None:
+    def log_message(self, *_) -> None:  # pyrefly: ignore[bad-override]
       pass  # Suppresses the logging of request info to stderr.
 
   class Server:

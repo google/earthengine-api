@@ -122,18 +122,18 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     """Verifies that Download ID and URL generation."""
     ee.FeatureCollection('test7').getDownloadURL()
 
-    self.assertEqual('/table', self.last_table_call['url'])
+    self.assertEqual('/table', self.last_table_call['url'])  # pyrefly: ignore[unsupported-operation]
     self.assertEqual(ee.FeatureCollection('test7').serialize(),
-                     self.last_table_call['data']['table'].serialize())
+                     self.last_table_call['data']['table'].serialize())  # pyrefly: ignore[unsupported-operation]
 
     ee.FeatureCollection('test8').getDownloadURL(
         'json', 'bar, baz', 'qux')
     self.assertEqual(
         ee.FeatureCollection('test8').serialize(),
-        self.last_table_call['data']['table'].serialize())
-    self.assertEqual('JSON', self.last_table_call['data']['format'])
-    self.assertEqual('bar, baz', self.last_table_call['data']['selectors'])
-    self.assertEqual('qux', self.last_table_call['data']['filename'])
+        self.last_table_call['data']['table'].serialize())  # pyrefly: ignore[unsupported-operation]
+    self.assertEqual('JSON', self.last_table_call['data']['format'])  # pyrefly: ignore[unsupported-operation]
+    self.assertEqual('bar, baz', self.last_table_call['data']['selectors'])  # pyrefly: ignore[unsupported-operation]
+    self.assertEqual('qux', self.last_table_call['data']['filename'])  # pyrefly: ignore[unsupported-operation]
 
     self.assertEqual(
         ee.FeatureCollection('test7').getDownloadUrl('csv'),
@@ -142,9 +142,9 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     ee.FeatureCollection('test9').getDownloadURL(selectors=['bar', 'baz'])
     self.assertEqual(
         ee.FeatureCollection('test9').serialize(),
-        self.last_table_call['data']['table'].serialize(),
+        self.last_table_call['data']['table'].serialize(),  # pyrefly: ignore[unsupported-operation]
     )
-    self.assertEqual('bar,baz', self.last_table_call['data']['selectors'])
+    self.assertEqual('bar,baz', self.last_table_call['data']['selectors'])  # pyrefly: ignore[unsupported-operation]
 
   def test_download_table_with_cloud_api(self):
     cloud_api_resource = mock.MagicMock()

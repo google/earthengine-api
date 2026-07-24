@@ -84,7 +84,7 @@ class ProfilingTest(apitestcase.ApiTestCase):
     return f'hooked={hooked} getProfiles={is_get_profiles}'
 
   def test_profile_printing(self):
-    ee.data.computeValue = self.MockValue
+    ee.data.computeValue = self.MockValue  # pyrefly: ignore[bad-assignment]
     out = io.StringIO()
     with ee.profilePrinting(destination=out):
       self.assertEqual('hooked=True getProfiles=False', ee.Number(1).getInfo())
@@ -93,12 +93,12 @@ class ProfilingTest(apitestcase.ApiTestCase):
   def test_profile_printing_default_smoke(self):
     # This will print to sys.stderr, so we can't make any assertions about the
     # output. But we can check that it doesn't fail.
-    ee.data.computeValue = self.MockValue
+    ee.data.computeValue = self.MockValue  # pyrefly: ignore[bad-assignment]
     with ee.profilePrinting():
       self.assertEqual('hooked=True getProfiles=False', ee.Number(1).getInfo())
 
   def test_profile_printing_error_getting_profiles(self):
-    ee.data.computeValue = self.MockValue
+    ee.data.computeValue = self.MockValue  # pyrefly: ignore[bad-assignment]
     mock = unittest.mock.Mock()
     mock.call.side_effect = ee_exception.EEException('test')
     apifunction.ApiFunction._api['Profile.getProfiles'] = mock

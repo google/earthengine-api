@@ -45,7 +45,7 @@ def Deprecated(message: str):
       return func(*args, **kwargs)
 
     deprecation_message = '\nDEPRECATED: ' + message
-    Wrapper.__doc__ += deprecation_message
+    Wrapper.__doc__ += deprecation_message  # pyrefly: ignore[unsupported-operation]
     return Wrapper
 
   return Decorator
