@@ -131,7 +131,7 @@ class Geometry(computedobject.ComputedObject):
     ctor_args = {}
     if self._type == 'GeometryCollection':
       ctor_name = 'MultiGeometry'
-      ctor_args['geometries'] = [Geometry(g) for g in self._geometries]
+      ctor_args['geometries'] = [Geometry(g) for g in self._geometries]  # pyrefly: ignore[not-iterable]
     else:
       ctor_name = self._type
       ctor_args['coordinates'] = self._coordinates
@@ -336,27 +336,27 @@ class Geometry(computedobject.ComputedObject):
     # become bad JSON. The other two infinities are acceptable because we
     # support the general idea of an around-the-globe latitude band. By writing
     # them negated, we also reject NaN.
-    if not west < math.inf:
+    if not west < math.inf:  # pyrefly: ignore[unsupported-operation]
       raise ee_exception.EEException(f'Geometry.BBox: west must not be {west}')
-    if not east > -math.inf:
+    if not east > -math.inf:  # pyrefly: ignore[unsupported-operation]
       raise ee_exception.EEException(f'Geometry.BBox: east must not be {east}')
     # Reject cases which, if we clamped them instead, would move a box whose
     # bounds lie entirely "past" a pole to being at the pole. By writing them
     # negated, we also reject NaN.
-    if not south <= 90:
+    if not south <= 90:  # pyrefly: ignore[unsupported-operation]
       raise ee_exception.EEException(
           f'Geometry.BBox: south must be at most +90°, but was {south}°'
       )
-    if not north >= -90:
+    if not north >= -90:  # pyrefly: ignore[unsupported-operation]
       raise ee_exception.EEException(
           f'Geometry.BBox: north must be at least -90°, but was {north}°'
       )
     # On the other hand, allow a box whose extent lies past the pole, but
     # canonicalize it to being exactly the pole.
-    south = max(south, -90)
-    north = min(north, 90)
+    south = max(south, -90)  # pyrefly: ignore[bad-specialization]
+    north = min(north, 90)  # pyrefly: ignore[bad-specialization]
 
-    if east - west >= 360:
+    if east - west >= 360:  # pyrefly: ignore[unsupported-operation]
       # We conclude from seeing more than 360 degrees that the user intends to
       # specify the entire globe (or a band of latitudes, at least).
       # Canonicalize to standard global form.
@@ -364,8 +364,8 @@ class Geometry(computedobject.ComputedObject):
       east = 180
     else:
       # Not the entire globe. Canonicalize coordinate ranges.
-      west = Geometry._canonicalize_longitude(west)
-      east = Geometry._canonicalize_longitude(east)
+      west = Geometry._canonicalize_longitude(west)  # pyrefly: ignore[bad-argument-type]
+      east = Geometry._canonicalize_longitude(east)  # pyrefly: ignore[bad-argument-type]
       if east < west:
         east += 360
 
@@ -683,7 +683,7 @@ class Geometry(computedobject.ComputedObject):
       return True
     else:
       coords = geometry.get('coordinates')
-      nesting = Geometry._isValidCoordinates(coords)
+      nesting = Geometry._isValidCoordinates(coords)  # pyrefly: ignore[bad-argument-type]
       return ((geometry_type == 'Point' and nesting == 1) or
               (geometry_type == 'MultiPoint' and
                (nesting == 2 or not coords)) or
@@ -710,10 +710,10 @@ class Geometry(computedobject.ComputedObject):
 
     if (shape and isinstance(shape[0], Iterable) and
         not isinstance(shape[0], str)):
-      count = Geometry._isValidCoordinates(shape[0])
+      count = Geometry._isValidCoordinates(shape[0])  # pyrefly: ignore[bad-argument-type]
       # If more than 1 ring or polygon, they should have the same nesting.
       for i in range(1, len(shape)):
-        if Geometry._isValidCoordinates(shape[i]) != count:
+        if Geometry._isValidCoordinates(shape[i]) != count:  # pyrefly: ignore[bad-argument-type]
           return -1
       return count + 1
     else:

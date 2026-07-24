@@ -227,7 +227,7 @@ class OAuthTest(unittest.TestCase):
       mock_valid_creds,
       mock_load_gcloud,
   ):
-    del (
+    del (  # pyrefly: ignore[unsupported-delete]
         mock_localhost_viable,
         mock_jupyter,
         mock_colab,
