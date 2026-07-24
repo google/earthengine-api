@@ -86,7 +86,7 @@ class ApiTestCase(unittest.TestCase):
 
     ee.data._install_cloud_api_resource = lambda: None  # pylint: disable=protected-access
     ee.data.getAlgorithms = GetAlgorithms
-    ee.data.computeValue = lambda x: {'value': 'fakeValue'}
+    ee.data.computeValue = lambda x: {'value': 'fakeValue'}  # pyrefly: ignore[bad-assignment]
     ee.data.getMapId = self._MockMapId
     ee.data.getDownloadId = self._MockDownloadUrl
     ee.data.getTableDownloadId = self._MockTableDownload

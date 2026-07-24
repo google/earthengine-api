@@ -88,7 +88,7 @@ class CustomFunction(function.Function, encodable.Encodable):
     Returns:
       A variable with the given name implementing the given type.
     """
-    var_type = ee_types.nameToClass(type_name) or computedobject.ComputedObject
+    var_type = ee_types.nameToClass(type_name) or computedobject.ComputedObject  # pyrefly: ignore[bad-argument-type]
     result = var_type.__new__(var_type)
     result.func = None
     result.args = None

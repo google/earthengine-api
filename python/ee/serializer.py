@@ -172,7 +172,7 @@ class Serializer:
       name = self._encoded.get(hashval, None)
       if not name:
         name = str(len(self._scope))
-        self._scope.append((name, result))
+        self._scope.append((name, result))  # pyrefly: ignore[bad-argument-type]
         self._encoded[hashval] = name
       return {'type': 'ValueRef', 'value': name}
     else:
@@ -268,7 +268,7 @@ class Serializer:
       name = self._encoded.get(hashval, None)
       if not name:
         name = str(len(self._scope))
-        self._scope.append((name, result))
+        self._scope.append((name, result))  # pyrefly: ignore[bad-argument-type]
         self._encoded[hashval] = name
       return name
     else:
@@ -442,7 +442,7 @@ class _ExpressionOptimizer:
       mapped_reference = str(len(self._reference_map))
       self._reference_map[reference_or_value] = mapped_reference
       self._optimized_values[mapped_reference] = self._optimize_value(
-          self._values[reference_or_value], 0)
+          self._values[reference_or_value], 0)  # pyrefly: ignore[unsupported-operation]
       return mapped_reference
     else:
       return self._optimize_value(reference_or_value, 0)
@@ -518,7 +518,7 @@ class _ExpressionOptimizer:
       if not self._is_compound():
         return self._optimize_value(reference, depth)
 
-      referenced_value = self._values[reference]
+      referenced_value = self._values[reference]  # pyrefly: ignore[unsupported-operation]
       if reference in self._single_uses and depth < _DEPTH_LIMIT:
         return self._optimize_value(referenced_value, depth)
       else:
@@ -549,7 +549,7 @@ class _ExpressionOptimizer:
       visitor: A callable that will be invoked once at every ValueNode in the
         expression, including nested ValueNodes.
     """
-    self._visit_all_values(self._result, self._values[self._result], set(),
+    self._visit_all_values(self._result, self._values[self._result], set(),  # pyrefly: ignore[unsupported-operation]
                            visitor)
 
   def _visit_all_values(
@@ -580,19 +580,19 @@ class _ExpressionOptimizer:
     elif 'functionDefinitionValue' in value:
       definition_reference = value['functionDefinitionValue']['body']
       self._visit_all_values(definition_reference,
-                             self._values[definition_reference], visited,
+                             self._values[definition_reference], visited,  # pyrefly: ignore[unsupported-operation]
                              visitor)
     elif 'functionInvocationValue' in value:
       function_invocation = value['functionInvocationValue']
       if 'functionReference' in function_invocation:
         function_reference = function_invocation['functionReference']
         self._visit_all_values(function_reference,
-                               self._values[function_reference], visited,
+                               self._values[function_reference], visited,  # pyrefly: ignore[unsupported-operation]
                                visitor)
       arguments = function_invocation['arguments']
       for k in sorted(arguments):
         self._visit_all_values(None, arguments[k], visited, visitor)
     elif 'valueReference' in value:
       value_reference = value['valueReference']
-      self._visit_all_values(value_reference, self._values[value_reference],
+      self._visit_all_values(value_reference, self._values[value_reference],  # pyrefly: ignore[unsupported-operation]
                              visited, visitor)

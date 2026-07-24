@@ -460,7 +460,7 @@ class Collection(Generic[ElementType], element.Element):
     """
     if not new_filter:
       raise ee_exception.EEException('Empty filters.')
-    return self._cast(
+    return self._cast(  # pyrefly: ignore[bad-return]
         apifunction.ApiFunction.call_('Collection.filter', self, new_filter)
     )
 
@@ -639,10 +639,10 @@ class Collection(Generic[ElementType], element.Element):
     """
     args = {'collection': self, 'limit': maximum}
     if prop is not None:
-      args['key'] = prop
+      args['key'] = prop  # pyrefly: ignore[bad-assignment]
     if ascending is not None:
       args['ascending'] = ascending
-    return self._cast(
+    return self._cast(  # pyrefly: ignore[bad-return]
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
   @staticmethod
@@ -693,7 +693,7 @@ class Collection(Generic[ElementType], element.Element):
     """
     element_type = self.elementType()
     with_cast = lambda e: algorithm(element_type(e, None))
-    return self._cast(
+    return self._cast(  # pyrefly: ignore[bad-return]
         apifunction.ApiFunction.call_(
             'Collection.map', self, with_cast, dropNulls
         )
@@ -845,8 +845,8 @@ class Collection(Generic[ElementType], element.Element):
     """
     args = {'collection': self, 'key': prop}
     if ascending is not None:
-      args['ascending'] = ascending
-    return self._cast(
+      args['ascending'] = ascending  # pyrefly: ignore[bad-assignment]
+    return self._cast(  # pyrefly: ignore[bad-return]
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
   def style(

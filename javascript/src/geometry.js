@@ -90,7 +90,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   }
 
   if (!ee.Geometry.isValidGeometry_(geoJson)) {
-    throw Error('Invalid GeoJSON geometry: ' + JSON.stringify(geoJson));
+    throw Error('Invalid GeoJSON geometry.');
   }
 
   ee.Geometry.base(this, 'constructor', null, null);
@@ -129,8 +129,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
         typeof geoJson['crs']['properties']['name'] === 'string') {
       this.proj_ = geoJson['crs']['properties']['name'];
     } else {
-      throw Error('Invalid CRS declaration in GeoJSON: ' +
-                  (new goog.json.Serializer()).serialize(geoJson['crs']));
+      throw Error('Invalid CRS declaration in GeoJSON.');
     }
   }
 
