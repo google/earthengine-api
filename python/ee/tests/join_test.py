@@ -87,8 +87,8 @@ class JoinTest(apitestcase.ApiTestCase):
 
     self.assertFalse(join.isVariable())
     args = join.args
-    self.assertEqual(first, args['primaryKey']._string)
-    self.assertEqual(second, args['secondaryKey']._string)
+    self.assertEqual(first, args['primaryKey']._string)  # pyrefly: ignore[unsupported-operation]
+    self.assertEqual(second, args['secondaryKey']._string)  # pyrefly: ignore[unsupported-operation]
 
     result = json.loads(join.serialize())
     expect = {

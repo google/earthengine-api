@@ -35,7 +35,7 @@ def accept_opt_prefix(*opt_args) -> Callable[..., Any]:
           old_key_val = kwargs.pop(key)
           # Ensure that existing keys are not overridden.
           if new_key not in kwargs:
-            kwargs[new_key] = old_key_val
+            kwargs[new_key] = old_key_val  # pyrefly: ignore[unsupported-operation]
       return func(*args, **kwargs)
 
     return wrapper

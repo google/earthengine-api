@@ -69,14 +69,14 @@ class TaskTest(unittest.TestCase):
     mock.patch.stopall()
 
   def test_start_without_config(self):
-    task = batch.Task('an id', 'a task type', 'a state')
+    task = batch.Task('an id', 'a task type', 'a state')  # pyrefly: ignore[bad-argument-type]
     self.assertIsNone(task.config)
     with self.assertRaisesRegex(ee.EEException, 'Task config'):
       task.start()
 
   def test_start_unknown_task_type(self):
     task_type = 'bad task type'
-    task = batch.Task('an id', task_type, 'a state', {'some': 'value'})
+    task = batch.Task('an id', task_type, 'a state', {'some': 'value'})  # pyrefly: ignore[bad-argument-type]
     with self.assertRaisesRegex(
         ee.EEException, f'Unknown Task type "{task_type}"'
     ):
@@ -84,7 +84,7 @@ class TaskTest(unittest.TestCase):
 
   def test_status_with_id(self):
     name = 'projects/test-project/operations/test_1'
-    task = batch.Task('an id', 'a task type', 'a state', name=name)
+    task = batch.Task('an id', 'a task type', 'a state', name=name)  # pyrefly: ignore[bad-argument-type]
     with mock.patch.object(
         data, 'getOperation', return_value=RUNNING_OPERATION
     ) as m:
@@ -96,8 +96,8 @@ class TaskTest(unittest.TestCase):
   def test_status_with_name(self):
     task = batch.Task(
         None,
-        'a task type',
-        'a state',
+        'a task type',  # pyrefly: ignore[bad-argument-type]
+        'a state',  # pyrefly: ignore[bad-argument-type]
         name='projects/test-project/operations/test_1',
     )
     with mock.patch.object(
@@ -110,7 +110,7 @@ class TaskTest(unittest.TestCase):
 
   def test_status_with_id_state_unknown(self):
     name = 'projects/test-project/operations/an id'
-    task = batch.Task('an id', 'a task type', 'a state', name=name)
+    task = batch.Task('an id', 'a task type', 'a state', name=name)  # pyrefly: ignore[bad-argument-type]
     with mock.patch.object(
         data, 'getOperation', return_value=UNKNOWN_OPERATION
     ) as m:
@@ -120,19 +120,19 @@ class TaskTest(unittest.TestCase):
       )
 
   def test_status_without_id_or_name(self):
-    task = batch.Task(None, 'a task type', 'a state')
+    task = batch.Task(None, 'a task type', 'a state')  # pyrefly: ignore[bad-argument-type]
     self.assertEqual('UNSUBMITTED', task.status()['state'])
 
   def test_active(self):
     name = 'projects/test-project/operations/an id'
-    task = batch.Task('an id', 'a task type', 'a state', name=name)
+    task = batch.Task('an id', 'a task type', 'a state', name=name)  # pyrefly: ignore[bad-argument-type]
     with mock.patch.object(
         data, 'getOperation', return_value=RUNNING_OPERATION
     ):
       self.assertTrue(task.active())
 
   def test_not_active(self):
-    task = batch.Task('an id', 'a task type', 'a state')
+    task = batch.Task('an id', 'a task type', 'a state')  # pyrefly: ignore[bad-argument-type]
     with mock.patch.object(
         data, 'getOperation', return_value=SUCCEEDED_OPERATION
     ):
@@ -147,7 +147,7 @@ class TaskTest(unittest.TestCase):
         self.assertFalse(batch.Task.State.success(state.value))
 
   def test_repr_without_config(self):
-    task = batch.Task('an id', 'a task type', 'a state')
+    task = batch.Task('an id', 'a task type', 'a state')  # pyrefly: ignore[bad-argument-type]
     self.assertEqual('<Task "an id">', task.__repr__())
 
   def test_repr_with_config(self):
@@ -156,7 +156,7 @@ class TaskTest(unittest.TestCase):
     state = 'a state'
     description = 'a description'
     task = batch.Task(
-        an_id, task_type, state, config={'description': description}
+        an_id, task_type, state, config={'description': description}  # pyrefly: ignore[bad-argument-type]
     )
     self.assertEqual(
         f'<Task {task_type}: {description} ({state})>', task.__repr__()
@@ -168,7 +168,7 @@ class TaskTest(unittest.TestCase):
     state = 'a state'
     description = 'a description'
     task = batch.Task(
-        an_id, task_type, state, config={'description': description}
+        an_id, task_type, state, config={'description': description}  # pyrefly: ignore[bad-argument-type]
     )
     self.assertEqual(
         f'<Task {an_id} {task_type}: {description} ({state})>', task.__repr__()
@@ -183,19 +183,19 @@ class ExportTest(unittest.TestCase):
 
   def test_export_image_cannot_init(self):
     with self.assertRaises(AssertionError):
-      batch.Export.image.__init__('something')
+      batch.Export.image.__init__('something')  # pyrefly: ignore[bad-argument-type]
 
   def test_export_map_cannot_init(self):
     with self.assertRaises(AssertionError):
-      batch.Export.map.__init__('something')
+      batch.Export.map.__init__('something')  # pyrefly: ignore[bad-argument-type]
 
   def test_export_table_cannot_init(self):
     with self.assertRaises(AssertionError):
-      batch.Export.table.__init__('something')
+      batch.Export.table.__init__('something')  # pyrefly: ignore[bad-argument-type]
 
   def test_export_video_cannot_init(self):
     with self.assertRaises(AssertionError):
-      batch.Export.video.__init__('something')
+      batch.Export.video.__init__('something')  # pyrefly: ignore[bad-argument-type]
 
 
 class BatchTestCase(apitestcase.ApiTestCase):
@@ -262,11 +262,11 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('UNSUBMITTED', task.state)
 
       self.assertEqual(
-          json.loads(task.config['expression'].serialize()),
+          json.loads(task.config['expression'].serialize()),  # pyrefly: ignore[unsupported-operation]
           json.loads(expected_expression.serialize()),
       )
 
-      task.config.pop('expression')
+      task.config.pop('expression')  # pyrefly: ignore[missing-attribute]
       self.assertEqual(
           {
               'assetExportOptions': {
@@ -298,16 +298,16 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'noData': 1,
           },
       )
-      task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
+      task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)  # pyrefly: ignore[bad-argument-count]
       expected_expression = (
           ee.Image(1)
           .reproject('foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0])
           .clip(region)
       )
-      self.assertIsNone(task.id)
-      self.assertIsNone(task.name)
-      self.assertEqual('EXPORT_IMAGE', task.task_type)
-      self.assertEqual('UNSUBMITTED', task.state)
+      self.assertIsNone(task.id)  # pyrefly: ignore[missing-attribute]
+      self.assertIsNone(task.name)  # pyrefly: ignore[missing-attribute]
+      self.assertEqual('EXPORT_IMAGE', task.task_type)  # pyrefly: ignore[missing-attribute]
+      self.assertEqual('UNSUBMITTED', task.state)  # pyrefly: ignore[missing-attribute]
       self.assertEqual(
           {
               'expression': expected_expression,
@@ -362,16 +362,16 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'maskedThreshold': 0.5,
           },
       )
-      task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
+      task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)  # pyrefly: ignore[bad-argument-count]
       expected_expression = (
           ee.Image(1)
           .reproject('foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0])
           .clip(region)
       )
-      self.assertIsNone(task.id)
-      self.assertIsNone(task.name)
-      self.assertEqual('EXPORT_IMAGE', task.task_type)
-      self.assertEqual('UNSUBMITTED', task.state)
+      self.assertIsNone(task.id)  # pyrefly: ignore[missing-attribute]
+      self.assertIsNone(task.name)  # pyrefly: ignore[missing-attribute]
+      self.assertEqual('EXPORT_IMAGE', task.task_type)  # pyrefly: ignore[missing-attribute]
+      self.assertEqual('UNSUBMITTED', task.state)  # pyrefly: ignore[missing-attribute]
       self.assertEqual(
           {
               'expression': expected_expression,
@@ -396,7 +396,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
               },
               'maxPixels': {'value': '10000000000'},
           },
-          task.config,
+          task.config,  # pyrefly: ignore[missing-attribute]
       )
 
   def test_canonicalize_parameters_collision(self):
@@ -492,7 +492,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           overwrite=True,
       )
       self.assertTrue(
-          task_with_overwrite.config['assetExportOptions'][
+          task_with_overwrite.config['assetExportOptions'][  # pyrefly: ignore[unsupported-operation]
               'earthEngineDestination'
           ]['overwrite']
       )
@@ -583,7 +583,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           None,
           config['maxPixels'],
           None,
-          [512, 2048],
+          [512, 2048],  # pyrefly: ignore[bad-argument-type]
           True,
       )
       expected_expression = ee.Image(1).clip(region)
@@ -629,7 +629,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           None,
           config['maxPixels'],
           None,
-          [512, 2048],
+          [512, 2048],  # pyrefly: ignore[bad-argument-type]
           True,
           None,
           None,
@@ -813,7 +813,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       ):
         config_with_bogus_option = config.copy()
         config_with_bogus_option['framesPerSecond'] = 30
-        ee.batch.Export.map.toCloudStorage(**config_with_bogus_option)
+        ee.batch.Export.map.toCloudStorage(**config_with_bogus_option)  # pyrefly: ignore[bad-argument-type]
 
       # Test ordered parameters.
       task_ordered = ee.batch.Export.map.toCloudStorage(
@@ -1023,20 +1023,20 @@ class BatchTestCase(apitestcase.ApiTestCase):
           selectors=['ab', 'bb', 'c'],
           outputBucket='foo',
       )
-      self.assertEqual(['ab', 'bb', 'c'], task.config['selectors'])
+      self.assertEqual(['ab', 'bb', 'c'], task.config['selectors'])  # pyrefly: ignore[unsupported-operation]
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           selectors=('x', 'y'),
           outputBucket='foo',
       )
-      self.assertEqual(['x', 'y'], task.config['selectors'])
+      self.assertEqual(['x', 'y'], task.config['selectors'])  # pyrefly: ignore[unsupported-operation]
       # Single string should work too.
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           selectors='ab,cd,ef',
           outputBucket='foo',
       )
-      self.assertEqual(['ab', 'cd', 'ef'], task.config['selectors'])
+      self.assertEqual(['ab', 'cd', 'ef'], task.config['selectors'])  # pyrefly: ignore[unsupported-operation]
 
   def test_export_table_to_cloud_storage_cloud_api(self):
     """Verifies the Cloud Storage task created by Export.table()."""
@@ -1044,7 +1044,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           outputBucket='test-bucket',
-          maxVertices=1e6,
+          maxVertices=1e6,  # pyrefly: ignore[bad-argument-type]
       )
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
@@ -1069,7 +1069,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task_with_priority = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'),
           outputBucket='test-bucket',
-          maxVertices=1e6,
+          maxVertices=1e6,  # pyrefly: ignore[bad-argument-type]
           priority=999,
       )
       self.assertEqual(
@@ -1211,7 +1211,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           overwrite=True,
       )
       self.assertTrue(
-          task_with_overwrite.config['assetExportOptions'][
+          task_with_overwrite.config['assetExportOptions'][  # pyrefly: ignore[unsupported-operation]
               'earthEngineDestination'
           ]['overwrite']
       )
@@ -1404,7 +1404,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     }
     self.assertEqual(
         expected_ingestion_params,
-        task.config['featureViewExportOptions']['ingestionTimeParameters'],
+        task.config['featureViewExportOptions']['ingestionTimeParameters'],  # pyrefly: ignore[unsupported-operation]
     )
 
   def test_export_table_to_feature_view_bad_rank_by_one_thing_rule(self):
@@ -1543,7 +1543,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       ):
         ee.batch.Export.table.toBigQuery(
             collection=ee.FeatureCollection('foo'),
-            table=['array.instead.of.string'],
+            table=['array.instead.of.string'],  # pyrefly: ignore[bad-argument-type]
             description='foo',
         )
 
@@ -1589,7 +1589,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       # serialised forms instead.
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task.config.pop('expression').serialize(for_cloud_api=True),
+          task.config.pop('expression').serialize(for_cloud_api=True),  # pyrefly: ignore[missing-attribute]
       )
       self.assertEqual(
           {
@@ -1616,7 +1616,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('UNSUBMITTED', gcs_task.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          gcs_task.config.pop('expression').serialize(for_cloud_api=True),
+          gcs_task.config.pop('expression').serialize(for_cloud_api=True),  # pyrefly: ignore[missing-attribute]
       )
       self.assertEqual(
           {
@@ -1688,7 +1688,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('UNSUBMITTED', task_keyed.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_keyed.config.pop('expression').serialize(for_cloud_api=True),
+          task_keyed.config.pop('expression').serialize(for_cloud_api=True),  # pyrefly: ignore[missing-attribute]
       )
       self.assertEqual(expected_config, task_keyed.config)
 
@@ -1709,7 +1709,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_ordered.config.pop('expression').serialize(for_cloud_api=True),
+          task_ordered.config.pop('expression').serialize(for_cloud_api=True),  # pyrefly: ignore[missing-attribute]
       )
       self.assertEqual(expected_config, task_ordered.config)
 
@@ -1736,7 +1736,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       )
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_with_priority.config.pop('expression').serialize(
+          task_with_priority.config.pop('expression').serialize(  # pyrefly: ignore[missing-attribute]
               for_cloud_api=True
           ),
       )
@@ -1782,7 +1782,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('UNSUBMITTED', task_keyed.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_keyed.config.pop('expression').serialize(for_cloud_api=True),
+          task_keyed.config.pop('expression').serialize(for_cloud_api=True),  # pyrefly: ignore[missing-attribute]
       )
       self.assertEqual(expected_config, task_keyed.config)
 
@@ -1803,7 +1803,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_ordered.config.pop('expression').serialize(for_cloud_api=True),
+          task_ordered.config.pop('expression').serialize(for_cloud_api=True),  # pyrefly: ignore[missing-attribute]
       )
       self.assertEqual(expected_config, task_ordered.config)
 
@@ -1829,7 +1829,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       )
       self.assertEqual(
           expected_collection.serialize(for_cloud_api=True),
-          task_with_priority.config.pop('expression').serialize(
+          task_with_priority.config.pop('expression').serialize(  # pyrefly: ignore[missing-attribute]
               for_cloud_api=True
           ),
       )
@@ -1849,7 +1849,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       ee.data.setWorkloadTag('not-test-export')
       self.assertEqual('test-export', task.workload_tag)
       task.start()
-      self.assertEqual('test-export', task.config['workloadTag'])
+      self.assertEqual('test-export', task.config['workloadTag'])  # pyrefly: ignore[unsupported-operation]
       export_args = mock_cloud_api_resource.projects().table().export.call_args
       self.assertEqual(export_args[1]['body']['workloadTag'], 'test-export')
 
@@ -1859,7 +1859,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       ee.data.setWorkloadTag('test-export')
       task = ee.batch.Export.table(ee.FeatureCollection('foo'), 'bar')
       self.assertEqual('test-export', task.workload_tag)
-      task.config['workloadTag'] = 'not-test-export'
+      task.config['workloadTag'] = 'not-test-export'  # pyrefly: ignore[unsupported-operation]
       task.start()
       # Overridden in config.
       self.assertEqual('not-test-export', task.config['workloadTag'])
@@ -1874,7 +1874,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('', task.workload_tag)
       task.start()
       # Not captured on start().
-      self.assertEqual('', task.config['workloadTag'])
+      self.assertEqual('', task.config['workloadTag'])  # pyrefly: ignore[unsupported-operation]
       export_args = mock_cloud_api_resource.projects().table().export.call_args
       self.assertNotIn('workloadTag', export_args[1]['body'])
 

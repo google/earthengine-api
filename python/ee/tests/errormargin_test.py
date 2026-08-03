@@ -26,17 +26,17 @@ class ErrorMarginTest(apitestcase.ApiTestCase):
     self.assertEqual(errormargin_func, errormargin.func)
 
     self.assertFalse(errormargin.isVariable())
-    self.assertEqual({UNIT, VALUE}, set(errormargin.args))
+    self.assertEqual({UNIT, VALUE}, set(errormargin.args))  # pyrefly: ignore[bad-argument-type]
     expected_unit = {
         'result': '0',
         'values': {'0': {'constantValue': 'projected'}},
     }
     self.assertEqual(
-        expected_unit, json.loads(errormargin.args[UNIT].serialize())
+        expected_unit, json.loads(errormargin.args[UNIT].serialize())  # pyrefly: ignore[unsupported-operation]
     )
     expected_value = {'result': '0', 'values': {'0': {'constantValue': 2}}}
     self.assertEqual(
-        expected_value, json.loads(errormargin.args[VALUE].serialize())
+        expected_value, json.loads(errormargin.args[VALUE].serialize())  # pyrefly: ignore[unsupported-operation]
     )
 
     result = json.loads(errormargin.serialize())

@@ -293,7 +293,7 @@ class ImageCollection(collection.Collection[image.Image]):
       return output_image, request
 
     clipped_collection, request = self._apply_preparation_function(
-        map_function, params)
+        map_function, params)  # pyrefly: ignore[bad-argument-type]
 
     assert params is not None
     request['format'] = params.get('format', valid_formats[0])
@@ -503,7 +503,7 @@ class ImageCollection(collection.Collection[image.Image]):
 
     return apifunction.ApiFunction.call_('ImageCollection.load', id, version)
 
-  def merge(self, collection2: _arg_types.ImageCollection) -> ImageCollection:
+  def merge(self, collection2: _arg_types.ImageCollection) -> ImageCollection:  # pyrefly: ignore[bad-override]
     """Returns a collection of two image collections merged into one.
 
     The result has all the images that were in either collection.
