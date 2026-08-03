@@ -261,25 +261,25 @@ def _install_cloud_api_resource() -> None:
   timeout = (state.deadline_ms / 1000.0) or None
   assert state.requests_session is not None
   state.cloud_api_resource = _cloud_api_utils.build_cloud_resource(
-      state.cloud_api_base_url,
+      state.cloud_api_base_url,  # pyrefly: ignore[bad-argument-type]
       state.requests_session,
       credentials=state.credentials,
       api_key=state.cloud_api_key,
       timeout=timeout,
       num_retries=state.max_retries,
-      headers_supplier=_make_request_headers,
+      headers_supplier=_make_request_headers,  # pyrefly: ignore[bad-argument-type]
       response_inspector=_handle_response_headers,
       http_transport=state.http_transport,
   )
 
   state.cloud_api_resource_raw = _cloud_api_utils.build_cloud_resource(
-      state.cloud_api_base_url,
+      state.cloud_api_base_url,  # pyrefly: ignore[bad-argument-type]
       state.requests_session,
       credentials=state.credentials,
       api_key=state.cloud_api_key,
       timeout=timeout,
       num_retries=state.max_retries,
-      headers_supplier=_make_request_headers,
+      headers_supplier=_make_request_headers,  # pyrefly: ignore[bad-argument-type]
       response_inspector=_handle_response_headers,
       http_transport=state.http_transport,
       raw=True,
@@ -420,7 +420,7 @@ def setDeadline(milliseconds: float) -> None:
     milliseconds: The number of milliseconds to wait for a request
         before considering it timed out. 0 means no limit.
   """
-  _get_state().deadline_ms = milliseconds
+  _get_state().deadline_ms = milliseconds  # pyrefly: ignore[bad-assignment]
   _install_cloud_api_resource()
 
 
@@ -556,8 +556,8 @@ def listImages(
   images = {'images': []}
   images['images'].extend(assets.get('assets', []))
   if _NEXT_PAGE_TOKEN_KEY in assets:
-    images[_NEXT_PAGE_TOKEN_KEY] = assets.get(_NEXT_PAGE_TOKEN_KEY)
-  return images
+    images[_NEXT_PAGE_TOKEN_KEY] = assets.get(_NEXT_PAGE_TOKEN_KEY)  # pyrefly: ignore[bad-assignment]
+  return images  # pyrefly: ignore[bad-return]
 
 
 def listAssets(params: str | dict[str, Any]) -> dict[str, list[Any]]:
@@ -729,7 +729,7 @@ def getFeatureViewTilesKey(params: dict[str, Any]) -> dict[str, Any]:
   request = {
       'asset':
           _cloud_api_utils.convert_asset_id_to_asset_name(
-              params.get('assetId'))
+              params.get('assetId'))  # pyrefly: ignore[bad-argument-type]
   }
   # Only include visParams if it's non-empty.
   if params.get('visParams'):
@@ -768,10 +768,10 @@ def _extract_image_converter(
     params: dict[str, Any]
 ) -> image_converter.ImageConverter:
   file_format = params.get('fileFormat')
-  converter = image_converter.from_file_format(file_format)
+  converter = image_converter.from_file_format(file_format)  # pyrefly: ignore[bad-argument-type]
   if converter:
     return converter
-  return image_converter.IdentityImageConverter(file_format)
+  return image_converter.IdentityImageConverter(file_format)  # pyrefly: ignore[bad-argument-type]
 
 
 def _generate(func, list_key: str, **kwargs) -> Iterator[Any]:
@@ -815,7 +815,7 @@ def listFeatures(params: dict[str, Any]) -> Any:
   """
   params = params.copy()
   params['asset'] = _cloud_api_utils.convert_asset_id_to_asset_name(
-      params.get('assetId'))
+      params.get('assetId'))  # pyrefly: ignore[bad-argument-type]
   del params['assetId']
 
   def call(params):
@@ -856,7 +856,7 @@ def getPixels(params: dict[str, Any]) -> Any:
     The pixels as raw image data.
   """
   params = params.copy()
-  name = _cloud_api_utils.convert_asset_id_to_asset_name(params.get('assetId'))
+  name = _cloud_api_utils.convert_asset_id_to_asset_name(params.get('assetId'))  # pyrefly: ignore[bad-argument-type]
   del params['assetId']
   converter = _extract_image_converter(params)
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
@@ -1008,7 +1008,7 @@ class TileFetcher:
 
   def __init__(self, url_format, map_name=None):
     self._url_format = url_format
-    self._map_name = map_name
+    self._map_name = map_name  # pyrefly: ignore[bad-assignment]
 
   @property
   def url_format(self) -> str:
@@ -1657,7 +1657,7 @@ def getTaskStatus(taskId: list[str] | str) -> list[Any]:
     # Don't use getOperation as it will translate the exception, and we need
     # to handle 404s specially.
     name = _cloud_api_utils.convert_task_id_to_operation_name(
-        state.cloud_api_user_project, one_id
+        state.cloud_api_user_project, one_id  # pyrefly: ignore[bad-argument-type]
     )
     try:
       operation = (
@@ -1695,7 +1695,7 @@ def cancelTask(taskId: str) -> None:
   """Cancels a batch task."""
   cancelOperation(
       _cloud_api_utils.convert_task_id_to_operation_name(
-          _get_state().cloud_api_user_project, taskId
+          _get_state().cloud_api_user_project, taskId  # pyrefly: ignore[bad-argument-type]
       )
   )
 

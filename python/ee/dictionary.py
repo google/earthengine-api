@@ -77,14 +77,14 @@ class Dictionary(computedobject.ComputedObject):
   @_utils.accept_opt_prefix('opt_encoder')
   def encode(self, encoder=None):
     if self._dictionary is not None:
-      return encoder(self._dictionary)
+      return encoder(self._dictionary)  # pyrefly: ignore[not-callable]
     else:
       return super().encode(encoder)
 
   @_utils.accept_opt_prefix('opt_encoder')
   def encode_cloud_value(self, encoder=None):
     if self._dictionary is not None:
-      return {'valueReference': encoder(self._dictionary)}
+      return {'valueReference': encoder(self._dictionary)}  # pyrefly: ignore[not-callable]
     else:
       return super().encode_cloud_value(encoder)
 

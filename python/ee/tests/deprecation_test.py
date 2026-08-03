@@ -152,7 +152,7 @@ class FakeClass:
 class MockDatetime(datetime.datetime):
 
   @classmethod
-  def now(cls, tz=None) -> datetime.datetime:
+  def now(cls, tz=None) -> datetime.datetime:  # pyrefly: ignore[bad-override]
     return _MOCK_CURRENT_DATE_BEFORE_REMOVAL_DATE
 
 

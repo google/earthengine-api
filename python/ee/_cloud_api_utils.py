@@ -189,7 +189,7 @@ def build_cloud_resource(
     http_transport = google_auth_httplib2.AuthorizedHttp(
         credentials, http=http_transport
     )
-  request_builder = _wrap_request(headers_supplier, response_inspector)
+  request_builder = _wrap_request(headers_supplier, response_inspector)  # pyrefly: ignore[bad-argument-type]
   # Discovery uses json by default.
   if raw:
     alt_model = model.RawModel()
@@ -247,9 +247,9 @@ def build_cloud_resource_from_document(
   Returns:
     A resource object to use to call the Cloud API.
   """
-  request_builder = _wrap_request(headers_supplier, response_inspector)
+  request_builder = _wrap_request(headers_supplier, response_inspector)  # pyrefly: ignore[bad-argument-type]
   if http_transport is None:
-    http_transport = _Http(requests.Session())
+    http_transport = _Http(requests.Session())  # pyrefly: ignore[bad-assignment]
   alt_model = model.RawModel() if raw else None
   return discovery.build_from_document(
       discovery_document,
@@ -799,8 +799,8 @@ def convert_to_visualization_options(params: dict[str, Any]) -> dict[str, Any]:
           'Gain and bias cannot be specified together with min and max')
     # The Cloud API doesn't support gain/bias, only min/max. Extract and
     # convert.
-    gains = _convert_csv_numbers_to_list(params.get('gain'))
-    biases = _convert_csv_numbers_to_list(params.get('bias'))
+    gains = _convert_csv_numbers_to_list(params.get('gain'))  # pyrefly: ignore[bad-argument-type]
+    biases = _convert_csv_numbers_to_list(params.get('bias'))  # pyrefly: ignore[bad-argument-type]
     if not gains:
       gains = [1.0] * len(biases)
     elif not biases:
@@ -816,8 +816,8 @@ def convert_to_visualization_options(params: dict[str, Any]) -> dict[str, Any]:
       range_max = value_range / gain + range_min
       ranges.append({'min': range_min, 'max': range_max})
   elif 'min' in params or 'max' in params:
-    mins = _convert_csv_numbers_to_list(params.get('min'))
-    maxes = _convert_csv_numbers_to_list(params.get('max'))
+    mins = _convert_csv_numbers_to_list(params.get('min'))  # pyrefly: ignore[bad-argument-type]
+    maxes = _convert_csv_numbers_to_list(params.get('max'))  # pyrefly: ignore[bad-argument-type]
     if not mins:
       mins = [0.0] * len(maxes)
     elif not maxes:
@@ -828,7 +828,7 @@ def convert_to_visualization_options(params: dict[str, Any]) -> dict[str, Any]:
       ranges.append({'min': range_min, 'max': range_max})
   if ranges:
     result['ranges'] = ranges
-  gammas = _convert_csv_numbers_to_list(params.get('gamma'))
+  gammas = _convert_csv_numbers_to_list(params.get('gamma'))  # pyrefly: ignore[bad-argument-type]
   if len(gammas) > 1:
     raise ee_exception.EEException('Only one gamma value is supported.')
   elif gammas:
@@ -943,7 +943,7 @@ def convert_to_grid_dimensions(
   """
   if isinstance(dimensions, int):
     return {'width': dimensions, 'height': dimensions}
-  elif len(dimensions) == 1:
-    return {'width': dimensions[0], 'height': dimensions[0]}
+  elif len(dimensions) == 1:  # pyrefly: ignore[bad-argument-type]
+    return {'width': dimensions[0], 'height': dimensions[0]}  # pyrefly: ignore[bad-index]
   else:
-    return {'width': dimensions[0], 'height': dimensions[1]}
+    return {'width': dimensions[0], 'height': dimensions[1]}  # pyrefly: ignore[bad-index]
