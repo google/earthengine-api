@@ -23,7 +23,7 @@ jobs:
       run: |
         pip install ./python[tests]
         pip install pyright
-        pip install pytype
+        pip install pyrefly
         pip install mypy
         pip install pandas-stubs types-geopandas
         pip install types-httplib2 types-requests types-tensorflow
@@ -41,7 +41,7 @@ jobs:
       run: |
         mypy -p ee
       continue-on-error: true
-    - name: pytype ee type verification
+    - name: pyrefly ee type verification
       run: |
         cd python
-        pytype -k -d import-error ee
+        pyrefly check ee
