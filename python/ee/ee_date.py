@@ -26,9 +26,6 @@ class Date(computedobject.ComputedObject):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   @_utils.accept_opt_prefix('opt_tz')
   def __init__(
       self, date: _DateType, tz: _arg_types.String | None = None
@@ -70,7 +67,7 @@ class Date(computedobject.ComputedObject):
       if self.is_func_returning_same(date):
         # If it's a call that's already returning a Date, just cast.
         func = date.func
-        args = date.args
+        args = date.args  # pyrefly: ignore[bad-assignment]
         var_name = date.varName
       else:
         args = {'value': date}

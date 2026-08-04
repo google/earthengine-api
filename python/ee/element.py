@@ -179,7 +179,7 @@ class Element(computedobject.ComputedObject):
             'Element.set', result, key, value)
 
     # Manually cast the result to an image.
-    return self._cast(result)
+    return self._cast(result)  # pyrefly: ignore[bad-return]
 
   def toDictionary(
       self, properties: _arg_types.List | None = None

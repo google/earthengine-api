@@ -176,8 +176,8 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     )
     self.assertIsInstance(result, ee.ImageCollection)
     self.assertEqual(ee.ApiFunction.lookup('Collection.map'), result.func)
-    self.assertEqual(image_collection_1, result.args['collection'])
-    self.assertIsInstance(result.args['baseAlgorithm'], ee.Function)
+    self.assertEqual(image_collection_1, result.args['collection'])  # pyrefly: ignore[unsupported-operation]
+    self.assertIsInstance(result.args['baseAlgorithm'], ee.Function)  # pyrefly: ignore[unsupported-operation]
 
     serialized = result.serialize()
     self.assertIn('"functionName": "ImageCollection.load"', serialized)
@@ -200,8 +200,8 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     )
     self.assertIsInstance(result, ee.ImageCollection)
     self.assertEqual(ee.ApiFunction.lookup('Collection.map'), result.func)
-    self.assertEqual(image_collection_1, result.args['collection'])
-    self.assertIsInstance(result.args['baseAlgorithm'], ee.Function)
+    self.assertEqual(image_collection_1, result.args['collection'])  # pyrefly: ignore[unsupported-operation]
+    self.assertIsInstance(result.args['baseAlgorithm'], ee.Function)  # pyrefly: ignore[unsupported-operation]
 
     serialized = result.serialize()
     self.assertIn('"functionName": "ImageCollection.load"', serialized)

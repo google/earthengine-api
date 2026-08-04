@@ -48,9 +48,6 @@ class Image(element.Element):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   @deprecation.WarnForDeprecatedAsset('args')
   def __init__(self, args: Any | None = None, version: float | None = None):
     """Constructs an Earth Engine image.
@@ -149,7 +146,7 @@ class Image(element.Element):
     Returns:
       A map ID dictionary as described in ee.data.getMapId.
     """
-    vis_image, request = self._apply_visualization(vis_params)
+    vis_image, request = self._apply_visualization(vis_params)  # pyrefly: ignore[bad-argument-type]
     request['image'] = vis_image
     response = data.getMapId(request)
     response['image'] = self
@@ -565,7 +562,7 @@ class Image(element.Element):
     # If the Cloud API is enabled, we can do cleaner handling of the parameters.
     # If it isn't enabled, we have to be bug-for-bug compatible with current
     # behaviour.
-    return data.makeThumbUrl(self.getThumbId(params))
+    return data.makeThumbUrl(self.getThumbId(params))  # pyrefly: ignore[bad-argument-type]
 
   # pylint: disable=g-bad-name
   # Deprecated spellings to match the JS library.
@@ -669,7 +666,7 @@ class Image(element.Element):
     if map_:
       for name, value in map_.items():
         all_vars.append(name)
-        args[name] = Image(value)
+        args[name] = Image(value)  # pyrefly: ignore[unsupported-operation]
 
     body = apifunction.ApiFunction.call_(
         'Image.parseExpression', expression, arg_name, all_vars)
