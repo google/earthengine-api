@@ -21,9 +21,6 @@ class List(computedobject.ComputedObject):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   def __init__(self, arg: _arg_types.List | None):
     """Construct a list wrapper.
 

@@ -27,9 +27,6 @@ class FeatureCollection(collection.Collection[feature.Feature]):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   @_utils.accept_opt_prefix('opt_column')
   @deprecation.WarnForDeprecatedAsset('args')
   def __init__(

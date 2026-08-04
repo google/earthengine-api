@@ -48,9 +48,6 @@ class Image(element.Element):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   @deprecation.WarnForDeprecatedAsset('args')
   def __init__(self, args: Any | None = None, version: float | None = None):
     """Constructs an Earth Engine image.

@@ -25,9 +25,6 @@ class ImageCollection(collection.Collection[image.Image]):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   @deprecation.WarnForDeprecatedAsset('args')
   def __init__(self, args: Any):
     """ImageCollection constructor.
