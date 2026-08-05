@@ -1196,7 +1196,7 @@ def _prepare_image_export_config(
 
   _canonicalize_parameters(config, export_destination)
 
-  image, config = image.prepare_for_export(config)
+  image, config = image.prepare_for_export(config)  # pyrefly: ignore[missing-attribute]
   # Build an ExportImageRequest. Delete values from "config" as we go so we
   # can check at the end for any leftovers. Any computed objects will be
   # serialised in data.py before the request is sent.
@@ -1278,7 +1278,7 @@ def _prepare_map_export_config(
   # We have to protect the "scale" parameter as prepare_for_export will try
   # to interpret it inappropriately.
   scale = config.pop('scale', None)
-  image, config = image.prepare_for_export(config)
+  image, config = image.prepare_for_export(config)  # pyrefly: ignore[missing-attribute]
   if scale is not None:
     config['scale'] = scale
 
@@ -1398,7 +1398,7 @@ def _prepare_video_export_config(
   _canonicalize_parameters(config, export_destination)
   if 'crs' not in config:
     config['crs'] = 'SR-ORG:6627'
-  collection, config = collection.prepare_for_export(config)
+  collection, config = collection.prepare_for_export(config)  # pyrefly: ignore[missing-attribute]
   request = {}
   request['expression'] = collection
   if 'description' in config:

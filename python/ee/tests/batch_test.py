@@ -324,7 +324,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
               },
               'maxPixels': {'value': '10000000000'},
           },
-          task.config,
+          task.config,  # pyrefly: ignore[missing-attribute]
       )
 
   def test_export_image_cloud_api_invalid_skip_empty_tiles(self):
