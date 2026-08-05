@@ -19,9 +19,6 @@ class Number(computedobject.ComputedObject):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   def __init__(self, number: _arg_types.Number):
     """Construct a number wrapper.
 

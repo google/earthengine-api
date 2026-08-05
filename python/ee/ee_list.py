@@ -21,9 +21,6 @@ class List(computedobject.ComputedObject):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   def __init__(self, arg: _arg_types.List | None):
     """Construct a list wrapper.
 
@@ -105,14 +102,14 @@ class List(computedobject.ComputedObject):
   def encode(self, encoder: Any | None = None) -> Any:
     if isinstance(self._list, (list, tuple)):
       assert self._list is not None
-      return [encoder(elem) for elem in self._list]
+      return [encoder(elem) for elem in self._list]  # pyrefly: ignore[not-callable]
     else:
       return super().encode(encoder)
 
   @_utils.accept_opt_prefix('opt_encoder')
   def encode_cloud_value(self, encoder: Any | None = None) -> Any:
     if isinstance(self._list, (list, tuple)):
-      return {'valueReference': encoder(self._list)}
+      return {'valueReference': encoder(self._list)}  # pyrefly: ignore[not-callable]
     else:
       return super().encode_cloud_value(encoder)
 

@@ -22,7 +22,7 @@ class ComputedObjectMetaclass(type):
 
   def __call__(cls, *args, **kwargs):
     """Creates a computed object, catching self-casts."""
-    if len(args) == 1 and not kwargs and isinstance(args[0], cls):
+    if len(args) == 1 and not kwargs and isinstance(args[0], cls):  # pyrefly: ignore[invalid-argument]
       # Self-casting returns the argument unchanged.
       return args[0]
     else:
@@ -162,11 +162,11 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
 
       # Encode all arguments recursively.
       encoded_args: dict[str, Any] = {}
-      for name in sorted(self.args):
-        value = self.args[name]
+      for name in sorted(self.args):  # pyrefly: ignore[bad-argument-type]
+        value = self.args[name]  # pyrefly: ignore[unsupported-operation]
         if value is not None:
           encoded_args[name] = {'valueReference': encoder(value)}
-      invocation['arguments'] = encoded_args
+      invocation['arguments'] = encoded_args  # pyrefly: ignore[unsupported-operation]
       return {'functionInvocationValue': invocation}
 
   @_utils.accept_opt_prefix('opt_pretty')

@@ -27,8 +27,8 @@ def _transform_operation_to_task(operation: dict[str, Any]) -> Task:
   status = _cloud_api_utils.convert_operation_to_task(operation)
   return Task(
       status['id'],
-      status.get('task_type'),
-      status.get('state'),
+      status.get('task_type'),  # pyrefly: ignore[bad-argument-type]
+      status.get('state'),  # pyrefly: ignore[bad-argument-type]
       {'description': status.get('description')},
       status.get('name'),
   )
@@ -187,7 +187,7 @@ class Task:
 
   def cancel(self) -> None:
     """Cancels the task."""
-    data.cancelOperation(self.operation_name)
+    data.cancelOperation(self.operation_name)  # pyrefly: ignore[bad-argument-type]
 
   @staticmethod
   def list() -> list[Task]:
@@ -1196,7 +1196,7 @@ def _prepare_image_export_config(
 
   _canonicalize_parameters(config, export_destination)
 
-  image, config = image.prepare_for_export(config)
+  image, config = image.prepare_for_export(config)  # pyrefly: ignore[missing-attribute]
   # Build an ExportImageRequest. Delete values from "config" as we go so we
   # can check at the end for any leftovers. Any computed objects will be
   # serialised in data.py before the request is sent.
@@ -1278,7 +1278,7 @@ def _prepare_map_export_config(
   # We have to protect the "scale" parameter as prepare_for_export will try
   # to interpret it inappropriately.
   scale = config.pop('scale', None)
-  image, config = image.prepare_for_export(config)
+  image, config = image.prepare_for_export(config)  # pyrefly: ignore[missing-attribute]
   if scale is not None:
     config['scale'] = scale
 
@@ -1398,7 +1398,7 @@ def _prepare_video_export_config(
   _canonicalize_parameters(config, export_destination)
   if 'crs' not in config:
     config['crs'] = 'SR-ORG:6627'
-  collection, config = collection.prepare_for_export(config)
+  collection, config = collection.prepare_for_export(config)  # pyrefly: ignore[missing-attribute]
   request = {}
   request['expression'] = collection
   if 'description' in config:

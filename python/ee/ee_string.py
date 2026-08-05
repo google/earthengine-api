@@ -19,9 +19,6 @@ class String(computedobject.ComputedObject):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   def __init__(self, string: _arg_types.String):
     """Construct a string wrapper.
 

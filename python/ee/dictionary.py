@@ -30,9 +30,6 @@ class Dictionary(computedobject.ComputedObject):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   def __init__(self, arg: _arg_types.Dictionary | None = None):
     """Construct a dictionary.
 
@@ -77,14 +74,14 @@ class Dictionary(computedobject.ComputedObject):
   @_utils.accept_opt_prefix('opt_encoder')
   def encode(self, encoder=None):
     if self._dictionary is not None:
-      return encoder(self._dictionary)
+      return encoder(self._dictionary)  # pyrefly: ignore[not-callable]
     else:
       return super().encode(encoder)
 
   @_utils.accept_opt_prefix('opt_encoder')
   def encode_cloud_value(self, encoder=None):
     if self._dictionary is not None:
-      return {'valueReference': encoder(self._dictionary)}
+      return {'valueReference': encoder(self._dictionary)}  # pyrefly: ignore[not-callable]
     else:
       return super().encode_cloud_value(encoder)
 
