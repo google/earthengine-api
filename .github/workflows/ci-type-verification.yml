@@ -9,22 +9,21 @@ jobs:
   build:
     name: "Type verification"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-    - name: Cancel previous
-      uses: styfle/cancel-workflow-action@0.13.1
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       with:
-        access_token: ${{ github.token }}
-      if: ${{github.ref != 'refs/head/master'}}
-    - uses: actions/checkout@v6
+        persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
       with:
         python-version: 3.11
     - name: Install EE API
       run: |
         pip install ./python[tests]
         pip install pyright
-        pip install pytype
+        pip install pyrefly
         pip install mypy
         pip install pandas-stubs types-geopandas
         pip install types-httplib2 types-requests types-tensorflow
@@ -42,7 +41,7 @@ jobs:
       run: |
         mypy -p ee
       continue-on-error: true
-    - name: pytype ee type verification
+    - name: pyrefly ee type verification
       run: |
         cd python
-        pytype -k -d import-error ee
+        pyrefly check ee

@@ -130,7 +130,7 @@ class ImageTest(apitestcase.ApiTestCase):
 
     self.assertEqual(
         ee.Image(1).visualize(min=0).serialize(),
-        self.last_mapid_call['data']['image'].serialize())
+        self.last_mapid_call['data']['image'].serialize())  # pyrefly: ignore[unsupported-operation]
 
   def test_combine(self):
     """Verifies the behavior of ee.Image.combine_()."""
@@ -139,14 +139,14 @@ class ImageTest(apitestcase.ApiTestCase):
     combined = ee.Image.combine_([image1, image2], ['a', 'b', 'c', 'd'])
 
     self.assertEqual(ee.ApiFunction.lookup('Image.select'), combined.func)
-    self.assertEqual(ee.List(['.*']), combined.args['bandSelectors'])
-    self.assertEqual(ee.List(['a', 'b', 'c', 'd']), combined.args['newNames'])
+    self.assertEqual(ee.List(['.*']), combined.args['bandSelectors'])  # pyrefly: ignore[unsupported-operation]
+    self.assertEqual(ee.List(['a', 'b', 'c', 'd']), combined.args['newNames'])  # pyrefly: ignore[unsupported-operation]
     self.assertEqual(
-        ee.ApiFunction.lookup('Image.addBands'), combined.args['input'].func)
+        ee.ApiFunction.lookup('Image.addBands'), combined.args['input'].func)  # pyrefly: ignore[unsupported-operation]
     self.assertEqual({
         'dstImg': image1,
         'srcImg': image2
-    }, combined.args['input'].args)
+    }, combined.args['input'].args)  # pyrefly: ignore[unsupported-operation]
 
   def test_rgb(self):
     """Verifies the behavior of ee.Image.rgb()."""
@@ -212,15 +212,15 @@ class ImageTest(apitestcase.ApiTestCase):
     """Verifies image.rename varargs handling."""
     image = ee.Image([1, 2]).rename('a', 'b')
     self.assertEqual(ee.ApiFunction.lookup('Image.rename'), image.func)
-    self.assertEqual(ee.List(['a', 'b']), image.args['names'])
+    self.assertEqual(ee.List(['a', 'b']), image.args['names'])  # pyrefly: ignore[unsupported-operation]
 
     image = ee.Image([1, 2]).rename(['a', 'b'])
     self.assertEqual(ee.ApiFunction.lookup('Image.rename'), image.func)
-    self.assertEqual(ee.List(['a', 'b']), image.args['names'])
+    self.assertEqual(ee.List(['a', 'b']), image.args['names'])  # pyrefly: ignore[unsupported-operation]
 
     image = ee.Image([1]).rename('a')
     self.assertEqual(ee.ApiFunction.lookup('Image.rename'), image.func)
-    self.assertEqual(ee.List(['a']), image.args['names'])
+    self.assertEqual(ee.List(['a']), image.args['names'])  # pyrefly: ignore[unsupported-operation]
 
   def test_expression(self):
     """Verifies the behavior of ee.Image.expression()."""
@@ -313,10 +313,10 @@ class ImageTest(apitestcase.ApiTestCase):
     """Verifies Download ID and URL generation."""
     ee.Image(1).getDownloadURL()
 
-    self.assertEqual('/download', self.last_download_call['url'])
+    self.assertEqual('/download', self.last_download_call['url'])  # pyrefly: ignore[unsupported-operation]
     self.assertEqual(
         ee.Image(1).serialize(),
-        self.last_download_call['data']['image'].serialize())
+        self.last_download_call['data']['image'].serialize())  # pyrefly: ignore[unsupported-operation]
 
 
 class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
@@ -839,7 +839,7 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
 
   def test_morphological_operators(self):
     """Verifies the focal operators are installed with aliases."""
-    ee.Image(0).focal_min().focalMin()
+    ee.Image(0).focal_min().focalMin()  # pyrefly: ignore[missing-attribute]
 
   def test_select_opt_params(self):
     result = (

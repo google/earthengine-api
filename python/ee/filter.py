@@ -35,9 +35,6 @@ class Filter(computedobject.ComputedObject):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   @_utils.accept_opt_prefix(('opt_filter', 'filter_'))
   def __init__(self, filter_=None):
     """Construct a filter.

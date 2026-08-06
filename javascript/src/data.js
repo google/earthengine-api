@@ -1033,11 +1033,17 @@ ee.data.makeTableDownloadUrl = function(id) {
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
   // From https://en.wikipedia.org/wiki/UUID#Version_4_(random)
-  const rand = (n) => Math.floor(Math.random() * n);
-  const hex = (d) => rand(Math.pow(2, d * 4)).toString(16).padStart(d, '0');
-  const variantPart = () => (8 + rand(4)).toString(16) + hex(3);
-  const generateUUID =
-      () => [hex(8), hex(4), '4' + hex(3), variantPart(), hex(12)].join('-');
+  const generateUUID = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  };
+
   const uuids = goog.array.range(opt_count || 1).map(generateUUID);
   return opt_callback ? opt_callback(uuids) : uuids;
 };

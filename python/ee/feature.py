@@ -21,9 +21,6 @@ class Feature(element.Element):
 
   _initialized = False
 
-  # Tell pytype to not complain about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
-
   @_utils.accept_opt_prefix('opt_properties')
   def __init__(
       self,

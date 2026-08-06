@@ -129,7 +129,7 @@ class MapClient(threading.Thread):
 
   def GetMapSize(self):
     if self.frame:
-      return (int(self.canvas.cget('width')), int(self.canvas.cget('height')))
+      return (int(self.canvas.cget('width')), int(self.canvas.cget('height')))  # pyrefly: ignore[missing-attribute]
     else:
       return (self.width, self.height)
 
