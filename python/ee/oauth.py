@@ -562,7 +562,8 @@ def authenticate(
     return
 
   if auth_mode == 'colab':
-    from google.colab import auth  # pylint: disable=g-import-not-at-top # pytype: disable=import-error
+    # pylint: disable-next=g-import-not-at-top
+    from google.colab import auth  # pytype: disable=import-error  # pyrefly: ignore[import]
     auth.authenticate_user()
     return
 

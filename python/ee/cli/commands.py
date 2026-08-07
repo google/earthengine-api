@@ -32,10 +32,10 @@ TENSORFLOW_INSTALLED = False
 
 # pylint: disable=g-import-not-at-top
 try:
-  import tensorflow.compat.v1 as tf
-  from tensorflow.compat.v1.saved_model import utils as saved_model_utils
-  from tensorflow.compat.v1.saved_model import signature_constants
-  from tensorflow.compat.v1.saved_model import signature_def_utils
+  import tensorflow.compat.v1 as tf  # pyrefly: ignore[import]
+  from tensorflow.compat.v1.saved_model import utils as saved_model_utils  # pyrefly: ignore[import]
+  from tensorflow.compat.v1.saved_model import signature_constants  # pyrefly: ignore[import]
+  from tensorflow.compat.v1.saved_model import signature_def_utils  # pyrefly: ignore[import]
   # This triggers a warning about disable_resource_variables
   tf.disable_v2_behavior()
   # Prevent TensorFlow from logging anything at the python level.

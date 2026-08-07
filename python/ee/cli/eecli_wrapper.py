@@ -30,7 +30,8 @@ sys.path.insert(0, THIRD_PARTY_DIR)
 
 def RunMain() -> None:
   # pytype: disable=import-error
-  import eecli  # pylint: disable=g-import-not-at-top
+  # pylint: disable-next=g-import-not-at-top
+  import eecli  # pyrefly: ignore[import]
   # pytype: enable=import-error
   sys.exit(eecli.main())
 
