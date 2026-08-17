@@ -333,8 +333,10 @@ def _handle_response_headers(response: httplib2.Response) -> None:
   if _QUOTA_STATUS_HEADER in response:
     if 'parallelism_restricted=true' in response[_QUOTA_STATUS_HEADER]:
       warnings.warn(
-          'Your project has exceeded the compute quota of its noncommercial '
-          'tier and is currently in restricted mode.'
+          'Your project has exceeded its noncommercial compute quota and is now'
+          ' in restricted mode. Visit'
+          ' https://developers.google.com/earth-engine/guides/noncommercial_tiers#restricted_mode'
+          ' to learn more.'
       )
 
 
