@@ -68,6 +68,8 @@ export interface MakeRequestParams {
   /** The ID of the API that the request belongs to. */
   apiId?: string;
   streamingType?: StreamingType;
+  /** Optional Angular HttpContext or custom request metadata. */
+  context?: unknown;
 }
 
 /**
