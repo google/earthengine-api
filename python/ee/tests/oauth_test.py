@@ -269,10 +269,11 @@ class OAuthTest(unittest.TestCase):
 
   @mock.patch.object(oauth, '_display_auth_instructions_with_html')
   @mock.patch.object(oauth, '_in_jupyter_shell', return_value=True)
+  @mock.patch.object(oauth, 'in_colab_shell', return_value=False)
   def test_display_instructions_jupyter(
-      self, mock_in_jupyter, mock_display_html
+      self, mock_in_colab, mock_in_jupyter, mock_display_html
   ):
-    del mock_in_jupyter  # Unused
+    del mock_in_colab, mock_in_jupyter  # Unused
     flow = oauth.Flow(auth_mode='notebook')
     self.assertTrue(flow.display_instructions())
     mock_display_html.assert_called_once_with(flow.auth_url, None)

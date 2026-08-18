@@ -1189,8 +1189,10 @@ class DataTest(parameterized.TestCase):
       if parallelism_restricted:
         with self.assertWarnsRegex(
             UserWarning,
-            'Your project has exceeded the compute quota of its noncommercial '
-            'tier and is currently in restricted mode.',
+            'Your project has exceeded its noncommercial compute quota and is'
+            ' now in restricted mode. Visit'
+            ' https://developers.google.com/earth-engine/guides/noncommercial_tiers#restricted_mode'
+            ' to learn more.',
         ):
           warnings.simplefilter('always')
           ee.data.listOperations()
