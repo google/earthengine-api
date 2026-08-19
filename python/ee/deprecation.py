@@ -8,6 +8,7 @@ import datetime
 import functools
 import inspect
 import json
+import os
 from typing import Any
 import urllib
 import warnings
@@ -160,6 +161,8 @@ def Reset() -> None:
 
 
 def _FetchDataCatalogStac() -> dict[str, Any]:
+  if 'TEST_WORKSPACE' in os.environ:
+    return {}
   try:
     response = urllib.request.urlopen(_DEPRECATED_ASSETS_URL).read()
   except (urllib.error.HTTPError, urllib.error.URLError):
