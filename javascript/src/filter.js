@@ -65,7 +65,7 @@ ee.Filter = function(opt_filter) {
     }
   } else if (opt_filter instanceof ee.ComputedObject) {
     // Actual filter object.
-    ee.Filter.base(this, 'constructor', opt_filter.func, opt_filter.args, opt_filter.varName);
+    ee.Filter.base(this, 'constructor', opt_filter.func, opt_filter.args, opt_filter.varName, opt_filter.unbound);
     this.filter_ = [opt_filter];
   } else if (opt_filter === undefined) {
     // A silly call with no arguments left for backward-compatibility.

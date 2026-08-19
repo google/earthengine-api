@@ -46,9 +46,9 @@ ee.String = function(string) {
     this.string_ = null;
     if (string.func && string.func.getSignature()['returns'] == 'String') {
       // If it's a call that's already returning a String, just cast.
-      ee.String.base(this, 'constructor', string.func, string.args, string.varName);
+      ee.String.base(this, 'constructor', string.func, string.args, string.varName, string.unbound);
     } else {
-      ee.String.base(this, 'constructor', new ee.ApiFunction('String'), {'input': string}, null);
+      ee.String.base(this, 'constructor', new ee.ApiFunction('String'), {'input': string}, null, string.unbound);
     }
   } else {
     throw Error('Invalid argument specified for ee.String(): ' + string);

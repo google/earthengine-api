@@ -145,6 +145,7 @@ ee.CustomFunction.variable = function(type, name) {
     this.func = null;
     this.args = null;
     this.varName = name;
+    this.unbound = true;
   };
   klass.prototype = type.prototype;
   return new klass(name);
