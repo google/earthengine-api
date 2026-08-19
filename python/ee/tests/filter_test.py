@@ -5,6 +5,8 @@ import datetime
 import json
 from typing import Any
 
+from absl.testing import parameterized
+
 import unittest
 import ee
 from ee import apitestcase
@@ -28,7 +30,7 @@ def max_error_expression(max_error: float) -> dict[str, Any]:
   }
 
 
-class FilterTest(apitestcase.ApiTestCase):
+class FilterTest(apitestcase.ApiTestCase, parameterized.TestCase):
 
   def test_constructors(self):
     """Verifies that constructors understand valid parameters."""
@@ -233,7 +235,67 @@ class FilterTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    # TODO: ee.Filter.And(filters=[]) does not currently work.
+    expression = ee.Filter.And(ee.List([]))
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    # Test with ee.List of filters
+    f1 = ee.Filter.eq('x', 1)
+    f2 = ee.Filter.eq('y', 2)
+    f1_expr = {
+        'functionInvocationValue': {
+            'functionName': 'Filter.equals',
+            'arguments': {
+                'leftField': {'constantValue': 'x'},
+                'rightValue': {'constantValue': 1}
+            }
+        }
+    }
+    f2_expr = {
+        'functionInvocationValue': {
+            'functionName': 'Filter.equals',
+            'arguments': {
+                'leftField': {'constantValue': 'y'},
+                'rightValue': {'constantValue': 2}
+            }
+        }
+    }
+    expect_list = make_expression_graph({
+        'arguments': {
+            'filters': {
+                'arrayValue': {
+                    'values': [f1_expr, f2_expr]
+                }
+            }
+        },
+        'functionName': 'Filter.and'
+    })
+    expression = ee.Filter.And(ee.List([f1, f2]))
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect_list, result)
+
+    # Test with computed ee.List
+    expect_computed = make_expression_graph({
+        'arguments': {
+            'filters': {
+                'functionInvocationValue': {
+                    'functionName': 'List.slice',
+                    'arguments': {
+                        'list': {
+                            'arrayValue': {
+                                'values': [f1_expr, f2_expr]
+                            }
+                        },
+                        'start': {'constantValue': 0}
+                    }
+                }
+            }
+        },
+        'functionName': 'Filter.and'
+    })
+    expression = ee.Filter.And(ee.List([f1, f2]).slice(0))
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect_computed, result)
 
   def test_area(self):
     min_val = 1
@@ -956,14 +1018,19 @@ class FilterTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  def test_or_empty(self):
+  @parameterized.named_parameters(
+      ('_empty_list', lambda: []),
+      ('_empty_tuple', lambda: ()),
+      ('_empty_ee_list', lambda: ee.List([])),
+  )
+  def test_or_empty(self, args_fn):
     expect = make_expression_graph({
         'arguments': {
             'filters': {'constantValue': []},
         },
         'functionName': 'Filter.or',
     })
-    expression = ee.Filter.Or()
+    expression = ee.Filter.Or(args_fn())
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -993,6 +1060,65 @@ class FilterTest(apitestcase.ApiTestCase):
     expression = ee.Filter.Or(gt_filter)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
+
+  def test_or_list(self):
+    # Test with ee.List of filters
+    f1 = ee.Filter.eq('x', 1)
+    f2 = ee.Filter.eq('y', 2)
+    f1_expr = {
+        'functionInvocationValue': {
+            'functionName': 'Filter.equals',
+            'arguments': {
+                'leftField': {'constantValue': 'x'},
+                'rightValue': {'constantValue': 1}
+            }
+        }
+    }
+    f2_expr = {
+        'functionInvocationValue': {
+            'functionName': 'Filter.equals',
+            'arguments': {
+                'leftField': {'constantValue': 'y'},
+                'rightValue': {'constantValue': 2}
+            }
+        }
+    }
+    expect_list = make_expression_graph({
+        'arguments': {
+            'filters': {
+                'arrayValue': {
+                    'values': [f1_expr, f2_expr]
+                }
+            }
+        },
+        'functionName': 'Filter.or'
+    })
+    expression = ee.Filter.Or(ee.List([f1, f2]))
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect_list, result)
+
+    # Test with computed ee.List
+    expect_computed = make_expression_graph({
+        'arguments': {
+            'filters': {
+                'functionInvocationValue': {
+                    'functionName': 'List.slice',
+                    'arguments': {
+                        'list': {
+                            'arrayValue': {
+                                'values': [f1_expr, f2_expr]
+                            }
+                        },
+                        'start': {'constantValue': 0}
+                    }
+                }
+            }
+        },
+        'functionName': 'Filter.or'
+    })
+    expression = ee.Filter.Or(ee.List([f1, f2]).slice(0))
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect_computed, result)
 
   def test_range_contains(self):
     field = 'a'
