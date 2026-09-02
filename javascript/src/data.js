@@ -831,6 +831,10 @@ ee.data.getDownloadId = function(params, opt_callback) {
   // to image, so we cast the ID to an ee.Image.
   if (params['id']) {
     // This resolves the circular dependency between data.js and image.js.
+    /**
+     * @suppress {weakModuleGet} suppressed existing issues as part of the
+     * rollout of the fix for b/195414227
+     */
     const eeImage = goog.module.get('ee.Image');
     params['image'] = new eeImage(params['id']);
   }
