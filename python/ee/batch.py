@@ -242,196 +242,26 @@ class Export:
       Args:
         image: The image to be exported.
         description: Human-readable name of the task.
-        config: A dictionary that will be copied and used as parameters
-            for the task:
-            - region: The lon,lat coordinates for a LinearRing or Polygon
-              specifying the region to export. Can be specified as a nested
-              lists of numbers or a serialized string. Defaults to the image's
-              region.
-            - scale: The resolution in meters per pixel.
-              Defaults to the native resolution of the image asset unless
-              a crs_transform is specified.
-            - maxPixels: The maximum allowed number of pixels in the exported
-              image. The task will fail if the exported region covers
-              more pixels in the specified projection. Defaults to 100,000,000.
-            - crs: The coordinate reference system of the exported image's
-              projection. Defaults to the image's default projection.
-            - crs_transform: A comma-separated string of 6 numbers describing
-              the affine transform of the coordinate reference system of the
-              exported image's projection, in the order: xScale, xShearing,
-              xTranslation, yShearing, yScale and yTranslation. Defaults to
-              the image's native CRS transform.
-            - dimensions: The dimensions of the exported image. Takes either a
-              single positive integer as the maximum dimension or
-              "WIDTHxHEIGHT" where WIDTH and HEIGHT are each positive integers.
-            - skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-              image tiles. Defaults to false. Only supported on GeoTIFF exports.
-            - priority: The priority of the task within the project. Higher
-              priority tasks are scheduled sooner. Must be an integer between 0
-              and 9999. Defaults to 100.
-            If exporting to Google Drive (default):
-            - driveFolder: The Google Drive Folder that the export will reside
-              in. Note: (a) if the folder name exists at any level, the output
-              is written to it, (b) if duplicate folder names exist, output is
-              written to the most recently modified folder, (c) if the folder
-              name does not exist, a new folder will be created at the root,
-              and (d) folder names with separators (e.g., 'path/to/file') are
-              interpreted as literal strings, not system paths. Defaults to
-              Drive root.
-            - driveFileNamePrefix: The Google Drive filename for the export.
-              Defaults to the name of the task.
-            If exporting to Google Cloud Storage:
-            - outputBucket: The name of a Cloud Storage bucket for the export.
-            - outputPrefix: Cloud Storage object name prefix for the export.
-
-      Returns:
-        An unstarted Task that exports the image.
-      """
-      config = (config or {}).copy()
-      if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
-        config['driveFileNamePrefix'] = description
-
-      if 'driveFileNamePrefix' in config:
-        return Export.image.toDrive(image, description, **config)
-      else:
-        return Export.image.toCloudStorage(image, description, **config)
-
-    @staticmethod
-    def toAsset(
-        image: _arg_types.Image,
-        description: str = 'myExportImageTask',
-        assetId: str | None = None,
-        pyramidingPolicy: dict[str, str] | None = None,
-        dimensions: int | str | None = None,
-        region: Any | None = None,
-        scale: float | None = None,
-        crs: str | None = None,
-        crsTransform: Any | None = None,
-        maxPixels: int | None = None,
-        priority: int | None = None,
-        overwrite: bool = False,
-        **kwargs,
-    ) -> Task:
-      """Creates a task to export an EE Image to an EE Asset.
-
-      Args:
-        image: The image to be exported.
-        description: Human-readable name of the task.
-        assetId: The destination asset ID.
-        pyramidingPolicy: The pyramiding policy to apply to each band in the
-            image, a dictionary keyed by band name. Values must be
-            one of: "mean", "sample", "min", "max", or "mode".
-            Defaults to "mean". A special key, ".default", may be used to
-            change the default for all bands.
-        dimensions: The dimensions of the exported image. Takes either a
+        config: A dictionary that will be copied and used as parameters for the
+          task: - region: The lon,lat coordinates for a LinearRing or Polygon
+            specifying the region to export. Can be specified as a nested lists
+            of numbers or a serialized string. Defaults to the image's region. -
+          scale: The resolution in meters per pixel. Defaults to the native
+            resolution of the image asset unless a crs_transform is specified. -
+          maxPixels: The maximum allowed number of pixels in the exported image.
+            The task will fail if the exported region covers more pixels in the
+            specified projection. Defaults to 100,000,000. - crs: The coordinate
+            reference system of the exported image's projection. Defaults to the
+            image's default projection. - crs_transform: A comma-separated
+            string of 6 numbers describing the affine transform of the
+            coordinate reference system of the exported image's projection, in
+            the order: xScale, xShearing, xTranslation, yShearing, yScale and
+            yTranslation. Defaults to the image's native CRS transform. -
+            dimensions: The dimensions of the exported image. Takes either a
             single positive integer as the maximum dimension or "WIDTHxHEIGHT"
-            where WIDTH and HEIGHT are each positive integers.
-        region: The lon,lat coordinates for a LinearRing or Polygon
-            specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the image's
-            region.
-        scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image asset unless a crsTransform
-            is specified.
-        crs: The coordinate reference system of the exported image's
-            projection. Defaults to the image's default projection.
-        crsTransform: A comma-separated string of 6 numbers describing
-            the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, xShearing,
-            xTranslation, yShearing, yScale and yTranslation. Defaults to
-            the image's native CRS transform.
-        maxPixels: The maximum allowed number of pixels in the exported
-            image. The task will fail if the exported region covers more
-            pixels in the specified projection. Defaults to 100,000,000.
-        priority: The priority of the task within the project. Higher priority
-          tasks are scheduled sooner. Must be an integer between 0 and 9999.
-          Defaults to 100.
-        overwrite: If an existing asset can be overwritten by this export.
-        **kwargs: Holds other keyword arguments that may have been deprecated
-            such as 'crs_transform'.
-
-      Returns:
-        An unstarted Task that exports the image as an Earth Engine asset.
-      """
-      config = {
-          'description': description,
-          'assetId': assetId,
-          'pyramidingPolicy': pyramidingPolicy,
-          'dimensions': dimensions,
-          'region': region,
-          'scale': scale,
-          'crs': crs,
-          'crsTransform': crsTransform,
-          'maxPixels': maxPixels,
-          'priority': priority,
-          'overwrite': overwrite,
-          **kwargs,
-      }
-      config = {k: v for k, v in config.items() if v is not None}
-      config = _prepare_image_export_config(image, config,
-                                            Task.ExportDestination.ASSET)
-      return _create_export_task(config, Task.Type.EXPORT_IMAGE)
-
-    @staticmethod
-    def toCloudStorage(
-        image: _arg_types.Image,
-        description: str = 'myExportImageTask',
-        bucket: str | None = None,
-        fileNamePrefix: str | None = None,
-        dimensions: int | str | None = None,
-        region: Any | None = None,
-        scale: float | None = None,
-        crs: str | None = None,
-        crsTransform: Any | None = None,
-        maxPixels: int | None = None,
-        shardSize: int | None = None,
-        fileDimensions: int | tuple[int, int] | None = None,
-        skipEmptyTiles: bool | None = None,
-        fileFormat: str | None = None,
-        formatOptions: dict[str, Any] | None = None,
-        priority: int | None = None,
-        **kwargs,
-    ) -> Task:
-      """Creates a task to export an EE Image to Google Cloud Storage.
-
-      Args:
-        image: The image to be exported.
-        description: Human-readable name of the task.
-        bucket: The name of a Cloud Storage bucket for the export.
-        fileNamePrefix: Cloud Storage object name prefix for the export.
-          Defaults to the name of the task.
-        dimensions: The dimensions of the exported image. Takes either a single
-          positive integer as the maximum dimension or "WIDTHxHEIGHT" where
-          WIDTH and HEIGHT are each positive integers.
-        region: The lon,lat coordinates for a LinearRing or Polygon specifying
-          the region to export. Can be specified as a nested lists of numbers or
-          a serialized string. Defaults to the image's region.
-        scale: The resolution in meters per pixel. Defaults to the native
-          resolution of the image asset unless a crsTransform is specified.
-        crs: The coordinate reference system of the exported image's projection.
-          Defaults to the image's default projection.
-        crsTransform: A comma-separated string of 6 numbers describing the
-          affine transform of the coordinate reference system of the exported
-          image's projection, in the order: xScale, xShearing, xTranslation,
-          yShearing, yScale and yTranslation. Defaults to the image's native CRS
-          transform.
-        maxPixels: The maximum allowed number of pixels in the exported image.
-          The task will fail if the exported region covers more pixels in the
-          specified projection. Defaults to 100,000,000.
-        shardSize: Size in pixels of the tiles in which this image will be
-          computed. Defaults to 256.
-        fileDimensions: The dimensions in pixels of each image file, if the
-          image is too large to fit in a single file. May specify a single
-          number to indicate a square shape, or a tuple of two dimensions to
-          indicate (width,height). Note that the image will still be clipped to
-          the overall image dimensions. Must be a multiple of shardSize.
-        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked) image
-          tiles. Defaults to false. Only supported on GeoTIFF exports.
-        fileFormat: The string file format to which the image is exported.
-          Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
-          'GeoTIFF'.
-        formatOptions: A dictionary of string keys to format-specific options.
-          For 'GeoTIFF': 'cloudOptimized' (bool), 'noData' (float).
+            where WIDTH and HEIGHT are each positive integers. - skipEmptyTiles:
+            If true, skip writing empty (i.e. fully-masked) image tiles.
+            Defaults to false. Only supported on GeoTIFF exports.
         priority: The priority of the task within the project. Higher priority
           tasks are scheduled sooner. Must be an integer between 0 and 9999.
           Defaults to 100.
