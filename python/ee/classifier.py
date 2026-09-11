@@ -57,7 +57,7 @@ class Classifier(computedobject.ComputedObject):
 
   def amnhMaxent(
       # pylint: disable=invalid-name
-      categoricalNames: _arg_types.List | None = None,
+      categoricalNames: _arg_types.List | None = None,  # pyrefly: ignore[bad-function-definition]
       outputFormat: _arg_types.String | None = None,
       autoFeature: _arg_types.Bool | None = None,
       # pylint: enable=invalid-name
