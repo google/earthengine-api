@@ -968,8 +968,8 @@ apiclient.send = function(
       apiclient.sleep_(apiclient.calculateRetryWait_(retryCount++));
     }
 
-    return apiclient.handleResponse_(
-        xmlHttp.status, function getResponseHeaderSafe(header) {
+    const safeGetHeader = apiclient.createSafeHeaderGetter_(
+        function getResponseHeaderSafe(header) {
           try {
             return xmlHttp.getResponseHeader(header);
           } catch (e) {
@@ -977,8 +977,14 @@ apiclient.send = function(
             // implement getResponseHeader when synchronous.
             return null;
           }
-        }, xmlHttp.responseText, profileHookAtCallTime, undefined, url, method,
-        detectPartialError);
+        },
+        xmlHttp.getAllResponseHeaders ?
+            () => xmlHttp.getAllResponseHeaders() :
+            null);
+
+    return apiclient.handleResponse_(
+        xmlHttp.status, safeGetHeader, xmlHttp.responseText,
+        profileHookAtCallTime, undefined, url, method, detectPartialError);
   }
 };
 
@@ -1022,10 +1028,13 @@ apiclient.buildAsyncRequest_ = function(
       return null;
     }
 
+    const safeGetHeader = apiclient.createSafeHeaderGetter_(
+        (header) => xhrIo.getResponseHeader(header),
+        () => xhrIo.getAllResponseHeaders());
+
     return apiclient.handleResponse_(
-        xhrIo.getStatus(), goog.bind(xhrIo.getResponseHeader, xhrIo),
-        xhrIo.getResponseText(), profileHookAtCallTime, callback, url, method,
-        detectPartialError);
+        xhrIo.getStatus(), safeGetHeader, xhrIo.getResponseText(),
+        profileHookAtCallTime, callback, url, method, detectPartialError);
   };
   request.callback = wrappedCallback;
 
@@ -1068,6 +1077,48 @@ apiclient.setQuotaStatusHook = function(hook) {
 
 
 /**
+ * Wraps getResponseHeader to avoid querying headers not exposed via CORS.
+ * In Blink/Chrome, calling getResponseHeader on an unexposed header logs
+ * a console warning ("Refused to get unsafe header"). Checking
+ * getAllResponseHeaders first avoids the warning.
+ *
+ * @param {function(string):?string} getHeader
+ * @param {?(function():?)=} getAllHeaders
+ * @return {function(string):?string}
+ * @private
+ */
+apiclient.createSafeHeaderGetter_ = function(getHeader, getAllHeaders) {
+  if (!getAllHeaders) {
+    return getHeader;
+  }
+  let allHeaders = null;
+  let fetched = false;
+
+  return function(headerName) {
+    if (!fetched) {
+      fetched = true;
+      try {
+        allHeaders = getAllHeaders() || '';
+      } catch (e) {
+        allHeaders = '';
+      }
+    }
+    // Case-insensitive multiline search for "^Header-Name:".
+    const pattern =
+        new RegExp('^' + googString.regExpEscape(headerName) + ':', 'im');
+    if (!pattern.test(allHeaders)) {
+      return null;
+    }
+    try {
+      return getHeader(headerName);
+    } catch (e) {
+      return null;
+    }
+  };
+};
+
+
+/**
  * Handles processing and dispatching a callback response.
  * @param {number} status The status code of the response.
  * @param {function(string):?string} getResponseHeader A function for
@@ -1088,22 +1139,19 @@ apiclient.setQuotaStatusHook = function(hook) {
 apiclient.handleResponse_ = function(
     status, getResponseHeader, responseText, profileHook, callback, url,
     method, detectPartialError) {
-  // Only attempt to get the profile response header if we have a hook.
-  const profileId =
-      profileHook ? getResponseHeader(apiclient.PROFILE_HEADER) : '';
-  if (profileId && profileHook) {
-    profileHook(profileId);
+  // Handle profile response header.
+  if (profileHook) {
+    const profileId = getResponseHeader(apiclient.PROFILE_HEADER);
+    if (profileId) {
+      profileHook(profileId);
+    }
   }
 
   // Handle quota status header.
   if (apiclient.quotaStatusHook_) {
-    try {
-      const quotaStatus = getResponseHeader(apiclient.QUOTA_STATUS_HEADER);
-      if (quotaStatus) {
-        apiclient.quotaStatusHook_(quotaStatus);
-      }
-    } catch (e) {
-      // Ignore errors when reading the header.
+    const quotaStatus = getResponseHeader(apiclient.QUOTA_STATUS_HEADER);
+    if (quotaStatus) {
+      apiclient.quotaStatusHook_(quotaStatus);
     }
   }
   const parseJson = (body) => {
@@ -1342,6 +1390,23 @@ apiclient.setupMockSend = function(calls) {
     return response;
   }
 
+  const formatMockHeaders = (contentType, headers) => {
+    const lines = [];
+    if (contentType) {
+      lines.push('Content-Type: ' + contentType);
+    }
+    if (headers) {
+      for (const key of Object.keys(headers)) {
+        lines.push(key + ': ' + headers[key]);
+      }
+    }
+    if (lines.length) {
+      // Append an extra newline at the end.
+      lines.push('');
+    }
+    return lines.join('\r\n');
+  };
+
   // Mock XhrIo.send for async calls.
   XhrIo.send = function(url, callback, method, data, headers) {
     apiBaseUrl = apiBaseUrl || apiclient.apiBaseUrl_;
@@ -1368,6 +1433,9 @@ apiclient.setupMockSend = function(calls) {
       } else {
         return null;
       }
+    };
+    e.target.getAllResponseHeaders = function() {
+      return formatMockHeaders(responseData.contentType, responseData.headers);
     };
     // Call the callback in a timeout to simulate asynchronous behavior.
     setTimeout(goog.bind(/** @type {function()} */ (callback), e, e), 0);
@@ -1401,6 +1469,9 @@ apiclient.setupMockSend = function(calls) {
     } else {
       return null;
     }
+  };
+  fakeXmlHttp.prototype.getAllResponseHeaders = function() {
+    return formatMockHeaders(this.contentType_, this.responseHeaders_);
   };
   fakeXmlHttp.prototype.send = function(data) {
     const responseData =
