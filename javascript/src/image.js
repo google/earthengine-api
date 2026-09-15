@@ -77,7 +77,7 @@ ee.Image = function(opt_args) {
                   {'value': opt_args});
       } else {
         // A custom object to reinterpret as an Image.
-        ee.Image.base(this, 'constructor', opt_args.func, opt_args.args, opt_args.varName);
+        ee.Image.base(this, 'constructor', opt_args.func, opt_args.args, opt_args.varName, opt_args.unbound);
       }
     } else {
       throw Error('Unrecognized argument type to convert to an Image: ' +
