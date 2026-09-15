@@ -389,7 +389,9 @@ class Export:
         description: Human-readable name of the task.
         bucket: The name of a Cloud Storage bucket for the export.
         fileNamePrefix: Cloud Storage object name prefix for the export.
-          Defaults to the name of the task.
+          Defaults to the name of the task. For tiled exports, a hyphen is
+          appended to the prefix before the tile coordinates (unless the prefix
+          ends with "/" or "-").
         dimensions: The dimensions of the exported image. Takes either a single
           positive integer as the maximum dimension or "WIDTHxHEIGHT" where
           WIDTH and HEIGHT are each positive integers.
@@ -464,7 +466,9 @@ class Export:
         folder: The name of a unique folder in your Drive account to export
           into. Defaults to the root of the drive.
         fileNamePrefix: The Google Drive filename for the export. Defaults to
-          the name of the task.
+          the name of the task. For tiled exports, a hyphen is appended to the
+          prefix before the tile coordinates (even if the prefix ends in a
+          separator).
         dimensions: The dimensions of the exported image. Takes either a single
           positive integer as the maximum dimension or "WIDTHxHEIGHT" where
           WIDTH and HEIGHT are each positive integers.
