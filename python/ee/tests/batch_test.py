@@ -296,6 +296,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           fileDimensions=1024,
           formatOptions={
               'noData': 1,
+              'metadataKeys': ['foo', 'bar'],
           },
       )
       task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)  # pyrefly: ignore[bad-argument-count]
@@ -320,9 +321,39 @@ class BatchTestCase(apitestcase.ApiTestCase):
                       'tileDimensions': {'width': 1024, 'height': 1024},
                       'tileSize': {'value': 512},
                       'noData': {'floatValue': 1},
+                      'metadataKeys': ['foo', 'bar'],
                   },
               },
               'maxPixels': {'value': '10000000000'},
+          },
+          task.config,  # pyrefly: ignore[missing-attribute]
+      )
+
+  def test_export_image_cloud_api_metadata_keys_as_tuple(self):
+    """Verifies the task created by Export.image()."""
+    with apitestcase.UsingCloudApi():
+      region = ee.Geometry.Rectangle(1, 2, 3, 4)
+      config = dict(
+          region=region['coordinates'],
+          formatOptions={'metadataKeys': ('foo', 'bar')},
+      )
+      task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)  # pyrefly: ignore[bad-argument-count]
+      expected_expression = ee.Image(1).clip(region)
+      self.assertIsNone(task.id)  # pyrefly: ignore[missing-attribute]
+      self.assertIsNone(task.name)  # pyrefly: ignore[missing-attribute]
+      self.assertEqual('EXPORT_IMAGE', task.task_type)  # pyrefly: ignore[missing-attribute]
+      self.assertEqual('UNSUBMITTED', task.state)  # pyrefly: ignore[missing-attribute]
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'TestDescription',
+              'fileExportOptions': {
+                  'fileFormat': 'GEO_TIFF',
+                  'driveDestination': {'filenamePrefix': 'TestDescription'},
+                  'geoTiffOptions': {
+                      'metadataKeys': ['foo', 'bar'],
+                  },
+              },
           },
           task.config,  # pyrefly: ignore[missing-attribute]
       )
@@ -570,6 +601,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           region=region['coordinates'],
           maxPixels=10**10,
           outputBucket='test-bucket',
+          metadataKeys=['TIFFTAG_DATETIME'],
       )
       task = ee.batch.Export.image.toCloudStorage(
           ee.Image(1),
@@ -585,6 +617,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           None,
           [512, 2048],  # pyrefly: ignore[bad-argument-type]
           True,
+          tiffMetadataKeys=config['metadataKeys'],
       )
       expected_expression = ee.Image(1).clip(region)
       self.assertIsNone(task.id)
@@ -604,6 +637,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'geoTiffOptions': {
                       'tileDimensions': {'width': 512, 'height': 2048},
                       'skipEmptyFiles': True,
+                      'metadataKeys': ['TIFFTAG_DATETIME'],
                   },
               },
               'maxPixels': {'value': '10000000000'},
