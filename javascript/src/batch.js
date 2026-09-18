@@ -827,6 +827,7 @@ const FORMAT_OPTIONS_MAP = {
     'fileDimensions',
     'noData',
     'shardSize',
+    'metadataKeys',
   ],
   'TF_RECORD_IMAGE': [
     'patchDimensions',
@@ -1056,9 +1057,8 @@ Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
           `"may have the following options: ${validKeysMsg}".`);
     }
     const prefixedKey = prefix + key[0].toUpperCase() + key.substring(1);
-    if (
-            Array.isArray(value)
-            ) {
+    // Metadata keys are are always an array.
+    if (Array.isArray(value) && key !== 'metadataKeys') {
       // Legacy format options are comma delimited strings.
       prefixedOptions[prefixedKey] = value.join();
     } else {

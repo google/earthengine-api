@@ -322,6 +322,7 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
     tileDimensions: ee.rpc_convert_batch.buildGridDimensions_(fileDimensions),
     tileSize: numberOrNull_(tileSize),
     noData: noDataOrNull_(params['tiffNoData']),
+    metadataKeys: params['tiffMetadataKeys'] || null,
   });
 };
 
