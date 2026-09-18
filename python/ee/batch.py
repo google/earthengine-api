@@ -296,8 +296,6 @@ class Export:
       else:
         return Export.image.toCloudStorage(image, description, **config)
 
-    # Disable argument usage check; arguments are accessed using locals().
-    # pylint: disable=unused-argument
     @staticmethod
     def toAsset(
         image: _arg_types.Image,
@@ -355,13 +353,25 @@ class Export:
       Returns:
         An unstarted Task that exports the image as an Earth Engine asset.
       """
-      config = _capture_parameters(locals(), ['image'])
+      config = {
+          'description': description,
+          'assetId': assetId,
+          'pyramidingPolicy': pyramidingPolicy,
+          'dimensions': dimensions,
+          'region': region,
+          'scale': scale,
+          'crs': crs,
+          'crsTransform': crsTransform,
+          'maxPixels': maxPixels,
+          'priority': priority,
+          'overwrite': overwrite,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_image_export_config(image, config,
                                             Task.ExportDestination.ASSET)
       return _create_export_task(config, Task.Type.EXPORT_IMAGE)
 
-    # Disable argument usage check; arguments are accessed using locals().
-    # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(
         image: _arg_types.Image,
@@ -431,7 +441,25 @@ class Export:
       Returns:
         An unstarted Task that exports the image to Google Cloud Storage.
       """
-      config = _capture_parameters(locals(), ['image'])
+      config = {
+          'description': description,
+          'bucket': bucket,
+          'fileNamePrefix': fileNamePrefix,
+          'dimensions': dimensions,
+          'region': region,
+          'scale': scale,
+          'crs': crs,
+          'crsTransform': crsTransform,
+          'maxPixels': maxPixels,
+          'shardSize': shardSize,
+          'fileDimensions': fileDimensions,
+          'skipEmptyTiles': skipEmptyTiles,
+          'fileFormat': fileFormat,
+          'formatOptions': formatOptions,
+          'priority': priority,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_image_export_config(image, config,
                                             Task.ExportDestination.GCS)
       return _create_export_task(config, Task.Type.EXPORT_IMAGE)
@@ -506,12 +534,28 @@ class Export:
       Returns:
         An unstarted Task that exports the image to Drive.
       """
-      config = _capture_parameters(locals(), ['image'])
+      config = {
+          'description': description,
+          'folder': folder,
+          'fileNamePrefix': fileNamePrefix,
+          'dimensions': dimensions,
+          'region': region,
+          'scale': scale,
+          'crs': crs,
+          'crsTransform': crsTransform,
+          'maxPixels': maxPixels,
+          'shardSize': shardSize,
+          'fileDimensions': fileDimensions,
+          'skipEmptyTiles': skipEmptyTiles,
+          'fileFormat': fileFormat,
+          'formatOptions': formatOptions,
+          'priority': priority,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_image_export_config(image, config,
                                             Task.ExportDestination.DRIVE)
       return _create_export_task(config, Task.Type.EXPORT_IMAGE)
-
-    # pylint: enable=unused-argument
 
   class map:
     """A class with a static method to start map export tasks."""
@@ -520,8 +564,6 @@ class Export:
       """Forbids class instantiation."""
       raise AssertionError('This class cannot be instantiated.')
 
-    # Disable argument usage check; arguments are accessed using locals().
-    # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(
         image: _arg_types.Image,
@@ -591,11 +633,25 @@ class Export:
         An unstarted Task that exports the image to Google Cloud Storage.
 
       """
-      config = _capture_parameters(locals(), ['image'])
+      config = {
+          'description': description,
+          'bucket': bucket,
+          'fileFormat': fileFormat,
+          'path': path,
+          'writePublicTiles': writePublicTiles,
+          'maxZoom': maxZoom,
+          'scale': scale,
+          'minZoom': minZoom,
+          'region': region,
+          'skipEmptyTiles': skipEmptyTiles,
+          'mapsApiKey': mapsApiKey,
+          'bucketCorsUris': bucketCorsUris,
+          'priority': priority,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_map_export_config(image, config)
       return _create_export_task(config, Task.Type.EXPORT_MAP)
-
-    # pylint: enable=unused-argument
 
   class table:
     """A class with static methods to start table export tasks."""
@@ -657,8 +713,6 @@ class Export:
       else:
         return Export.table.toCloudStorage(collection, description, **config)
 
-    # Disable argument usage check; arguments are accessed using locals().
-    # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(
         collection: _arg_types.FeatureCollection,
@@ -696,7 +750,17 @@ class Export:
       Returns:
         An unstarted Task that exports the table to Google Cloud Storage.
       """
-      config = _capture_parameters(locals(), ['collection'])
+      config = {
+          'description': description,
+          'bucket': bucket,
+          'fileNamePrefix': fileNamePrefix,
+          'fileFormat': fileFormat,
+          'selectors': selectors,
+          'maxVertices': maxVertices,
+          'priority': priority,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
                                             Task.ExportDestination.GCS)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
@@ -739,7 +803,17 @@ class Export:
       Returns:
         An unstarted Task that exports the table.
       """
-      config = _capture_parameters(locals(), ['collection'])
+      config = {
+          'description': description,
+          'folder': folder,
+          'fileNamePrefix': fileNamePrefix,
+          'fileFormat': fileFormat,
+          'selectors': selectors,
+          'maxVertices': maxVertices,
+          'priority': priority,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
                                             Task.ExportDestination.DRIVE)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
@@ -778,8 +852,9 @@ class Export:
           'maxVertices': maxVertices,
           'priority': priority,
           'overwrite': overwrite,
+          **kwargs,
       }
-      config = {k: v for k, v, in config.items() if v is not None}
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
                                             Task.ExportDestination.ASSET)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
@@ -813,8 +888,9 @@ class Export:
           'assetId': assetId,
           'ingestionTimeParameters': ingestionTimeParameters,
           'priority': priority,
+          **kwargs,
       }
-      config = {k: v for k, v, in config.items() if v is not None}
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
                                             Task.ExportDestination.FEATURE_VIEW)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
@@ -879,8 +955,9 @@ class Export:
           'selectors': selectors,
           'maxVertices': maxVertices,
           'priority': priority,
+          **kwargs,
       }
-      config = {k: v for k, v, in config.items() if v is not None}
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_table_export_config(
           collection, config, Task.ExportDestination.BIGQUERY
       )
@@ -961,8 +1038,6 @@ class Export:
       else:
         return Export.video.toCloudStorage(collection, description, **config)
 
-    # Disable argument usage check; arguments are accessed using locals().
-    # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(
         collection: _arg_types.ImageCollection,
@@ -1022,7 +1097,22 @@ class Export:
         An unstarted Task that exports the image collection
         to Google Cloud Storage.
       """
-      config = _capture_parameters(locals(), ['collection'])
+      config = {
+          'description': description,
+          'bucket': bucket,
+          'fileNamePrefix': fileNamePrefix,
+          'framesPerSecond': framesPerSecond,
+          'dimensions': dimensions,
+          'region': region,
+          'scale': scale,
+          'crs': crs,
+          'crsTransform': crsTransform,
+          'maxPixels': maxPixels,
+          'maxFrames': maxFrames,
+          'priority': priority,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_video_export_config(collection, config,
                                             Task.ExportDestination.GCS)
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
@@ -1086,7 +1176,22 @@ class Export:
       Returns:
         An unstarted Task that exports the image collection to Drive.
       """
-      config = _capture_parameters(locals(), ['collection'])
+      config = {
+          'description': description,
+          'folder': folder,
+          'fileNamePrefix': fileNamePrefix,
+          'framesPerSecond': framesPerSecond,
+          'dimensions': dimensions,
+          'region': region,
+          'scale': scale,
+          'crs': crs,
+          'crsTransform': crsTransform,
+          'maxPixels': maxPixels,
+          'maxFrames': maxFrames,
+          'priority': priority,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_video_export_config(collection, config,
                                             Task.ExportDestination.DRIVE)
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
@@ -1121,8 +1226,6 @@ class Export:
       config = (config or {}).copy()
       return Export.classifier.toAsset(classifier, description, **config)
 
-    # Disable argument usage check; arguments are accessed using locals().
-    # pylint: disable=unused-argument
     @staticmethod
     def toAsset(
         classifier: _arg_types.Classifier,
@@ -1151,7 +1254,14 @@ class Export:
       Returns:
         An unstarted Task that exports the image as an Earth Engine Asset.
       """
-      config = _capture_parameters(locals(), ['classifier'])
+      config = {
+          'description': description,
+          'assetId': assetId,
+          'overwrite': overwrite,
+          'priority': priority,
+          **kwargs,
+      }
+      config = {k: v for k, v in config.items() if v is not None}
       config = _prepare_classifier_export_config(classifier, config,
                                                  Task.ExportDestination.ASSET)
       return _create_export_task(config, Task.Type.EXPORT_CLASSIFIER)
@@ -1944,32 +2054,6 @@ def _create_export_task(config: dict[str, Any], task_type: Task.Type) -> Task:
     An unstarted export Task.
   """
   return Task(None, task_type, Task.State.UNSUBMITTED, config)
-
-
-def _capture_parameters(
-    all_locals: dict[str, Any], parameters_to_exclude: Sequence[str]
-) -> dict[str, Any]:
-  """Creates a parameter dict by copying all non-None locals.
-
-  This is generally invoked as the first part of call processing, via
-  something like
-    _capture_parameters(locals(), ['image'])
-  so that all call parameters can be pulled into a single dict.
-
-  Args:
-    all_locals: The dict of local variables.
-    parameters_to_exclude: An iterable giving names of parameters that should
-      be excluded from the result.
-
-  Returns:
-    A dict containing all the non-None values in all_locals, except for
-    those listed in parameters_to_exclude.
-  """
-  result = {k: v for k, v in all_locals.items() if v is not None}
-  for parameter_to_exclude in parameters_to_exclude:
-    if parameter_to_exclude in result:
-      del result[parameter_to_exclude]
-  return result
 
 
 def _canonicalize_parameters(config: dict[str, Any], destination: str) -> None:
