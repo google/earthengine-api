@@ -5,6 +5,7 @@
 goog.provide('ee');
 
 goog.require('ee.ApiFunction');
+goog.require('ee.Bytes');
 goog.require('ee.Collection');
 goog.require('ee.ComputedObject');
 goog.require('ee.CustomFunction');
@@ -458,6 +459,12 @@ ee.promote_ = function(arg, klass) {
     case 'Short':
     case 'Byte':
       return new ee.Number(/** @type {?} */ (arg));
+    case 'Bytes':
+      if (arg instanceof ee.Bytes || typeof arg === 'string') {
+        return new ee.Bytes(arg);
+      } else {
+        return arg;
+      }
     default:
       // Handle dynamically generated classes.
       if (klass in exportedEE) {

@@ -1,5 +1,6 @@
 """A serializer that encodes EE object trees as JSON DAGs."""
 
+import base64
 import collections
 import datetime
 import hashlib
@@ -126,6 +127,8 @@ class Serializer:
     elif obj is None or isinstance(obj, (bool, float, int, str)):
       # Primitives are encoded as is and not saved in the scope.
       return obj
+    elif isinstance(obj, bytes):
+      result = {'type': 'Bytes', 'value': base64.b64encode(obj).decode()}
     elif isinstance(obj, datetime.datetime):
       # A raw date slipped through. Wrap it. Calling ee.Date from here would
       # cause a circular dependency, so we encode it manually.
@@ -200,6 +203,8 @@ class Serializer:
       result = {'constantValue': obj}
     elif isinstance(obj, (float, int)):
       result = _cloud_api_utils.encode_number_as_cloud_value(obj)
+    elif isinstance(obj, bytes):
+      result = {'bytesValue': base64.b64encode(obj).decode()}
     elif isinstance(obj, datetime.datetime):
       # A raw date slipped through. Wrap it. Calling ee.Date from here would
       # cause a circular dependency, so we encode it manually.
