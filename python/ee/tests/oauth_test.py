@@ -185,7 +185,10 @@ class OAuthTest(unittest.TestCase):
         )
     )
 
-  def test_colab_mode_with_nonstandard_scopes_raises_exception(self):
+  @mock.patch.object(oauth, '_valid_credentials_exist', return_value=False)
+  def test_colab_mode_with_nonstandard_scopes_raises_exception(
+      self, unused_valid_credentials_exist
+  ):
     with self.assertRaisesRegex(
         ee_exception.EEException,
         'Scopes cannot be customized when auth_mode is "colab".'
@@ -194,6 +197,24 @@ class OAuthTest(unittest.TestCase):
           auth_mode='colab',
           scopes=['https://www.googleapis.com/auth/earthengine.readonly']
       )
+
+  @mock.patch.object(oauth, '_valid_credentials_exist', return_value=False)
+  @mock.patch.object(oauth, 'in_colab_shell', return_value=True)
+  def test_autodetected_colab_with_nonstandard_scopes_raises_exception(
+      self, unused_in_colab_shell, unused_valid_credentials_exist
+  ):
+    # auth_mode is not passed, so it is autodetected as "colab". The scope
+    # check must still fire.
+    import google  # pylint: disable=g-import-not-at-top
+
+    with mock.patch.object(google, 'colab', mock.MagicMock(), create=True):
+      with self.assertRaisesRegex(
+          ee_exception.EEException,
+          'Scopes cannot be customized when auth_mode is "colab".'
+      ):
+        oauth.authenticate(
+            scopes=['https://www.googleapis.com/auth/earthengine.readonly']
+        )
 
   def test_colab_auth_mode_with_standard_scopes_succeeds(self):
     # Should not raise an exception if the scopes are not narrowed.
