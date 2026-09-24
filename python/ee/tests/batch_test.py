@@ -82,6 +82,25 @@ class TaskTest(unittest.TestCase):
     ):
       task.start()
 
+  def test_start_export_map(self):
+    mock_operation = {'name': 'projects/test-project/operations/OP_ID'}
+    task = batch.Task(
+        None,
+        batch.Task.Type.EXPORT_MAP,
+        batch.Task.State.UNSUBMITTED,
+        {'some': 'value'},
+    )
+    with (
+        mock.patch.object(data, 'newTaskId', return_value=['new_task_id']),
+        mock.patch.object(data, 'exportMap', return_value=mock_operation) as m,
+    ):
+      task.start()
+      m.assert_called_once_with(
+          'new_task_id', {'some': 'value', 'workloadTag': task.workload_tag}
+      )
+      self.assertEqual('OP_ID', task.id)
+      self.assertEqual('projects/test-project/operations/OP_ID', task.name)
+
   def test_status_with_id(self):
     name = 'projects/test-project/operations/test_1'
     task = batch.Task('an id', 'a task type', 'a state', name=name)  # pyrefly: ignore[bad-argument-type]
@@ -221,6 +240,23 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table(ee.FeatureCollection('foo'), 'bar')
       task.start()
       export_args = mock_cloud_api_resource.projects().table().export.call_args
+      self.assertEqual(task.id, 'foo')
+      self.assertTrue(export_args[1]['body']['requestId'])
+      self.assertEqual(export_args[1]['body']['description'], 'bar')
+
+  def test_task_start_map_cloud_api(self):
+    """Verifies that Task.start() for map export calls the server appropriately."""
+    mock_cloud_api_resource = mock.MagicMock()
+    mock_cloud_api_resource.projects().map().export().execute.return_value = {
+        'name': 'projects/earthengine-legacy/operations/foo',
+        'metadata': {},
+    }
+    with apitestcase.UsingCloudApi(cloud_api_resource=mock_cloud_api_resource):
+      task = ee.batch.Export.map.toCloudStorage(
+          image=ee.Image(1), description='bar', bucket='test-bucket', maxZoom=3
+      )
+      task.start()
+      export_args = mock_cloud_api_resource.projects().map().export.call_args
       self.assertEqual(task.id, 'foo')
       self.assertTrue(export_args[1]['body']['requestId'])
       self.assertEqual(export_args[1]['body']['description'], 'bar')
