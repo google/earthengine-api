@@ -1587,6 +1587,14 @@ def _build_image_file_export_options(
           'width': file_dimensions[0],
           'height': file_dimensions[1]
       }
+    if metadata_keys := file_format_options.pop('metadataKeys', None):
+      if isinstance(metadata_keys, str):
+        metadata_keys = [metadata_keys]
+      if not isinstance(metadata_keys, (list, tuple)):
+        raise ee_exception.EEException(
+            f'metadataKeys must be a list of strings. "{metadata_keys}"'
+        )
+      geo_tiff_options['metadataKeys'] = list(metadata_keys)
     if config.pop('skipEmptyTiles', False):
       geo_tiff_options['skipEmptyFiles'] = True
     if config.get('shardSize', None):
