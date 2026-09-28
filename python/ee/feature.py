@@ -75,11 +75,11 @@ class Feature(element.Element):
     elif isinstance(geom, dict) and geom.get('type') == self.name():
       properties = geom.get('properties', {})
       if 'id' in geom:
-        if 'system:index' in properties:
+        if 'system:index' in properties:  # pyrefly: ignore[not-iterable]
           raise ee_exception.EEException(
               'Cannot specify both "id" and "system:index".')
-        properties = properties.copy()
-        properties['system:index'] = geom['id']
+        properties = properties.copy()  # pyrefly: ignore[missing-attribute]
+        properties['system:index'] = geom['id']  # pyrefly: ignore[unsupported-operation]
       # Try to convert a GeoJSON Feature.
       super().__init__(feature_constructor, {
           'geometry': geometry.Geometry(geom.get('geometry', None)),
