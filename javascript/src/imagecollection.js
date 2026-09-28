@@ -70,7 +70,7 @@ ee.ImageCollection = function(args) {
     });
   } else if (args instanceof ee.ComputedObject) {
     // A custom object to reinterpret as an ImageCollection.
-    ee.ImageCollection.base(this, 'constructor', args.func, args.args, args.varName);
+    ee.ImageCollection.base(this, 'constructor', args.func, args.args, args.varName, args.unbound);
   } else {
     throw Error('Unrecognized argument type to convert to an ' +
                 'ImageCollection: ' + args);
