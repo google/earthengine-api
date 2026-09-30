@@ -1051,10 +1051,10 @@ Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
   const prefixedOptions = {};
   for (const [key, value] of Object.entries(formatOptions)) {
     if (!(googArray.contains(validOptionKeys, key))) {
-      const validKeysMsg = validOptionKeys.join(', ');
+      const validKeysMsg = validOptionKeys.join('", "');
       throw new Error(
           `"${key}" is not a valid option, the image format "${imageFormat}" ` +
-          `"may have the following options: ${validKeysMsg}".`);
+          `may have the following options: "${validKeysMsg}".`);
     }
     const prefixedKey = prefix + key[0].toUpperCase() + key.substring(1);
     // Metadata keys are are always an array.
