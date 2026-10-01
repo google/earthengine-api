@@ -1,9 +1,11 @@
 name: ci-tests
-on: [
-  push,
-  pull_request,
-  workflow_dispatch,  # Enables running this workflow manually from the Actions tab.
-]
+on:
+  # Triggers the workflow when new code is pushed to the master branch.
+  push:
+    branches: [ master ]
+  pull_request:
+  # Enables running this workflow manually from the Actions tab.
+  workflow_dispatch:
 
 jobs:
   build:
