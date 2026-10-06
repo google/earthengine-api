@@ -55,33 +55,31 @@ class DatetimeToMicrosecondsTest(unittest.TestCase):
     self.assertEqual(
         0,
         serializer.DatetimeToMicroseconds(
-            datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+            datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.UTC)
         ),
     )
     self.assertEqual(
         1,
         serializer.DatetimeToMicroseconds(
-            datetime.datetime(
-                1970, 1, 1, 0, 0, 0, 1, tzinfo=datetime.timezone.utc
-            )
+            datetime.datetime(1970, 1, 1, 0, 0, 0, 1, tzinfo=datetime.UTC)
         ),
     )
     self.assertEqual(
         1000000,
         serializer.DatetimeToMicroseconds(
-            datetime.datetime(1970, 1, 1, 0, 0, 1, tzinfo=datetime.timezone.utc)
+            datetime.datetime(1970, 1, 1, 0, 0, 1, tzinfo=datetime.UTC)
         ),
     )
     self.assertEqual(
         1407628800000000,
         serializer.DatetimeToMicroseconds(
-            datetime.datetime(2014, 8, 10, tzinfo=datetime.timezone.utc)
+            datetime.datetime(2014, 8, 10, tzinfo=datetime.UTC)
         ),
     )
     self.assertEqual(
         -2010441600000000,
         serializer.DatetimeToMicroseconds(
-            datetime.datetime(1906, 4, 18, tzinfo=datetime.timezone.utc)
+            datetime.datetime(1906, 4, 18, tzinfo=datetime.UTC)
         ),
     )
 
@@ -258,7 +256,7 @@ class SerializerTest(apitestcase.ApiTestCase):
     self.assertNotIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=False))
 
   def test_datetime_serialization_legacy(self):
-    a_date = datetime.datetime(2014, 8, 10, tzinfo=datetime.timezone.utc)
+    a_date = datetime.datetime(2014, 8, 10, tzinfo=datetime.UTC)
     # 1407628800000000 microseconds.
     expected = {
         'type': 'CompoundValue',

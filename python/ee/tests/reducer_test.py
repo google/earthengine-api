@@ -64,7 +64,7 @@ class ReducerTest(apitestcase.ApiTestCase):
   def test_bad_arg_dict(self):
     message = (
         r"Reducer can only be used as a cast to Reducer\. Found <class 'dict'>"
-        '\. If you are trying to pass keyword arguments as a dictionary, use'
+        r'\. If you are trying to pass keyword arguments as a dictionary, use'
         r' the `\*\*` dictionary unpacking operator \(e\.g\., '
         r'`myFunction\(\*\*kwargs\)`\)\.'
     )

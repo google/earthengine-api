@@ -188,7 +188,7 @@ def _cloud_timestamp_for_timestamp_ms(timestamp_ms: float) -> str:
   """Returns a Cloud-formatted date for the given millisecond timestamp."""
   # Desired format is like '2003-09-07T19:30:12.345Z'
   timestamp = datetime.datetime.fromtimestamp(
-      timestamp_ms / 1000.0, datetime.timezone.utc
+      timestamp_ms / 1000.0, datetime.UTC
   )
   return timestamp.replace(tzinfo=None).isoformat() + 'Z'
 

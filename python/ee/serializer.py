@@ -13,7 +13,7 @@ from ee import ee_exception
 from ee import encodable
 
 # The datetime for the beginning of the Unix epoch.
-_EPOCH_DATETIME = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
+_EPOCH_DATETIME = datetime.datetime.fromtimestamp(0, datetime.UTC)
 
 # Don't generate very deep expressions, as the backend rejects them.
 # The backend's limit is 100, and we want to stay well away from that
@@ -26,7 +26,7 @@ def DatetimeToMicroseconds(date: datetime.datetime) -> int:
   """Convert a datetime to a timestamp, microseconds since the epoch."""
   if date.tzinfo is None:
     # Assume that the time is in utc.
-    date = date.replace(tzinfo=datetime.timezone.utc)
+    date = date.replace(tzinfo=datetime.UTC)
   td = (date - _EPOCH_DATETIME)
   return td.microseconds + (td.seconds + td.days * 24 * 3600) * 1000000
 

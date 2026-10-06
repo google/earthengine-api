@@ -350,7 +350,7 @@ def _convert_msec_to_timestamp(time_msec: float) -> str:
     form of google.protobuf.Timestamp values.
   """
   return (
-      datetime.datetime.fromtimestamp(time_msec / 1000.0, datetime.timezone.utc)
+      datetime.datetime.fromtimestamp(time_msec / 1000.0, datetime.UTC)
       .replace(tzinfo=None)
       .isoformat()
       + 'Z'
