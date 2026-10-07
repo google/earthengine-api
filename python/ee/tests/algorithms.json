@@ -1261,7 +1261,7 @@
     }, {
       "argumentName": "format",
       "type": "String",
-      "description": "A pattern, as described at http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html; if omitted will use ISO standard date formatting.",
+      "description": "A pattern, as described at https://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html; if omitted will use ISO standard date formatting.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -1385,7 +1385,7 @@
     "arguments": [{
       "argumentName": "format",
       "type": "String",
-      "description": "A pattern, as described at http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html."
+      "description": "A pattern, as described at https://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html."
     }, {
       "argumentName": "date",
       "type": "String",
@@ -1607,13 +1607,13 @@
     }, {
       "argumentName": "interval",
       "type": "Integer",
-      "description": "The time interval between successive data ranges, in units specified by \u0027units\u0027.",
+      "description": "The time interval between successive date ranges, in units specified by \u0027units\u0027.",
       "optional": true,
       "defaultValue": 1.0
     }, {
       "argumentName": "units",
       "type": "String",
-      "description": "The units in which \u0027period\u0027 is specified: currently only \u0027days\u0027 and \u0027years\u0027 are recognized.",
+      "description": "The units in which \u0027interval\u0027 is specified: currently only \u0027days\u0027 and \u0027years\u0027 are recognized.",
       "optional": true,
       "defaultValue": "days"
     }, {
@@ -1657,7 +1657,7 @@
     }, {
       "argumentName": "format",
       "type": "String",
-      "description": "A pattern to use to format the system:index, as described at  https://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html.If omitted will use a portion of the format \u0027YYYYMMddHHmmss\u0027, up to the specified \u0027unit\u0027 (i.e., for unit\u003d\u0027year\u0027 format will default to \u0027YYYY\u0027 and for unit\u003d\u0027day\u0027, format will default to \u0027YYYYMMdd\u0027. When \u0027unit\u0027 is \u0027week\u0027 format defaults to \u0027YYYYMMdd\u0027.",
+      "description": "A pattern to use to format the system:index, as described at  https://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html. If omitted, it will use a portion of the format \u0027YYYYMMddHHmmss\u0027, up to the specified \u0027unit\u0027 (i.e., for unit\u003d\u0027year\u0027 format will default to \u0027YYYY\u0027 and for unit\u003d\u0027day\u0027, format will default to \u0027YYYYMMdd\u0027. When \u0027unit\u0027 is \u0027week\u0027 format defaults to \u0027YYYYMMdd\u0027.",
       "optional": true,
       "defaultValue": null
     }],
@@ -2319,7 +2319,7 @@
     }]
   }, {
     "name": "algorithms/FeatureCollection.runBigQuery",
-    "description": "Runs a BigQuery query, fetches the results and presents the them as a FeatureCollection.",
+    "description": "Runs a BigQuery query, fetches the results and presents them as a FeatureCollection.",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "query",
@@ -2866,7 +2866,7 @@
     }, {
       "argumentName": "nu",
       "type": "Float",
-      "description": "The nu parameter. Defaults to 0.5. Only valid for of nu-SVC, one-class SVM, and nu-SVR.",
+      "description": "The nu parameter. Defaults to 0.5. Only valid for nu-SVC, one-class SVM, and nu-SVR.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -2962,7 +2962,7 @@
     }, {
       "argumentName": "addSamplesToBackground",
       "type": "Boolean",
-      "description": "Add to the background any sample for which has a combination of environmental values that isn\u0027t already present in the background.",
+      "description": "Add to the background any sample which has a combination of environmental values that isn\u0027t already present in the background.",
       "optional": true,
       "defaultValue": true
     }, {
@@ -3022,7 +3022,7 @@
     }, {
       "argumentName": "randomTestPoints",
       "type": "Integer",
-      "description": "Random test percentage. The percentage of training points to hold aside as test points, used to compute AUX, omission, etc.",
+      "description": "Random test percentage. The percentage of training points to hold aside as test points, used to compute Area Under the Curve (AUC), omission, etc.",
       "optional": true,
       "defaultValue": 0.0
     }, {
@@ -3363,7 +3363,7 @@
     }, {
       "argumentName": "inputProperties",
       "type": "List\u003cString\u003e",
-      "description": "The list of property names to include as training data. Each feature must have all these properties and their values must be numeric. This argument is optional if the input collection contains a \u0027band_order\u0027 property, (as produced by Image.sample).",
+      "description": "The list of property names to include as training data. Each feature must have all these properties and their values must be numeric. This argument is optional if the input collection contains a \u0027band_order\u0027 property (as produced by Image.sample).",
       "optional": true,
       "defaultValue": null
     }, {
@@ -4178,7 +4178,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the buffering will be performed in this projection and the distance will be interpreted as units of the coordinate system of this projection. Otherwise the distance is interpereted as meters and the buffering is performed in a spherical coordinate system.",
+      "description": "If specified, the buffering will be performed in this projection and the distance will be interpreted as units of the coordinate system of this projection. Otherwise the distance is interpreted as meters and the buffering is performed in a spherical coordinate system.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4646,6 +4646,66 @@
       "defaultValue": true
     }]
   }, {
+    "name": "algorithms/Geometry.fromS2LatLng",
+    "description": "Constructs a Geometry corresponding to the encoded S2LatLng.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "encoded",
+      "type": "Object",
+      "description": "The encoded S2LatLng."
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Geometry.fromS2LatLngRect",
+    "description": "Constructs a Geometry corresponding to the encoded S2LatLngRect.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "encoded",
+      "type": "Object",
+      "description": "The encoded S2LatLngRect."
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Geometry.fromS2Point",
+    "description": "Constructs a Geometry corresponding to the encoded S2Point.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "encoded",
+      "type": "Object",
+      "description": "The encoded S2Point."
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Geometry.fromS2Polygon",
+    "description": "Constructs a Geometry corresponding to the encoded S2Polygon.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "encoded",
+      "type": "Object",
+      "description": "The encoded S2Polygon."
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Geometry.fromS2Polyline",
+    "description": "Constructs a Geometry corresponding to the encoded S2Polyline.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "encoded",
+      "type": "Object",
+      "description": "The encoded S2Polyline."
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Geometry.fromSTGeography",
+    "description": "Constructs a Geometry corresponding to the encoded STGeography.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "encoded",
+      "type": "Object",
+      "description": "The encoded STGeography."
+    }],
+    "hidden": true
+  }, {
     "name": "algorithms/Feature.id",
     "description": "Returns the ID of a given element within a collection. Objects outside collections are not guaranteed to have IDs.",
     "returnType": "String",
@@ -4726,7 +4786,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the buffering will be performed in this projection and the distance will be interpreted as units of the coordinate system of this projection. Otherwise the distance is interpereted as meters and the buffering is performed in a spherical coordinate system.",
+      "description": "If specified, the buffering will be performed in this projection and the distance will be interpreted as units of the coordinate system of this projection. Otherwise the distance is interpreted as meters and the buffering is performed in a spherical coordinate system.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4808,7 +4868,7 @@
     "arguments": [{
       "argumentName": "feature",
       "type": "Element",
-      "description": "The feature containing the geometry whole hull is being calculated."
+      "description": "The feature containing the geometry whose hull is being calculated."
     }, {
       "argumentName": "maxError",
       "type": "ErrorMargin",
@@ -6525,7 +6585,7 @@
     }]
   }, {
     "name": "algorithms/Filter.eq",
-    "description": "Creates a unary or binary filter that passes if the two operands are equals.",
+    "description": "Creates a unary or binary filter that passes if the operands are equal.",
     "returnType": "Filter",
     "arguments": [{
       "argumentName": "leftField",
@@ -6554,7 +6614,7 @@
     }]
   }, {
     "name": "algorithms/Filter.equals",
-    "description": "Creates a unary or binary filter that passes if the two operands are equals.",
+    "description": "Creates a unary or binary filter that passes if the operands are equal.",
     "returnType": "Filter",
     "arguments": [{
       "argumentName": "leftField",
@@ -6583,7 +6643,7 @@
     }]
   }, {
     "name": "algorithms/Filter.neq",
-    "description": "Creates a unary or binary filter that passes unless the two operands are equals.",
+    "description": "Creates a unary or binary filter that passes unless the operands are equal.",
     "returnType": "Filter",
     "arguments": [{
       "argumentName": "leftField",
@@ -6612,7 +6672,7 @@
     }]
   }, {
     "name": "algorithms/Filter.notEquals",
-    "description": "Creates a unary or binary filter that passes unless the two operands are equals.",
+    "description": "Creates a unary or binary filter that passes unless the operands are equal.",
     "returnType": "Filter",
     "arguments": [{
       "argumentName": "leftField",
@@ -9084,7 +9144,7 @@
     }]
   }, {
     "name": "algorithms/Image.blend",
-    "description": "Overlays one image on top of another. The images are blended together using the masks as opacity. If either of images has only 1 band, it is replicated to match the number of bands in the other image.",
+    "description": "Overlays one image on top of another. The images are blended together using the masks as opacity. If either of the images has only 1 band, it is replicated to match the number of bands in the other image.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "bottom",
@@ -9211,7 +9271,7 @@
     }, {
       "argumentName": "eightConnected",
       "type": "Boolean",
-      "description": "Whether to use 8-connected rather 4-connected rules.",
+      "description": "Whether to use 8-connected rather than 4-connected rules.",
       "optional": true,
       "defaultValue": true
     }]
@@ -9441,7 +9501,7 @@
     }]
   }, {
     "name": "algorithms/Image.glcmTexture",
-    "description": "Computes texture metrics from the Gray Level Co-occurrence Matrix around each pixel of every band. The GLCM is a tabulation of how often different combinations of pixel brightness values (grey levels) occur in an image. It counts the number of times a pixel of value X lies next to a pixel of value Y, in a particular direction and distance. and then derives statistics from this tabulation.  \u003cp\u003eThis implementation computes the 14 GLCM metrics proposed by Haralick, and 4 additional metrics from Conners. Inputs are required to be integer valued.  \u003cp\u003eThe output consists of 18 bands per input band if directional averaging is on and 18 bands per directional pair in the kernel, if not: \u003cul\u003e   \u003cli\u003e\u003cb\u003eASM:\u003c/b\u003e f1, Angular Second Moment; measures the number of repeated pairs\u003c/li\u003e   \u003cli\u003e\u003cb\u003eCONTRAST:\u003c/b\u003e f2, Contrast; measures the local contrast of an image\u003c/li\u003e   \u003cli\u003e\u003cb\u003eCORR:\u003c/b\u003e f3, Correlation; measures the correlation between pairs of pixels\u003c/li\u003e   \u003cli\u003e\u003cb\u003eVAR:\u003c/b\u003e f4, Variance; measures how spread out the distribution of gray-levels is\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIDM:\u003c/b\u003e f5, Inverse Difference Moment; measures the homogeneity\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSAVG:\u003c/b\u003e f6, Sum Average\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSVAR:\u003c/b\u003e f7, Sum Variance\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSENT:\u003c/b\u003e f8, Sum Entropy\u003c/li\u003e   \u003cli\u003e\u003cb\u003eENT:\u003c/b\u003e f9, Entropy. Measures the randomness of a gray-level distribution\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDVAR:\u003c/b\u003e f10, Difference variance\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDENT:\u003c/b\u003e f11, Difference entropy\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIMCORR1:\u003c/b\u003e f12, Information Measure of Corr. 1\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIMCORR2:\u003c/b\u003e f13, Information Measure of Corr. 2\u003c/li\u003e   \u003cli\u003e\u003cb\u003eMAXCORR:\u003c/b\u003e f14, Max Corr. Coefficient. (not computed)\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDISS:\u003c/b\u003e Dissimilarity\u003c/li\u003e   \u003cli\u003e\u003cb\u003eINERTIA:\u003c/b\u003e Inertia\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSHADE:\u003c/b\u003e Cluster Shade\u003c/li\u003e   \u003cli\u003e\u003cb\u003ePROM:\u003c/b\u003e Cluster prominence\u003c/li\u003e \u003c/ul\u003e More information can be found in the two papers: Haralick et. al, \u0027Textural Features for Image Classification\u0027, https://doi.org/10.1109/TSMC.1973.4309314 and Conners, et al, \u0027Segmentation of a high-resolution urban scene using texture operators\u0027, https://doi.org/10.1016/0734-189X(84)90197-X. ",
+    "description": "Computes texture metrics from the Gray Level Co-occurrence Matrix around each pixel of every band. The GLCM is a tabulation of how often different combinations of pixel brightness values (grey levels) occur in an image. It counts the number of times a pixel of value X lies next to a pixel of value Y, in a particular direction and distance, and then derives statistics from this tabulation.  \u003cp\u003eThis implementation computes the 14 GLCM metrics proposed by Haralick, and 4 additional metrics from Conners. Inputs are required to be integer valued.  \u003cp\u003eThe output consists of 18 bands per input band if directional averaging is on and 18 bands per directional pair in the kernel, if not: \u003cul\u003e   \u003cli\u003e\u003cb\u003eASM:\u003c/b\u003e f1, Angular Second Moment; measures the number of repeated pairs\u003c/li\u003e   \u003cli\u003e\u003cb\u003eCONTRAST:\u003c/b\u003e f2, Contrast; measures the local contrast of an image\u003c/li\u003e   \u003cli\u003e\u003cb\u003eCORR:\u003c/b\u003e f3, Correlation; measures the correlation between pairs of pixels\u003c/li\u003e   \u003cli\u003e\u003cb\u003eVAR:\u003c/b\u003e f4, Variance; measures how spread out the distribution of gray-levels is\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIDM:\u003c/b\u003e f5, Inverse Difference Moment; measures the homogeneity\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSAVG:\u003c/b\u003e f6, Sum Average\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSVAR:\u003c/b\u003e f7, Sum Variance\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSENT:\u003c/b\u003e f8, Sum Entropy\u003c/li\u003e   \u003cli\u003e\u003cb\u003eENT:\u003c/b\u003e f9, Entropy. Measures the randomness of a gray-level distribution\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDVAR:\u003c/b\u003e f10, Difference variance\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDENT:\u003c/b\u003e f11, Difference entropy\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIMCORR1:\u003c/b\u003e f12, Information Measure of Corr. 1\u003c/li\u003e   \u003cli\u003e\u003cb\u003eIMCORR2:\u003c/b\u003e f13, Information Measure of Corr. 2\u003c/li\u003e   \u003cli\u003e\u003cb\u003eMAXCORR:\u003c/b\u003e f14, Max Corr. Coefficient. (not computed)\u003c/li\u003e   \u003cli\u003e\u003cb\u003eDISS:\u003c/b\u003e Dissimilarity\u003c/li\u003e   \u003cli\u003e\u003cb\u003eINERTIA:\u003c/b\u003e Inertia\u003c/li\u003e   \u003cli\u003e\u003cb\u003eSHADE:\u003c/b\u003e Cluster Shade\u003c/li\u003e   \u003cli\u003e\u003cb\u003ePROM:\u003c/b\u003e Cluster prominence\u003c/li\u003e \u003c/ul\u003e More information can be found in the two papers: Haralick et. al, \u0027Textural Features for Image Classification\u0027, https://doi.org/10.1109/TSMC.1973.4309314 and Conners, et al, \u0027Segmentation of a high-resolution urban scene using texture operators\u0027, https://doi.org/10.1016/0734-189X(84)90197-X. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9574,7 +9634,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Image.loadZarrV2Array",
-    "description": "Loads a Zarr v2 array as an Image. The array attributes (.zattrs) must contain the field \u0027_ARRAY_DIMENSIONS\u0027, which is a list of the names of each dimension (e.g., [\u0027time\u0027, \u0027y\u0027, \u0027x\u0027]). There must be at least two dimensions, with the final two representing Y and X respectively (e.g., [\u0027lat\u0027, \u0027lon\u0027]). The supported compression codecs are \u0027blosc\u0027, \u0027gzip\u0027, \u0027lz4\u0027, \u0027zlib\u0027, and \u0027zstd\u0027. The supported blosc meta-compression codecs are \u0027lz4\u0027, lz4hc\u0027, \u0027zlib\u0027, and \u0027zstd\u0027 (\u0027blosclz\u0027 is not supported).",
+    "description": "Loads a Zarr v2 array as an Image. The array attributes (.zattrs) must contain the field \u0027_ARRAY_DIMENSIONS\u0027, which is a list of the names of each dimension (e.g., [\u0027time\u0027, \u0027y\u0027, \u0027x\u0027]). There must be at least two dimensions, with the final two representing Y and X respectively (e.g., [\u0027lat\u0027, \u0027lon\u0027]). The supported compression codecs are \u0027blosc\u0027, \u0027gzip\u0027, \u0027lz4\u0027, \u0027zlib\u0027, and \u0027zstd\u0027. The supported blosc meta-compression codecs are \u0027lz4\u0027, \u0027lz4hc\u0027, \u0027zlib\u0027, and \u0027zstd\u0027 (\u0027blosclz\u0027 is not supported).",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "uri",
@@ -9654,7 +9714,7 @@
     }]
   }, {
     "name": "algorithms/Image.neighborhoodToBands",
-    "description": "Turns the neighborhood of a pixel into a set of bands. The neighborhood is specified using a Kernel and only non-zero-weight kernel values are used. The weights of the kernel is otherwise ignored.  \u003cp\u003eEach input band produces x * y output bands. Each output band is named \u0027input_x_y\u0027 where x and y indicate the pixel\u0027s location in the kernel. For example, a 3x3 kernel operating on a 2-band image produces 18 output bands. ",
+    "description": "Turns the neighborhood of a pixel into a set of bands. The neighborhood is specified using a Kernel and only non-zero-weight kernel values are used. The weights of the kernel are otherwise ignored.  \u003cp\u003eEach input band produces x * y output bands. Each output band is named \u0027input_x_y\u0027 where x and y indicate the pixel\u0027s location in the kernel. For example, a 3x3 kernel operating on a 2-band image produces 18 output bands. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9974,7 +10034,7 @@
     }, {
       "argumentName": "reducer",
       "type": "Reducer",
-      "description": "The reducer to apply to be used for combining pixels."
+      "description": "The reducer to use for combining pixels."
     }, {
       "argumentName": "bestEffort",
       "type": "Boolean",
@@ -10485,7 +10545,7 @@
     "arguments": [{
       "argumentName": "input",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "The image to rendering using the SLD."
+      "description": "The image to render using the SLD."
     }, {
       "argumentName": "sldXml",
       "type": "String",
@@ -10585,7 +10645,7 @@
     }]
   }, {
     "name": "algorithms/Image.register",
-    "description": "Registers an image to a reference image while allowing local, rubber sheet deformations. Displacements are computed in the CRS of the reference image, at a scale dictated by the lowest resolution of the following three projections: input image projection, reference image projection, and requested projection. The displacements then applied to the input image to register it with the reference. ",
+    "description": "Registers an image to a reference image while allowing local, rubber sheet deformations. Displacements are computed in the CRS of the reference image, at a scale dictated by the lowest resolution of the following three projections: input image projection, reference image projection, and requested projection. The displacements are then applied to the input image to register it with the reference. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10804,7 +10864,7 @@
     }, {
       "argumentName": "test",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "The test image. The pixels of this image determines which of the input pixels is returned. If this is a single band, it is used for all bands in the input image. This may not be an array image."
+      "description": "The test image. The pixels of this image determine which of the input pixels is returned. If this is a single band, it is used for all bands in the input image. This may not be an array image."
     }, {
       "argumentName": "value",
       "type": "Image\u003cunknown bands\u003e",
@@ -10921,7 +10981,7 @@
     }]
   }, {
     "name": "algorithms/Image.clipToCollection",
-    "description": "Clips an image to a FeatureCollection. The output bands correspond exactly the input bands, except data not covered by the geometry of at least one feature from the collection is masked. The output image retains the metadata of the input image.",
+    "description": "Clips an image to a FeatureCollection. The output bands correspond exactly to the input bands, except data not covered by the geometry of at least one feature from the collection is masked. The output image retains the metadata of the input image.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -11214,7 +11274,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.loadZarrV2Array",
-    "description": "Loads a Zarr v2 array with 3 or more dimensions (i.e., 1 or more non-spatial dimensions) as an ImageCollection by slicing along a specified non-spatial axis. The array attributes (.zattrs) must contain the field \u0027_ARRAY_DIMENSIONS\u0027, which is a list of the names of each dimension (e.g., [\u0027time\u0027, \u0027y\u0027, \u0027x\u0027]). There must be at least two dimensions, with the final two representing Y and X respectively (e.g., [\u0027lat\u0027, \u0027lon\u0027]). The supported compression codecs are \u0027blosc\u0027, \u0027gzip\u0027, \u0027lz4\u0027, \u0027zlib\u0027, and \u0027zstd\u0027. The supported blosc meta-compression codecs are \u0027lz4\u0027, lz4hc\u0027, \u0027zlib\u0027, and \u0027zstd\u0027 (\u0027blosclz\u0027 is not supported).",
+    "description": "Loads a Zarr v2 array with 3 or more dimensions (i.e., 1 or more non-spatial dimensions) as an ImageCollection by slicing along a specified non-spatial axis. The array attributes (.zattrs) must contain the field \u0027_ARRAY_DIMENSIONS\u0027, which is a list of the names of each dimension (e.g., [\u0027time\u0027, \u0027y\u0027, \u0027x\u0027]). There must be at least two dimensions, with the final two representing Y and X respectively (e.g., [\u0027lat\u0027, \u0027lon\u0027]). The supported compression codecs are \u0027blosc\u0027, \u0027gzip\u0027, \u0027lz4\u0027, \u0027zlib\u0027, and \u0027zstd\u0027. The supported blosc meta-compression codecs are \u0027lz4\u0027, \u0027lz4hc\u0027, \u0027zlib\u0027, and \u0027zstd\u0027 (\u0027blosclz\u0027 is not supported).",
     "returnType": "ImageCollection",
     "arguments": [{
       "argumentName": "uri",
@@ -11630,7 +11690,7 @@
     }]
   }, {
     "name": "algorithms/List.getArray",
-    "description": "Returns the array at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a array, an error will occur.",
+    "description": "Returns the array at the specified position in list. A negative index counts backwards from the end of the list. If the value is not an array, an error will occur.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "list",
@@ -11965,7 +12025,7 @@
     }]
   }, {
     "name": "algorithms/List.splice",
-    "description": "Starting at the start index, removes count elements from list and insert the contents of other at that location. If start is negative, it counts backwards from the end of the list.",
+    "description": "Starting at the start index, removes count elements from list and inserts the contents of other at that location. If start is negative, it counts backwards from the end of the list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11998,7 +12058,7 @@
     }]
   }, {
     "name": "algorithms/List.unzip",
-    "description": "Transposes a list of lists, extracting the first element of each inner list into one list the second elements into another, etc., up to the length of the shortest inner list. The remaining items are discarded. The result is a list of lists.",
+    "description": "Transposes a list of lists, extracting the first element of each inner list into one list, the second elements into another, etc., up to the length of the shortest inner list. The remaining items are discarded. The result is a list of lists.",
     "returnType": "List\u003cList\u003cObject\u003e\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -12155,7 +12215,7 @@
     }, {
       "argumentName": "selectors",
       "type": "List\u003cString\u003e",
-      "description": "A list of keys names or regular expressions of key names to remove."
+      "description": "A list of key names or regular expressions of key names to remove."
     }, {
       "argumentName": "ignoreMissing",
       "type": "Boolean",
@@ -12426,7 +12486,7 @@
     }]
   }, {
     "name": "algorithms/String.split",
-    "description": "Splits a string on a regular expression, Returning a list of strings.",
+    "description": "Splits a string on a regular expression, returning a list of strings.",
     "returnType": "List\u003cString\u003e",
     "arguments": [{
       "argumentName": "string",
@@ -13729,7 +13789,7 @@
     }, {
       "argumentName": "coordinateLabels",
       "type": "List\u003cList\u003cString\u003e\u003e",
-      "description": "Name of each position along each axis. For example, 2x2 arrays with axes meaning \u0027day\u0027 and \u0027color\u0027 could have labels like [[\u0027monday\u0027, \u0027tuesday\u0027], [\u0027red\u0027, \u0027green\u0027]], resulting in band names\u0027monday_red\u0027, \u0027monday_green\u0027, \u0027tuesday_red\u0027, and \u0027tuesday_green\u0027."
+      "description": "Name of each position along each axis. For example, 2x2 arrays with axes meaning \u0027day\u0027 and \u0027color\u0027 could have labels like [[\u0027monday\u0027, \u0027tuesday\u0027], [\u0027red\u0027, \u0027green\u0027]], resulting in band names \u0027monday_red\u0027, \u0027monday_green\u0027, \u0027tuesday_red\u0027, and \u0027tuesday_green\u0027."
     }, {
       "argumentName": "separator",
       "type": "String",
@@ -13818,7 +13878,7 @@
     }, {
       "argumentName": "lengths",
       "type": "List\u003cInteger\u003e",
-      "description": "A list of desired lengths for each axis in the output arrays. Arrays are already as large or larger than the given length will be unchanged along that axis."
+      "description": "A list of desired lengths for each axis in the output arrays. Arrays that are already as large or larger than the given length will be unchanged along that axis."
     }, {
       "argumentName": "pad",
       "type": "Number",
@@ -13896,7 +13956,7 @@
     }, {
       "argumentName": "start",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "The coordinate of the first slice (inclusive) along \u0027axis\u0027. Negative numbers are used to position the start of slicing relative to the end of the array, where -1 starts at the last position on the axis, -2 starts at the next to last position, etc. There must one band for start indices, or one band per \u0027input\u0027 band. If this argument is not set or masked at some pixel, then the slice at that pixel will start at index 0.",
+      "description": "The coordinate of the first slice (inclusive) along \u0027axis\u0027. Negative numbers are used to position the start of slicing relative to the end of the array, where -1 starts at the last position on the axis, -2 starts at the next to last position, etc. There must be one band for start indices, or one band per \u0027input\u0027 band. If this argument is not set or masked at some pixel, then the slice at that pixel will start at index 0.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -13938,7 +13998,7 @@
     }, {
       "argumentName": "lengths",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "A 1-band image specifying the new lengths of each axis of the input image specified as a 1-D array per pixel. There should be \u0027dimensions\u0027 lengths values in each shape\u0027 array. If one of the lengths is -1, then the corresponding length for that axis will be computed such that the total size remains constant. In particular, a shape of [-1] flattens into 1-D. At most one component of shape can be -1."
+      "description": "A 1-band image specifying the new lengths of each axis of the input image specified as a 1-D array per pixel. There should be \u0027dimensions\u0027 lengths values in each \u0027shape\u0027 array. If one of the lengths is -1, then the corresponding length for that axis will be computed such that the total size remains constant. In particular, a shape of [-1] flattens into 1-D. At most one component of shape can be -1."
     }, {
       "argumentName": "dimensions",
       "type": "Integer",
@@ -15658,13 +15718,13 @@
     }, {
       "argumentName": "outputBands",
       "type": "Dictionary\u003cDictionary\u003cObject\u003e\u003e",
-      "description": "A map from output band names to a dictionary of output band info. Valid band info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output band, and \u0027dimensions\u0027 is an optional integer with the number of dimensions in that band e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for image predictions.",
+      "description": "A map from output band names to a dictionary of output band info. Valid band info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output band, and \u0027dimensions\u0027 is an optional integer with the number of dimensions in that band, e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for image predictions.",
       "optional": true,
       "defaultValue": null
     }, {
       "argumentName": "outputProperties",
       "type": "Dictionary\u003cDictionary\u003cObject\u003e\u003e",
-      "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
+      "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array, e.g., \"outputProperties: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -15735,13 +15795,13 @@
     }, {
       "argumentName": "outputBands",
       "type": "Dictionary\u003cDictionary\u003cObject\u003e\u003e",
-      "description": "A map from output band names to a dictionary of output band info. Valid band info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output band, and \u0027dimensions\u0027 is an optional integer with the number of dimensions in that band e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for image predictions.",
+      "description": "A map from output band names to a dictionary of output band info. Valid band info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output band, and \u0027dimensions\u0027 is an optional integer with the number of dimensions in that band, e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for image predictions.",
       "optional": true,
       "defaultValue": null
     }, {
       "argumentName": "outputProperties",
       "type": "Dictionary\u003cDictionary\u003cObject\u003e\u003e",
-      "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
+      "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array, e.g., \"outputProperties: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -15759,7 +15819,7 @@
     }, {
       "argumentName": "payloadFormat",
       "type": "String",
-      "description": "The payload format of entries in prediction requests and responses. One of: [\u0027SERIALIZED_TF_TENSORS, \u0027RAW_JSON\u0027, \u0027ND_ARRAYS\u0027,  \u0027GRPC_TF_TENSORS\u0027, \u0027GRPC_SERIALIZED_TF_TENSORS\u0027, \u0027GRPC_TF_EXAMPLES\u0027]. Defaults to \u0027SERIALIZED_TF_TENSORS\u0027.",
+      "description": "The payload format of entries in prediction requests and responses. One of: [\u0027SERIALIZED_TF_TENSORS\u0027, \u0027RAW_JSON\u0027, \u0027ND_ARRAYS\u0027,  \u0027GRPC_TF_TENSORS\u0027, \u0027GRPC_SERIALIZED_TF_TENSORS\u0027, \u0027GRPC_TF_EXAMPLES\u0027]. Defaults to \u0027SERIALIZED_TF_TENSORS\u0027.",
       "optional": true,
       "defaultValue": null
     }]
@@ -16325,7 +16385,7 @@
     }]
   }, {
     "name": "algorithms/Reducer.ridgeRegression",
-    "description": "Creates a reducer that computes a ridge regression with numX independent variables (not including constant) followed by numY dependent variables. Ridge regression is a form of Tikhonov regularization which shrinks the regression coefficients by imposing a penalty on their size. With this implementation of ridge regression there NO NEED to include a constant value for bias.\nThe first output is a coefficients array with dimensions (numX + 1, numY); each column contains the coefficients for the corresponding dependent variable plus the intercept for the dependent variable in the last column. Additional outputs are a vector of the root mean square of the residuals of each dependent variable and a vector of p-values for each dependent variable. Outputs are null if the system is underdetermined, e.g., the number of inputs is less than numX + 1.",
+    "description": "Creates a reducer that computes a ridge regression with numX independent variables (not including constant) followed by numY dependent variables. Ridge regression is a form of Tikhonov regularization which shrinks the regression coefficients by imposing a penalty on their size. With this implementation of ridge regression there is NO NEED to include a constant value for bias.\nThe first output is a coefficients array with dimensions (numX + 1, numY); each column contains the coefficients for the corresponding dependent variable plus the intercept for the dependent variable in the last column. Additional outputs are a vector of the root mean square of the residuals of each dependent variable and a vector of p-values for each dependent variable. Outputs are null if the system is underdetermined, e.g., the number of inputs is less than numX + 1.",
     "returnType": "Reducer",
     "arguments": [{
       "argumentName": "numX",
@@ -16486,7 +16546,7 @@
     }, {
       "argumentName": "maxObjectSize",
       "type": "Integer",
-      "description": "Maximum object size. Regions cannot be merged across tiles iftheir length is over this limit.",
+      "description": "Maximum object size. Regions cannot be merged across tiles if their length is over this limit.",
       "optional": true,
       "defaultValue": 256.0
     }, {
@@ -16526,7 +16586,7 @@
     }, {
       "argumentName": "maxObjectSize",
       "type": "Integer",
-      "description": "Maximum object size. Regions cannot be merged across tiles iftheir length is over this limit.",
+      "description": "Maximum object size. Regions cannot be merged across tiles if their length is over this limit.",
       "optional": true,
       "defaultValue": 256.0
     }, {
@@ -16641,7 +16701,7 @@
     "hidden": true
   }, {
     "name": "algorithms/green_mosaic/com.google.earthengine.examples.greenmosaic.GreenMosaic",
-    "description": "Mosaicks an MCD43A4 image collection by taking the top fraction graded by NDVI, then selecting the geometric mediod.",
+    "description": "Mosaicks an MCD43A4 image collection by taking the top fraction graded by NDVI, then selecting the geometric medoid.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "inputs",
