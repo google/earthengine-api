@@ -530,11 +530,12 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue(callable(ee.Algorithms.Foo))
     self.assertTrue(callable(ee.Image.bar))  # pyrefly: ignore[missing-attribute]
     self.assertTrue(callable(ee.Image.baz))  # pyrefly: ignore[missing-attribute]
-    self.assertTrue(callable(ee.Image.baz))
+    self.assertTrue(callable(ee.Image.oldBar))  # pyrefly: ignore[missing-attribute]
 
     self.assertEqual(ee.Algorithms.Foo.__doc__, foo)
-    self.assertIn(foo, ee.Image.oldBar.__doc__)  # pyrefly: ignore[missing-attribute]
-    self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)  # pyrefly: ignore[missing-attribute]
+    self.assertIsNotNone(ee.Image.oldBar.__doc__)
+    self.assertIn(foo, ee.Image.oldBar.__doc__)
+    self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
     self.assertIn('PREVIEW: This function is preview or internal only.',
                   ee.Image.newBaz.__doc__)  # pyrefly: ignore[missing-attribute]
     self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
