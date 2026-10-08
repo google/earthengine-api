@@ -50,7 +50,7 @@ class NumberTest(apitestcase.ApiTestCase):
     with self.assertRaisesRegex(
         ee.EEException, 'Invalid argument specified for ee.Number'
     ):
-      ee.Number('not a number')  # pytype: disable=wrong-arg-types
+      ee.Number('not a number')  # pyrefly: ignore[bad-argument-type]
 
   def test_abs(self):
     expect = make_expression_graph({

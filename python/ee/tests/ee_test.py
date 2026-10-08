@@ -528,19 +528,17 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # The initialisation shouldn't blow up.
     self.assertTrue(callable(ee.Algorithms.Foo))
-    # pytype: disable=attribute-error
-    self.assertTrue(callable(ee.Image.bar))
-    self.assertTrue(callable(ee.Image.baz))
+    self.assertTrue(callable(ee.Image.bar))  # pyrefly: ignore[missing-attribute]
+    self.assertTrue(callable(ee.Image.baz))  # pyrefly: ignore[missing-attribute]
     self.assertTrue(callable(ee.Image.baz))
 
     self.assertEqual(ee.Algorithms.Foo.__doc__, foo)
-    self.assertIn(foo, ee.Image.oldBar.__doc__)
-    self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
+    self.assertIn(foo, ee.Image.oldBar.__doc__)  # pyrefly: ignore[missing-attribute]
+    self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)  # pyrefly: ignore[missing-attribute]
     self.assertIn('PREVIEW: This function is preview or internal only.',
-                  ee.Image.newBaz.__doc__)
+                  ee.Image.newBaz.__doc__)  # pyrefly: ignore[missing-attribute]
     self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
     self.assertEqual(ee.Image.baz.__doc__, baz)
-    # pytype: enable=attribute-error
 
 
 if __name__ == '__main__':

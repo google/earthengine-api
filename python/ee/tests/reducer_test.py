@@ -52,14 +52,14 @@ class ReducerTest(apitestcase.ApiTestCase):
   def test_no_args(self):
     message = r"missing 1 required positional argument: 'reducer'"
     with self.assertRaisesRegex(TypeError, message):
-      ee.Reducer()  # pytype: disable=missing-parameter
+      ee.Reducer()  # pyrefly: ignore[missing-argument]
 
   def test_bad_arg_literal(self):
     message = (
         r"Reducer can only be used as a cast to Reducer. Found <class 'int'>\."
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Reducer(1)  # pytype: disable=wrong-arg-types
+      ee.Reducer(1)  # pyrefly: ignore[bad-argument-type]
 
   def test_bad_arg_dict(self):
     message = (
@@ -69,7 +69,7 @@ class ReducerTest(apitestcase.ApiTestCase):
         r'`myFunction\(\*\*kwargs\)`\)\.'
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Reducer({})  # pytype: disable=wrong-arg-types
+      ee.Reducer({})  # pyrefly: ignore[bad-argument-type]
 
   def test_all_non_zero(self):
     expect = make_expression_graph(

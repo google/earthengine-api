@@ -32,10 +32,10 @@ TENSORFLOW_INSTALLED = False
 
 # pylint: disable=g-import-not-at-top
 try:
-  import tensorflow.compat.v1 as tf  # pyrefly: ignore[import]
-  from tensorflow.compat.v1.saved_model import utils as saved_model_utils  # pyrefly: ignore[import]
-  from tensorflow.compat.v1.saved_model import signature_constants  # pyrefly: ignore[import]
-  from tensorflow.compat.v1.saved_model import signature_def_utils  # pyrefly: ignore[import]
+  import tensorflow.compat.v1 as tf
+  from tensorflow.compat.v1.saved_model import utils as saved_model_utils
+  from tensorflow.compat.v1.saved_model import signature_constants
+  from tensorflow.compat.v1.saved_model import signature_def_utils
   # This triggers a warning about disable_resource_variables
   tf.disable_v2_behavior()
   # Prevent TensorFlow from logging anything at the python level.
@@ -1820,11 +1820,9 @@ class UploadImageManifestCommand(_UploadManifestBase):
 
   name = 'upload_manifest'
 
-  # pytype: disable=signature-mismatch
-  def run(
+  def run(  # pyrefly: ignore[bad-override]
       self, args: argparse.Namespace, config: utils.CommandLineConfig
   ) -> None:
-    # pytype: enable=signature-mismatch
     """Starts the upload task, and waits for completion if requested."""
     print(
         'This command is deprecated. '
@@ -1838,11 +1836,9 @@ class UploadTableManifestCommand(_UploadManifestBase):
 
   name = 'upload_table_manifest'
 
-  # pytype: disable=signature-mismatch
-  def run(
+  def run(  # pyrefly: ignore[bad-override]
       self, args: argparse.Namespace, config: utils.CommandLineConfig
   ) -> None:
-    # pytype: enable=signature-mismatch
     print(
         'This command is deprecated. '
         'Use "earthengine upload table --manifest".'

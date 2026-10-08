@@ -74,7 +74,7 @@ class ClustererTest(apitestcase.ApiTestCase):
         r' \'clusterer\''
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Clusterer()  # pytype:disable=missing-parameter
+      ee.Clusterer()  # pyrefly: ignore[missing-argument]
 
   def test_wrong_type(self):
     message = (
@@ -82,7 +82,7 @@ class ClustererTest(apitestcase.ApiTestCase):
         r' \'int\'>'
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Clusterer(1234)  # pytype:disable=wrong-arg-types
+      ee.Clusterer(1234)  # pyrefly: ignore[bad-argument-type]
 
   def test_schema(self):
     clusterer = ee.Clusterer.wekaCobweb(1.1, 2.2, 3)

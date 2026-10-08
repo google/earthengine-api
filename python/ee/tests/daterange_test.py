@@ -175,7 +175,7 @@ class DateRangeTest(apitestcase.ApiTestCase):
   def test_no_args(self):
     message = r"missing 1 required positional argument: 'start'"
     with self.assertRaisesRegex(TypeError, message):
-      ee.DateRange()  # pytype:disable=missing-parameter
+      ee.DateRange()  # pyrefly: ignore[missing-argument]
 
   def test_contains(self):
     expect = make_expression_graph({

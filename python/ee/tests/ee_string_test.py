@@ -55,7 +55,7 @@ class StringTest(apitestcase.ApiTestCase):
   def test_bad_arg(self):
     message = r'Invalid argument specified for ee\.String\(\): 123'
     with self.assertRaisesRegex(ee.EEException, message):
-      ee.String(123)  # pytype: disable=wrong-arg-types
+      ee.String(123)  # pyrefly: ignore[bad-argument-type]
 
   def test_cat(self):
     expect = make_expression_graph({

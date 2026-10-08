@@ -72,7 +72,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
         r' \'classifier\''
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Classifier()  # pytype:disable=missing-parameter
+      ee.Classifier()  # pyrefly: ignore[missing-argument]
 
   def test_wrong_type(self):
     message = (
@@ -80,7 +80,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
         r' \'int\'>'
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Classifier(1234)  # pytype:disable=wrong-arg-types
+      ee.Classifier(1234)  # pyrefly: ignore[bad-argument-type]
 
   def test_amnh_maxent(self):
     categorical_names = ['a', 'b']

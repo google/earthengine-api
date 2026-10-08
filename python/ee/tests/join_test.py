@@ -26,12 +26,12 @@ class JoinTest(apitestcase.ApiTestCase):
   def test_join_no_args(self):
     message = 'missing 1 required positional argument.*join'
     with self.assertRaisesRegex(TypeError, message):
-      ee.Join()  # pytype:disable=missing-parameter
+      ee.Join()  # pyrefly: ignore[missing-argument]
 
   def test_join_type_error(self):
     message = r"Join can only be used as a cast to Join\. Found <class 'str'>"
     with self.assertRaisesRegex(TypeError, message):
-      ee.Join('some string')  # pytype:disable=wrong-arg-types
+      ee.Join('some string')  # pyrefly: ignore[bad-argument-type]
 
   def test_apply(self):
     expect = make_expression_graph({

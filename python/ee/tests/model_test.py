@@ -119,13 +119,13 @@ class ModelTest(apitestcase.ApiTestCase):
     with self.assertRaisesRegex(
         TypeError, 'Model constructor can only cast to Model.'
     ):
-      ee.Model('not a computed object')  # pytype: disable=wrong-arg-types
+      ee.Model('not a computed object')  # pyrefly: ignore[bad-argument-type]
 
   def test_model_constructor_invalid_int(self):
     with self.assertRaisesRegex(
         TypeError, 'Model constructor can only cast to Model.'
     ):
-      ee.Model(123)  # pytype: disable=wrong-arg-types
+      ee.Model(123)  # pyrefly: ignore[bad-argument-type]
 
   def test_from_ai_platform_predictor(self):
     project_name = 'some project'

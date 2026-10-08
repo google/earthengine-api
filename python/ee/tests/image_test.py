@@ -3783,14 +3783,14 @@ class SerializeTest(apitestcase.ApiTestCase):
         r' `\*\*` dictionary unpacking operator'
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Image('a').reduceToVectors(reducer={})  # pytype: disable=wrong-arg-types
+      ee.Image('a').reduceToVectors(reducer={})  # pyrefly: ignore[bad-argument-type]
 
   def test_reduce_to_vectors_bad_reducer_int(self):
     message = (
         r"Reducer can only be used as a cast to Reducer\. Found <class 'int'>"
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Image('a').reduceToVectors(reducer=1)  # pytype: disable=wrong-arg-types
+      ee.Image('a').reduceToVectors(reducer=1)  # pyrefly: ignore[bad-argument-type]
 
   def test_regexp_rename(self):
     regex = 'a regex'

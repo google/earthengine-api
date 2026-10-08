@@ -77,7 +77,7 @@ class BlobTest(apitestcase.ApiTestCase):
   def test_wrong_arg_type(self):
     message = r'url must be a string or ComputedObject: <class \'int\'> -> "13"'
     with self.assertRaisesRegex(ValueError, message):
-      ee.Blob(13)  # pytype: disable=wrong-arg-types
+      ee.Blob(13)  # pyrefly: ignore[bad-argument-type]
 
   def test_does_not_start_with_gs(self):
     url = 'http://example.com/something'

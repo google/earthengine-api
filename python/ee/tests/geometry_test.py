@@ -819,7 +819,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     # TODO: schwehr - Improve _coordinatesToLine typing.
     self.assertEqual(
         [[1, 2]],
-        ee.Geometry._coordinatesToLine([[1, 2]]),  # pytype: disable=wrong-arg-types
+        ee.Geometry._coordinatesToLine([[1, 2]]),  # pyrefly: ignore[bad-argument-type]
     )
     self.assertEqual(
         [[1, 2], [3, 4]], ee.Geometry._coordinatesToLine([1, 2, 3, 4])

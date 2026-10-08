@@ -48,7 +48,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     # We don't allow empty filters.
     self.assertRaises(Exception, collection.filter)
     with self.assertRaisesRegex(ee.EEException, 'Empty filters.'):
-      collection.filter(None)  # pytype: disable=wrong-arg-types
+      collection.filter(None)  # pyrefly: ignore[bad-argument-type]
     with self.assertRaisesRegex(ee.EEException, 'Empty filters.'):
       collection.filter('')
 

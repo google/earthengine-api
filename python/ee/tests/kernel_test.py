@@ -70,7 +70,7 @@ class KernelTest(apitestcase.ApiTestCase):
         r' \'kernel\''
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Kernel()  # pytype:disable=missing-parameter
+      ee.Kernel()  # pyrefly: ignore[missing-argument]
 
   def test_wrong_type(self):
     message = (
@@ -78,7 +78,7 @@ class KernelTest(apitestcase.ApiTestCase):
         r' \'int\'>'
     )
     with self.assertRaisesRegex(TypeError, message):
-      ee.Kernel(1234)  # pytype:disable=wrong-arg-types
+      ee.Kernel(1234)  # pyrefly: ignore[bad-argument-type]
 
   def test_add(self):
     kernel1 = ee.Kernel.kirsch(1.1, True)

@@ -127,12 +127,12 @@ def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> discovery.Resource:
   )
 
 
-@contextlib.contextmanager  # pytype: disable=wrong-arg-types
+@contextlib.contextmanager  # pyrefly: ignore[no-matching-overload]
 def UsingCloudApi(
     cloud_api_resource: Any | None = None,
     cloud_api_resource_raw: Any | None = None,
     mock_http: Any | None = None,
-) -> Iterable[Any]:  # pytype: disable=wrong-arg-types
+) -> Iterable[Any]:
   """Returns a context manager under which the Cloud API is enabled."""
   # pylint: disable=protected-access
   old_state = copy.copy(_state._state)
