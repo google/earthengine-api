@@ -41,3 +41,12 @@ currently using the Google Issue Tracker rather than the GitHub Issue tracker.
 Please see the [Get Help](https://developers.google.com/earth-engine/help) page
 of the Earth Engine documentation for details on how to browse and submit issues
 to Issue Tracker.
+
+## Local Debug-and-Save Workflow
+
+If you need to debug changes before publishing them elsewhere:
+
+1. Reproduce and debug the issue locally in this repository.
+2. Save and verify your local changes.
+3. Create a new repository in your own GitHub account.
+4. Save the validated changes there (for example, by pushing your branch to the new repository).
