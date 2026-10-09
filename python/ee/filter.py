@@ -377,7 +377,7 @@ class Filter(computedobject.ComputedObject):
       leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
-    """Returns a filter that passes if the two operands are equals.
+    """Returns a filter that passes if the operands are equal.
 
     Args:
       leftField: A selector for the left operand. Should not be specified if

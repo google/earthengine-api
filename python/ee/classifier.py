@@ -119,7 +119,7 @@ class Classifier(computedobject.ComputedObject):
         used. Ignored when autofeature is false.
       lq2lqptThreshold: Number of samples at which product and threshold
         features start being used. Ignored when autofeature is false.
-      addSamplesToBackground: Add to the background any sample for which has a
+      addSamplesToBackground: Add to the background any sample which has a
         combination of environmental values that isn't already present in the
         background.
       addAllSamplesToBackground: Add all samples to the background, even if they
@@ -143,7 +143,7 @@ class Classifier(computedobject.ComputedObject):
         distribution of clamping. At each point, the value is the absolute
         difference between prediction values with and without clamping.
       randomTestPoints: Random test percentage. The percentage of training
-        points to hold aside as test points, used to compute AUX, omission, etc.
+        points to hold aside as test points, used to compute Area Under the Curve (AUC), omission, etc.
       seed: A seed used when generating random numbers.
     """
 
@@ -586,7 +586,7 @@ class Classifier(computedobject.ComputedObject):
       inputProperties: The list of property names to include as training data.
         Each feature must have all these properties and their values must be
         numeric. This argument is optional if the input collection contains a
-        'band_order' property, (as produced by Image.sample).
+        'band_order' property (as produced by Image.sample).
       subsampling: An optional subsampling factor, within (0, 1].
       subsamplingSeed: A randomization seed to use for subsampling.
     """

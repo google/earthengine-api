@@ -836,8 +836,8 @@ class Reducer(computedobject.ComputedObject):
     variables (not including constant) followed by numY dependent variables.
     Ridge regression is a form of Tikhonov regularization which shrinks the
     regression coefficients by imposing a penalty on their size. With this
-    implementation of ridge regression there NO NEED to include a constant value
-    for bias.
+    implementation of ridge regression there is NO NEED to include a constant
+    value for bias.
 
     The first output is a coefficients array with dimensions (numX + 1, numY);
     each column contains the coefficients for the corresponding dependent

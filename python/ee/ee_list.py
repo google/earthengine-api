@@ -239,7 +239,7 @@ class List(computedobject.ComputedObject):
   def getArray(self, index: _arg_types.Integer) -> ee_array.Array:
     """Returns the array at the specified position in list.
 
-    If the value is not a array, an error will occur.
+    If the value is not an array, an error will occur.
 
     Args:
       index: Offset from where to get the element. A negative index counts

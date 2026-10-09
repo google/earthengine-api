@@ -861,7 +861,7 @@ class Image(element.Element):
       coordinateLabels: Name of each position along each axis. For example, 2x2
         arrays with axes meaning 'day' and 'color' could have labels like
         [['monday', 'tuesday'], ['red', 'green']], resulting in band
-        names'monday_red', 'monday_green', 'tuesday_red', and 'tuesday_green'.
+        names 'monday_red', 'monday_green', 'tuesday_red', and 'tuesday_green'.
       separator: Separator between array labels in each band name.
 
     Returns:
@@ -939,8 +939,8 @@ class Image(element.Element):
 
     Args:
       lengths: A list of desired lengths for each axis in the output arrays.
-        Arrays are already as large or larger than the given length will be
-        unchanged along that axis
+        Arrays that are already as large or larger than the given length will be
+        unchanged along that axis.
       pad: The value to pad with.
 
     Returns:
@@ -1026,7 +1026,7 @@ class Image(element.Element):
     Args:
       lengths: A 1-band image specifying the new lengths of each axis of the
         input image specified as a 1-D array per pixel. There should be
-        'dimensions' lengths values in each shape' array. If one of the lengths
+        'dimensions' lengths values in each 'shape' array. If one of the lengths
         is -1, then the corresponding length for that axis will be computed such
         that the total size remains constant. In particular, a shape of [-1]
         flattens into 1-D. At most one component of shape can be -1.
@@ -1061,7 +1061,7 @@ class Image(element.Element):
       start: The coordinate of the first slice (inclusive) along 'axis'.
         Negative numbers are used to position the start of slicing relative to
         the end of the array, where -1 starts at the last position on the axis,
-        -2 starts at the next to last position, etc. There must one band for
+        -2 starts at the next to last position, etc. There must be one band for
         start indices, or one band per 'input' band. If this argument is not set
         or masked at some pixel, then the slice at that pixel will start at
         index 0.
@@ -1249,7 +1249,7 @@ class Image(element.Element):
   def blend(self, top: _arg_types.Image) -> Image:
     """Overlays one image on top of another.
 
-    The images are blended together using the masks as opacity. If either of
+    The images are blended together using the masks as opacity. If either of the
     images has only 1 band, it is replicated to match the number of bands in the
     other image.
 
@@ -1434,9 +1434,9 @@ class Image(element.Element):
   def clipToCollection(self, collection: _arg_types.FeatureCollection) -> Image:
     """Clips an image to a FeatureCollection.
 
-    The output bands correspond exactly the input bands, except data not covered
-    by the geometry of at least one feature from the collection is masked. The
-    output image retains the metadata of the input image.
+    The output bands correspond exactly to the input bands, except data not
+    covered by the geometry of at least one feature from the collection is
+    masked. The output image retains the metadata of the input image.
 
     Args:
       collection: The FeatureCollection to clip to.
@@ -1508,7 +1508,7 @@ class Image(element.Element):
 
     Args:
       maxSize: The maximum size of the neighborhood in pixels.
-      eightConnected: Whether to use 8-connected rather 4-connected rules.
+      eightConnected: Whether to use 8-connected rather than 4-connected rules.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2160,7 +2160,7 @@ class Image(element.Element):
     each pixel of every band. The GLCM is a tabulation of how often different
     combinations of pixel brightness values (grey levels) occur in an image. It
     counts the number of times a pixel of value X lies next to a pixel of value
-    Y, in a particular direction and distance. and then derives statistics from
+    Y, in a particular direction and distance, and then derives statistics from
     this tabulation.
 
     This implementation computes the 14 GLCM metrics proposed by Haralick, and 4
@@ -2940,7 +2940,7 @@ class Image(element.Element):
     """Turns the neighborhood of a pixel into a set of bands.
 
     The neighborhood is specified using a Kernel and only non-zero-weight
-    kernel values are used. The weights of the kernel is otherwise ignored.
+    kernel values are used. The weights of the kernel are otherwise ignored.
 
     Each input band produces x * y output bands. Each output band is named
     'input_x_y' where x and y indicate the pixel's location in the kernel. For
@@ -3399,7 +3399,7 @@ class Image(element.Element):
     fraction of the output pixel covered by the input pixel.
 
     Args:
-      reducer: The reducer to apply to be used for combining pixels.
+      reducer: The reducer to use for combining pixels.
       bestEffort: If using the input at its default resolution would require too
         many pixels, start with already-reduced input pixels from a pyramid
         level that allows the operation to succeed.
@@ -3533,8 +3533,8 @@ class Image(element.Element):
     deformations. Displacements are computed in the CRS of the reference image,
     at a scale dictated by the lowest resolution of the following three
     projections: input image projection, reference image projection, and
-    requested projection. The displacements then applied to the input image to
-    register it with the reference.
+    requested projection. The displacements are then applied to the input image
+    to register it with the reference.
 
     Args:
       referenceImage: The image to register to.
@@ -4589,8 +4589,8 @@ class Image(element.Element):
     retains the metadata and footprint of the input image.
 
     Args:
-      test: The test image. The pixels of this image determines which of the
-        input pixels is returned. If this is a single band, it is used for all
+      test: The test image. The pixels of this image determine which of the
+        input pixels are returned. If this is a single band, it is used for all
         bands in the input image. This may not be an array image.
       value: The output value to use where test is not zero. If this is a single
         band, it is used for all bands in the input image.

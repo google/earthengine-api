@@ -1687,7 +1687,7 @@ class UploadTableCommand:
     parser.add_argument(
         '--date_format',
         help='A format used to parse dates. The format pattern must follow '
-             'http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html. '
+             'https://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html. '
              'If unspecified, dates will be imported as strings. For '
              'CSV/TFRecord only.')
     # pylint: enable=line-too-long

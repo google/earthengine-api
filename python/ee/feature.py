@@ -191,7 +191,7 @@ class Feature(element.Element):
         unspecified, defaults to 1% of the distance.
       proj: If specified, the buffering will be performed in this projection and
         the distance will be interpreted as units of the coordinate system of
-        this projection. Otherwise the distance is interpereted as meters and
+        this projection. Otherwise the distance is interpreted as meters and
         the buffering is performed in a spherical coordinate system.
     """
 

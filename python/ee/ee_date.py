@@ -152,7 +152,7 @@ class Date(computedobject.ComputedObject):
 
     The format string is described here:
 
-    http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html
+    https://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html
 
     Args:
       format: A Joda Time pattern. If omitted, it uses the ISO default date.

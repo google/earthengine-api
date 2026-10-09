@@ -123,14 +123,14 @@ class Model(computedobject.ComputedObject):
       outputBands: A map from output band names to a dictionary of output band
         info. Valid band info fields are 'type' and 'dimensions'. 'type' should
         be a ee.PixelType describing the output band, and 'dimensions' is an
-        optional integer with the number of dimensions in that band e.g.,
+        optional integer with the number of dimensions in that band, e.g.,
         "outputBands: {'p': {'type': ee.PixelType.int8(), 'dimensions': 1}}".
         Required for image predictions.
       outputProperties: A map from output property names to a dictionary of
         output property info. Valid property info fields are 'type' and
         'dimensions'. 'type' should be a ee.PixelType describing the output
         property, and 'dimensions' is an optional integer with the number of
-        dimensions for that property if it is an array e.g., "outputBands: {'p':
+        dimensions for that property if it is an array, e.g., "outputBands: {'p':
         {'type': ee.PixelType.int8(), 'dimensions': 1}}". Required for
         predictions from FeatureCollections.
       outputMultiplier: An approximation to the increase in data volume for the
@@ -211,14 +211,14 @@ class Model(computedobject.ComputedObject):
       outputBands: A map from output band names to a dictionary of output band
         info. Valid band info fields are 'type' and 'dimensions'. 'type' should
         be a ee.PixelType describing the output band, and 'dimensions' is an
-        optional integer with the number of dimensions in that band e.g.,
+        optional integer with the number of dimensions in that band, e.g.,
         "outputBands: {'p': {'type': ee.PixelType.int8(), 'dimensions': 1}}".
         Required for image predictions.
       outputProperties: A map from output property names to a dictionary of
         output property info. Valid property info fields are 'type' and
         'dimensions'. 'type' should be a ee.PixelType describing the output
         property, and 'dimensions' is an optional integer with the number of
-        dimensions for that property if it is an array e.g., "outputBands: {'p':
+        dimensions for that property if it is an array, e.g., "outputBands: {'p':
         {'type': ee.PixelType.int8(), 'dimensions': 1}}". Required for
         predictions from FeatureCollections.
       outputMultiplier: An approximation to the increase in data volume for the
@@ -228,7 +228,7 @@ class Model(computedobject.ComputedObject):
       maxPayloadBytes: The prediction payload size limit in bytes. Defaults to
         1.5MB (1500000 bytes.)
       payloadFormat: The payload format of entries in prediction requests and
-        responses. One of: ['SERIALIZED_TF_TENSORS, 'RAW_JSON', 'ND_ARRAYS',
+        responses. One of: ['SERIALIZED_TF_TENSORS', 'RAW_JSON', 'ND_ARRAYS',
         'GRPC_TF_TENSORS', 'GRPC_SERIALIZED_TF_TENSORS', 'GRPC_TF_EXAMPLES'].
         Defaults to 'SERIALIZED_TF_TENSORS'.
 
