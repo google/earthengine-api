@@ -730,7 +730,9 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
 
   def test_prepare_for_export_invalid_dimensions(self):
     with apitestcase.UsingCloudApi():
-      with self.assertRaisesRegex(ee_exception.EEException, 'Invalid dimensions'):
+      with self.assertRaisesRegex(
+          ee_exception.EEException, 'Invalid dimensions'
+      ):
         self._base_image.prepare_for_export({'dimensions': [1, 2, 3]})
 
   def test_prepare_for_export_with_polygon(self):
@@ -2814,6 +2816,35 @@ class SerializeTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_load_zarr_v2_array(self):
+    uri = 'gs://bucket/path/.zarray'
+    proj = EPSG_4326
+    starts = [1, 2]
+    ends = [3, 4]
+    expect = make_expression_graph({
+        'arguments': {
+            'uri': {'constantValue': uri},
+            'proj': {
+                'functionInvocationValue': {
+                    'functionName': 'Projection',
+                    'arguments': {'crs': {'constantValue': proj}},
+                }
+            },
+            'starts': {'constantValue': starts},
+            'ends': {'constantValue': ends},
+        },
+        'functionName': 'Image.loadZarrV2Array',
+    })
+    expression = ee.Image.loadZarrV2Array(uri, proj, starts, ends)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image.loadZarrV2Array(
+        uri=uri, proj=proj, starts=starts, ends=ends
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_log(self):
     expect = make_expression_graph({
         'arguments': {
@@ -3123,21 +3154,21 @@ class SerializeTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
   def test_metadata(self):
-    property = 'a property'
+    a_property = 'a property'
     name = 'a name'
     expect = make_expression_graph({
         'arguments': {
             'image': IMAGE,
-            'property': {'constantValue': property},
+            'property': {'constantValue': a_property},
             'name': {'constantValue': name},
         },
         'functionName': 'Image.metadata',
     })
-    expression = ee.Image('a').metadata(property, name)
+    expression = ee.Image('a').metadata(a_property, name)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Image('a').metadata(property=property, name=name)
+    expression = ee.Image('a').metadata(property=a_property, name=name)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -3600,7 +3631,7 @@ class SerializeTest(apitestcase.ApiTestCase):
     crs = EPSG_4326
     crs_transform = [3, 4, 5, 6, 7, 8]
     tile_scale = 10
-    maxPixelsPerRegion = 11
+    max_pixels_per_region = 11
     expect = make_expression_graph({
         'arguments': {
             'image': IMAGE,
@@ -3636,7 +3667,7 @@ class SerializeTest(apitestcase.ApiTestCase):
             },
             'crsTransform': {'constantValue': crs_transform},
             'tileScale': {'constantValue': tile_scale},
-            'maxPixelsPerRegion': {'constantValue': maxPixelsPerRegion},
+            'maxPixelsPerRegion': {'constantValue': max_pixels_per_region},
         },
         'functionName': 'Image.reduceRegions',
     })
@@ -3647,7 +3678,7 @@ class SerializeTest(apitestcase.ApiTestCase):
         crs,
         crs_transform,
         tile_scale,
-        maxPixelsPerRegion,
+        max_pixels_per_region,
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
@@ -3659,7 +3690,7 @@ class SerializeTest(apitestcase.ApiTestCase):
         crs=crs,
         crsTransform=crs_transform,
         tileScale=tile_scale,
-        maxPixelsPerRegion=maxPixelsPerRegion,
+        maxPixelsPerRegion=max_pixels_per_region,
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
@@ -3795,22 +3826,22 @@ class SerializeTest(apitestcase.ApiTestCase):
   def test_regexp_rename(self):
     regex = 'a regex'
     replacement = 'a replacement'
-    all = True
+    all_matches = True
     expect = make_expression_graph({
         'arguments': {
             'input': IMAGE,
             'regex': {'constantValue': regex},
             'replacement': {'constantValue': replacement},
-            'all': {'constantValue': all},
+            'all': {'constantValue': all_matches},
         },
         'functionName': 'Image.regexpRename',
     })
-    expression = ee.Image('a').regexpRename(regex, replacement, all)
+    expression = ee.Image('a').regexpRename(regex, replacement, all_matches)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
     expression = ee.Image('a').regexpRename(
-        regex=regex, replacement=replacement, all=all
+        regex=regex, replacement=replacement, all=all_matches
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)

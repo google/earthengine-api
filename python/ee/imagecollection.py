@@ -500,6 +500,67 @@ class ImageCollection(collection.Collection[image.Image]):
 
     return apifunction.ApiFunction.call_('ImageCollection.load', id, version)
 
+  @staticmethod
+  def loadZarrV2Array(
+      uri: _arg_types.String,
+      proj: _arg_types.Projection,
+      axis: _arg_types.Integer | None = None,
+      starts: _arg_types.List | None = None,
+      ends: _arg_types.List | None = None,
+  ) -> ImageCollection:
+    """Loads a Zarr v2 array as an ImageCollection.
+
+    Loads a Zarr v2 array with 3 or more dimensions (i.e., 1 or more non-spatial
+    dimensions) as an ImageCollection by slicing along a specified non-spatial
+    axis. The array attributes (.zattrs) must contain the field
+    '_ARRAY_DIMENSIONS', which is a list of the names of each dimension (e.g.,
+    ['time', 'y', 'x']). There must be at least two dimensions, with the final
+    two representing Y and X respectively (e.g., ['lat', 'lon']). The supported
+    compression codecs are 'blosc', 'gzip', 'lz4', 'zlib', and 'zstd'. The
+    supported blosc meta-compression codecs are 'lz4', 'lz4hc', 'zlib', and
+    'zstd' ('blosclz' is not supported).
+
+    Args:
+      uri: The Cloud Storage URI of the .zarray file to load. A .zmetadata file
+        must be present in the parent directory of the array's directory (e.g.,
+        for 'gs://b/o/.zarray', 'gs://b/.zmetadata' must be present). The bucket
+        metadata must be accessible (requires the `storage.buckets.get`
+        permission which is provided by the role "Storage Legacy Bucket Reader"
+        among others, see
+        https://cloud.google.com/storage/docs/access-control/iam-roles) and the
+          bucket must be located in the US multi-region, a dual-region including
+          US-CENTRAL1, or the US-CENTRAL1 region.
+      proj: The projection of the array.
+      axis: The non-spatial axis (0-indexed) along which to slice the array to
+        create an ImageCollection. Each image in the collection represents a
+        single slice (length 1) along this axis. If null, defaults to 0. The
+        value must be in the range [0, N-1], where N is the number of
+        non-spatial dimensions (i.e., total dimensions - 2). The array must have
+        at least one non-spatial dimension (i.e., be at least 3 dimensional).
+      starts: The indices (inclusive) at which to start taking slices along each
+        non-spatial dimension. If null, slices will start at index 0 for all
+        non-spatial dimensions. If specified, this list must have a length equal
+        to the number of non-spatial dimensions (total dimensions - 2). An
+        individual element within the list may be null, which defaults to 0 for
+        that dimension. Negative indices are counted from the end of the
+        dimension (e.g., -1 is the last element).
+      ends: The indices (exclusive) at which to stop taking slices along each
+        non-spatial dimension. If null, slices will extend to the end of each
+        corresponding non-spatial dimension (i.e., defaults to the length of the
+        dimension). If specified, this list must have a length equal to the
+        number of non-spatial dimensions (total dimensions - 2). An individual
+        element within the list may be null, which also defaults to the length
+        of that dimension. Negative indices are counted from the end of the
+        dimension (e.g., -1 is the last element).
+
+    Returns:
+      An ee.ImageCollection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'ImageCollection.loadZarrV2Array', uri, proj, axis, starts, ends
+    )
+
   def merge(self, collection2: _arg_types.ImageCollection) -> ImageCollection:  # pyrefly: ignore[bad-override]
     """Returns a collection of two image collections merged into one.
 
@@ -579,7 +640,7 @@ class ImageCollection(collection.Collection[image.Image]):
   def toArrayPerBand(
       self,
       axis: _arg_types.Integer | None = None,
-      dropMasked: _arg_types.Bool | None = None,
+      dropMasked: _arg_types.Bool | None = None,  # pylint: disable=invalid-name
   ) -> image.Image:
     """Returns an image of an image collection converted into 2D arrays.
 

@@ -829,6 +829,39 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_load_zarr_v2_array(self):
+    uri = 'gs://bucket/path/.zarray'
+    proj = 'EPSG:4326'
+    axis = 0
+    starts = [1, 2]
+    ends = [3, 4]
+    expect = make_expression_graph({
+        'arguments': {
+            'uri': {'constantValue': uri},
+            'proj': {
+                'functionInvocationValue': {
+                    'functionName': 'Projection',
+                    'arguments': {'crs': {'constantValue': proj}},
+                }
+            },
+            'axis': {'constantValue': axis},
+            'starts': {'constantValue': starts},
+            'ends': {'constantValue': ends},
+        },
+        'functionName': 'ImageCollection.loadZarrV2Array',
+    })
+    expression = ee.ImageCollection.loadZarrV2Array(
+        uri, proj, axis, starts, ends
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection.loadZarrV2Array(
+        uri=uri, proj=proj, axis=axis, starts=starts, ends=ends
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_merge(self):
     images_b = ee.ImageCollection('b')
     expect = make_expression_graph({
