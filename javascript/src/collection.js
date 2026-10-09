@@ -21,11 +21,12 @@ goog.requireType('ee.Geometry');
  * @param {ee.Function} func The same argument as in ee.ComputedObject().
  * @param {Object} args The same argument as in ee.ComputedObject().
  * @param {string?=} opt_varName The same argument as in ee.ComputedObject().
+ * @param {boolean?=} opt_unbound The same argument as in ee.ComputedObject().
  * @constructor
  * @extends {ee.Element}
  */
-ee.Collection = function(func, args, opt_varName) {
-  ee.Collection.base(this, 'constructor', func, args, opt_varName);
+ee.Collection = function(func, args, opt_varName, opt_unbound) {
+  ee.Collection.base(this, 'constructor', func, args, opt_varName, opt_unbound);
   ee.Collection.initialize();
 };
 goog.inherits(ee.Collection, ee.Element);
