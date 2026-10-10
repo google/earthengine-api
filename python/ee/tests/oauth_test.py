@@ -155,6 +155,10 @@ class OAuthTest(unittest.TestCase):
     self.assertTrue(oauth.is_valid_credentials(mock_credentials_valid))
     mock_credentials_valid.refresh.assert_called_once()
 
+    mock_token_creds = mock.MagicMock(token='test_token', valid=True)
+    self.assertTrue(oauth.is_valid_credentials(mock_token_creds))
+    mock_token_creds.refresh.assert_not_called()
+
     mock_credentials_invalid = mock.MagicMock()
     mock_credentials_invalid.refresh.side_effect = (
         oauth.google.auth.exceptions.RefreshError()
