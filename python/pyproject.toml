@@ -38,9 +38,9 @@ dependencies = [
   # an extra 0.5GiB of deps compared to our current 26MiB; Use of TF
   # functionality requires a manual install of TensorFlow.
   "google-cloud-storage",
-  "google-api-python-client>=2.198.0",
-  "google-auth>=2.58.0",
-  "google-auth-httplib2>=0.4.2",
+  "google-api-python-client>=2.201.0",
+  "google-auth>=2.59.1",
+  "google-auth-httplib2>=0.4.4",
   "httplib2>=0.32.0,<1dev",
   "requests",
 ]
