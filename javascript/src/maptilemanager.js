@@ -14,11 +14,11 @@
  *    then the token instance has to be returned to the pool,
  *    and the request should be deleted.
  * 3. A request that is still in the queue is canceled by the caller.
- *    The caller has to to receive an abort event, and the request should be
+ *    The caller has to receive an abort event, and the request should be
  *    deleted. The token instance has not been allocated to the request
  *    yet, so there's nothing to return to the pool.
  * 4. A request that has been sent out is canceled by the caller.
- *    The caller has to to receive an abort event, and the request should be
+ *    The caller has to receive an abort event, and the request should be
  *    marked inactive. When the request returns, it has to be immediately
  *    deleted, and the token instance has to be returned to the pool.
  *
@@ -224,7 +224,7 @@ ee.MapTileManager.ERROR_ID_IN_USE_ = '[ee.MapTileManager] ID in use';
 
 
 /**
- * An encapsulation of everything needed to make a Xhr request.
+ * An encapsulation of everything needed to make an Xhr request.
  * NOTE: This is used internal to the MapTileManager.
  * @private
  * @const
@@ -233,7 +233,7 @@ ee.MapTileManager.ERROR_ID_IN_USE_ = '[ee.MapTileManager] ID in use';
 ee.MapTileManager.Request_ = class extends goog.Disposable {
   /**
    * @param {string} id Unique id for the request.
-   * @param {string} url Uri to make the request too.
+   * @param {string} url Uri to make the request to.
    * @param {!Function=} opt_imageEventCallback Callback attached to the events
    *        of the ImageLoader object of the request.
    * @param {!Function=} opt_requestCompleteCallback Callback function for when
@@ -250,7 +250,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
     this.id_ = id;
 
     /**
-     * Uri to make the request too.
+     * Uri to make the request to.
      * @const {string}
      * @private
      */

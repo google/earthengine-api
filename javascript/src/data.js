@@ -173,7 +173,7 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
  * @param {!Array<string>=} opt_extraScopes Extra OAuth scopes to request.
  * @param {boolean=} opt_suppressDefaultScopes When true, only scopes
  *     specified in opt_extraScopes are requested; the default scopes are not
- *     not requested unless explicitly specified in opt_extraScopes.
+ *     requested unless explicitly specified in opt_extraScopes.
  * @export
  */
 ee.data.authenticateViaPrivateKey = function(

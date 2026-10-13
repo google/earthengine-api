@@ -36,7 +36,7 @@ ee.Dictionary = function(opt_dict) {
   ee.Dictionary.initialize();
 
   /**
-   * The internal rerpresentation of this dictionary.
+   * The internal representation of this dictionary.
    *
    * @type {?Object}
    * @private

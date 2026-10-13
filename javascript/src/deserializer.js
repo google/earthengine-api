@@ -42,7 +42,7 @@ ee.Deserializer.fromJSON = function(json) {
 /**
  * Decodes an object previously encoded using the EE API v2 (DAG) format.
  *
- * @param {*} json The serialied object to decode.
+ * @param {*} json The serialized object to decode.
  * @return {*} The decoded object.
  * @export
  */
@@ -73,10 +73,10 @@ ee.Deserializer.decode = function(json) {
 
 /**
  * Decodes an object previously encoded using the EE API v2 (DAG) format. This
- * uses a provided scopre for ValueRef lookup and does not allow the input
+ * uses a provided scope for ValueRef lookup and does not allow the input
  * to be a CompoundValue.
  *
- * @param {*} json The serialied object to decode.
+ * @param {*} json The serialized object to decode.
  * @param {!Object} namedValues The objects that can be referenced by ValueRefs.
  * @return {*} The decoded object.
  * @private

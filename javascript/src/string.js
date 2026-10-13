@@ -32,7 +32,7 @@ ee.String = function(string) {
   ee.String.initialize();
 
   /**
-   * The internal rerpresentation of this string.
+   * The internal representation of this string.
    *
    * @type {string?}
    * @private

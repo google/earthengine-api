@@ -990,7 +990,7 @@ apiclient.send = function(
 
 
 /**
- * Creates an aync network request object using the specified parameters.
+ * Creates an async network request object using the specified parameters.
  * The callback is wrapped so that exponential backoff is used in response to
  * 429 errors.
  * @param {string} url The request's URL.

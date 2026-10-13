@@ -32,7 +32,7 @@ ee.Number = function(number) {
   ee.Number.initialize();
 
   /**
-   * The internal rerpresentation of this number.
+   * The internal representation of this number.
    *
    * @type {number?}
    * @private

@@ -34,7 +34,7 @@ ee.List = function(list) {
   ee.List.initialize();
 
   /**
-   * The internal rerpresentation of this list.
+   * The internal representation of this list.
    *
    * @type {IArrayLike?}
    * @private

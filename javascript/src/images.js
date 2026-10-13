@@ -100,7 +100,7 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
       case 'dimensions_consumed':
         dimensions_consumed = true;
         break;
-      // bbox is a undocumented param but is used sometimes for
+      // bbox is an undocumented param but is used sometimes for
       // thumbnail examples...
       case 'bbox':
         if (clipParams['geometry'] != null) {
@@ -320,7 +320,7 @@ ee.data.images.maybeConvertCrsTransformToArray_ = function(crsTransform) {
  * @return {!Object} A completed request object.
  */
 ee.data.images.applyVisualization = function(image, params) {
-  // Split the parameters into those handled handled by visualize()
+  // Split the parameters into those handled by visualize()
   // and those that aren't.
   const request = {};
   const visParams = ee.data.images.extractVisParams(params, request);

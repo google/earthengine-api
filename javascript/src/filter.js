@@ -44,7 +44,7 @@ ee.Filter = function(opt_filter) {
   ee.Filter.initialize();
 
   /**
-   * The internal rerpresentation of this filter.  This is
+   * The internal representation of this filter.  This is
    * a list of filter objects which are implicitly ANDed together.
    *
    * @type {!Array.<*>}

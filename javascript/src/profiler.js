@@ -39,7 +39,7 @@ ee.data.Profiler = class extends goog.events.EventTarget {
      *
      * This flag does not affect the behavior of the Profiler in collecting
      * profile data; it only controls whether getProfileHook() returns a hook,
-     * and is used by other code (via isEnabled()) to to decide whether to
+     * and is used by other code (via isEnabled()) to decide whether to
      * enable profiling.
      * @private {boolean}
      */
@@ -61,8 +61,8 @@ ee.data.Profiler = class extends goog.events.EventTarget {
     this.profileIds_ = Object.create(null);
 
     /**
-     * Maps map tile IDs (as defined by ee.MapLayerOverlay} to profile IDs, so
-     * so that map tiles which are no longer in view can be removed from the
+     * Maps map tile IDs (as defined by ee.MapLayerOverlay) to profile IDs, so
+     * that map tiles which are no longer in view can be removed from the
      * combined profile.
      * @private {!Object<string>}
      */

@@ -347,7 +347,7 @@ ee.Geometry.BBox = function(west, south, east, north) {
 
   // Reject NaN and positive (west) or negative (east) infinities before they
   // become bad JSON. The other two infinities are acceptable because we support
-  // the general idea of a around-the-globe latitude band. By writing them
+  // the general idea of an around-the-globe latitude band. By writing them
   // negated, we also reject NaN.
   if (!(west < Infinity)) {
     throw new Error("Geometry.BBox: west must not be " + west);

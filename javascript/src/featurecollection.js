@@ -257,7 +257,7 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
 /**
  * Select properties from each Feature in a collection.  It is also
  * possible to call this function with only string arguments; they
- * will be all be interpreted as propertySelectors (varargs).
+ * will all be interpreted as propertySelectors (varargs).
  *
  * @param {!Array<string>} propertySelectors A list of names or regexes
  *     specifying the attributes to select.

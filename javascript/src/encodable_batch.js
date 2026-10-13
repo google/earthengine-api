@@ -12,7 +12,7 @@ goog.require('goog.object');
 
 /**
  * Possible legacy export destinations.
- * TODO(user): Remove duplicate the ExportDestination enum.
+ * TODO(user): Remove duplicate ExportDestination enum.
  *
  * @enum {string} The destination of the export.
  */
@@ -172,7 +172,7 @@ ee.rpc_convert_batch.taskToExportMapRequest = function(params) {
     description: stringOrNull_(params['description']),
     tileOptions: ee.rpc_convert_batch.buildTileOptions_(params),
     tileExportOptions: ee.rpc_convert_batch.buildImageFileExportOptions_(
-        // Only Export to cloud storage is allow currently.
+        // Only Export to cloud storage is currently allowed.
         params, ee.rpc_convert_batch.ExportDestination.GCS),
     requestId: stringOrNull_(params['id']),
     priority: numberOrNull_(params['priority']),
@@ -349,7 +349,7 @@ ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
   });
   /* Tensor depths is tricky since the old api supported a flat array
    * whereas the new api expects a map.  Do a check at runtime to
-   * make sure that the map (or flat array) has numbers for all it's values.
+   * make sure that the map (or flat array) has numbers for all its values.
    */
   const tensorDepths = params['tfrecordTensorDepths'];
   if (tensorDepths != null) {
