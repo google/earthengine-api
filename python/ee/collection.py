@@ -576,7 +576,7 @@ class Collection(Generic[ElementType], element.Element):
   def getInfo(self) -> Any | None:
     """Returns all the known information about this collection.
 
-    This function makes a REST call to to retrieve all the known information
+    This function makes a REST call to retrieve all the known information
     about this collection.
 
     Returns:

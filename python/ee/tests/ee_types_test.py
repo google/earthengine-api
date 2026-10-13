@@ -45,7 +45,7 @@ class EeTypesTest(apitestcase.ApiTestCase, parameterized.TestCase):
           False,
       ),
       ('Object_Image', 'Object', 'Image', True),
-      # TODO: Theses two tests should be false.
+      # TODO: These two tests should be false.
       ('FeatureCollection_Collection', 'FeatureCollection', 'Collection', True),
       (
           'FeatureCollection_ImageCollection',

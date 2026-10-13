@@ -415,7 +415,7 @@ class MapOverlay:
       self.start()
 
     def run(self):
-      """Pull URLs off the ovelay's queue and call the callback when done."""
+      """Pull URLs off the overlay's queue and call the callback when done."""
       while True:
         (key, callback) = self.overlay.queue.get()
         # Check one more time that we don't have this yet.

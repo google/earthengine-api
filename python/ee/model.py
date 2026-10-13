@@ -130,9 +130,9 @@ class Model(computedobject.ComputedObject):
         output property info. Valid property info fields are 'type' and
         'dimensions'. 'type' should be a ee.PixelType describing the output
         property, and 'dimensions' is an optional integer with the number of
-        dimensions for that property if it is an array, e.g., "outputBands: {'p':
-        {'type': ee.PixelType.int8(), 'dimensions': 1}}". Required for
-        predictions from FeatureCollections.
+        dimensions for that property if it is an array, e.g.,
+        "outputProperties: {'p': {'type': ee.PixelType.int8(), 'dimensions':
+        1}}". Required for predictions from FeatureCollections.
       outputMultiplier: An approximation to the increase in data volume for the
         model outputs over the model inputs. If specified this must be >= 1.
         This is only needed if the model produces more data than it consumes,
@@ -218,9 +218,9 @@ class Model(computedobject.ComputedObject):
         output property info. Valid property info fields are 'type' and
         'dimensions'. 'type' should be a ee.PixelType describing the output
         property, and 'dimensions' is an optional integer with the number of
-        dimensions for that property if it is an array, e.g., "outputBands: {'p':
-        {'type': ee.PixelType.int8(), 'dimensions': 1}}". Required for
-        predictions from FeatureCollections.
+        dimensions for that property if it is an array, e.g.,
+        "outputProperties: {'p': {'type': ee.PixelType.int8(), 'dimensions':
+        1}}". Required for predictions from FeatureCollections.
       outputMultiplier: An approximation to the increase in data volume for the
         model outputs over the model inputs. If specified this must be >= 1.
         This is only needed if the model produces more data than it consumes,

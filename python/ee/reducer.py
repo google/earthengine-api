@@ -941,7 +941,7 @@ class Reducer(computedobject.ComputedObject):
 
   @staticmethod
   def skew() -> Reducer:
-    """Returns a reducer that Computes the skewness of its inputs.
+    """Returns a reducer that computes the skewness of its inputs.
 
     Where applicable, the output name is "skew".
     """

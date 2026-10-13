@@ -219,7 +219,7 @@ class Clusterer(computedobject.ComputedObject):
         any one time when using canopy clustering. T2 distance plus, data
         characteristics, will determine how many candidate canopies are formed
         before periodic and final pruning are performed, which might result in
-        exceess memory consumption. This setting avoids large numbers of
+        excess memory consumption. This setting avoids large numbers of
         candidate canopies consuming memory.
       periodicPruning: How often to prune low density canopies when using canopy
         clustering.

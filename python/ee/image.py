@@ -350,7 +350,7 @@ class Image(element.Element):
       - the result of applying the visualization parameters to this image
       - any remaining (non-visualization) parameters.
     """
-    # Split the parameters into those handled handled by visualize()
+    # Split the parameters into those handled by visualize()
     # and those that aren't.
     keys_to_extract = {
         'bands',

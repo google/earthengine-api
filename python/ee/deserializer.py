@@ -29,7 +29,7 @@ def decode(json_obj: Any) -> Any:
   """Decodes an object previously encoded using the EE API v2 (DAG) format.
 
   Args:
-    json_obj: The serialied object to decode.
+    json_obj: The serialized object to decode.
 
   Returns:
     The decoded object.
@@ -59,7 +59,7 @@ def _decodeValue(json_obj: Any, named_values: dict[str, Any]) -> Any:
   input to be a CompoundValue.
 
   Args:
-    json_obj: The serialied object to decode.
+    json_obj: The serialized object to decode.
     named_values: The objects that can be referenced by ValueRefs.
 
   Returns:

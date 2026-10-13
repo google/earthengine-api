@@ -40,15 +40,15 @@ class Geometry(computedobject.ComputedObject):
   ):
     """Creates a geometry.
 
-    Note that a creating a Geometry from a ComputedObject cannot have have any
+    Note that creating a Geometry from a ComputedObject cannot have any
     overrides from the arguments proj, geodesic, or evenOdd.
 
     Args:
       geo_json: The GeoJSON object describing the geometry or a computed object
-        to be reinterpred as a Geometry. Supports CRS specifications as per the
-        GeoJSON spec, but only allows named (rather than "linked" CRSs). If this
-        includes a 'geodesic' field, and geodesic is not specified, it will be
-        used as geodesic.
+        to be reinterpreted as a Geometry. Supports CRS specifications as per
+        the GeoJSON spec, but only allows named (rather than "linked" CRSs). If
+        this includes a 'geodesic' field, and geodesic is not specified, it will
+        be used as geodesic.
       proj: An optional projection specification, either as an ee.Projection, as
         a CRS ID code or as a WKT string. If specified, overrides any CRS found
         in the geo_json parameter. If unspecified and the geo_json does not

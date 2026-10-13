@@ -246,7 +246,7 @@ class Export:
             for the task:
             - region: The lon,lat coordinates for a LinearRing or Polygon
               specifying the region to export. Can be specified as a nested
-              lists of numbers or a serialized string. Defaults to the image's
+              list of numbers or a serialized string. Defaults to the image's
               region.
             - scale: The resolution in meters per pixel.
               Defaults to the native resolution of the image asset unless
@@ -328,7 +328,7 @@ class Export:
             where WIDTH and HEIGHT are each positive integers.
         region: The lon,lat coordinates for a LinearRing or Polygon
             specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the image's
+            list of numbers or a serialized string. Defaults to the image's
             region.
         scale: The resolution in meters per pixel. Defaults to the
             native resolution of the image asset unless a crsTransform
@@ -404,7 +404,7 @@ class Export:
           positive integer as the maximum dimension or "WIDTHxHEIGHT" where
           WIDTH and HEIGHT are each positive integers.
         region: The lon,lat coordinates for a LinearRing or Polygon specifying
-          the region to export. Can be specified as a nested lists of numbers or
+          the region to export. Can be specified as a nested list of numbers or
           a serialized string. Defaults to the image's region.
         scale: The resolution in meters per pixel. Defaults to the native
           resolution of the image asset unless a crsTransform is specified.
@@ -497,7 +497,7 @@ class Export:
           positive integer as the maximum dimension or "WIDTHxHEIGHT" where
           WIDTH and HEIGHT are each positive integers.
         region: The lon,lat coordinates for a LinearRing or Polygon specifying
-          the region to export. Can be specified as a nested lists of numbers or
+          the region to export. Can be specified as a nested list of numbers or
           a serialized string. Defaults to the image's region.
         scale: The resolution in meters per pixel. Defaults to the native
           resolution of the image asset unless a crsTransform is specified.
@@ -609,7 +609,7 @@ class Export:
         minZoom: The optional minimum zoom level of the map tiles to export.
         region: The lon,lat coordinates for a LinearRing or Polygon
             specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Map tiles will be
+            list of numbers or a serialized string. Map tiles will be
             produced in the rectangular region containing this geometry.
             Defaults to the image's region.
         skipEmptyTiles: If true, skip writing empty (i.e. fully-transparent)
@@ -915,7 +915,7 @@ class Export:
       Args:
         collection: The feature collection to be exported.
         description: Human-readable name of the task.
-        table: The fully-qualifed BigQuery destination table with
+        table: The fully-qualified BigQuery destination table with
           "project_id.dataset_id.table_id" format.
         overwrite: Whether the existing table should be
           overwritten by the results of this export.
@@ -987,7 +987,7 @@ class Export:
         config: A dictionary of configuration parameters for the task:
             - region: The lon,lat coordinates for a LinearRing or Polygon
               specifying the region to export. Can be specified as a nested
-              lists of numbers or a serialized string. Defaults to the first
+              list of numbers or a serialized string. Defaults to the first
               image's region.
             - scale: The resolution in meters per pixel.
             - crs: The coordinate reference system of the exported video's
@@ -1071,7 +1071,7 @@ class Export:
             where WIDTH and HEIGHT are each positive integers.
         region: The lon,lat coordinates for a LinearRing or Polygon
             specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the first
+            list of numbers or a serialized string. Defaults to the first
             image's region.
         scale: The resolution in meters per pixel.
         crs: The coordinate reference system of the exported video's
@@ -1151,7 +1151,7 @@ class Export:
             where WIDTH and HEIGHT are each positive integers.
         region: The lon,lat coordinates for a LinearRing or Polygon
             specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the first
+            list of numbers or a serialized string. Defaults to the first
             image's region.
         scale: The resolution in meters per pixel.
         crs: The coordinate reference system of the exported video's

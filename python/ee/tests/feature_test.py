@@ -419,8 +419,8 @@ class FeatureTest(apitestcase.ApiTestCase):
     max_error = 10
     spherical = True
     expect = right_maxerror_proj('distance')
-    argugments = expect['values']['0']['functionInvocationValue']['arguments']
-    argugments['spherical'] = {'constantValue': spherical}
+    arguments = expect['values']['0']['functionInvocationValue']['arguments']
+    arguments['spherical'] = {'constantValue': spherical}
 
     expression = ee.Feature(None).distance(
         ee.Feature(None), max_error, EPSG_4326, spherical

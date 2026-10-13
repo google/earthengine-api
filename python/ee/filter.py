@@ -705,7 +705,7 @@ class Filter(computedobject.ComputedObject):
       leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
-    """Returns filter that passes if the left, contains the right.
+    """Returns a filter that passes if the left contains the right.
 
     Args:
       leftField: A selector for the left operand. Should not be specified if
