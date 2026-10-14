@@ -10864,7 +10864,7 @@
     }, {
       "argumentName": "test",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "The test image. The pixels of this image determine which of the input pixels is returned. If this is a single band, it is used for all bands in the input image. This may not be an array image."
+      "description": "The test image. The pixels of this image determine which of the input pixels are returned. If this is a single band, it is used for all bands in the input image. This may not be an array image."
     }, {
       "argumentName": "value",
       "type": "Image\u003cunknown bands\u003e",
