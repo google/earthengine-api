@@ -2311,8 +2311,8 @@ ee.data.getWorkloadTag = function() {
  * Sets the workload tag, used to label computation and exports.
  *
  * Workload tag must be 1 - 63 characters, beginning and ending with an
- * alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
- * (.), and alphanumerics between, or an empty string to clear the workload tag.
+ * alphanumeric character ([a-z0-9]) with dashes (-), underscores (_), and
+ * alphanumerics between, or an empty string to clear the workload tag.
  * @param {string} tag
  * @export
  */
@@ -2328,8 +2328,8 @@ ee.data.setWorkloadTag = function(tag) {
  * an empty string or pass in true to `ee.data.resetWorkloadTag(true)`, like so.
  *
  * Workload tag must be 1 - 63 characters, beginning and ending with an
- * alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
- * (.), and alphanumerics between, or an empty string to reset the default back
+ * alphanumeric character ([a-z0-9]) with dashes (-), underscores (_), and
+ * alphanumerics between, or an empty string to reset the default back
  * to none.
  * @param {string} tag
  * @export
@@ -3450,7 +3450,7 @@ ee.data.MapZoomRange = {
 
 
 /**
- * An object to specifying common user preferences for the creation of a new
+ * An object for specifying common user preferences for the creation of a new
  * task.
  *
  * @typedef {{
