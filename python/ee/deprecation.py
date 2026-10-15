@@ -77,7 +77,7 @@ class DeprecatedAsset:
   @classmethod
   def _ParseDateString(cls, date_str: str) -> datetime.datetime | None:
     try:
-      # We can't use `datetime.datetime.fromisoformat` because it's behavior
+      # We can't use `datetime.datetime.fromisoformat` because its behavior
       # changes by Python version.
       return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
     except ValueError:

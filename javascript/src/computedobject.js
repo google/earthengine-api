@@ -89,7 +89,7 @@ goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
  * @param {function (T, string=)} callback A function of the form
  *     function(success, failure), called when the server returns an answer.
  *     If the request succeeded, the success argument contains the evaluated
- *     result.  If the request failed, the failure argument will contains an
+ *     result.  If the request failed, the failure argument will contain an
  *     error message.
  * @export
  */
@@ -211,7 +211,7 @@ goog.exportSymbol('ee.ComputedObject.prototype.toString',
  */
 ee.ComputedObject.prototype.isVariable = function() {
   // We can't just check for varName != null, since we allow that
-  // to remain null until for CustomFunction.resolveNamelessArgs_().
+  // until CustomFunction.resolveNamelessArgs_().
   return this.func === null && this.args === null;
 };
 

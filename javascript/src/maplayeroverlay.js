@@ -83,7 +83,7 @@ ee.MapLayerOverlay =
 
   /**
    * Removes the callback with the given ID.
-   * @param {!Object} callbackId The ID returned by addTileLoaded()
+   * @param {!Object} callbackId The ID returned by addTileCallback()
    *     when the callback was registered.
    * @export
    */
@@ -235,8 +235,8 @@ ee.MapLayerOverlay =
 };
 
 
-// Export getTile and removeTile so they are not eliminated by dead
-// code removal during compilation
+// Export getTile, setOpacity and releaseTile so they are not eliminated by
+// dead code removal during compilation.
 goog.exportProperty(
     ee.MapLayerOverlay.prototype,
     'getTile',

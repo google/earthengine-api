@@ -212,7 +212,7 @@ def Initialize(
   If this hasn't been called by the time any object constructor is used,
   it will be called then. If this is called a second time with a different
   URL, this doesn't do an un-initialization of, e.g., the previously loaded
-  Algorithms, but will overwrite them and let point at alternate servers.
+  Algorithms, but will overwrite them and let them point at alternate servers.
 
   Args:
     credentials: OAuth2 credentials. 'persistent' (default) means use
@@ -421,7 +421,7 @@ def _Promote(arg: Any | None, a_class: str) -> Any | None:
 
 
 def _InitializeUnboundMethods() -> None:
-  """Initializes the unbounded functions."""
+  """Initializes the unbound functions."""
   # Sort the items by length, so parents get created before children.
   items = sorted(
       ApiFunction.unboundFunctions().items(), key=lambda x: len(x[0]))

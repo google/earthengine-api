@@ -15,7 +15,7 @@ from ee import ee_string
 from ee import ee_types as types
 from ee import serializer
 
-# _arg_types.DateType does not have datetime.Datetime.
+# _arg_types.DateType does not have datetime.datetime.
 _DateType = Union[
     datetime.datetime, float, str, 'Date', computedobject.ComputedObject
 ]

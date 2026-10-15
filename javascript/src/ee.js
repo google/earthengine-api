@@ -37,7 +37,7 @@ goog.require('goog.object');
  * object constructor is used, it will be called then.  If this is called
  * a second time with a different baseurl or tileurl, this doesn't do an
  * un-initialization of e.g.: the previously loaded Algorithms, but will
- * overwrite them and let point at alternate servers.
+ * overwrite them and let them point at alternate servers.
  *
  * If initialize() is first called in asynchronous mode (by passing a success
  * callback), any future asynchronous mode calls will add their callbacks to a
@@ -697,5 +697,5 @@ ee.makeClass_ = function(name) {
   return target;
 };
 
-// Set up type promotion rules as soon the library is loaded.
+// Set up type promotion rules as soon as the library is loaded.
 ee.Function.registerPromoter(ee.promote_);

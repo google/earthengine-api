@@ -9,7 +9,7 @@ from typing import Any
 from ee import computedobject
 
 
-# A dictionary of the classes in the ee module. Set by registerClasses.
+# A dictionary of the classes in the ee module. Set by _registerClasses.
 _registered_classes = {}
 
 

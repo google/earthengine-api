@@ -1,12 +1,12 @@
-"""A class for representing built-in EE API Function.
+"""A class for representing built-in EE API Functions.
 
-Earth Engine can dynamically produce a JSON array listing the
+Earth Engine can dynamically produce a JSON dictionary listing the
 algorithms available to the user. Each item in the dictionary identifies
 the name and return type of the algorithm, the name and type of its
 arguments, whether they're required or optional, default values and docs
 for each argument and the algorithms as a whole.
 
-This class manages the algorithm dictionary and creates JavaScript functions
+This class manages the algorithm dictionary and creates Python functions
 to apply each EE algorithm.
 """
 

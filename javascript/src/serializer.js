@@ -101,7 +101,7 @@ ee.Serializer.hash_ = new goog.crypt.Md5();
 
 /**
  * Serialize an object to a JSON representation appropriate for API calls.
- * @param {*} obj The object to Serialize.
+ * @param {*} obj The object to serialize.
  * @param {boolean=} opt_isCompound Whether the encoding should factor out
  *     shared subtrees. Defaults to true.
  * @return {*} A JSON-compatible structure representing the input.
@@ -115,7 +115,7 @@ ee.Serializer.encode = function(obj, opt_isCompound) {
 
 /**
  * Serialize an object to a JSON string appropriate for API calls.
- * @param {*} obj The object to Serialize.
+ * @param {*} obj The object to serialize.
  * @return {string} A JSON representation of the input.
  * @export
  * @suppress {checkPrototypalTypes}
@@ -290,7 +290,7 @@ ee.Serializer.computeHash = function(obj) {
 
 /**
  * Serializes an object into the JSON-encodable form sent in Cloud API calls.
- * @param {*} obj The object to Serialize.
+ * @param {*} obj The object to serialize.
  * @return {!Object} The encoded object.
  * @export
  */
@@ -301,7 +301,7 @@ ee.Serializer.encodeCloudApi = function(obj) {
 
 /**
  * Serializes an object into an Expression for Cloud API calls.
- * @param {*} obj The object to Serialize.
+ * @param {*} obj The object to serialize.
  * @param {string=} unboundName Name for unbound variables in computed objects.
  * @return {!ee.api.Expression} The encoded object.
  */
@@ -317,7 +317,7 @@ ee.Serializer.encodeCloudApiExpression = function(
  * Serializes an object into an Expression for Cloud API calls with a
  * Serializer.
  * @param {!ee.Serializer} serializer The Serializer.
- * @param {*} obj The object to Serialize.
+ * @param {*} obj The object to serialize.
  * @param {string=} unboundName Name for unbound variables in computed objects.
  * @return {!ee.api.Expression} The encoded object.
  */
@@ -329,7 +329,7 @@ ee.Serializer.encodeCloudApiExpressionWithSerializer = function(
 
 /**
  * Serializes an object to a "pretty" JSON representation, in Cloud API format.
- * @param {*} obj The object to Serialize.
+ * @param {*} obj The object to serialize.
  * @return {*} A JSON-compatible structure representing the input.
  * @export
  * @suppress {missingProperties} object.Serializable$values
@@ -376,7 +376,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
 
 /**
  * Serializes an object to a JSON string appropriate for Cloud API calls.
- * @param {*} obj The object to Serialize.
+ * @param {*} obj The object to serialize.
  * @return {string} A JSON representation of the input.
  * @export
  */
@@ -423,7 +423,7 @@ ee.Serializer.prototype.encodeForCloudApi_ = function(obj) {
 
 
 /**
- * Encodes an object Cloud API format and returns a reference into this.scope_.
+ * Encodes an object in Cloud API format and returns a reference into this.scope_.
  *
  * @param {*} obj The object to encode.
  * @return {string} A reference to the encoded object.

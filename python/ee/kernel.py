@@ -400,7 +400,7 @@ class Kernel(computedobject.ComputedObject):
     Args:
       xRadius: The horizontal radius of the kernel to generate.
       yRadius: The vertical radius of the kernel to generate.
-      units: The system of measurement for the kernel ("pixels" or "meters"). If
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
         the kernel is specified in meters, it will resize when the zoom-level is
         changed.
       normalize: Normalize the kernel values to sum to 1.

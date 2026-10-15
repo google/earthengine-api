@@ -11,7 +11,7 @@ from ee import apitestcase
 class ApiFunctionTest(apitestcase.ApiTestCase):
 
   def test_add_functions(self):
-    """Verifies that addition of static and instance API functions."""
+    """Verifies the addition of static and instance API functions."""
 
     # Check instance vs static functions, and trampling of
     # existing functions.

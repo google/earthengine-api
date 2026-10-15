@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test for the ee.string module."""
+"""Tests for the ee.ee_string module."""
 import json
 from typing import Any
 import unittest

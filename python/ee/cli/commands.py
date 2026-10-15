@@ -70,7 +70,7 @@ SYSTEM_TIME_START = 'system:time_start'
 SYSTEM_TIME_END = 'system:time_end'
 
 # A regex that parses properties of the form "[(type)]name=value". The
-# second, third, and fourth group are type, name, and number, respectively.
+# second, third, and fourth group are type, name, and value, respectively.
 PROPERTY_RE = re.compile(r'(\(([^\)]*)\))?([^=]+)=(.*)')
 
 # Translate internal task type identifiers to user-friendly strings that
@@ -227,7 +227,7 @@ def _format_cloud_timestamp(timestamp: str | None) -> str:
 
 
 def _decode_date(string: str) -> float | str:
-  """Decodes a date from a command line argument, returning msec since epoch".
+  """Decodes a date from a command line argument, returning msec since epoch.
 
   Args:
     string: See AssetSetCommand class comment for the allowable
@@ -1334,7 +1334,7 @@ class TaskWaitCommand:
   def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--timeout', '-t', default=sys.maxsize, type=int,
-        help=('Stop waiting for the task(s) to finish after the specified,'
+        help=('Stop waiting for the task(s) to finish after the specified'
               ' number of seconds. Without this flag, the command will wait'
               ' indefinitely.'))
     parser.add_argument('--verbose', '-v', action='store_true',

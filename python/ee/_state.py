@@ -45,7 +45,7 @@ class _WorkloadTag:
       tag: the tag to validate.
 
     Raises:
-      ValueError if the tag does not match the expected format.
+      ValueError: If the tag does not match the expected format.
     """
     if not tag and tag != 0:
       return ''

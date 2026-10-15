@@ -450,7 +450,7 @@ def MakeOverlay(mapid, baseurl=BASE_URL):
 map_instance = None
 
 
-# pylint: disable-next=g-bad-name,keyword-arg-before-vararg]
+# pylint: disable-next=g-bad-name,keyword-arg-before-vararg
 def addToMap(eeobject, vis_params=None, *args):
   """Adds a layer to the default map instance.
 

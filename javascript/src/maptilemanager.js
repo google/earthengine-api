@@ -519,7 +519,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
         // Store the response, but only if it is not an error, because if we did
         // then we would attempt to interpret the error response as an image.
         // This also ensures that the Code Editor can display the error message.
-        let objectUrl, ok;
+        let objectUrl; let ok = false;
         if (xhrIo.getStatus() >= 200 && xhrIo.getStatus() < 300) {
           try {
             objectUrl =
@@ -539,7 +539,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
           } catch (e) {
             // Browser did not support blob response, or we made a mistake. We
             // will fall back to re-requesting the tile as an image since ok is
-            // still null.
+            // still false.
           }
         }
 
@@ -558,7 +558,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
 
 /**
- * The number of attempts  so far.
+ * The number of attempts so far.
  * @type {number}
  * @private
  */
@@ -639,7 +639,7 @@ ee.MapTileManager.Token_ = class extends goog.Disposable {
 
   /**
    * Sets the active state of this object
-   * @param {boolean} val Boolean value indicating business.
+   * @param {boolean} val Boolean value indicating busyness.
    */
   setActive(val) {
     this.active_ = val;

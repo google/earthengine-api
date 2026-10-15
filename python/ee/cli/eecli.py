@@ -34,7 +34,7 @@ def _run_command(*argv):
       '--ee_config', help='Path to the earthengine configuration file. '
       'Defaults to "~/%s".' % utils.DEFAULT_EE_CONFIG_FILE_RELATIVE)
   parser.add_argument(
-      '--service_account_file', help='Path to a service account credentials'
+      '--service_account_file', help='Path to a service account credentials '
       'file. Overrides any ee_config if specified.')
   parser.add_argument(
       '--project',

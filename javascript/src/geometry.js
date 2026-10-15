@@ -112,7 +112,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 
   /**
    * The subgeometries, non-null if and only if type is GeometryCollection.
-   * @private @const {Array?}
+   * @private @const {?Array}
    */
   this.geometries_ = geoJson['geometries'] || null;
 
@@ -967,7 +967,7 @@ ee.Geometry.getEeApiArgs_ = function(jsConstructorFn, originalArgs) {
  * of geometries.)
  *
  * @param {!Array} coordinates A nested list of ... of number coordinates.
- * @return {boolean} Whether all coordinates are lists or numbers.
+ * @return {boolean} Whether any coordinate is a ComputedObject (server value).
  * @private
  */
 ee.Geometry.hasServerValue_ = function(coordinates) {

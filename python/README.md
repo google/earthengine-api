@@ -1,5 +1,5 @@
 Visit the [Google Earth Engine Python installation page](https://developers.google.com/earth-engine/python_install)
-for set up instructions.
+for setup instructions.
 
 Note that some classes and algorithms are loaded dynamically and are not
 included as part of the Python package or visible in the
