@@ -20,7 +20,7 @@ class ImageConverterTest(parameterized.TestCase):
       data_format: str,
       expected: type[image_converter.ImageConverter] | None,
   ) -> None:
-    """Verifies `from_file_format` returns the correct converter class."""
+    """Verifies `from_file_format` returns an instance of the correct converter."""
     if expected is None:
       self.assertIsNone(image_converter.from_file_format(data_format))
     else:

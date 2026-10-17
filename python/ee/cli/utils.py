@@ -1,8 +1,7 @@
 """Support utilities used by the Earth Engine command line interface.
 
-This module defines the Command class which is the base class of all
-the commands supported by the EE command line tool. It also defines
-the classes for configuration and runtime context management.
+This module defines configuration, GCS helper, and task-waiting
+utilities used by the EE command line tool.
 """
 
 import collections

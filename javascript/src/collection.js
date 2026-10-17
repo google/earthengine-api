@@ -95,7 +95,7 @@ ee.Collection.prototype.filter = function(filter) {
  *     "not_equals", "not_less_than", "not_greater_than", "starts_with",
  *     "ends_with", "not_starts_with", "not_ends_with", "contains",
  *     "not_contains".
- * @param {*} value - The value to compare against.
+ * @param {*} value The value to compare against.
  * @return {!ee.Collection} The filtered collection.
  * @export
  * @deprecated Use filter() with ee.Filter.eq(), ee.Filter.gte(), etc.
@@ -212,7 +212,7 @@ ee.Collection.prototype.elementType = function() {
  *
  * @param {function(!Object):?Object} algorithm The operation to map over
  *     the images or features of the collection. A JavaScript function that
- *     receives an image or features and returns one. The function is called
+ *     receives an image or feature and returns one. The function is called
  *     only once and the result is captured as a description, so it cannot
  *     perform imperative operations or rely on external state.
  * @param {boolean=} opt_dropNulls If true, the mapped algorithm is allowed

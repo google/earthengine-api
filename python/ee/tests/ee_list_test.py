@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test for the ee.list module."""
+"""Tests for the ee.ee_list module."""
 import json
 from typing import Any
 

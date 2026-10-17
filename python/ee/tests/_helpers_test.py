@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test for ee._helpers.
+"""Tests for ee._helpers.
 
 When the function in question is defined in ee/_helpers.py but exported for
 public use by ee/__init__.py, the test is located here but uses the ee.-prefixed

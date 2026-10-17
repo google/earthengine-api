@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test for the ee.geometry module Point methods."""
+"""Tests for the ee.geometry module Point methods."""
 
 import json
 from typing import Any

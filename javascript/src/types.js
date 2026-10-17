@@ -13,7 +13,7 @@ goog.requireType('ee.Function');
  * A dictionary of the ee classes.
  * Not technically needed in the JavaScript library, but it matches what
  * we have to do in the Python library.
- * The keys are the names of the ee classes.  The values the class objects.
+ * The keys are the names of the ee classes.  The values are the class objects.
  * @type {!Object}
  * @private
  */

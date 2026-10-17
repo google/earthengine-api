@@ -26,7 +26,7 @@ class Function(encodable.EncodableFunction):
     Args:
       promoter: A function used to type-coerce arguments and return values.
           Passed a value as the first parameter and a type name as the second.
-          Can be used, for example, promote numbers or strings to Images.
+          Can be used, for example, to promote numbers or strings to Images.
           Should return the input promoted if the type is recognized,
           otherwise the original input.
     """

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test for the ee.date module."""
+"""Tests for the ee.ee_date module."""
 
 import datetime
 import json

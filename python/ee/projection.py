@@ -123,7 +123,7 @@ class Projection(computedobject.ComputedObject):
     """Returns the coordinate reference system (crs) of this projection.
 
     Returns the authority code (e.g., 'EPSG:4326') for the base coordinate
-    system of this projection, or null if the base coordinate system is not
+    system of this projection, or None if the base coordinate system is not
     found in any available database.
     """
 
@@ -167,6 +167,6 @@ class Projection(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.translate', self, x, y)
 
   def wkt(self) -> ee_string.String:
-    """Returns a WKT representation of the base coordinate system of this Projection."""
+    """Returns a WKT representation of this Projection's base coordinate system."""
 
     return apifunction.ApiFunction.call_(self.name() + '.wkt', self)

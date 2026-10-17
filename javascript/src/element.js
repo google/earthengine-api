@@ -118,6 +118,6 @@ ee.Element.prototype.set = function(var_args) {
       result = ee.ApiFunction._call('Element.set', result, key, value);
     }
   }
-  // Manually cast the result to an image.
+  // Manually cast the result to the type of this element.
   return this.castInternal(result);
 };

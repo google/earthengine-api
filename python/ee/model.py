@@ -88,7 +88,7 @@ class Model(computedobject.ComputedObject):
   ) -> 'Model':
     """Returns an ee.Model from a description of an AI Platform prediction model.
 
-    DEPRECATED: Cloud AI Platform is deprecated migrate to Vertex AI:
+    DEPRECATED: Cloud AI Platform is deprecated; migrate to Vertex AI:
     https://developers.google.com/earth-engine/guides/ee-vertex-migrate
 
     (See https://cloud.google.com/ml-engine/).
@@ -122,13 +122,13 @@ class Model(computedobject.ComputedObject):
         Platform. Defaults to the value in 'inputTileSize'.
       outputBands: A map from output band names to a dictionary of output band
         info. Valid band info fields are 'type' and 'dimensions'. 'type' should
-        be a ee.PixelType describing the output band, and 'dimensions' is an
+        be an ee.PixelType describing the output band, and 'dimensions' is an
         optional integer with the number of dimensions in that band, e.g.,
         "outputBands: {'p': {'type': ee.PixelType.int8(), 'dimensions': 1}}".
         Required for image predictions.
       outputProperties: A map from output property names to a dictionary of
         output property info. Valid property info fields are 'type' and
-        'dimensions'. 'type' should be a ee.PixelType describing the output
+        'dimensions'. 'type' should be an ee.PixelType describing the output
         property, and 'dimensions' is an optional integer with the number of
         dimensions for that property if it is an array, e.g.,
         "outputProperties: {'p': {'type': ee.PixelType.int8(), 'dimensions':
@@ -206,17 +206,17 @@ class Model(computedobject.ComputedObject):
         prediction instances. Required for image predictions.
       inputOverlapSize: Amount of adjacent-tile overlap in X/Y along each edge
         of pixel tiles passed in to prediction instances. Defaults to [0, 0].
-      outputTileSize: Rectangular dimensions of pixel tiles returned from AI
-        Platform. Defaults to the value in 'inputTileSize'.
+      outputTileSize: Rectangular dimensions of pixel tiles returned from
+        Vertex AI. Defaults to the value in 'inputTileSize'.
       outputBands: A map from output band names to a dictionary of output band
         info. Valid band info fields are 'type' and 'dimensions'. 'type' should
-        be a ee.PixelType describing the output band, and 'dimensions' is an
+        be an ee.PixelType describing the output band, and 'dimensions' is an
         optional integer with the number of dimensions in that band, e.g.,
         "outputBands: {'p': {'type': ee.PixelType.int8(), 'dimensions': 1}}".
         Required for image predictions.
       outputProperties: A map from output property names to a dictionary of
         output property info. Valid property info fields are 'type' and
-        'dimensions'. 'type' should be a ee.PixelType describing the output
+        'dimensions'. 'type' should be an ee.PixelType describing the output
         property, and 'dimensions' is an optional integer with the number of
         dimensions for that property if it is an array, e.g.,
         "outputProperties: {'p': {'type': ee.PixelType.int8(), 'dimensions':
@@ -226,7 +226,7 @@ class Model(computedobject.ComputedObject):
         This is only needed if the model produces more data than it consumes,
         e.g., a model that takes 5 bands and produces 10 outputs per pixel.
       maxPayloadBytes: The prediction payload size limit in bytes. Defaults to
-        1.5MB (1500000 bytes.)
+        1.5MB (1500000 bytes).
       payloadFormat: The payload format of entries in prediction requests and
         responses. One of: ['SERIALIZED_TF_TENSORS', 'RAW_JSON', 'ND_ARRAYS',
         'GRPC_TF_TENSORS', 'GRPC_SERIALIZED_TF_TENSORS', 'GRPC_TF_EXAMPLES'].

@@ -59,7 +59,7 @@ earthengine_api.javascript.layers.imageoverlay.ImageTile =
     this.renderer = earthengine_api.javascript.layers
                         .imageoverlay.ImageTile.defaultRenderer_;
 
-    /** @type {?HTMLImageElement} The image element.*/
+    /** @type {?HTMLImageElement} The image element. */
     this.imageEl = null;
 
     /**
@@ -81,7 +81,7 @@ earthengine_api.javascript.layers.imageoverlay.ImageTile =
 
   /** @override */
   finishLoad() {
-    var imageUrl;
+    let imageUrl;
     try {
       const safeUrl = safevalues.objectUrlFromSafeSource(this.sourceData);
       this.objectUrl_ = safevalues.unwrapUrl(safeUrl);

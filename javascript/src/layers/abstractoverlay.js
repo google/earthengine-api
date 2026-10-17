@@ -243,7 +243,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
   }
 
   /**
-   * Generates a unique for this tile from the tile source. It includes:
+   * Generates a unique ID for this tile from the tile source. It includes:
    *
    * 1) A unique counter string to the tileid to make sure that
    *    repeated requests for the same tile and cancellations thereof
@@ -493,7 +493,7 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
     /** @private {number} The current load retry attempt. */
     this.retryAttemptCount_ = 0;
 
-    /** @private {boolean} Where the tile load is currently be retried. */
+    /** @private {boolean} Whether the tile load is currently being retried. */
     this.isRetrying_ = false;
 
     /**

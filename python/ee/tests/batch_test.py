@@ -977,7 +977,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           endZoom=8,  # Takes precedence over maxZoom.
           path='foo/gcs/path',
           skipEmptyTiles=True,
-          skipEmpty=False,  # Takes precedence over skipEmpty.
+          skipEmpty=False,  # Takes precedence over skipEmptyTiles.
           maxWorkers=100,
       )
 

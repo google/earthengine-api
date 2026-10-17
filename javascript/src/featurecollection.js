@@ -81,7 +81,8 @@ ee.FeatureCollection = function(args, opt_column) {
       })
     });
   } else if (args instanceof ee.List) {
-    // A computed list of features.  This can't get the extra ee.Feature()
+    // A computed list of features. This can't get the extra ee.Feature()
+    // wrapping because the list elements are not known client-side.
     ee.FeatureCollection.base(
         this, 'constructor', new ee.ApiFunction('Collection'),
         {'features': args});

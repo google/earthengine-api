@@ -814,7 +814,7 @@ apiclient.getXsrfToken = function() {
 
 
 /**
- * Returns the current XSRF token.
+ * Returns whether the library has been initialized.
  *
  * @return {boolean}
  */
@@ -831,7 +831,7 @@ apiclient.isInitialized = function() {
  * @param {function(?, string=)=} callback An optional callback.
  *     If not specified, the call is made synchronously and the response
  *     is returned. If specified, the call will be made asynchronously and
- *     may be queued to avoid exceeding server queries-per-seconds quota.
+ *     may be queued to avoid exceeding server queries-per-second quota.
  * @param {string=} method The HTTPRequest method (GET or POST), default
  *     is POST.  If this starts with 'multipart', used as content type instead.
  * @param {string=} body The payload for POST or multipart requests.
@@ -1196,7 +1196,7 @@ apiclient.handleResponse_ = function(
       // Empty response bodies are handled here: return the status error if
       // there is one, otherwise the long response error.
       const responseTooLargeMessage = 'Response was too large to parse. ' +
-          'Hint: Use limit() to fetch less elements of a collection.';
+          'Hint: Use limit() to fetch fewer elements of a collection.';
       errorMessage = response || statusError(status) || responseTooLargeMessage;
     }
   } else if (contentType === 'multipart/mixed') {
@@ -1770,7 +1770,7 @@ apiclient.BASE_RETRY_WAIT_ = 1000;
 
 
 /**
- * The minimum increment of time (in milliseconds) to wait before retrying a
+ * The maximum time (in milliseconds) to wait before retrying a
  * request in response to a 429 response.
  * @private @const {number}
  */
@@ -1835,7 +1835,7 @@ apiclient.DEFAULT_TILE_BASE_URL_ = 'https://earthengine.googleapis.com';
 
 
 /**
- * The authentication arguments passed the token refresher when the token
+ * The authentication arguments passed to the token refresher when the token
  * needs to be refreshed.
  * @record @struct
  */

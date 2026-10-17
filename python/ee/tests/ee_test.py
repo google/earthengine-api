@@ -137,7 +137,7 @@ class EETestCase(apitestcase.ApiTestCase):
       self.assertEqual(6, inits.call_count)
 
   def test_call_and_apply(self):
-    """Verifies library initialization."""
+    """Verifies ee.call() and ee.apply()."""
 
     # Use a custom set of known functions.
     def MockAlgorithms():

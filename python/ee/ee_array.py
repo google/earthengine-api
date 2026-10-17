@@ -41,7 +41,7 @@ class Array(computedobject.ComputedObject):
   ):
     """Creates an Array wrapper.
 
-    Returns an Array with the given coordinates.
+    Returns an Array with the given values.
 
     Args:
       values: An existing array to cast, or a number/list of numbers/nested list
@@ -136,7 +136,7 @@ class Array(computedobject.ComputedObject):
     """Returns 1 if both values are non-zero.
 
     Args:
-      right: The values to add.
+      right: The values to AND with.
 
     Returns:
       An ee.Array.
@@ -151,7 +151,7 @@ class Array(computedobject.ComputedObject):
     the first.
 
     Returns:
-      An ee.List that is empty if the input in an empty ee.Array.
+      An ee.List that is empty if the input is an empty ee.Array.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.argmax', self)
@@ -997,7 +997,7 @@ class Array(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.short', self)
 
   def signum(self) -> Array:
-    """Returns -1 or 1 base on the sign of the input or 0 if the input is zero.
+    """Returns -1 or 1 based on the sign of the input or 0 if the input is zero.
 
     On an element-wise basis, computes the signum function (sign) of the input;
     The return value is 0 if the input is 0, 1 if the input is greater than 0,

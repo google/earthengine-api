@@ -770,7 +770,7 @@ class GeometryTest(apitestcase.ApiTestCase, parameterized.TestCase):
     self.assertEqual({'coordinates': ee.List(coords)}, p.args)
 
   def test_computed_list(self):
-    """Verifies that a computed coordinate produces a computed geometry."""
+    """Verifies that a computed list produces a computed geometry."""
     lst = ee.List([1, 2, 3, 4]).slice(0, 2)
     p = ee.Geometry.Point(lst)
 

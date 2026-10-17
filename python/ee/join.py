@@ -218,7 +218,7 @@ class Join(computedobject.ComputedObject):
 
   @staticmethod
   def simple() -> Join:
-    """Returns a join that returns match pairs.
+    """Returns a join producing primary elements that match the secondary.
 
     Returns a join that produces the elements of the primary collection that
     match any element of the secondary collection. No properties are added to

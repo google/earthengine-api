@@ -39,7 +39,7 @@ class ErrorMargin(computedobject.ComputedObject):
       value: _arg_types.Number | None = None,
       unit: _arg_types.String | None = None,
   ):
-    """Creates a ErrorMargin wrapper.
+    """Creates an ErrorMargin wrapper.
 
     Args:
       value: The maximum error value allowed by the margin. Ignored if the unit
@@ -53,7 +53,7 @@ class ErrorMargin(computedobject.ComputedObject):
       if self.is_func_returning_same(value):
         if unit is not None:
           raise TypeError('unit must be None if value is an ErrorMargin')
-        # If it is a call that is already returning a ErrorMargin, just cast.
+        # If it is a call that is already returning an ErrorMargin, just cast.
         super().__init__(value.func, value.args, value.varName)
         return
 

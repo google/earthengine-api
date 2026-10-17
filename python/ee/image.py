@@ -554,7 +554,7 @@ class Image(element.Element):
           format - (string) Either 'png' or 'jpg'.
 
     Returns:
-      A URL to download a thumbnail the specified image.
+      A URL to download a thumbnail of the specified image.
 
     Raises:
       EEException: If the region parameter is not an array or GeoJSON object.
@@ -4155,7 +4155,7 @@ class Image(element.Element):
     Args:
       metric: The spectral distance metric to use. One of 'sam' (spectral angle
         mapper), 'sid' (spectral information divergence), 'sed' (squared
-        Euclidean distance), or 'emd' (earth movers distance).
+        Euclidean distance), or 'emd' (earth mover's distance).
       kernel: Connectedness kernel. Defaults to a square of radius 1 (8-way
         connected).
       useCentroid: If true, distances are computed from the mean of all pixels
@@ -4180,7 +4180,7 @@ class Image(element.Element):
       image2: The second image.
       metric: The spectral distance metric to use. One of 'sam' (spectral angle
         mapper), 'sid' (spectral information divergence), 'sed' (squared
-        Euclidean distance), or 'emd' (earth movers distance).
+        Euclidean distance), or 'emd' (earth mover's distance).
 
     Returns:
       An ee.Image.
@@ -4210,7 +4210,7 @@ class Image(element.Element):
     Args:
       metric: The spectral distance metric to use. One of 'sam' (spectral angle
         mapper), 'sid' (spectral information divergence), 'sed' (squared
-        Euclidean distance), or 'emd' (earth movers distance).
+        Euclidean distance), or 'emd' (earth mover's distance).
       kernel: Connectedness kernel. Defaults to a square of radius 1 (8-way
         connected).
       useCentroid: If true, distances are computed from the mean of all pixels
@@ -4240,7 +4240,7 @@ class Image(element.Element):
     Args:
       metric: The spectral distance metric to use. One of 'sam' (spectral angle
         mapper), 'sid' (spectral information divergence), 'sed' (squared
-        Euclidean distance), or 'emd' (earth movers distance).
+        Euclidean distance), or 'emd' (earth mover's distance).
       kernel: Connectedness kernel. Defaults to a square of radius 1 (8-way
         connected).
       useCentroid: If true, distances are computed from the mean of all pixels
@@ -4279,7 +4279,7 @@ class Image(element.Element):
     Extracts the specified number of samples for each distinct value discovered
     within the 'classBand'. Returns a FeatureCollection of 1 Feature per
     extracted point, with each feature having 1 property per band in the input
-    image. If there are less than the specified number of samples available for
+    image. If there are fewer than the specified number of samples available for
     a given class value, then all of the points for that class will be included.
     Requires that the classBand contain integer values.
 
@@ -4515,7 +4515,7 @@ class Image(element.Element):
     another image at all positions where the input mask is zero. The output
     image retains the metadata of the input image. By default, the output image
     also retains the footprint of the input, but setting sameFootprint to false
-    allows to extend the footprint.
+    allows extending the footprint.
 
     Args:
       value: New value and mask for the masked pixels of the input image. If not
