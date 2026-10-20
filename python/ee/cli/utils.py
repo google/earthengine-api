@@ -10,6 +10,7 @@ from collections.abc import Iterable
 import datetime
 import json
 import os
+import pathlib
 import re
 import tempfile
 import threading
@@ -140,8 +141,10 @@ class CommandLineConfig:
       value = getattr(self, key)
       if value is not None:
         config[key] = value
-    with open(self.config_file, 'w') as output_file:
-      json.dump(config, output_file)
+    config_path = pathlib.Path(self.config_file)
+    config_path.touch(mode=0o600, exist_ok=True)
+    config_path.chmod(0o600)
+    config_path.write_text(json.dumps(config))
 
 
 def _split_gcs_path(path):
