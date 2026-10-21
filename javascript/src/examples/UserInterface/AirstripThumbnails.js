@@ -92,7 +92,7 @@ var setImageByIndex = function(index) {
 };
 
 // Gets the index of the next/previous image in the collection and sets the
-// thumbnail to that image.  Disables the appropriate button when we hit an end.
+// thumbnail to that image. Disables the appropriate button when we hit an end.
 var setImage = function(button, increment) {
   if (button.getDisabled()) return;
   setImageByIndex(selectedIndex += increment);

@@ -8,10 +8,10 @@
 // https://developers.google.com/earth-engine/tutorials/community/sentinel-2-s2cloudless
 
 
-// Sentinel-2 Level 1C data.  Bands B7, B8, B8A and B10 from this
+// Sentinel-2 Level 1C data. Bands B7, B8, B8A and B10 from this
 // dataset are needed as input to CDI and the cloud mask function.
 var s2 = ee.ImageCollection('COPERNICUS/S2');
-// Cloud probability dataset.  The probability band is used in
+// Cloud probability dataset. The probability band is used in
 // the cloud mask function.
 var s2c = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY');
 // Sentinel-2 surface reflectance data for the composite.

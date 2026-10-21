@@ -428,8 +428,8 @@ ee.data.getTileUrl = function(id, x, y, z) {
  * Constructs a RawMapId, generating formatTileUrl and urlFormat from mapid and
  * token.
  * @param {string} mapid Map ID.
- * @param {string} token Token.  Will only be non-empty when using legacy API.
- * @param {string=} opt_urlFormat Explicit URL format.  Overrides the format
+ * @param {string} token Token. Will only be non-empty when using legacy API.
+ * @param {string=} opt_urlFormat Explicit URL format. Overrides the format
  *    inferred from mapid and token.
  * @return {!ee.data.RawMapId}
  * @private
@@ -799,7 +799,7 @@ ee.data.makeThumbUrl = function(id) {
  *     <tr>
  *       <td><code> filePerBand: </code> whether to produce a separate GeoTIFF
  *         per band (boolean). Defaults to true. If false, a single GeoTIFF is
- *         produced and all band-level transformations will be ignored.  Note
+ *         produced and all band-level transformations will be ignored. Note
  *         that this is ignored if the format is "ZIPPED_GEO_TIFF" or
  *          "ZIPPED_GEO_TIFF_PER_BAND".</td>
  *     </tr>
@@ -1505,7 +1505,7 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
  *
  * @param {string} taskId Unsubmitted ID for the task (obtained from newTaskId).
  * @param {!ee.api.ImageManifest} imageManifest The object that
- *     describes the ingestion.  See
+ *     describes the ingestion. See
  *     https://developers.google.com/s/results/earth-engine?q="ImageManifest"
  * @param {function(?ee.api.Operation, string=)} callback
  * @return {?ee.api.Operation} See getOperation for details on the

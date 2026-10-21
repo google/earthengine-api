@@ -12,7 +12,7 @@ var c = ee.ImageCollection('MODIS/006/MOD13A1').select('EVI');
 
 // The linear regression reducer (below) expects to see images
 // with all the independent values followed by all the dependent
-// values.  In this case, all the independent variables are
+// values. In this case, all the independent variables are
 // derived purely from image metadata, and thus are constant
 // across pixels.
 function addIndependentVariables(image) {
@@ -89,5 +89,3 @@ var exportParams = {scale: 10000, region: exportRegion, crs: 'EPSG:3857'};
 
 Export.image(seasonalityExportImage, 'Global_pheno', exportParams);
 Export.image(trendExportImage, 'Global_trend', exportParams);
-
-

@@ -1,6 +1,6 @@
-// Morphological processing of land cover.  This example
+// Morphological processing of land cover. This example
 // includes spatial smoothing (neighborhood mode) followed by
-// dilation, erosion and dilation again.  Reprojection is
+// dilation, erosion and dilation again. Reprojection is
 // used to force these operations to be performed at the
 // native scale of the input (rather than variable pixel
 // sizes based on zoom level).
@@ -14,7 +14,7 @@ var image1 = ee.Image('MODIS/051/MCD12Q1/2001_01_01');
 var image2 = image1.select(['Land_Cover_Type_1']);
 // Reproject to WGS84 to force the image to be reprojected on load.
 // This is just for display purposes, to visualize the input to
-// the following operations.  The next reproject is sufficient
+// the following operations. The next reproject is sufficient
 // to force the computation to occur at native scale.
 var image3 = image2.reproject('EPSG:4326', null, SCALE);
 // Smooth with a mode filter.

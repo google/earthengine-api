@@ -35,7 +35,7 @@ var totalObsCount = collection
 var collectionCloudMasked = collection.map(maskClouds)
 
 // Get the total number of observations for non-cloudy pixels for the time
-// interval.  The result is unmasked to set to unity so that all locations
+// interval. The result is unmasked to set to unity so that all locations
 // have counts, and the ratios later computed have values everywhere.
 var clearObsCount = collectionCloudMasked
         .select('num_observations_1km')
@@ -67,5 +67,3 @@ Map.addLayer(
     {min: 0, max: 1},
     'ratio of clear to total observations'
   )
-
-

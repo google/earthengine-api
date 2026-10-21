@@ -536,7 +536,7 @@ ee.Image.prototype.select = function(var_args) {
  * accessed like image.band_name or image[0].
  *
  * Both b() and image[] allow multiple arguments, to specify multiple bands,
- * such as b(1, 'name', 3).  Calling b() with no arguments, or using a variable
+ * such as b(1, 'name', 3). Calling b() with no arguments, or using a variable
  * by itself, returns all bands of the image.
  *
  * If the result of an expression is a single band, it can be assigned a name

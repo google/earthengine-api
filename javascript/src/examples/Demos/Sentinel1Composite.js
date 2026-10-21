@@ -20,6 +20,5 @@ var collectionVH = ee.ImageCollection('COPERNICUS/S1_GRD')
     .filter(ee.Filter.eq('instrumentMode', 'IW'))
     .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
     .select(['VH']);
-// Collection max.  Zoom to Shanghai for an interesting visualization.
+// Collection max. Zoom to Shanghai for an interesting visualization.
 Map.addLayer(collectionVH.max(), {min: -25, max: 0}, 'max value', false);
-

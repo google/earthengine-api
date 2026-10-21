@@ -107,7 +107,7 @@ toolPanel.add(linkPanel);
 // The elements of the pulldown are the keys of the layerProperties dictionary.
 var selectItems = Object.keys(layerProperties);
 
-// Define the pulldown menu.  Changing the pulldown menu changes the map layer
+// Define the pulldown menu. Changing the pulldown menu changes the map layer
 // and legend.
 var layerSelect = ui.Select({
   items: selectItems,
@@ -115,7 +115,7 @@ var layerSelect = ui.Select({
   onChange: function(selected) {
     // Loop through the map layers and compare the selected element to the name
     // of the layer. If they're the same, show the layer and set the
-    // corresponding legend.  Hide the others.
+    // corresponding legend. Hide the others.
     mapPanel.layers().forEach(function(element, index) {
       element.setShown(selected == element.getName());
     });

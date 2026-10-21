@@ -653,7 +653,7 @@ class ImageCollection(collection.Collection[image.Image]):
         the minimum of the mask of the input pixels. If any image in the
         collection within the computation bounding box does not have data at a
         pixel, the output for that pixel will be masked. As a result, every
-        unmasked output pixel array will have the same size.  If true, the mask
+        unmasked output pixel array will have the same size. If true, the mask
         value of the output pixel is the maximum of the mask of the inputs.
         Completely masked images at that pixel are ignored and do not contribute
         data to the output array. The output arrays will therefore not

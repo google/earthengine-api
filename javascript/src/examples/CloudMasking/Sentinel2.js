@@ -1,5 +1,5 @@
 // This example uses the Sentinel-2 QA band to cloud mask
-// the collection.  The Sentinel-2 cloud flags are less
+// the collection. The Sentinel-2 cloud flags are less
 // selective, so the collection is also pre-filtered by the
 // CLOUDY_PIXEL_PERCENTAGE flag, to use only relatively
 // cloud-free granule.

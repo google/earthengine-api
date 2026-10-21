@@ -1,7 +1,7 @@
 // A UI to interactively filter a collection, select an individual image
 // from the results, display it with a variety of visualizations, and export it.
 
-// The namespace for our application.  All the state is kept in here.
+// The namespace for our application. All the state is kept in here.
 var app = {};
 
 /** Creates the UI panels. */

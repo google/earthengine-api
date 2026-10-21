@@ -38,7 +38,7 @@ var thresh = local.gt(2);
 var peaks = thresh.focal_max({kernel: circleKernel});
 Map.addLayer(peaks.updateMask(peaks), {palette: 'FF3737'}, 'Kernel Peaks');
 
-// Detect the edges of the features.  Discard the edges with lower intensity.
+// Detect the edges of the features. Discard the edges with lower intensity.
 var canny = ee.Algorithms.CannyEdgeDetector(ndvi, 0);
 canny = canny.gt(0.3);
 

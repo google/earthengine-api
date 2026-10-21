@@ -33,8 +33,8 @@ goog.require('goog.object');
 
 
 /**
- * Initialize the library.  If this hasn't been called by the time any
- * object constructor is used, it will be called then.  If this is called
+ * Initialize the library. If this hasn't been called by the time any
+ * object constructor is used, it will be called then. If this is called
  * a second time with a different baseurl or tileurl, this doesn't do an
  * un-initialization of e.g.: the previously loaded Algorithms, but will
  * overwrite them and let point at alternate servers.
@@ -50,8 +50,8 @@ goog.require('goog.object');
  * In most cases, an authorization token should be set before the library
  * is initialized, either with ee.data.authorize() or ee.data.setAuthToken().
  *
- * In Python, this method is named ee.Initialize, with a capital I.  Note that
- * some parameters differ between JavaScript and Python.  In addition to opt_url
+ * In Python, this method is named ee.Initialize, with a capital I. Note that
+ * some parameters differ between JavaScript and Python. In addition to opt_url
  * and project below, Python also supports:
  *  credentials - a google.oauth2.Credentials object or 'persistent' to use
  *    stored credentials (the default);
@@ -154,7 +154,7 @@ ee.reset = function() {
 
 
 /**
- * The possible states for the library initialization function.  We want
+ * The possible states for the library initialization function. We want
  * to prohibit multiple overlapping calls, and allow the user a way to poll
  * to see what the state is.
  *
@@ -618,7 +618,7 @@ ee.makeClass_ = function(name) {
   /**
    * Construct a new instance of the given class.
    *
-   * @param {...*} var_args The constructor args.  Can be one of:
+   * @param {...*} var_args The constructor args. Can be one of:
    *   1) A computed value to be promoted to this type.
    *   2) Arguments to be passed to the algorithm with the same name as
    *      this class.

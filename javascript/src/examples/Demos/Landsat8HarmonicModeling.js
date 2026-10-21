@@ -54,7 +54,7 @@ var addDependents = function(image) {
 };
 
 // Function to compute the specified number of harmonics
-// and add them as bands.  Assumes the time band is present.
+// and add them as bands. Assumes the time band is present.
 var addHarmonics = function(freqs) {
   return function(image) {
     // Make an image of frequencies.

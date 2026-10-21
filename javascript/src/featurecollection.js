@@ -30,7 +30,7 @@ goog.require('goog.array');
  * @param {string|number|!Array.<*>|!ee.ComputedObject|
  *         !ee.Geometry|!ee.Feature|!ee.FeatureCollection|!ee.List} args
  *     The constructor arguments.
- * @param {string=} opt_column The name of the geometry column to use.  Only
+ * @param {string=} opt_column The name of the geometry column to use. Only
  *     useful when working with a named collection.
  * @constructor
  * @extends {ee.Collection}
@@ -81,7 +81,7 @@ ee.FeatureCollection = function(args, opt_column) {
       })
     });
   } else if (args instanceof ee.List) {
-    // A computed list of features.  This can't get the extra ee.Feature()
+    // A computed list of features. This can't get the extra ee.Feature()
     ee.FeatureCollection.base(
         this, 'constructor', new ee.ApiFunction('Collection'),
         {'features': args});
@@ -255,7 +255,7 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
 
 
 /**
- * Select properties from each Feature in a collection.  It is also
+ * Select properties from each Feature in a collection. It is also
  * possible to call this function with only string arguments; they
  * will all be interpreted as propertySelectors (varargs).
  *

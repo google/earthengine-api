@@ -285,7 +285,7 @@ ee.rpc_convert.csvToNumbers = function(csv) {
 
 /**
  * Converts the `a` and `b` fields of obj to arrays of numbers, and returns an
- * array of pairs of numbers.  It is an error if the arrays are different
+ * array of pairs of numbers. It is an error if the arrays are different
  * lengths, but if either field is missing or empty, it is populated with
  * default values of 0 and 1 for a and b respectively.
  * @param {!Object} obj
@@ -892,7 +892,7 @@ ee.rpc_convert.operationToTask = function(result) {
  * @return {!Object} ProcessingResponse
  */
 ee.rpc_convert.operationToProcessingResponse = function(operation) {
-  // The legacy response should always return OK.  If the task is
+  // The legacy response should always return OK. If the task is
   // attempted to be created again with the same requestId an exception
   // may be thrown if the request is not byte for byte identical.
   const result = {'started': 'OK'};
@@ -988,7 +988,7 @@ ee.rpc_convert.toOnePlatformMaskBands = function(tileset) {
   }
 
   /**
-   *  Return a TilesetMaskBand  for a given maskConfig.  If the maskConfig
+   *  Return a TilesetMaskBand  for a given maskConfig. If the maskConfig
    *  is null the default is to return a TilesetMaskBand for all bands
    *  (No bandIds set).
    *

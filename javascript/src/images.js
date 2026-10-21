@@ -60,7 +60,7 @@ ee.data.images.applyTransformsToCollection = function(taskConfig) {
 /**
  * Applies region selection and scaling parameters to an image.
  * Wraps an image in a call to clipToBoundsAndScale() if any recognized
- * parameters were provided.  Returns the (possibly) transformed image and sets
+ * parameters were provided. Returns the (possibly) transformed image and sets
  * outParams to the remaining parameters.
  *
  * @param {!ee.Image} image The image to include in the request.
@@ -311,7 +311,7 @@ ee.data.images.maybeConvertCrsTransformToArray_ = function(crsTransform) {
 
 /**
  * Wraps an image in a call to visualize() if any parameters used by
- * visualize() were provided.  Generates a request object containing
+ * visualize() were provided. Generates a request object containing
  * the serialized image and any remaining parameters (e.g.: fileFormat)
  *
  * @param {!ee.Image} image The image to include in the request.

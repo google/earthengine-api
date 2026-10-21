@@ -6,7 +6,7 @@ var colorado = ee.Geometry.Rectangle({
   geodesic: false
 });
 
-// Generate the histogram data.  Use minBucketWidth for nice sized buckets.
+// Generate the histogram data. Use minBucketWidth for nice sized buckets.
 var histogram = ui.Chart.image.histogram({
   image: elevation,
   region: colorado,

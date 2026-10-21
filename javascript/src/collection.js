@@ -86,7 +86,7 @@ ee.Collection.prototype.filter = function(filter) {
 
 
 /**
- * Shortcuts to filter a collection by metadata.  This is equivalent
+ * Shortcuts to filter a collection by metadata. This is equivalent
  * to this.filter(ee.Filter.metadata(...)).
  *
  * @param {string} name The name of a property to filter.
@@ -157,7 +157,7 @@ ee.Collection.prototype.filterDate = function(start, opt_end) {
  * @param {number} max The number to limit the collection to.
  * @param {string=} opt_property The property to sort by, if sorting.
  * @param {boolean=} opt_ascending Whether to sort in ascending or
- *     descending order.  The default is true (ascending).
+ *     descending order. The default is true (ascending).
  * @return {!ee.Collection} The limited collection.
  * @export
  */
@@ -175,7 +175,7 @@ ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
  *
  * @param {string} property The property to sort by.
  * @param {boolean=} opt_ascending Whether to sort in ascending or descending
- *     order.  The default is true (ascending).
+ *     order. The default is true (ascending).
  * @return {!ee.Collection} The sorted collection.
  * @export
  */

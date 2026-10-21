@@ -44,7 +44,7 @@ ee.Filter = function(opt_filter) {
   ee.Filter.initialize();
 
   /**
-   * The internal representation of this filter.  This is
+   * The internal representation of this filter. This is
    * a list of filter objects which are implicitly ANDed together.
    *
    * @type {!Array.<*>}
@@ -124,10 +124,10 @@ ee.Filter.functionNames_ = {
 
 
 /**
- * Append a predicate to a filter.  These are implicitly ANDed.
+ * Append a predicate to a filter. These are implicitly ANDed.
  *
  * @param {!ee.Filter|!Array.<!ee.Filter|!Object>|!Object} newFilter The filter
- *     to append.  Possible types are:
+ *     to append. Possible types are:
  *     - another fully constructed ee.Filter,
  *     - a ComputedObject producing a filter,
  *     - a list of 1 or 2.
@@ -378,7 +378,7 @@ ee.Filter.prototype.name = function() {
  * Filter on metadata.
  *
  * @param {string} name The property name to filter on.
- * @param {string} operator The type of comparison.  One of:
+ * @param {string} operator The type of comparison. One of:
  *    "equals", "less_than", "greater_than", "contains", "begins_with",
  *    "ends_with", or any of these prefixed with "not_".
  * @param {*} value The value to compare against.

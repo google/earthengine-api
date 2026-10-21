@@ -12,8 +12,8 @@ var joinFilter = ee.Filter.withinDistance({
   rightField: '.geo'
 });
 
-// Apply the join.  The leftField corresponds to the primary collection
-// and the rightField corresponds to the secondary collection.  The
+// Apply the join. The leftField corresponds to the primary collection
+// and the rightField corresponds to the secondary collection. The
 // matching condition is specified by the filter.
 var closeParks = ee.Join.simple().apply({
   primary: parks,

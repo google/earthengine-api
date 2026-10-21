@@ -348,7 +348,7 @@ ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
     tensorDepths: null,
   });
   /* Tensor depths is tricky since the old api supported a flat array
-   * whereas the new api expects a map.  Do a check at runtime to
+   * whereas the new api expects a map. Do a check at runtime to
    * make sure that the map (or flat array) has numbers for all its values.
    */
   const tensorDepths = params['tfrecordTensorDepths'];

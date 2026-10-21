@@ -89,7 +89,7 @@ goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
  * @param {function (T, string=)} callback A function of the form
  *     function(success, failure), called when the server returns an answer.
  *     If the request succeeded, the success argument contains the evaluated
- *     result.  If the request failed, the failure argument will contains an
+ *     result. If the request failed, the failure argument will contains an
  *     error message.
  * @export
  */

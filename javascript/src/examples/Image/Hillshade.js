@@ -1,6 +1,6 @@
-// Hillshade example.  This is a demonstration of computing
+// Hillshade example. This is a demonstration of computing
 // a hillshade from terrain data and displaying multiple
-// layers based on multiple view geometries.  Hillshade
+// layers based on multiple view geometries. Hillshade
 // creation is also provided by ee.Terrain.hillshade().
 
 // Define a function to convert from degrees to radians.
@@ -32,8 +32,8 @@ var slope = radians(terrain.select('slope'));
 var aspect = radians(terrain.select('aspect'));
 
 // For loops are needed for control-flow operations on client-side
-// operations.  Here Map.addLayer() is a client operation that needs
-// to be performed in a for loop.  In general, avoid for loops
+// operations. Here Map.addLayer() is a client operation that needs
+// to be performed in a for loop. In general, avoid for loops
 // for any server-side operation.
 Map.setCenter(-121.767, 46.852, 11);
 for (var i = 0; i < 360; i += 60) {

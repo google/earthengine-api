@@ -5,7 +5,7 @@
 var LC8_BANDS = ['B2',   'B3',    'B4',  'B5',  'B6',    'B7',    'B10'];
 var STD_NAMES = ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'temp'];
 
-// Compute a cloud score.  This expects the input image to have the common
+// Compute a cloud score. This expects the input image to have the common
 // band names: ["red", "blue", etc], so it can work across sensors.
 var cloudScore = function(img) {
   // A helper to apply an expression and linearly rescale the output.

@@ -1,9 +1,9 @@
 // Image.reduceRegion example
 //
-// Computes a simple reduction over a region of an image.  A reduction
+// Computes a simple reduction over a region of an image. A reduction
 // is any process that takes an arbitrary number of inputs (such as
 // all the pixels of an image in a given region) and computes one or
-// more fixed outputs.  The result is a dictionary that contains the
+// more fixed outputs. The result is a dictionary that contains the
 // computed values, which in this example is the maximum pixel value
 // in the region.
 
@@ -20,7 +20,7 @@ var image = ee.Image('CGIAR/SRTM90_V4');
 var poly = ee.Geometry.Rectangle([-109.05, 41, -102.05, 37]);
 
 // Reduce the image within the given region, using a reducer that
-// computes the max pixel value.  We also specify the spatial
+// computes the max pixel value. We also specify the spatial
 // resolution at which to perform the computation, in this case 200
 // meters.
 var max = image.reduceRegion({

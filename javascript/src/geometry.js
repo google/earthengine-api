@@ -77,7 +77,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     if (options) {
       throw new Error(
           'Setting the CRS, geodesic, or evenOdd flag on a computed Geometry ' +
-          'is not supported.  Use Geometry.transform().');
+          'is not supported. Use Geometry.transform().');
     } else {
       ee.Geometry.base(this, 'constructor', geoJson.func, geoJson.args, geoJson.varName);
       return;
@@ -436,7 +436,7 @@ ee.Geometry.canonicalizeLongitude_ = function(longitude) {
  * @param {!Array<!Array<number>>|
  *          Array<!ee.Geometry>|
  *          Array<number>} coords
- *     A list of at least two points.  May be a list of coordinates in the
+ *     A list of at least two points. May be a list of coordinates in the
  *     GeoJSON 'LineString' format, a list of at least two ee.Geometry objects
  *     describing a point, or a list of at least four numbers defining the [x,y]
  *     coordinates of at least two points.
@@ -854,7 +854,7 @@ ee.Geometry.isValidCoordinates_ = function(shape) {
 
 /**
  * Create a line from a list of points.
- * @param {IArrayLike} coordinates The points to convert.  Must be a
+ * @param {IArrayLike} coordinates The points to convert. Must be a
  *     multiple of 2.
  * @return {!Array<!Array<number>>} A list of pairs of points.
  * @private

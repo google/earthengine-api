@@ -14,7 +14,7 @@ var pan = image.select('B8');
 var huesat = rgb.rgbToHsv().select('hue', 'saturation');
 var upres = ee.Image.cat(huesat, pan).hsvToRgb();
 
-// There are many fine places to look; here is one.  Comment
+// There are many fine places to look; here is one. Comment
 // this out if you want to twiddle knobs while panning around.
 Map.setCenter(-122.0808, 37.3947, 14);
 

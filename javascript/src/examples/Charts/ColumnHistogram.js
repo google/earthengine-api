@@ -2,7 +2,7 @@
 
 var ecoregions = ee.FeatureCollection('RESOLVE/ECOREGIONS/2017');
 
-// Prepare the chart.  Specifying a minBucketWidth makes for nice bucket sizes.
+// Prepare the chart. Specifying a minBucketWidth makes for nice bucket sizes.
 var histogram =
     ui.Chart.feature
         .histogram(

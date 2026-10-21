@@ -6,7 +6,7 @@ var counties = ee.FeatureCollection('TIGER/2016/Counties');
 
 // Map a function over the counties to set the area of each.
 var countiesWithArea = counties.map(function(f) {
-  // Compute area in square meters.  Convert to hectares.
+  // Compute area in square meters. Convert to hectares.
   var areaHa = f.area().divide(100 * 100);
 
   // A new property called 'area' will be set on each feature.

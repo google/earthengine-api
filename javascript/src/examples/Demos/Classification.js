@@ -1,7 +1,7 @@
 // This demonstration uses hand-located points to train a classifier.
 // Each training point has a field called 'landcover' containing
 // class labels at that location. The following block contains
-// construction code for the points.  Hover on the 'urban' variable
+// construction code for the points. Hover on the 'urban' variable
 // and click, 'Convert' in the dialog.
 var urban = /* color: #ff0000 */ee.FeatureCollection(
   [ee.Feature(
@@ -493,7 +493,7 @@ var bands = ['B2', 'B3', 'B4', 'B5', 'B6', 'B7'];
 // The name of the property on the points storing the class label.
 var classProperty = 'landcover';
 
-// Sample the composite to generate training data.  Note that the
+// Sample the composite to generate training data. Note that the
 // class label is stored in the 'landcover' property.
 var training = composite.select(bands).sampleRegions({
   collection: newfc,
@@ -514,7 +514,7 @@ var classified = composite.classify(classifier);
 Map.centerObject(newfc);
 Map.addLayer(classified, {min: 0, max: 2, palette: ['red', 'green', 'blue']});
 
-// Optionally, do some accuracy assessment.  Fist, add a column of
+// Optionally, do some accuracy assessment. Fist, add a column of
 // random uniforms to the training dataset.
 var withRandom = training.randomColumn('random');
 

@@ -74,8 +74,8 @@ ee.Serializer = function(opt_isCompound) {
   this.sourceNodeMap_ = new WeakMap();
 
   /**
-   * Provides a name for unbound variables in objects.  Unbound variables are
-   * otherwise disallowed.  See Count Functions usage in customfunction.js.
+   * Provides a name for unbound variables in objects. Unbound variables are
+   * otherwise disallowed. See Count Functions usage in customfunction.js.
    *
    * @type {string|undefined}
    */
@@ -338,7 +338,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
   const encoded = new ee.Serializer(false).encodeForCloudApi_(obj);
   const values = encoded.values;
   // The remaining references are the top-level result, and in function
-  // definitions and invocations.  These violate the Expression type, so we
+  // definitions and invocations. These violate the Expression type, so we
   // walk the tree as a raw object and return a raw object.
   const walkObject = function(object) {
     if (!goog.isObject(object)) return object;
