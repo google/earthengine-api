@@ -12454,7 +12454,7 @@
     }]
   }, {
     "name": "algorithms/String.rindex",
-    "description": "Searches a string for the last occurrence of a substring. Returns the index of the first match, or -1.",
+    "description": "Searches a string for the last occurrence of a substring. Returns the index of the last match, or -1.",
     "returnType": "Integer",
     "arguments": [{
       "argumentName": "target",
@@ -16631,7 +16631,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Test.Clustering.SpatialConsistency",
-    "description": "Performs clustering on the input image in a consistent way across tiles. The algorithm works as follows: first, renumber the current tile clusters based on an offset; then, for each cluster that touches the left or the top edge, look at the adjacent tile and find that tile\u0027s cluster label. Assign this label, added to that tile\u0027s offset, to the current cluster and continue. Ambiguities can be resolved either by number of pixels touching the current pixel, or by closest mean. Corner cases can be resolved by looking at the northwest tile. Note that not all cases can be resolved.\nInput should be an image where one of the bands is named \u0027clusters\u0027 and represents the cluster labels. The remaining bands are spectral data.\nThe output is an INT32 image in which each value is the cluster to which he pixel belongs.",
+    "description": "Performs clustering on the input image in a consistent way across tiles. The algorithm works as follows: first, renumber the current tile clusters based on an offset; then, for each cluster that touches the left or the top edge, look at the adjacent tile and find that tile\u0027s cluster label. Assign this label, added to that tile\u0027s offset, to the current cluster and continue. Ambiguities can be resolved either by number of pixels touching the current pixel, or by closest mean. Corner cases can be resolved by looking at the northwest tile. Note that not all cases can be resolved.\nInput should be an image where one of the bands is named \u0027clusters\u0027 and represents the cluster labels. The remaining bands are spectral data.\nThe output is an INT32 image in which each value is the cluster to which the pixel belongs.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
