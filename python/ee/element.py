@@ -21,7 +21,7 @@ from ee import ee_string
 
 
 class Element(computedobject.ComputedObject):
-  """Base class for ImageCollection and FeatureCollection."""
+  """Base class for Image, Feature, ImageCollection, and FeatureCollection."""
 
   _initialized = False
 
@@ -33,7 +33,7 @@ class Element(computedobject.ComputedObject):
       args: dict[str, Any] | None,
       varName: str | None = None,  # pylint: disable=g-bad-name
   ):
-    """Constructs a collection by initializing its ComputedObject."""
+    """Constructs an element by initializing its ComputedObject."""
     super().__init__(func, args, varName)
 
   @classmethod
@@ -178,13 +178,13 @@ class Element(computedobject.ComputedObject):
         result = apifunction.ApiFunction.call_(
             'Element.set', result, key, value)
 
-    # Manually cast the result to an image.
+    # Manually cast the result to the same type as this element.
     return self._cast(result)  # pyrefly: ignore[bad-return]
 
   def toDictionary(
       self, properties: _arg_types.List | None = None
   ) -> dictionary.Dictionary:
-    """Returns properties from a feature as a dictionary.
+    """Returns properties from an element as a dictionary.
 
     Args:
       properties: The list of properties to extract. Defaults to all non-system

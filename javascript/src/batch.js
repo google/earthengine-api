@@ -555,8 +555,8 @@ Export.extractElement = function(exportArgs) {
     result = /** @type {!ComputedObject} */ (element);
   } else {
     throw new Error(
-        'Unknown element type provided: ' + typeof (element) + '. Expected: ' +
-        ' ee.Image, ee.ImageCollection, ee.FeatureCollection,  ee.Element' +
+        'Unknown element type provided: ' + typeof (element) + '. Expected:' +
+        ' ee.Image, ee.ImageCollection, ee.FeatureCollection, ee.Element' +
         ' or ee.ComputedObject.');
   }
   delete exportArgs[eeElementKey];
@@ -606,7 +606,7 @@ Export.convertToServerParams = function(
   if (serializeRegion && taskConfig['region'] != null) {
     taskConfig['region'] = Export.serializeRegion(taskConfig['region']);
   }
-  return /** {!ServerTaskConfig} */ (taskConfig);
+  return /** @type {!ServerTaskConfig} */ (taskConfig);
 };
 
 /**
@@ -660,7 +660,7 @@ Export.prepareDestination_ = function(taskConfig, destination) {
 };
 
 /**
- * Adapts a ServerTaskConfig into a ImageTaskConfig normalizing any parameters.
+ * Adapts a ServerTaskConfig into an ImageTaskConfig normalizing any parameters.
  *
  * @param {!ServerTaskConfig} taskConfig Image export config to
  *     prepare.

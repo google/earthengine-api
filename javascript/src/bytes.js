@@ -29,7 +29,7 @@ goog.inherits(ee.Bytes, ee.Encodable);
 
 /**
  * @override
- * @param {function(*): *} encoder The serializer to use.
+ * @param {function(*): *} encoder The encoder to use (unused).
  * @return {!Object} The encoded object.
  */
 ee.Bytes.prototype.encode = function(encoder) {
@@ -41,7 +41,7 @@ ee.Bytes.prototype.encode = function(encoder) {
 
 /**
  * @override
- * @param {!ee.Encodable.Serializer} serializer The serializer to use.
+ * @param {!ee.Encodable.Serializer} serializer The serializer to use (unused).
  * @return {!ee.api.ValueNode} The encoded object.
  */
 ee.Bytes.prototype.encodeCloudValue = function(serializer) {

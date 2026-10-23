@@ -625,7 +625,7 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   const asset = new ee.api.EarthEngineAsset();
   const toTimestamp = (msec) => new Date(Number(msec)).toISOString();
   const asNull = (value) =>
-      value === null ? /** type {?} */ (ee.apiclient.NULL_VALUE) : undefined;
+      value === null ? /** @type {?} */ (ee.apiclient.NULL_VALUE) : undefined;
   const properties = Object.assign({}, legacyProperties);
   let value;
   const extractValue = (key) => {

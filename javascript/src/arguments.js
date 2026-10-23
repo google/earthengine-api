@@ -69,7 +69,7 @@ goog.require('goog.structs.Set');
  *
  *   Another case is when a user passes in an empty object {} to represent that
  *   no arguments are provided, we would mistakenly treat the empty object {} as
- *   the first argument. So in such cases, just do not pass any thing in the
+ *   the first argument. So in such cases, just do not pass anything in the
  *   function call.
  *
  * COMPILATION WARNING:
@@ -86,7 +86,7 @@ goog.require('goog.structs.Set');
  *     - 'paramNames': A list of unobfuscated parameter names expected by fn,
  *                     with optional parameters prefixed by "opt_".
  *
- *   The map should contain an entry for each that uses this helper.
+ *   The map should contain an entry for each function that uses this helper.
  *   Typically that means public, exported, non-deprecated functions.
  *
  * @param {!Function} fn The function for which to extract arguments.
@@ -377,7 +377,7 @@ ee.arguments.getFnName_ = function(fn) {
 };
 
 /**
- * Helper used to throw an error when function parameters match is failed.
+ * Helper used to throw an error when function parameters matching failed.
  * @private
  * @throws {!Error}
  */
@@ -449,7 +449,7 @@ ee.arguments.JS_PARAM_DECL_MATCHER_CLASS_CONSTRUCTOR_ =
  *     }
  * In the example above, we have Animation.prototype.setColor.toString() ==
  * 'setColor(color1, color2, color3) {...}'. This regular expression simply
- * extracts the string insides the first parentheses of toString()'s output.
+ * extracts the string inside the first parentheses of toString()'s output.
  * @const @private
  * @type {!RegExp}
  */

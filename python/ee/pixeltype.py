@@ -64,9 +64,9 @@ class PixelType(computedobject.ComputedObject):
     Args:
       precision: The pixel precision, one of 'int', 'float', or 'double'.
       minValue: The minimum value of pixels of this type. If precision is
-        'float' or 'double', this can be null, signifying negative infinity.
+        'float' or 'double', this can be None, signifying negative infinity.
       maxValue: The maximum value of pixels of this type. If precision is
-        'float' or 'double', this can be null, signifying positive infinity.
+        'float' or 'double', this can be None, signifying positive infinity.
       dimensions: The number of dimensions in which pixels of this type can
         vary; 0 is a scalar, 1 is a vector, 2 is a matrix, etc.
     """

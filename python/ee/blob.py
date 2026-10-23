@@ -34,7 +34,7 @@ class Blob(computedobject.ComputedObject):
     Args:
       url: Where to fetch the blob on GCS. Must start with "gs://". This must be
         a python str or a ComputedObject that returns an ee.String. The bucket
-        metadata must be accessible  (requires the `storage.buckets.get`
+        metadata must be accessible (requires the `storage.buckets.get`
         permission which is provided by the role "Storage Legacy Bucket Reader",
         among others, see
         https://cloud.google.com/storage/docs/access-control/iam-roles) and

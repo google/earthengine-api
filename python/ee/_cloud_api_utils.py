@@ -48,7 +48,7 @@ TASK_TO_OPERATION_STATE = {
 
 
 class _Http:
-  """A httplib2.Http-like object based on requests."""
+  """An httplib2.Http-like object based on requests."""
   _session: requests.Session
   _timeout: float | None
 

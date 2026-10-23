@@ -34,7 +34,7 @@ class Feature(element.Element):
           dict[str, Any] | computedobject.ComputedObject
       ) = None,
   ):
-    """Creates a feature a geometry or computed object.
+    """Creates a feature from a geometry or computed object.
 
     Features can be constructed from one of the following arguments plus an
     optional dictionary of properties:

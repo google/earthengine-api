@@ -41,7 +41,7 @@ class FeatureCollection(collection.Collection[feature.Feature]):
       ),
       column: Any | None = None,
   ):
-    """Constructs a collection features.
+    """Constructs a collection of features.
 
     Args:
       args: constructor argument. One of:
@@ -124,8 +124,8 @@ class FeatureCollection(collection.Collection[feature.Feature]):
 
     Returns:
       A map ID dictionary as described in ee.data.getMapId, including an
-      additional 'image' field containing Collection.draw image wrapping a
-      FeatureCollection containing this feature.
+      additional 'image' field containing the Collection.draw image of this
+      FeatureCollection.
     """
     painted = apifunction.ApiFunction.apply_('Collection.draw', {
         'collection': self,

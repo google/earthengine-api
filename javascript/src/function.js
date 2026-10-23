@@ -18,7 +18,7 @@ goog.requireType('ee.data');
 
 /**
  * An abstract base class for functions callable by the EE API. Subclasses
- * must implement encode() and getSignature().
+ * must implement encode(), encodeCloudInvocation() and getSignature().
  *
  * TODO(user): Implement Function.bind() while supporting both positional
  *              and named args and avoiding a dependency on CustomFunction.
@@ -48,7 +48,7 @@ ee.Function.promoter_ = goog.functions.identity;
  * Register a function used to type-coerce arguments and return values.
  * @param {function(*, string): *} promoter A function used to type-coerce
  *     arguments and return values. Passed a value as the first parameter
- *     and a type name as the second. Can be used, for example, promote
+ *     and a type name as the second. Can be used, for example, to promote
  *     numbers or strings to Images. Should return the input promoted if
  *     the type is recognized, otherwise the original input.
  */

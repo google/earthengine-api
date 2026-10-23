@@ -35,7 +35,7 @@ class ImageCollection(collection.Collection[image.Image]):
            2) An array of images, or anything that can be used to construct an
               image.
            3) A single image.
-           5) A computed object - reinterpreted as a collection.
+           4) A computed object - reinterpreted as a collection.
 
     Raises:
       EEException: if passed something other than the above.
@@ -86,9 +86,9 @@ class ImageCollection(collection.Collection[image.Image]):
     cls._initialized = False
 
   def getMapId(self, vis_params: Any | None = None) -> dict[str, Any]:
-    """Fetch and return a Map ID.
+    """Fetches and returns a Map ID.
 
-    This mosaics the collection to a single image and return a map ID suitable
+    This mosaics the collection to a single image and returns a map ID suitable
     for building a Google Maps overlay.
 
     Args:
@@ -142,10 +142,11 @@ class ImageCollection(collection.Collection[image.Image]):
     image would match, the collection image selected is arbitrary. By default,
     images are matched on their 'system:index' metadata property.
 
-    This linking function is a convenience method for adding bands target images
-    based on a specified shared metadata property and is intended to support
-    linking collections that apply different processing/product generation to
-    the same source imagery. For more expressive linking known as 'joining', see
+    This linking function is a convenience method for adding bands to target
+    images based on a specified shared metadata property and is intended to
+    support linking collections that apply different processing/product
+    generation to the same source imagery. For more expressive linking known as
+    'joining', see
     https://developers.google.com/earth-engine/guides/joins_intro.
 
     Args:
@@ -306,7 +307,7 @@ class ImageCollection(collection.Collection[image.Image]):
       request['dimensions'] = params.get('dimensions')
     if thumbType not in ['video', 'filmstrip']:
       raise ee_exception.EEException(
-          'Invalid thumbType provided to _getThumbURL only \'video\' or '
+          'Invalid thumbType provided to _getThumbURL; only \'video\' or '
           '\'filmstrip\' is supported.')
 
     return data.makeThumbUrl(data.getThumbId(request, thumbType=thumbType))

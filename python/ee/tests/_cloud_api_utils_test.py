@@ -424,7 +424,7 @@ class CloudApiUtilsTest(unittest.TestCase):
         'all_users_can_read': True
     }))
 
-  def test_convert_to_grid_dimension(self):
+  def test_convert_to_grid_dimensions(self):
     self.assertEqual({'width': 123, 'height': 123},
                      _cloud_api_utils.convert_to_grid_dimensions(123))
     self.assertEqual({'width': 123, 'height': 123},

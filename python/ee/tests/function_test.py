@@ -73,7 +73,7 @@ class FunctionTest(unittest.TestCase):
     # Allow missing optional argument.
     self.assertEqual({'a': ['Image', 42]}, TEST_FUNC.promoteArgs({'a': 42}))
 
-    # Disallow unknown arguments.
+    # Disallow missing required arguments.
     self.assertRaisesRegex(ee.EEException, 'Required argument',
                            TEST_FUNC.promoteArgs, {})
 

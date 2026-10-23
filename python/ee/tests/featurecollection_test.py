@@ -119,7 +119,7 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     self.assertEqual(manual, mapid['image'])
 
   def test_download(self):
-    """Verifies that Download ID and URL generation."""
+    """Verifies Download ID and URL generation."""
     ee.FeatureCollection('test7').getDownloadURL()
 
     self.assertEqual('/table', self.last_table_call['url'])  # pyrefly: ignore[unsupported-operation]

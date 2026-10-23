@@ -9,7 +9,8 @@ MAJOR = 3
 MINOR = 7
 
 if (sys.version_info.major != MAJOR or sys.version_info.minor < MINOR):
-  sys.exit('earthengine requires Python %d >= %d.%d' % (MAJOR, MAJOR, MINOR))
+  sys.exit('earthengine requires Python %d.%d or newer (Python %d.x)' %
+           (MAJOR, MINOR, MAJOR))
 
 
 def OutputAndExit(message: str) -> None:

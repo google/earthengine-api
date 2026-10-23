@@ -460,7 +460,7 @@ class Geometry(computedobject.ComputedObject):
           ee.Geometry.LinearRing(aLng, aLat, bLng, bLat, ...).
 
     Returns:
-      A dictionary representing a GeoJSON LinearRing.
+      An ee.Geometry describing a LinearRing.
     """
     all_args = Geometry._GetArgs((coords, proj, geodesic, maxError) + args)
     return Geometry(Geometry._parseArgs('LinearRing', 2, all_args))
@@ -809,13 +809,14 @@ class Geometry(computedobject.ComputedObject):
 
     Computed items must be resolved by the server (evaluated in the case of
     computed values, and processed to a single projection and geodesic state
-    in the case of geometries.
+    in the case of geometries).
 
     Args:
       coordinates: A nested list of ... of number coordinates.
 
     Returns:
-      Whether all coordinates are lists or numbers.
+      Whether any of the coordinates is a ComputedObject (requiring a server
+      call).
     """
     if isinstance(coordinates, (list, tuple)):
       return any(Geometry._hasServerValue(i) for i in coordinates)

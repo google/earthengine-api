@@ -51,7 +51,7 @@ grunt.initConfig({
    * Browserify, Webpack, and native ES6 modules.
    *
    * For traditional HTML script
-   * <scripts src="..."/> includes, use build/ee_api_js*.js instead.
+   * <script src="..."></script> includes, use build/ee_api_js*.js instead.
    */
   concat: {
     browser: {

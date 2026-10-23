@@ -124,7 +124,7 @@ class ImageTest(apitestcase.ApiTestCase):
     self.assertEqual(image, map_id['image'])
 
   def test_get_map_id_visualization(self):
-    """Verifies that imperative functions return ready values."""
+    """Verifies that getMapId applies visualization parameters."""
     image = ee.Image(1)
     image.getMapId({'min': 0})
 
@@ -427,7 +427,7 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
       self.assertEqual('projects/my-project', kwargs['parent'])
 
   def test_thumb_with_dimensions_list_min_max(self):
-    # Try it with the region as a list of coordinates.
+    # Try it with the region as a [xmin, ymin, xmax, ymax] list.
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
       ee.data.getThumbId = self.old_get_thumb_id
@@ -525,8 +525,8 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
   def test_build_download_id_image_transforms_given_image(self):
     test_image = ee.Image('foo')
 
-    # Format is file per band and bands specified: build image out of individual
-    # band images.
+    # Format is file per band and an empty bands list: apply transforms
+    # directly to the image.
     params = {
         'format': 'ZIPPED_GEO_TIFF_PER_BAND',
         'bands': [],
@@ -4204,7 +4204,7 @@ class SerializeTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # var_args, so now kwargs.
+    # var_args, so no kwargs.
 
   def test_self_mask(self):
     expect = make_expression_graph({

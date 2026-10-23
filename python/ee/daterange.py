@@ -106,7 +106,7 @@ class DateRange(computedobject.ComputedObject):
   def intersection(
       self, other: _arg_types.Date | _arg_types.DateRange
   ) -> DateRange:
-    """Returns a DateRange that contains all the timespan of this and other.
+    """Returns the intersection of this DateRange and another.
 
     Args:
       other: The other DateRange to include in the intersection.

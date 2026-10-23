@@ -31,7 +31,7 @@ class CustomFunction(function.Function, encodable.Encodable):
 
     Args:
       signature: The function signature. If any of the argument names are
-          null, their names will be generated deterministically, based on
+          None, their names will be generated deterministically, based on
           the body.
       body: The Python function to evaluate.
     """
@@ -80,7 +80,7 @@ class CustomFunction(function.Function, encodable.Encodable):
     """Returns a placeholder variable with a given name and EE type.
 
     Args:
-      type_name: A class to mimic.
+      type_name: The name of the EE type to mimic.
       name: The name of the variable as it will appear in the
           arguments of the custom functions that use this variable. If null,
           a name will be auto-generated in _resolveNamelessArgs().
@@ -97,7 +97,7 @@ class CustomFunction(function.Function, encodable.Encodable):
 
   @staticmethod
   def create(
-      func: Callable[[Any], Any], return_type: Any, arg_types: Any
+      func: Callable[..., Any], return_type: Any, arg_types: Any
   ) -> CustomFunction:
     """Creates a CustomFunction.
 

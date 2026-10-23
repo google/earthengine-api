@@ -98,8 +98,8 @@ class String(computedobject.ComputedObject):
 
     Returns:
       0 if the two strings are lexicographically equal;
-      -1 if string1 is less than string2; and
-      1 if string1 is greater than string2.
+      -1 if this string is less than string2; and
+      1 if this string is greater than string2.
     """
 
     return apifunction.ApiFunction.call_(
@@ -158,7 +158,7 @@ class String(computedobject.ComputedObject):
     Args:
       regex: The regular expression to match.
       flags: A string specifying a combination of regular expression flags,
-        specifically one or more of: 'g' (global match) or 'i' (ignore case)
+        specifically one or more of: 'g' (global match) or 'i' (ignore case).
 
     Returns:
       A list of matching strings.
@@ -197,7 +197,7 @@ class String(computedobject.ComputedObject):
       pattern: The string to find.
 
     Returns:
-      The index of the first match or -1 if no match.
+      The index of the last match or -1 if no match.
     """
     return apifunction.ApiFunction.call_(f'{self.name()}.rindex', self, pattern)
 
@@ -231,7 +231,7 @@ class String(computedobject.ComputedObject):
     Args:
       regex: A regular expression to split on. If regex is the empty string,
         then the input string is split into individual characters.
-      flags: A string specifying the regular expression flag: 'i' (ignore case)
+      flags: A string specifying the regular expression flag: 'i' (ignore case).
 
     Returns:
       A list of strings.

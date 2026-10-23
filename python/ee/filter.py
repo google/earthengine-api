@@ -112,7 +112,7 @@ class Filter(computedobject.ComputedObject):
     Returns:
       The new filter.
 
-    Deprecated. Use ee.Filter.eq(), ee.Filter.gte(), etc.'
+    Deprecated. Use ee.Filter.eq(), ee.Filter.gte(), etc.
     """
     operator = operator.lower()
 
@@ -471,7 +471,7 @@ class Filter(computedobject.ComputedObject):
       leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
-    """Returns filter that passes if value is greater than the right operand.
+    """Returns filter that passes if value is >= the right operand.
 
     Args:
       leftField: A selector for the left operand. Should not be specified if
@@ -679,7 +679,7 @@ class Filter(computedobject.ComputedObject):
       leftValue: _arg_types.Any | None = None,
       # pylint: enable=invalid-name
   ) -> Filter:
-    """Returns filter that passes if the value is less than the right operand.
+    """Returns filter that passes if the value is <= the right operand.
 
     Args:
       leftField: A selector for the left operand. Should not be specified if

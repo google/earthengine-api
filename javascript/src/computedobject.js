@@ -211,7 +211,7 @@ goog.exportSymbol('ee.ComputedObject.prototype.toString',
  */
 ee.ComputedObject.prototype.isVariable = function() {
   // We can't just check for varName != null, since we allow that
-  // to remain null until for CustomFunction.resolveNamelessArgs_().
+  // until CustomFunction.resolveNamelessArgs_() resolves.
   return this.func === null && this.args === null;
 };
 

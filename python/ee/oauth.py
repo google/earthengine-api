@@ -512,7 +512,7 @@ def authenticate(
         "gcloud" - use gcloud to obtain credentials.
         "localhost" - sends credentials to the Python environment on the same
           localhost as the browser. Does not work for remote shells. Default
-          port is 8085; use localhost:N set port or localhost:0 to auto-select.
+          port is 8085; use localhost:N to set port or localhost:0 to auto-select.
         "gcloud-legacy" - included for legacy compatibility but not materially
           different from "gcloud".
         "appdefault" - included for legacy compatibility but not necessary.

@@ -121,7 +121,7 @@ class FilterTest(apitestcase.ApiTestCase, parameterized.TestCase):
         ee.Filter.metadata_('x', 'not_less_than', 1), ee.Filter.gte('x', 1))
 
   def test_logical_combinations(self):
-    """Verifies that the and() and or() methods work."""
+    """Verifies that the And() and Or() methods work."""
     f1 = ee.Filter.eq('x', 1)
     f2 = ee.Filter.eq('x', 2)
 

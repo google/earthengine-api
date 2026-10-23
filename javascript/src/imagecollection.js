@@ -64,7 +64,7 @@ ee.ImageCollection = function(args) {
       })
     });
   } else if (args instanceof ee.List) {
-    // A computed list of image. This can't get the extra ee.Image().
+    // A computed list of images. This can't get the extra ee.Image().
     ee.ImageCollection.base(this, 'constructor', new ee.ApiFunction('ImageCollection.fromImages'), {
       'images': args
     });
@@ -127,8 +127,8 @@ ee.ImageCollection.reset = function() {
  *         the image to render. By default, the whole image.</td>
  *     </tr>
  *     <tr>
- *       <td><code> format </code> (string) Encoding format. Only 'png'
- *       or 'jpg' are accepted.</td>
+ *       <td><code> format </code> (string) Encoding format. Only 'png', 'jpg',
+ *       or 'jpeg' are accepted.</td>
  *     </tr>
  *   </table>
  * @param {function(string, string=)=} opt_callback An optional
@@ -195,8 +195,8 @@ ee.ImageCollection.ThumbTypes = {
 };
 
 /**
- * Get a thumbnail URL for this image.
- * @param {!ee.ImageCollection} collection The collection to export.
+ * Get a thumbnail URL for this image collection.
+ * @param {!ee.ImageCollection} collection The collection to render.
  * @param {!Object} args Visualization arguments.
  * @param {!Array<string>} validFormats A nonempty list of valid formats.
  * @param {!ee.ImageCollection.ThumbTypes=} opt_thumbType The type of
@@ -278,7 +278,7 @@ ee.ImageCollection.prototype.getThumbURL_ = function(
 /**
  * An imperative function that returns a map ID via a synchronous AJAX call.
  *
- * This mosaics the collection to a single image and return a map ID suitable
+ * This mosaics the collection to a single image and returns a map ID suitable
  * for building a Google Maps overlay.
  *
  * @param {?Object=} opt_visParams The visualization parameters.
@@ -304,7 +304,7 @@ ee.ImageCollection.prototype.getMapId = function(opt_visParams, opt_callback) {
 /**
  * An imperative function that returns a map ID via a synchronous AJAX call.
  *
- * This mosaics the collection to a single image and return a map ID suitable
+ * This mosaics the collection to a single image and returns a map ID suitable
  * for building a Google Maps overlay.
  *
  * @deprecated Use getMapId() instead.

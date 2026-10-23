@@ -327,7 +327,8 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
  *     <tr>
  *       <td><code> region </code> Geospatial region of the image to render,
  *         it may be an ee.Geometry, GeoJSON, or an array of lat/lon
- *         points (E,S,W,N). If not set the default is the bounds image.</td>
+ *         points (E,S,W,N). If not set, the default is the bounds of the image.
+ *       </td>
  *     </tr>
  *   </table>
  * @param {function(?ee.data.ThumbnailId, string=)=} opt_callback
@@ -367,7 +368,8 @@ ee.Image.prototype.getThumbId = function(params, opt_callback) {
  *     <tr>
  *       <td><code> region </code> Geospatial region of the image to render,
  *         it may be an ee.Geometry, GeoJSON, or an array of lat/lon
- *         points (E,S,W,N). If not set the default is the bounds image.</td>
+ *         points (E,S,W,N). If not set, the default is the bounds of the image.
+ *       </td>
  *     </tr>
  *     <tr>
  *       <td><code> format </code> (string) Either 'png' or 'jpg'.</td>

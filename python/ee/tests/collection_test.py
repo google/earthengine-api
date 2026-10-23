@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test for the ee.collection module."""
+"""Tests for the ee.collection module."""
 
 import datetime
 import re

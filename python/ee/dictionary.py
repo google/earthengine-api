@@ -37,7 +37,7 @@ class Dictionary(computedobject.ComputedObject):
       arg: This constructor accepts the following args:
         1) Another dictionary.
         2) A list of key/value pairs.
-        3) A null or no argument (producing an empty dictionary)
+        3) A null or no argument (producing an empty dictionary).
     """
     self.initialize()
 
@@ -98,8 +98,8 @@ class Dictionary(computedobject.ComputedObject):
 
     Args:
       second: The other dictionary to merge in.
-      overwrite: If true, this keeps the value of the original dictionary.
-        Defaults to true.
+      overwrite: If true, values from the second dictionary overwrite values
+        in the original dictionary for duplicate keys. Defaults to true.
 
     Returns:
       An ee.Dictionary.
@@ -149,7 +149,7 @@ class Dictionary(computedobject.ComputedObject):
       defaultValue: The value to return if the key is not found.
 
     Returns:
-      Returns an ee.ComputedObject.
+      An ee.ComputedObject.
     """
 
     return apifunction.ApiFunction.call_(
@@ -358,7 +358,7 @@ class Dictionary(computedobject.ComputedObject):
       keys: An optional list of keys to subselect.
 
     Returns:
-      An ee.Array.
+      An ee.List.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.values', self, keys)

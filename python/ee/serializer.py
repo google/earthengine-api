@@ -158,7 +158,7 @@ class Serializer:
       # Lists are encoded recursively.
       result = [self._encode_value(i) for i in obj]
     elif isinstance(obj, dict):
-      # Dictionary are encoded recursively and wrapped in a type specifier.
+      # Dictionaries are encoded recursively and wrapped in a type specifier.
       result = {
           'type':
               'Dictionary',
@@ -238,7 +238,7 @@ class Serializer:
             }
         }
     elif isinstance(obj, dict):
-      # Dictionary are encoded recursively and wrapped in a type specifier.
+      # Dictionaries are encoded recursively and wrapped in a type specifier.
       # We iterate through the entries in a deterministic order, not because it
       # affects the order of the entries in the output result, but because it
       # affects the names that they are assigned in _scope; without the

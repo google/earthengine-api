@@ -197,7 +197,7 @@ class Number(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.byte', self)
 
   def cbrt(self) -> Number:
-    """Computes the cubic root of the input."""
+    """Computes the cube root of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.cbrt', self)
 
@@ -288,7 +288,7 @@ class Number(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.erfcInv', self)
 
   def exp(self) -> Number:
-    """Computes the Euler's number e raised to the power of the input."""
+    """Computes Euler's number e raised to the power of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.exp', self)
 
@@ -318,7 +318,7 @@ class Number(computedobject.ComputedObject):
       right: This value is never returned.
 
     Returns:
-      Return an ee.Number.
+      An ee.Number.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.first', self, right)

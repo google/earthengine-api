@@ -342,7 +342,7 @@ class List(computedobject.ComputedObject):
     A negative index counts backwards from the end of the list.
 
     Args:
-      index: Offset from where to get the element. A negative index counts
+      index: Position at which to insert the element. A negative index counts
         backwards from the end of the list.
       element: A ComputedObject to insert.
 
@@ -542,7 +542,7 @@ class List(computedobject.ComputedObject):
     negative index counts backwards from the end of the list.
 
     Args:
-      index: Offset from where to get the element. A negative index counts
+      index: Position of the element to replace. A negative index counts
         backwards from the end of the list.
       element: A ComputedObject to set at the position of index.
 

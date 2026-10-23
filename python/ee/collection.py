@@ -111,7 +111,7 @@ class Collection(Generic[ElementType], element.Element):
     """Returns the number of distinct values of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
-    the number of distinct values for the selected property.
+    the number of distinct values of the selected property.
 
     Args:
       property: The property to use from each element of the collection.
@@ -506,8 +506,9 @@ class Collection(Generic[ElementType], element.Element):
     to achieve the desired outcome.
 
     Args:
-      geometry: The boundary to filter to either as a GeoJSON geometry,
-          or a FeatureCollection, from which a geometry will be extracted.
+      geometry: The boundary to filter to, as an ee.Geometry, a GeoJSON
+          geometry, or a FeatureCollection from which a geometry will be
+          extracted.
 
     Returns:
       The filtered collection.
@@ -535,7 +536,7 @@ class Collection(Generic[ElementType], element.Element):
         milliseconds since epoch.
 
     Returns:
-      The filter object.
+      The filtered collection.
     """
     return self.filter(ee_filter.Filter.date(start, end))
 

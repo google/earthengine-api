@@ -531,7 +531,7 @@ def listImages(
   Args:
     params: Either a string representing the ID of the image collection to list,
       or an object containing request parameters with the following possible
-      values, all but 'parent` are optional:
+      values, all but `parent` are optional:
       parent - (string) The ID of the image collection to list, required.
       pageSize - (string) The number of results to return. If not specified, all
         results are returned.
@@ -812,7 +812,7 @@ def listFeatures(params: dict[str, Any]) -> Any:
     - "type": always "FeatureCollection" marking this object as a GeoJSON
               feature collection.
     - "features": a list of GeoJSON features.
-    - "next_page_token": A token to retrieve the next page of results in a
+    - "nextPageToken": A token to retrieve the next page of results in a
                          subsequent call to this function.
   """
   params = params.copy()
@@ -948,7 +948,7 @@ def computeFeatures(params: dict[str, Any]) -> Any:
     params: An object containing parameters with the following possible values:
       expression - The expression to compute.
       pageSize - The maximum number of results per page. The server may return
-          fewer images than requested. If unspecified, the page size default is
+          fewer features than requested. If unspecified, the page size default is
           1000 results per page.
       pageToken - A token identifying a page of results the server should
                   return.
@@ -966,7 +966,7 @@ def computeFeatures(params: dict[str, Any]) -> Any:
           feature collection.
     - "features": a list of GeoJSON features reprojected to EPSG:4326 with
           planar edges.
-    - "next_page_token": A token to retrieve the next page of results in a
+    - "nextPageToken": A token to retrieve the next page of results in a
           subsequent call to this function.
   """
   params = params.copy()
@@ -1350,10 +1350,10 @@ def makeDownloadUrl(downloadId: dict[str, str]) -> str:
   Returns:
     A URL from which the download can be obtained.
   """
-  title_base_url = _get_state().tile_base_url
+  tile_base_url = _get_state().tile_base_url
   version = _cloud_api_utils.VERSION
   docid = downloadId['docid']
-  return f'{title_base_url}/{version}/{docid}:getPixels'
+  return f'{tile_base_url}/{version}/{docid}:getPixels'
 
 
 def getTableDownloadId(params: dict[str, Any]) -> dict[str, str]:
@@ -1414,10 +1414,10 @@ def makeTableDownloadUrl(downloadId: dict[str, str]) -> str:
   Returns:
     A Url from which the download can be obtained.
   """
-  title_base_url = _get_state().tile_base_url
+  tile_base_url = _get_state().tile_base_url
   version = _cloud_api_utils.VERSION
   docid = downloadId['docid']
-  return f'{title_base_url}/{version}/{docid}:getFeatures'
+  return f'{tile_base_url}/{version}/{docid}:getFeatures'
 
 def getAlgorithms() -> Any:
   """Get the list of algorithms.
@@ -1854,7 +1854,7 @@ def _prepare_and_run_export(
       parameter can be the actual object to be exported, not its serialized
       form. This may be modified.
     export_endpoint: A callable representing the export endpoint to invoke
-      (e.g., _get_cloud_api_resource().image().export).
+      (e.g., _get_cloud_projects().image().export).
 
   Returns:
     An Operation with information about the created task.
@@ -2018,7 +2018,7 @@ def startTableIngestion(
             "sources":[{"uris":["gs://bucket/file.shp"],"charset":"UTF-8"}]
             Here 'charset' refers to the character encoding of the source file.
         In general, this is a dict representation of a TableManifest.
-    allow_overwrite: Whether the ingested image can overwrite an
+    allow_overwrite: Whether the ingested table can overwrite an
         existing version.
   Returns:
     A dict with notes about the created task. This will include the ID for the
@@ -2189,7 +2189,7 @@ def setAssetProperties(assetId: str, properties: dict[str, Any]) -> None:
   The authenticated user must be a writer or owner of the asset.
 
   Args:
-    assetId: The ID of the asset to set the ACL on.
+    assetId: The ID of the asset whose properties to set.
     properties: A dictionary of keys and values for the properties to update.
   """
   def FieldMaskPathForKey(key):
@@ -2376,7 +2376,7 @@ def setDefaultWorkloadTag(tag: int | str | None) -> None:
 
   For example, calling `ee.data.resetWorkloadTag()` will reset the workload tag
   back to the default chosen here. To reset the default back to none, pass in
-  an empty string or pass in true to `ee.data.resetWorkloadTag(true)`, like so.
+  an empty string or pass True to `ee.data.resetWorkloadTag(True)`.
 
   Workload tag must be 1 - 63 characters, beginning and ending with an
   alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
@@ -2393,7 +2393,7 @@ def setDefaultWorkloadTag(tag: int | str | None) -> None:
 
 @_utils.accept_opt_prefix('opt_resetDefault')
 def resetWorkloadTag(resetDefault: bool = False) -> None:
-  """Sets the default tag for which to reset back to.
+  """Resets the workload tag to the default.
 
   If resetDefault parameter is set to true, the default will be set to empty
   before resetting. Defaults to False.

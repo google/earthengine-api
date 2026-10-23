@@ -7,7 +7,7 @@ goog.module.declareLegacyNamespace();
  */
 const AbstractOverlayStats = class {
   /**
-   * @param{string} uniqueId An id unique to this map overlay.
+   * @param {string} uniqueId An id unique to this map overlay.
    */
   constructor(uniqueId) {
     /**
@@ -91,7 +91,7 @@ const AbstractOverlayStats = class {
 };
 
 /**
- * An object for determining the configuration of map control visibility.
+ * Tile statistics (latencies, throttle and error counts) for one zoom level.
  * @record @struct
  */
 AbstractOverlayStats.LayerStatsForZoomLevel = class {

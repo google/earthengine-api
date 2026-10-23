@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test for the ee.deserializer module."""
+"""Tests for the ee.deserializer module."""
 
 import json
 
