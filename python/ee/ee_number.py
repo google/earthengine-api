@@ -457,7 +457,7 @@ class Number(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.lanczos', self)
 
   def leftShift(self, right: _arg_types.Number) -> Number:
-    """Calculates the left shift of v1 by v2 bits.
+    """Calculates the left shift of the `left` value by `right` bits.
 
     Args:
       right: How many bits to shift.
@@ -612,7 +612,7 @@ class Number(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(self.name() + '.pow', self, right)
 
   def rightShift(self, right: _arg_types.Number) -> Number:
-    """Calculates the signed right shift of v1 by v2 bits.
+    """Calculates the signed right shift of this value by `right` bits.
 
     Args:
       right: How many bits to shift.
