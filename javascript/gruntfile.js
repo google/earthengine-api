@@ -23,6 +23,16 @@ const BROWSER_FOOTER = [
 ].join('\n') + '\n';
 
 /**
+ * Web Worker build.
+ * - CommonJS exports.
+ */
+const WORKER_BANNER = "";
+const WORKER_FOOTER = [
+  'goog.Timer.defaultTimerObject = self;',
+  'module.exports = goog.global.ee = ee;'
+].join('\n') + '\n';
+
+/**
  * Node.js build.
  * - CommonJS exports. See b/77731705.
  * - 'googleapis' dependency, used for serverside authentication.
@@ -59,6 +69,11 @@ grunt.initConfig({
       dest: `${BUILD_DIR}/browser.js`,
       options: {banner: BROWSER_BANNER, footer: BROWSER_FOOTER}
     },
+    worker: {
+      src: [`${BUILD_DIR}/ee_api_js_npm.js`],
+      dest: `${BUILD_DIR}/worker.js`,
+      options: { banner: WORKER_BANNER, footer: WORKER_FOOTER },
+    },
     nodejs: {
       src: [`${BUILD_DIR}/ee_api_js_npm.js`],
       dest: `${BUILD_DIR}/main.js`,
@@ -70,4 +85,4 @@ grunt.initConfig({
 /**
  * Default tasks, executed consecutively with `grunt` command.
  */
-grunt.registerTask('default', ['concat:nodejs', 'concat:browser']);
+grunt.registerTask('default', ['concat:nodejs', 'concat:browser', 'concat:worker']);
