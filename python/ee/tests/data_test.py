@@ -2,6 +2,7 @@
 """Test for the ee.data module."""
 
 import json
+import os
 from typing import Any
 from unittest import mock
 import warnings
@@ -98,6 +99,13 @@ class DataTest(parameterized.TestCase):
 
     self.assertTrue(ee.data.is_initialized())
     self.assertEqual(creds, _state.get_state().credentials)
+
+  def test_get_persistent_credentials_from_environment(self):
+    with mock.patch.dict(
+        os.environ, {'CLOUDSDK_AUTH_ACCESS_TOKEN': 'token1'}, clear=True
+    ):
+      creds = ee.data.get_persistent_credentials()
+      self.assertEqual(creds.token, 'token1')
 
   @mock.patch.object(ee.data, '_install_cloud_api_resource', return_value=None)
   def test_initialize_with_cloud_api_key(
