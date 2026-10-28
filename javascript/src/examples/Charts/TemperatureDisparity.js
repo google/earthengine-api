@@ -4,7 +4,7 @@
 var states = ee.FeatureCollection('TIGER/2018/States');
 
 // Import temperature normals and calculate annual mean of monthly min and max.
-var normClim = ee.ImageCollection('OREGONSTATE/PRISM/Norm81m')
+var normClim = ee.ImageCollection('OREGONSTATE/PRISM/Norm91m')
   .select(['tmin', 'tmax'])
   .mean();
 
