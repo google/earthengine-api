@@ -8511,7 +8511,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Image.leftShift",
-    "description": "Calculates the left shift of v1 by v2 bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
+    "description": "Calculates the left shift of the `left` bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -8524,7 +8524,7 @@
     }]
   }, {
     "name": "algorithms/Image.left_shift",
-    "description": "Calculates the left shift of v1 by v2 bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
+    "description": "Calculates the left shift of the `left` bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -8538,7 +8538,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Image.rightShift",
-    "description": "Calculates the signed right shift of v1 by v2 bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
+    "description": "Calculates the signed right shift of the `left` value by `right` bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -8551,7 +8551,7 @@
     }]
   }, {
     "name": "algorithms/Image.right_shift",
-    "description": "Calculates the signed right shift of v1 by v2 bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
+    "description": "Calculates the signed right shift of the `left` value by `right` bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -8768,7 +8768,7 @@
     }]
   }, {
     "name": "algorithms/Image.cbrt",
-    "description": "Computes the cubic root of the input.",
+    "description": "Computes the cube root of the input.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "value",
@@ -10572,7 +10572,7 @@
     }]
   }, {
     "name": "algorithms/Image.stratifiedSample",
-    "description": "Extracts a stratified random sample of points from an image. Extracts the specified  number of samples for each distinct value discovered within the \u0027classBand\u0027. Returns a  FeatureCollection of 1 Feature per extracted point, with each feature having 1  property per band in the input image. If there are less than the specified number  of samples available for a given class value, then all of the points for  that class will be included. Requires that the classBand contain integer values. ",
+    "description": "Extracts a stratified random sample of points from an image. Extracts the specified  number of samples for each distinct value discovered within the \u0027classBand\u0027. Returns a  FeatureCollection of 1 Feature per extracted point, with each feature having 1  property per band in the input image. If there are fewer than the specified number  of samples available for a given class value, then all of the points for  that class will be included. Requires that the classBand contain integer values. ",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "image",
@@ -10733,7 +10733,7 @@
     }]
   }, {
     "name": "algorithms/Image.unmask",
-    "description": "Replaces mask and value of the input image with the mask and value of another image at all positions where the input mask is zero.  \u003cp\u003eThe output image retains the metadata of the input image. By default, the output image also retains the footprint of the input, but setting sameFootprint to false allows to extend the footprint. ",
+    "description": "Replaces mask and value of the input image with the mask and value of another image at all positions where the input mask is zero.  \u003cp\u003eThe output image retains the metadata of the input image. By default, the output image also retains the footprint of the input, but setting sameFootprint to false allows extending the footprint. ",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -11059,7 +11059,7 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared Euclidean distance), or \u0027emd\u0027 (earth movers distance).",
+      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared Euclidean distance), or \u0027emd\u0027 (earth mover\u0027s distance).",
       "optional": true,
       "defaultValue": "sam"
     }, {
@@ -11086,7 +11086,7 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared Euclidean distance), or \u0027emd\u0027 (earth movers distance).",
+      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared Euclidean distance), or \u0027emd\u0027 (earth mover\u0027s distance).",
       "optional": true,
       "defaultValue": "sam"
     }, {
@@ -11113,7 +11113,7 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared Euclidean distance), or \u0027emd\u0027 (earth movers distance).",
+      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared Euclidean distance), or \u0027emd\u0027 (earth mover\u0027s distance).",
       "optional": true,
       "defaultValue": "sam"
     }, {
@@ -11144,7 +11144,7 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared Euclidean distance), or \u0027emd\u0027 (earth movers distance).",
+      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared Euclidean distance), or \u0027emd\u0027 (earth mover\u0027s distance).",
       "optional": true,
       "defaultValue": "sam"
     }]
@@ -12896,7 +12896,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Number.leftShift",
-    "description": "Calculates the left shift of v1 by v2 bits.",
+    "description": "Calculates the left shift of the `left` bits.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12909,7 +12909,7 @@
     }]
   }, {
     "name": "algorithms/Number.left_shift",
-    "description": "Calculates the left shift of v1 by v2 bits.",
+    "description": "Calculates the left shift of the `left` bits.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12923,7 +12923,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Number.rightShift",
-    "description": "Calculates the signed right shift of v1 by v2 bits.",
+    "description": "Calculates the signed right shift of the `left` value by `right` bits.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12936,7 +12936,7 @@
     }]
   }, {
     "name": "algorithms/Number.right_shift",
-    "description": "Calculates the signed right shift of v1 by v2 bits.",
+    "description": "Calculates the signed right shift of the `left` value by `right` bits.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -13153,7 +13153,7 @@
     }]
   }, {
     "name": "algorithms/Number.cbrt",
-    "description": "Computes the cubic root of the input.",
+    "description": "Computes the cube root of the input.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "input",
@@ -14625,7 +14625,7 @@
     }]
   }, {
     "name": "algorithms/Array.cbrt",
-    "description": "On an element-wise basis, computes the cubic root of the input.",
+    "description": "On an element-wise basis, computes the cube root of the input.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "input",
@@ -15367,7 +15367,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Array.leftShift",
-    "description": "On an element-wise basis, calculates the left shift of v1 by v2 bits.",
+    "description": "On an element-wise basis, calculates the left shift of the `left` bits.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -15380,7 +15380,7 @@
     }]
   }, {
     "name": "algorithms/Array.left_shift",
-    "description": "On an element-wise basis, calculates the left shift of v1 by v2 bits.",
+    "description": "On an element-wise basis, calculates the left shift of the `left` bits.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -15394,7 +15394,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Array.rightShift",
-    "description": "On an element-wise basis, calculates the signed right shift of v1 by v2 bits.",
+    "description": "On an element-wise basis, calculates the signed right shift of the `left` value by `right` bits.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -15407,7 +15407,7 @@
     }]
   }, {
     "name": "algorithms/Array.right_shift",
-    "description": "On an element-wise basis, calculates the signed right shift of v1 by v2 bits.",
+    "description": "On an element-wise basis, calculates the signed right shift of the `left` value by `right` bits.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -15718,13 +15718,13 @@
     }, {
       "argumentName": "outputBands",
       "type": "Dictionary\u003cDictionary\u003cObject\u003e\u003e",
-      "description": "A map from output band names to a dictionary of output band info. Valid band info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output band, and \u0027dimensions\u0027 is an optional integer with the number of dimensions in that band, e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for image predictions.",
+      "description": "A map from output band names to a dictionary of output band info. Valid band info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be an ee.PixelType describing the output band, and \u0027dimensions\u0027 is an optional integer with the number of dimensions in that band, e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for image predictions.",
       "optional": true,
       "defaultValue": null
     }, {
       "argumentName": "outputProperties",
       "type": "Dictionary\u003cDictionary\u003cObject\u003e\u003e",
-      "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array, e.g., \"outputProperties: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
+      "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be an ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array, e.g., \"outputProperties: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -15795,13 +15795,13 @@
     }, {
       "argumentName": "outputBands",
       "type": "Dictionary\u003cDictionary\u003cObject\u003e\u003e",
-      "description": "A map from output band names to a dictionary of output band info. Valid band info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output band, and \u0027dimensions\u0027 is an optional integer with the number of dimensions in that band, e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for image predictions.",
+      "description": "A map from output band names to a dictionary of output band info. Valid band info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be an ee.PixelType describing the output band, and \u0027dimensions\u0027 is an optional integer with the number of dimensions in that band, e.g., \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for image predictions.",
       "optional": true,
       "defaultValue": null
     }, {
       "argumentName": "outputProperties",
       "type": "Dictionary\u003cDictionary\u003cObject\u003e\u003e",
-      "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array, e.g., \"outputProperties: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
+      "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be an ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array, e.g., \"outputProperties: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
       "optional": true,
       "defaultValue": null
     }, {
