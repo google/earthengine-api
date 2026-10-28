@@ -10,12 +10,12 @@
 
 // Sentinel-2 Level 1C data. Bands B7, B8, B8A and B10 from this
 // dataset are needed as input to CDI and the cloud mask function.
-var s2 = ee.ImageCollection('COPERNICUS/S2');
+var s2 = ee.ImageCollection('COPERNICUS/S2_HARMONIZED');
 // Cloud probability dataset. The probability band is used in
 // the cloud mask function.
 var s2c = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY');
 // Sentinel-2 surface reflectance data for the composite.
-var s2Sr = ee.ImageCollection('COPERNICUS/S2_SR');
+var s2Sr = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED');
 
 // The ROI is determined from the map.
 var roi = ee.Geometry.Point([-122.4431, 37.7498]);
