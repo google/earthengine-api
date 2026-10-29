@@ -1,0 +1,6 @@
+{
+  "helpers": ["init_nodejs.js"],
+  "spec_dir": "test",
+  "spec_files": ["**/*_test.js"],
+  "stopSpecOnExpectationFailure": false
+}

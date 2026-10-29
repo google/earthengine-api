@@ -1,0 +1,1312 @@
+{
+  "basePath": "",
+  "baseUrl": "https://earthengine.googleapis.com/",
+  "batchPath": "batch",
+  "canonicalName": "Earth Engine",
+  "description": "",
+  "discoveryVersion": "v1",
+  "documentationLink": "https://developers.google.com/earth-engine",
+  "fullyEncodeReservedExpansion": true,
+  "icons": {
+    "x16": "http://www.google.com/images/icons/product/search-16.gif",
+    "x32": "http://www.google.com/images/icons/product/search-32.gif"
+  },
+  "id": "earthengine:v1alpha",
+  "kind": "discovery#restDescription",
+  "name": "earthengine",
+  "ownerDomain": "google.com",
+  "ownerName": "Google",
+  "parameters": {
+    "$.xgafv": {
+      "description": "",
+      "enum": [
+        "1",
+        "2"
+      ],
+      "enumDescriptions": [
+        "",
+        ""
+      ],
+      "location": "query",
+      "type": "string"
+    },
+    "access_token": {
+      "description": "",
+      "location": "query",
+      "type": "string"
+    },
+    "alt": {
+      "default": "json",
+      "description": "",
+      "enum": [
+        "json",
+        "media",
+        "proto"
+      ],
+      "enumDescriptions": [
+        "",
+        "",
+        ""
+      ],
+      "location": "query",
+      "type": "string"
+    },
+    "callback": {
+      "description": "",
+      "location": "query",
+      "type": "string"
+    },
+    "fields": {
+      "description": "",
+      "location": "query",
+      "type": "string"
+    },
+    "key": {
+      "description": "",
+      "location": "query",
+      "type": "string"
+    },
+    "oauth_token": {
+      "description": "",
+      "location": "query",
+      "type": "string"
+    },
+    "prettyPrint": {
+      "default": "true",
+      "description": "",
+      "location": "query",
+      "type": "boolean"
+    },
+    "quotaUser": {
+      "description": "",
+      "location": "query",
+      "type": "string"
+    },
+    "uploadType": {
+      "description": "",
+      "location": "query",
+      "type": "string"
+    },
+    "upload_protocol": {
+      "description": "",
+      "location": "query",
+      "type": "string"
+    }
+  },
+  "protocol": "rest",
+  "resources": {
+    "projects": {
+      "methods": {
+        "listAssets": {
+          "description": "",
+          "flatPath": "v1alpha/projects/{projectsId}:listAssets",
+          "httpMethod": "GET",
+          "id": "earthengine.projects.listAssets",
+          "parameterOrder": [
+            "parent"
+          ],
+          "parameters": {
+            "pageSize": {
+              "description": "",
+              "format": "int32",
+              "location": "query",
+              "type": "integer"
+            },
+            "pageToken": {
+              "description": "",
+              "location": "query",
+              "type": "string"
+            },
+            "parent": {
+              "description": "",
+              "location": "path",
+              "pattern": "^projects/[^/]+$",
+              "required": true,
+              "type": "string"
+            }
+          },
+          "path": "v1alpha/{+parent}:listAssets",
+          "response": {
+            "properties": {
+              "nextPageToken": {
+                "description": "",
+                "type": "any"
+              }
+            },
+            "type": "object"
+          }
+        }
+      },
+      "resources": {
+        "algorithms": {
+          "methods": {
+            "list": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/algorithms",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.algorithms.list",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/algorithms",
+              "response": {
+                "properties": {
+                  "nextPageToken": {
+                    "description": "",
+                    "type": "any"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "assets": {
+          "methods": {
+            "copy": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:copy",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.assets.copy",
+              "parameterOrder": [
+                "sourceName"
+              ],
+              "parameters": {
+                "sourceName": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+sourceName}:copy",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "create": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.assets.create",
+              "parameterOrder": [
+                "parent"
+              ],
+              "parameters": {
+                "assetId": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "parent": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+parent}/assets",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "delete": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}",
+              "httpMethod": "DELETE",
+              "id": "earthengine.projects.assets.delete",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}",
+              "response": {
+                "type": "any"
+              }
+            },
+            "get": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.assets.get",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}",
+              "response": {
+                "type": "any"
+              }
+            },
+            "getIamPolicy": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:getIamPolicy",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.assets.getIamPolicy",
+              "parameterOrder": [
+                "resource"
+              ],
+              "parameters": {
+                "resource": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+resource}:getIamPolicy",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "getPixels": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:getPixels",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.assets.getPixels",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}:getPixels",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "listAssets": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:listAssets",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.assets.listAssets",
+              "parameterOrder": [
+                "parent"
+              ],
+              "parameters": {
+                "pageSize": {
+                  "description": "",
+                  "format": "int32",
+                  "location": "query",
+                  "type": "integer"
+                },
+                "pageToken": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "parent": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+parent}:listAssets",
+              "response": {
+                "properties": {
+                  "nextPageToken": {
+                    "description": "",
+                    "type": "any"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "listFeatures": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:listFeatures",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.assets.listFeatures",
+              "parameterOrder": [
+                "parent"
+              ],
+              "parameters": {
+                "filter": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "pageSize": {
+                  "description": "",
+                  "format": "int32",
+                  "location": "query",
+                  "type": "integer"
+                },
+                "pageToken": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "parent": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                },
+                "region": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+parent}:listFeatures",
+              "response": {
+                "properties": {
+                  "nextPageToken": {
+                    "description": "",
+                    "type": "any"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "listImages": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:listImages",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.assets.listImages",
+              "parameterOrder": [
+                "parent"
+              ],
+              "parameters": {
+                "endTime": {
+                  "description": "",
+                  "format": "google-datetime",
+                  "location": "query",
+                  "type": "string"
+                },
+                "filter": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "pageSize": {
+                  "description": "",
+                  "format": "int32",
+                  "location": "query",
+                  "type": "integer"
+                },
+                "pageToken": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "parent": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                },
+                "region": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "startTime": {
+                  "description": "",
+                  "format": "google-datetime",
+                  "location": "query",
+                  "type": "string"
+                },
+                "view": {
+                  "description": "",
+                  "enum": [
+                    "IMAGE_VIEW_UNSPECIFIED",
+                    "FULL",
+                    "BASIC"
+                  ],
+                  "location": "query",
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+parent}:listImages",
+              "response": {
+                "properties": {
+                  "nextPageToken": {
+                    "description": "",
+                    "type": "any"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "move": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:move",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.assets.move",
+              "parameterOrder": [
+                "sourceName"
+              ],
+              "parameters": {
+                "sourceName": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+sourceName}:move",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "patch": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}",
+              "httpMethod": "PATCH",
+              "id": "earthengine.projects.assets.patch",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "search": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets:search",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.assets.search",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "nextPageToken": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "pageSize": {
+                  "description": "",
+                  "format": "int32",
+                  "location": "query",
+                  "type": "integer"
+                },
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                },
+                "query": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/assets:search",
+              "response": {
+                "type": "any"
+              }
+            },
+            "setIamPolicy": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:setIamPolicy",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.assets.setIamPolicy",
+              "parameterOrder": [
+                "resource"
+              ],
+              "parameters": {
+                "resource": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+resource}:setIamPolicy",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "testIamPermissions": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets/{assetsId}:testIamPermissions",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.assets.testIamPermissions",
+              "parameterOrder": [
+                "resource"
+              ],
+              "parameters": {
+                "resource": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/assets/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+resource}:testIamPermissions",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "filmstripThumbnails": {
+          "methods": {
+            "create": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/filmstripThumbnails",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.filmstripThumbnails.create",
+              "parameterOrder": [
+                "parent"
+              ],
+              "parameters": {
+                "parent": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+parent}/filmstripThumbnails",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "getPixels": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/filmstripThumbnails/{filmstripThumbnailsId}:getPixels",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.filmstripThumbnails.getPixels",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/filmstripThumbnails/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}:getPixels",
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "image": {
+          "methods": {
+            "computePixels": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/image:computePixels",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.image.computePixels",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/image:computePixels",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "export": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/image:export",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.image.export",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/image:export",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "import": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/image:import",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.image.import",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/image:import",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "imageCollection": {
+          "methods": {
+            "computeImages": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/imageCollection:computeImages",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.imageCollection.computeImages",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/imageCollection:computeImages",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "map": {
+          "methods": {
+            "export": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/map:export",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.map.export",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/map:export",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "maps": {
+          "methods": {
+            "create": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/maps",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.maps.create",
+              "parameterOrder": [
+                "parent"
+              ],
+              "parameters": {
+                "parent": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+parent}/maps",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          },
+          "resources": {
+            "tiles": {
+              "methods": {
+                "get": {
+                  "description": "",
+                  "flatPath": "v1alpha/projects/{projectsId}/maps/{mapsId}/tiles/{zoom}/{x}/{y}",
+                  "httpMethod": "GET",
+                  "id": "earthengine.projects.maps.tiles.get",
+                  "parameterOrder": [
+                    "parent",
+                    "zoom",
+                    "x",
+                    "y"
+                  ],
+                  "parameters": {
+                    "parent": {
+                      "description": "",
+                      "location": "path",
+                      "pattern": "^projects/[^/]+/maps/[^/]+$",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "x": {
+                      "description": "",
+                      "format": "int32",
+                      "location": "path",
+                      "required": true,
+                      "type": "integer"
+                    },
+                    "y": {
+                      "description": "",
+                      "format": "int32",
+                      "location": "path",
+                      "required": true,
+                      "type": "integer"
+                    },
+                    "zoom": {
+                      "description": "",
+                      "format": "int32",
+                      "location": "path",
+                      "required": true,
+                      "type": "integer"
+                    }
+                  },
+                  "path": "v1alpha/{+parent}/tiles/{zoom}/{x}/{y}",
+                  "response": {
+                    "type": "any"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operations": {
+          "methods": {
+            "cancel": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/operations/{operationsId}:cancel",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.operations.cancel",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/operations/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}:cancel",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "delete": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/operations/{operationsId}",
+              "httpMethod": "DELETE",
+              "id": "earthengine.projects.operations.delete",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/operations/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}",
+              "response": {
+                "type": "any"
+              }
+            },
+            "get": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/operations/{operationsId}",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.operations.get",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/operations/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}",
+              "response": {
+                "type": "any"
+              }
+            },
+            "list": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/operations",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.operations.list",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "filter": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                },
+                "pageSize": {
+                  "description": "",
+                  "format": "int32",
+                  "location": "query",
+                  "type": "integer"
+                },
+                "pageToken": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}/operations",
+              "response": {
+                "properties": {
+                  "nextPageToken": {
+                    "description": "",
+                    "type": "any"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "wait": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/operations/{operationsId}:wait",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.operations.wait",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/operations/.+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}:wait",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "table": {
+          "methods": {
+            "computeFeatures": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/table:computeFeatures",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.table.computeFeatures",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/table:computeFeatures",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "export": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/table:export",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.table.export",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/table:export",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "import": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/table:import",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.table.import",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/table:import",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "thumbnails": {
+          "methods": {
+            "create": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/thumbnails",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.thumbnails.create",
+              "parameterOrder": [
+                "parent"
+              ],
+              "parameters": {
+                "parent": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+parent}/thumbnails",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "getPixels": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/thumbnails/{thumbnailsId}:getPixels",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.thumbnails.getPixels",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/thumbnails/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}:getPixels",
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "value": {
+          "methods": {
+            "compute": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/value:compute",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.value.compute",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/value:compute",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "video": {
+          "methods": {
+            "export": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/video:export",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.video.export",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/video:export",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "videoMap": {
+          "methods": {
+            "export": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/videoMap:export",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.videoMap.export",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/videoMap:export",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        },
+        "videoThumbnails": {
+          "methods": {
+            "create": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/videoThumbnails",
+              "httpMethod": "POST",
+              "id": "earthengine.projects.videoThumbnails.create",
+              "parameterOrder": [
+                "parent"
+              ],
+              "parameters": {
+                "parent": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+parent}/videoThumbnails",
+              "request": {
+                "type": "any"
+              },
+              "response": {
+                "type": "any"
+              }
+            },
+            "getPixels": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/videoThumbnails/{videoThumbnailsId}:getPixels",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.videoThumbnails.getPixels",
+              "parameterOrder": [
+                "name"
+              ],
+              "parameters": {
+                "name": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+/videoThumbnails/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+name}:getPixels",
+              "response": {
+                "type": "any"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "revision": "20200203",
+  "rootUrl": "https://earthengine.googleapis.com/",
+  "schemas": {},
+  "servicePath": "",
+  "title": "Google Earth Engine API",
+  "version": "v1alpha",
+  "version_module": true
+}

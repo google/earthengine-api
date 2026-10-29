@@ -1,0 +1,38 @@
+{
+  "name": "@google/earthengine",
+  "version": "0.0.0",
+  "description": "JavaScript client for Google Earth Engine API.",
+  "author": "Google LLC",
+  "license": "Apache-2.0",
+  "homepage": "https://developers.google.com/earth-engine/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google/earthengine-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/google/earthengine-api/issues"
+  },
+  "main": "build/main.js",
+  "browser": "build/browser.js",
+  "scripts": {
+    "build": "grunt",
+    "test": "npm run test:nodejs && npm run test:browser",
+    "test:nodejs": "jasmine --config=test/jasmine_config.json",
+    "test:browser": "karma start test/karma_config.js --single-run"
+  },
+  "dependencies": {
+    "googleapis": "^92.0.0",
+    "xmlhttprequest": "^1.8.0"
+  },
+  "devDependencies": {
+    "browserify": "^14.3.0",
+    "grunt": "^1.0.4",
+    "grunt-contrib-concat": "^1.0.1",
+    "jasmine": "^2.6.0",
+    "jasmine-core": "^2.6.2",
+    "karma": "^6.3.9",
+    "karma-browserify": "^8.1.0",
+    "karma-chrome-launcher": "^2.1.1",
+    "karma-jasmine": "^1.1.0"
+  }
+}

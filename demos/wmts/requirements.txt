@@ -1,0 +1,8 @@
+absl-py>=0.7.1
+cachetools>=1.1.6
+earthengine-api>=0.1.182
+flask>=0.12.4
+Flask-WTF>=0.14.2
+google-cloud-storage>=1.16.1
+GoogleAppEngineCloudStorageClient>=1.9.22.1
+requests>=2.22.0

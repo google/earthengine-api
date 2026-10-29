@@ -1,0 +1,114 @@
+name: Publish to PyPi
+on:
+  release:
+    types: [published]
+  # Enables running this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.11
+      - name: Authenticate with Google Cloud
+        uses: 'google-github-actions/auth@v3'
+        with:
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      - name: Install EE and dependencies
+        run: |
+          pip install ./python[tests]
+      - name: Smoke test
+        run: >
+          python -c 'import ee;
+          import json;
+          import os;
+          from google.auth import identity_pool;
+
+          scopes = [
+              "https://www.googleapis.com/auth/cloud-platform",
+              "https://www.googleapis.com/auth/earthengine",
+          ];
+          path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"];
+          info = json.load(open(path));
+          credentials = identity_pool.Credentials.from_info(info).with_scopes(scopes);
+          ee.Initialize(credentials, project=credentials.project_number);
+
+          print(ee.Image("srtm90_v4").getInfo())'
+
+  build-artifacts:
+    needs: smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade build twine
+      - name: Build package
+        run: python -m build ./python
+      - name: Check built artifacts
+        run: |
+          python -m twine check ./python/dist/*
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: releases
+          path: ./python/dist
+
+  pypi-upload:
+    needs: build-artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        name: Install Python
+        with:
+          python-version: 3.11
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: releases
+          path: dist
+      - name: Authenticate to Google Cloud (OSS Exit Gate)
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed
+        with:
+          workload_identity_provider: 'projects/305452601764/locations/global/workloadIdentityPools/builders/providers/github'
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f
+      - name: Publish package to PyPI via OSS Exit Gate
+        run: |
+          python -m pip install --upgrade pip twine
+          python -m twine upload \
+            --repository-url "https://us-python.pkg.dev/oss-exit-gate-prod/earthengine-api--pypi/" \
+            -u oauth2accesstoken \
+            -p "$(gcloud auth print-access-token)" \
+            dist/*
+          echo '{"publish_all": true}' > manifest.json
+          gcloud storage cp manifest.json \
+            "gs://oss-exit-gate-prod-projects-bucket/earthengine-api/pypi/manifests/manifest-${{ github.run_id }}-${{ github.run_attempt }}.json"
+
+  check-pypi-package:
+    needs: pypi-upload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        name: Install Python
+        with:
+          python-version: 3.11
+      - name: Check uploaded package
+        run: |
+          sleep 3  # To account for PyPi publish delay.
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade --pre earthengine-api
+          python -c "import ee; print(ee.__version__)"

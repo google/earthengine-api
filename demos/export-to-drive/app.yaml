@@ -1,0 +1,28 @@
+application: your-app-id
+version: 1
+
+runtime: python27
+api_version: 1
+threadsafe: true
+
+libraries:
+- name: jinja2
+  version: "2.6"
+- name: webapp2
+  version: "2.5.1"
+- name: pycrypto
+  version: "2.6"
+
+handlers:
+- url: /static/
+  static_dir: static
+  secure: always
+- url: /exportrunner
+  script: server.app
+  secure: always
+  # This endpoint should be called only from within the app, not by users.
+  login: admin
+- url: /.*
+  script: server.app
+  secure: always
+  login: required

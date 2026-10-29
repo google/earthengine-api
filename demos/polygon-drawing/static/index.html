@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EE Demo: Polygon Drawing</title>
+    <!-- Load the Roboto font. -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+
+    <!-- Load the Google Maps API. -->
+    <script src="https://maps.google.com/maps/api/js?sensor=false&libraries=drawing"></script>
+
+    <!-- Load jQuery, a 3rd-party library. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <!-- Load compiled Earth Engine JavaScript client library. -->
+    <script src="/ee_api_js.js"></script>
+
+    <!-- Load our script. -->
+    <script src="/script.js"></script>
+
+    <!-- Load our styles. -->
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <h1>EE Demo: Polygon Drawing</h1>
+
+    <p>Draw a polygon on the map to compute the elevation mean in the region.</p>
+
+    <div class="wrapper">
+
+      <div class="wrapper-left">
+        <div class="map"></div>
+        <div class="g-sign-in hidden">
+          <span class="label">Sign in with:</span>
+          <div class="button">
+            <span class="icon"></span>
+            <span class="button-text">Google</span>
+          </div>
+        </div>
+        <div class="tiles-loading"></div>
+      </div>
+
+      <div class="wrapper-right">
+        <div class="polygon-details hidden">
+          <div class="result"></div>
+          <button class="draw-new">Draw a new polygon</button>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>

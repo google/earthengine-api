@@ -1,0 +1,16 @@
+{
+  "name": "ee-server-auth-nodejs",
+  "version": "1.0.0",
+  "description": "Server-side authentication example in Node.js",
+  "main": "server.js",
+  "dependencies": {
+    "@google/earthengine": "^0.1",
+    "express": "^4.17"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Google LLC",
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,14 @@
+application: <your-application-id>
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /$
+  static_files: static/index.html
+  upload: static/index.html
+  secure: always
+- url: /
+  static_dir: static/
+  secure: always

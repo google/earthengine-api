@@ -1,0 +1,136 @@
+/** User interface styles for the Trendy Lights app. */
+
+.template {
+  display: none;
+}
+
+/* Shared across all screen sizes. */
+
+.trendy h1 {
+  font-family: 'Roboto Condensed', sans-serif;
+  position: absolute;
+  z-index: 1;
+  margin: 0px;
+  color: white;
+  text-shadow: 0px 0px 20px black;
+}
+
+html,
+body,
+.trendy,
+.trendy .map {
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+}
+
+.trendy .panel {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  background-color: white;
+  box-shadow: 0px 0px 20px black;
+  font-family: 'Roboto', sans-serif;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.trendy .panel h2 {
+  margin: 0px;
+  padding-bottom: 10px;
+}
+
+.trendy .panel .details {
+  overflow: hidden;
+  max-height: 500px;
+}
+
+.trendy .panel .error {
+  display: none;
+}
+
+.trendy .powered-by-ee {
+  position: absolute;
+  z-index: 1;
+  bottom: 10px;
+  left: 50%;
+  margin-left: -150px;
+  width: 300px;
+}
+
+/* Small screens. */
+
+@media (max-width: 900px) {
+  .trendy h1 {
+    top: 22px;
+    font-size: 37px;
+    left: 30px;
+  }
+
+  .trendy .panel {
+    width: 100%;
+    bottom: 0px;
+    height: 50px;
+  }
+
+  .trendy .panel .details {
+    visibility: hidden;
+    max-height: 400px;
+    padding-right: 10px;
+  }
+
+  .trendy .panel .close {
+    display: none;
+  }
+
+  .trendy .panel .toggler {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+  }
+
+  .trendy .panel.expanded .details  {
+    visibility: visible;
+  }
+
+  .trendy .panel.expanded {
+    height: 278px;
+  }
+
+  .trendy .powered-by-ee {
+    width: 180px;
+  }
+}
+
+/* Large screens. */
+
+@media (min-width: 900px) {
+  .trendy h1 {
+    left: 40px;
+    top: 30px;
+    font-size: 56px;
+    opacity: .98;
+  }
+
+  .trendy .panel {
+    width: 400px;
+    left: 40px;
+    top: 126px;
+    padding: 14px;
+    opacity: .98;
+    border-radius: 4px;
+  }
+
+  .trendy .panel .close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    cursor: pointer;
+  }
+
+  .trendy .panel .toggler {
+    display: none;
+  }
+}

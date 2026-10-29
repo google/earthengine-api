@@ -1,0 +1,28 @@
+{
+  "name": "ee-cloud-functions",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "function.js",
+  "scripts": {
+    "test": "node test.js",
+    "dev": "budo client.js:bundle.js -d static --live --port 3000",
+    "build": "browserify client.js -o static/bundle.js",
+    "predeploy:function": "npm test",
+    "deploy:function": "gcloud functions deploy hexPopHttp --runtime nodejs12 --trigger-http --project ee-demos --stage-bucket ee-demos"
+  },
+  "author": "Google LLC",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@google/earthengine": "^0.1.x",
+    "@turf/hex-grid": "^6.0.2",
+    "d3-scale": "^2.1.2",
+    "debounce": "^1.2.0"
+  },
+  "devDependencies": {
+    "@google-cloud/functions-emulator": "^1.0.0-alpha.25",
+    "browserify": "^14.4.0",
+    "budo": "^10.0.4",
+    "express": "^4.15.4"
+  }
+}

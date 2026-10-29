@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Trendy Lights</title>
+    <meta charset="utf-8">
+
+    <!-- Support for browsers on mobile phones. -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!-- Google Web Fonts. -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed'
+          rel='stylesheet' type='text/css'>
+
+    <!-- Custom CSS styles for our application. -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- JavaScript libraries for Maps, Charts APIs, and jQuery. -->
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3&key=your-api-key-here"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Our custom JavaScript for Trendy Lights. -->
+    <script src="/static/script.js"></script>
+
+  </head>
+  <body>
+
+    <!-- The DOM of our application. -->
+    <div class="trendy">
+
+      <!-- The title of the application. -->
+      <h1>Night Light Trends</h1>
+
+      <!-- A container which the Maps API will populate with a map. -->
+      <div class="map"></div>
+
+      <!-- The panel to show details about a place. -->
+      <div class="panel">
+
+        <!-- The button to toggle the panel expanded/collapsed. Mobile-only. -->
+        <div class="toggler">toggle</div>
+
+        <!-- The button to close the panel. Desktop-only. -->
+        <div class="close">close</div>
+
+        <!-- The title of the place for which details are being shown. -->
+        <h2 class="title"></h2>
+
+        <!-- A scrollable container for details about the polygon. -->
+        <div class="details">
+
+          <!-- A container which the Charts API will populate. -->
+          <div class="chart"></div>
+
+          <!-- The link to the polygon's Wikipedia page. -->
+          <a class="wiki-url">Wikipedia article</a>
+
+          <!-- The element to hold the error message. -->
+          <p class="error"></p>
+        </div>
+      </div>
+
+      <a href="https://earthengine.google.org">
+        <img class="powered-by-ee"
+             alt="Powered by Google Earth Engine"
+             src="/static/google_earthengine_powered_400px.png">
+      </a>
+    </div>
+
+    <!-- The "Fork me on GitHub" ribbon. -->
+    <a href="https://github.com/google/earthengine-api/tree/master/demos/trendy-lights">
+      <img style="position: absolute; top: 0; right: 0; border: 0; z-index: 1;"
+           alt="Fork me on GitHub"
+           src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67"
+           data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png">
+    </a>
+
+    <!-- Boot our JavaScript once the body has loaded. -->
+    <script>
+      trendy.boot(
+          '{{ mapUrlFormat | safe }}',
+          '{{ serializedPolygonIds | safe }}');
+    </script>
+
+  </body>
+</html>

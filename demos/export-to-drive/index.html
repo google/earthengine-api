@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EE Demo: Export to Google Drive</title>
+
+    {# Support for browsers on mobile phones. #}
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, user-scalable=no">
+
+    {# Google Web Fonts. #}
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+    {# Third-party JavaScript. #}
+    <script src='/_ah/channel/jsapi'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing"></script>
+    <script src="https://www.gstatic.com/external_hosted/twitter_bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/js/bootstrap-datepicker.min.js"></script>
+
+    {# The EE client library, used for ee.layers.ImageOverlay. #}
+    <script src="/static/ee_api_js.js"></script>
+
+    {# Third-party CSS.#}
+    <link rel="stylesheet" href="https://www.gstatic.com/external_hosted/twitter_bootstrap_css/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://www.gstatic.com/external_hosted/twitter_bootstrap_css/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.0/css/bootstrap-datepicker.min.css">
+
+    {# Custom styles and script for our application. #}
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js"></script>
+  </head>
+  <body>
+
+    {# The DOM of our application. #}
+    <div class="exporter">
+
+      {# A container which the Maps API will populate with a map. #}
+      <div class="map"></div>
+
+      {# The UI wrapper for the control box and notifications. #}
+      <div class="ui">
+
+        {# The main control box. #}
+        <div class="panel">
+
+          {# The title and instructions. #}
+          <header>
+            <h1>EE Demo: Export to Drive</h1>
+            <p class="instructions">
+              Click "Export" to generate a .TIF for the year & polygon selected.
+            </p>
+          </header>
+
+          <div class="controls">
+
+            <div class="inputs">
+
+              {# The year selection control. #}
+              <div class="input-block date">
+                <div class="input-block-label">Year:</div>
+                <input class="date-picker form-control">
+              </div>
+
+              {# The region selection control. #}
+              <div class="input-block region">
+                <span class="input-block-label">Region:</span>
+                <span class="message">
+                  <a class="draw" href="#">Draw on the map</a>
+                </span>
+                <span class="message-drawing">
+                  Draw a polygon...
+                  <button class="cancel btn btn-default btn-xs">Cancel</button>
+                </span>
+                <span class="message-selected">
+                  Selected
+                  <button class="clear btn btn-default btn-xs">Clear</button>
+                </span>
+              </div>
+
+              {# The exported filename control. #}
+              <div class="input-block">
+                <span class="input-block-label">Filename:</span>
+                <input type="text" name="filename" class="filename form-control"
+                       placeholder="default: Lights_Export_<datetime>">
+              </div>
+            </div>
+
+            <button class="export btn btn-primary" disabled>Export</button>
+
+          </div>
+        </div>
+
+        {# The list of notifications. #}
+        <div class="alerts"></div>
+      </div>
+    </div>
+
+    <div class="templates">
+      <div class="alert alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+
+    {# Boot our JavaScript once the body has loaded. #}
+    <script>
+      exporter.boot('{{ channelToken }}', '{{ clientId }}');
+    </script>
+
+  </body>
+</html>

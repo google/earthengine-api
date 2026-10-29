@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <!-- The element into which we render the Google Map. -->
+    <div id="map" style="width: 100%; height: 520px;"></div>
+    <br>
+    <div style="font-weight: bold;">Analysis Options</div>
+    <form oninput="pointsOutput.value = parseInt(points.value);" onsubmit="return false;">
+      Training Points:
+      <input id="points" name="points" type="range" min="5000" max="15000" value="10000">
+      <output for="points" name="pointsOutput">10000</output>
+      <button id="draw">Draw Sample Area</button>
+      <br><br>
+      <button id="get">Get Results</button>
+      Layers:
+      <select id="layers"></select>
+    </form>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <!-- Load the Google Maps API. -->
+    <script src="https://maps.google.com/maps/api/js?libraries=drawing"></script>
+
+    <!-- Load our JavaScript file. -->
+    <script src="/static/script.js?cb={{ cache_bust }}"></script>
+  </body>
+</html>

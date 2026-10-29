@@ -1,0 +1,46 @@
+name: ci-tests
+on:
+  # Triggers the workflow when new code is pushed to the master branch.
+  push:
+    branches: [ master ]
+  pull_request:
+  # Enables running this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "Python ${{ matrix.python-version }} tests on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [
+            "3.11",
+            "3.12",
+            "3.13",
+            "3.14",
+            "3.15",
+        ]
+        include:
+          - os: macos-latest
+            python-version: "3.13"
+          - os: windows-latest
+            python-version: "3.13"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install EE and dependencies
+        run: |
+          pip install ./python[tests]
+      - name: Test
+        run: |
+          python -m unittest discover --pattern="*test.py" --start-directory python/ee/tests
