@@ -9,7 +9,7 @@ var geometry = ee.Geometry.Polygon(
 
 // Use the MCD12 land-cover as training data.
 // See the collection docs to get details on classification system.
-var modisLandcover = ee.ImageCollection('MODIS/006/MCD12Q1')
+var modisLandcover = ee.ImageCollection('MODIS/061/MCD12Q1')
   .filterDate('2001-01-01', '2001-12-31')
   .first()
   .select('LC_Type1')

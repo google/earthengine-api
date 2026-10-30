@@ -22,7 +22,7 @@ var maskClouds = function(image) {
 
 // Start with an image collection for a 1 month period.
 // and mask out areas that were not observed.
-var collection = ee.ImageCollection('MODIS/006/MOD09GA')
+var collection = ee.ImageCollection('MODIS/061/MOD09GA')
         .filterDate('2010-04-01', '2010-05-01')
         .map(maskEmptyPixels)
 

@@ -9,7 +9,7 @@ Map.addLayer(rect);
 Map.centerObject(rect, 3);
 
 // Select MODIS vegetation composites from 2018.
-var collection = ee.ImageCollection("MODIS/006/MOD13Q1")
+var collection = ee.ImageCollection("MODIS/061/MOD13Q1")
   .filterDate('2018-01-01', '2019-01-01')
   .select('NDVI');
 
