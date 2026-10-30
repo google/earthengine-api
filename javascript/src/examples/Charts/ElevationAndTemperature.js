@@ -22,7 +22,7 @@ var summer = temperature.filterDate('2014-06-21', '2014-09-23')
 var winter = temperature.filterDate('2013-12-21', '2014-03-20')
     .reduce(ee.Reducer.mean())
     .select([0], ['winter']);
-var elevation = ee.Image('USGS/NED');  // Extract the elevation profile.
+var elevation = ee.ImageCollection('USGS/3DEP/10m_collection').mosaic();  // Extract the elevation profile.
 var startingPoint = ee.FeatureCollection(ee.Geometry.Point(sf));
 var distance = startingPoint.distance(500000);
 var image = distance.addBands(elevation).addBands(winter).addBands(summer);

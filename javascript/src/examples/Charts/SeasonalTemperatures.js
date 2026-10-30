@@ -4,7 +4,7 @@
 var states = ee.FeatureCollection('TIGER/2018/States');
 
 // Import temperature normals and convert month features to bands.
-var normClim = ee.ImageCollection('OREGONSTATE/PRISM/Norm81m')
+var normClim = ee.ImageCollection('OREGONSTATE/PRISM/Norm91m')
   .select(['tmean'])
   .toBands();
 
