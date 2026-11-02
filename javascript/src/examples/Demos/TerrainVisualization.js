@@ -2,7 +2,7 @@
 // a custom visualization of topography.
 
 // Load a global elevation image.
-var elev = ee.Image('USGS/GMTED2010').select('be75');
+var elev = ee.Image('USGS/GMTED2010_FULL').select('be75');
 
 // Zoom to an area of interest.
 Map.setCenter(-121.069, 50.709, 6);
