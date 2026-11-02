@@ -6,7 +6,7 @@
  */
 
 // Create an initial mosiac, which we'll visualize in a few different ways.
-var image = ee.ImageCollection('COPERNICUS/S2')
+var image = ee.ImageCollection('COPERNICUS/S2_HARMONIZED')
     .filterDate('2018-09-01', '2018-09-30')
     // Scale the images to a smaller range, just for simpler visualization.
     .map(function f(e) { return e.divide(10000); })

@@ -24,7 +24,7 @@ function maskS2clouds(image) {
 
 // Map the function over one year of data and take the median.
 // Load Sentinel-2 TOA reflectance data.
-var collection = ee.ImageCollection('COPERNICUS/S2')
+var collection = ee.ImageCollection('COPERNICUS/S2_HARMONIZED')
     .filterDate('2016-01-01', '2016-12-31')
     // Pre-filter to get less cloudy granules.
     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))
