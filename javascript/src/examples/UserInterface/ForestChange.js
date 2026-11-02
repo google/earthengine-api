@@ -5,13 +5,13 @@
 /*
  * Configure layers and locations
  */
-var hansen = ee.Image('UMD/hansen/global_forest_change_2017_v1_5');
+var hansen = ee.Image('UMD/hansen/global_forest_change_2025_v1_13');
 var layerProperties = {
   'Year of Loss': {
     name: 'lossyear',
-    visParams: {min: 0, max: 17, palette: ['yellow', 'orange', 'red']},
+    visParams: {min: 0, max: 25, palette: ['yellow', 'orange', 'red']},
     legend: [
-      {'2016': 'red'}, {'...': 'orange'}, {'2000': 'yellow'},
+      {'2025': 'red'}, {'...': 'orange'}, {'2000': 'yellow'},
       {'No loss': 'black'}, {'Water or no data': 'grey'}
     ],
     defaultVisibility: true

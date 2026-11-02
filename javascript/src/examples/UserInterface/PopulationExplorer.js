@@ -7,7 +7,7 @@
  */
 
 // The GHSL global population density dataset for 2015.
-var ghslPop = ee.Image('JRC/GHSL/P2016/POP_GPW_GLOBE_V1/2015');
+var ghslPop = ee.Image('JRC/GHSL/P2023A/GHS_POP/2015');
 
 // Country boundary data with associated precomputed population totals.
 // These are USDOS LSIB boundaries simplified somewhat for visualization.

@@ -20,17 +20,15 @@ var LESS_THAN = 'Less than';
 // Create an empty list of filter constraints.
 var constraints = [];
 
-// Load the WorldPop 2015 UN-adjusted population density estimates.
-// (Note that these are only available for some countries, e.g. not the US.)
-var pop = ee.ImageCollection('WorldPop/POP')
+// Load the WorldPop 2015 population density estimates.
+var pop = ee.ImageCollection('WorldPop/GP/100m/R2025A/v1/pop')
   .filter(ee.Filter.equals('year', 2015))
-  .filter(ee.Filter.equals('UNadj', 'yes'))
   .mosaic();
 var popVis = pop.where(pop.gt(0), pop.log())
   .visualize({min:0, max:6, palette: ['0000C0', 'FFFF80', 'C00000']});
 
-// Load SRTM 30m elevation and compute local terrain slope.
-var elevation = ee.Image('USGS/SRTMGL1_003');
+// Load NASADEM 30m elevation and compute local terrain slope.
+var elevation = ee.Image('NASA/NASADEM_HGT/001').select('elevation');
 var elevationVis = elevation.visualize({min: 0, max: 600, gamma: 2});
 var slope = ee.Terrain.slope(elevation);
 var slopeVis = slope.visualize({min: 0, max: 30, gamma: 2});
