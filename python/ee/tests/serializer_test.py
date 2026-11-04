@@ -402,6 +402,139 @@ class SerializerTest(apitestcase.ApiTestCase):
         expected_cloud, serializer.encode(call, for_cloud_api=True)
     )
 
+  def test_bytearray_serialization_legacy(self):
+    raw_bytes = bytearray(b'hello')
+    expected = {
+        'type': 'Bytes',
+        'value': 'aGVsbG8=',
+    }
+    self.assertEqual(
+        expected, serializer.encode(raw_bytes, for_cloud_api=False)
+    )
+    self.assertEqual(
+        expected,
+        serializer.encode(raw_bytes, is_compound=False, for_cloud_api=False),
+    )
+
+  def test_bytearray_serialization_cloud_api(self):
+    raw_bytes = bytearray(b'hello')
+    expected_compound = {
+        'result': '0',
+        'values': {
+            '0': {'bytesValue': 'aGVsbG8='},
+        },
+    }
+    self.assertEqual(
+        expected_compound, serializer.encode(raw_bytes, for_cloud_api=True)
+    )
+    self.assertEqual(
+        {'bytesValue': 'aGVsbG8='},
+        serializer.encode(raw_bytes, is_compound=False, for_cloud_api=True),
+    )
+
+  def test_bytearray_repeats(self):
+    raw_bytes = bytearray(b'hello')
+    repeated = [raw_bytes, raw_bytes]
+    expected_legacy = {
+        'type': 'CompoundValue',
+        'scope': [
+            ('0', {'type': 'Bytes', 'value': 'aGVsbG8='}),
+            (
+                '1',
+                [
+                    {'type': 'ValueRef', 'value': '0'},
+                    {'type': 'ValueRef', 'value': '0'},
+                ],
+            ),
+        ],
+        'value': {'type': 'ValueRef', 'value': '1'},
+    }
+    self.assertEqual(
+        expected_legacy, serializer.encode(repeated, for_cloud_api=False)
+    )
+    expected_cloud = {
+        'result': '0',
+        'values': {
+            '0': {
+                'arrayValue': {
+                    'values': [
+                        {'valueReference': '1'},
+                        {'valueReference': '1'},
+                    ]
+                }
+            },
+            '1': {'bytesValue': 'aGVsbG8='},
+        },
+    }
+    self.assertEqual(
+        expected_cloud, serializer.encode(repeated, for_cloud_api=True)
+    )
+    expected_pretty = {
+        'arrayValue': {
+            'values': [
+                {'bytesValue': 'aGVsbG8='},
+                {'bytesValue': 'aGVsbG8='},
+            ]
+        }
+    }
+    self.assertEqual(
+        expected_pretty,
+        serializer.encode(repeated, is_compound=False, for_cloud_api=True),
+    )
+
+  def test_bytearray_in_algorithm(self):
+    call = ee.ComputedObject('TestAlgorithm', {'data': bytearray(b'hello')})
+    expected_legacy = {
+        'type': 'CompoundValue',
+        'scope': [
+            ('0', {'type': 'Bytes', 'value': 'aGVsbG8='}),
+            (
+                '1',
+                {
+                    'type': 'Invocation',
+                    'functionName': 'TestAlgorithm',
+                    'arguments': {
+                        'data': {'type': 'ValueRef', 'value': '0'},
+                    },
+                },
+            ),
+        ],
+        'value': {'type': 'ValueRef', 'value': '1'},
+    }
+    self.assertEqual(
+        expected_legacy, serializer.encode(call, for_cloud_api=False)
+    )
+    expected_legacy_pretty = {
+        'type': 'Invocation',
+        'functionName': 'TestAlgorithm',
+        'arguments': {
+            'data': {
+                'type': 'Bytes',
+                'value': 'aGVsbG8=',
+            }
+        },
+    }
+    self.assertEqual(
+        expected_legacy_pretty,
+        serializer.encode(call, is_compound=False, for_cloud_api=False),
+    )
+    expected_cloud = {
+        'result': '0',
+        'values': {
+            '0': {
+                'functionInvocationValue': {
+                    'functionName': 'TestAlgorithm',
+                    'arguments': {
+                        'data': {'bytesValue': 'aGVsbG8='},
+                    },
+                }
+            }
+        },
+    }
+    self.assertEqual(
+        expected_cloud, serializer.encode(call, for_cloud_api=True)
+    )
+
   def test_single_value_no_compound(self):
     """Verifies serialization of a single non-primitive value."""
     self.assertEqual([1], serializer.encode([1], for_cloud_api=False))

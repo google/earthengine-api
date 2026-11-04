@@ -127,7 +127,7 @@ class Serializer:
     elif obj is None or isinstance(obj, (bool, float, int, str)):
       # Primitives are encoded as is and not saved in the scope.
       return obj
-    elif isinstance(obj, bytes):
+    elif isinstance(obj, (bytes, bytearray)):
       result = {'type': 'Bytes', 'value': base64.b64encode(obj).decode()}
     elif isinstance(obj, datetime.datetime):
       # A raw date slipped through. Wrap it. Calling ee.Date from here would
@@ -203,7 +203,7 @@ class Serializer:
       result = {'constantValue': obj}
     elif isinstance(obj, (float, int)):
       result = _cloud_api_utils.encode_number_as_cloud_value(obj)
-    elif isinstance(obj, bytes):
+    elif isinstance(obj, (bytes, bytearray)):
       result = {'bytesValue': base64.b64encode(obj).decode()}
     elif isinstance(obj, datetime.datetime):
       # A raw date slipped through. Wrap it. Calling ee.Date from here would
