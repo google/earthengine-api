@@ -760,13 +760,47 @@ apiclient.reset = function() {
 
 
 /**
- * Sets the timeout length for asynchronous API requests.
+ * Sets the timeout length for API requests. Applied to asynchronous XHR
+ * requests and passed as timeoutMs to custom synchronous and asynchronous
+ * transports (browsers do not support timeouts on native synchronous XHR).
  *
  * @param {number} milliseconds The number of milliseconds to wait for a
  *     request before considering it timed out. 0 means no limit.
  */
 apiclient.setDeadline = function(milliseconds) {
   apiclient.deadlineMs_ = milliseconds;
+};
+
+
+/**
+ * Sets a transport for asynchronous API requests. Passing null restores XHR.
+ * The transport receives {url, method, body, headers, timeoutMs} (with body
+ * null when absent and timeoutMs 0 when unset) and returns a Promise of
+ * {status, headers, body}, where headers is an optional plain header map
+ * (matched case-insensitively) and body is response text. Throwing or returning
+ * a rejected Promise fails the request with an error message. Synchronous
+ * requests can be configured separately with setSyncTransport.
+ *
+ * @param {?function(!apiclient.TransportRequest):
+ *     !Promise<!apiclient.TransportResponse>} transport
+ */
+apiclient.setAsyncTransport = function(transport) {
+  apiclient.asyncTransport_ = transport;
+};
+
+
+/**
+ * Sets a transport for synchronous API requests. Passing null restores XHR.
+ * The transport receives {url, method, body, headers, timeoutMs} (with body
+ * null when absent and timeoutMs 0 when unset) and returns
+ * {status, headers, body} directly, where headers is an optional plain header
+ * map (matched case-insensitively) and body is response text.
+ *
+ * @param {?function(!apiclient.TransportRequest):
+ *     !apiclient.TransportResponse} transport
+ */
+apiclient.setSyncTransport = function(transport) {
+  apiclient.syncTransport_ = transport;
 };
 
 
@@ -953,39 +987,100 @@ apiclient.send = function(
     };
 
     // Retry 429 responses with exponential backoff.
-    let xmlHttp;
+    const syncTransport = apiclient.syncTransport_;
+    let status;
+    let responseText;
+    let getHeader;
     let retryCount = 0;
     const maxRetries =
         (retries != null) ? retries : apiclient.MAX_SYNC_RETRIES_;
     while (true) {
-      xmlHttp = XmlHttp();
-      xmlHttp.open(method, url, false);
-      googObject.forEach(headers, setRequestHeader, xmlHttp);
-      xmlHttp.send(requestData);
-      if (xmlHttp.status != 429 || retryCount > maxRetries) {
+      if (syncTransport) {
+        const adapted = apiclient.normalizeTransportResponse_(syncTransport({
+          url: url,
+          method: method,
+          body: requestData,
+          headers: /** @type {!Object<string, string>} */ (
+              Object.assign({}, headers)),
+          timeoutMs: apiclient.deadlineMs_,
+        }));
+        status = adapted.status;
+        responseText = adapted.body;
+        getHeader = adapted.getHeader;
+      } else {
+        const xmlHttp = XmlHttp();
+        xmlHttp.open(method, url, false);
+        googObject.forEach(headers, setRequestHeader, xmlHttp);
+        xmlHttp.send(requestData);
+        status = xmlHttp.status;
+        responseText = xmlHttp.responseText;
+        getHeader = apiclient.createSafeHeaderGetter_(
+            function getResponseHeaderSafe(header) {
+              try {
+                return xmlHttp.getResponseHeader(header);
+              } catch (e) {
+                // Workaround for a non-browser XMLHttpRequest shim that doesn't
+                // implement getResponseHeader when synchronous.
+                return null;
+              }
+            },
+            xmlHttp.getAllResponseHeaders ?
+                () => xmlHttp.getAllResponseHeaders() :
+                null);
+      }
+      if (status != 429 || retryCount > maxRetries) {
         break;
       }
       apiclient.sleep_(apiclient.calculateRetryWait_(retryCount++));
     }
 
-    const safeGetHeader = apiclient.createSafeHeaderGetter_(
-        function getResponseHeaderSafe(header) {
-          try {
-            return xmlHttp.getResponseHeader(header);
-          } catch (e) {
-            // Workaround for a non-browser XMLHttpRequest shim that doesn't
-            // implement getResponseHeader when synchronous.
-            return null;
-          }
-        },
-        xmlHttp.getAllResponseHeaders ?
-            () => xmlHttp.getAllResponseHeaders() :
-            null);
-
     return apiclient.handleResponse_(
-        xmlHttp.status, safeGetHeader, xmlHttp.responseText,
+        status, getHeader, responseText,
         profileHookAtCallTime, undefined, url, method, detectPartialError);
   }
+};
+
+
+/**
+ * Validates a response returned by a custom transport and normalizes header
+ * lookups to be case-insensitive.
+ * @param {!apiclient.TransportResponse} response
+ * @return {{
+ *   status: number,
+ *   body: string,
+ *   getHeader: function(string): ?string,
+ * }}
+ * @private
+ */
+apiclient.normalizeTransportResponse_ = function(response) {
+  if (!response || typeof response !== 'object') {
+    throw new TypeError('Transport must return a response object.');
+  }
+  if (typeof response.status !== 'number' || !Number.isFinite(response.status)) {
+    throw new TypeError('Transport response must include a numeric status.');
+  }
+  const rawHeaders = response.headers;
+  if (rawHeaders != null &&
+      (typeof rawHeaders !== 'object' || Array.isArray(rawHeaders))) {
+    throw new TypeError('Transport response headers must be an object.');
+  }
+  /** @type {!Object<string, string>} */
+  const headers = rawHeaders || {};
+  const headerNames = Object.keys(headers);
+  const getHeader = (name) => {
+    const lowerName = name.toLowerCase();
+    const match = headerNames.find((k) => k.toLowerCase() === lowerName);
+    if (match === undefined) {
+      return null;
+    }
+    const value = headers[match];
+    return value == null ? null : String(value);
+  };
+  return {
+    status: response.status,
+    body: response.body == null ? '' : String(response.body),
+    getHeader: getHeader,
+  };
 };
 
 
@@ -1008,18 +1103,10 @@ apiclient.send = function(
 apiclient.buildAsyncRequest_ = function(
     url, callback, method, content, headers, retries, detectPartialError) {
   let retryCount = 0;
-  const request = {
-    url: url,
-    method: method,
-    content: content,
-    headers: headers
-  };
   const profileHookAtCallTime = apiclient.profileHook_;
   const maxRetries = (retries != null) ? retries : apiclient.MAX_ASYNC_RETRIES_;
-  const wrappedCallback = function(e) {
-    const xhrIo = e.target;
-
-    if (xhrIo.getStatus() == 429 && retryCount < maxRetries) {
+  const handleResult = function(status, getHeader, responseText) {
+    if (status == 429 && retryCount < maxRetries) {
       retryCount++;
       setTimeout(function() {
         apiclient.requestQueue_.push(request);
@@ -1028,15 +1115,29 @@ apiclient.buildAsyncRequest_ = function(
       return null;
     }
 
-    const safeGetHeader = apiclient.createSafeHeaderGetter_(
-        (header) => xhrIo.getResponseHeader(header),
-        () => xhrIo.getAllResponseHeaders());
-
     return apiclient.handleResponse_(
-        xhrIo.getStatus(), safeGetHeader, xhrIo.getResponseText(),
+        status, getHeader, responseText,
         profileHookAtCallTime, callback, url, method, detectPartialError);
   };
-  request.callback = wrappedCallback;
+  const request = {
+    url: url,
+    method: method,
+    content: content,
+    headers: headers,
+    asyncTransport: apiclient.asyncTransport_,
+    callback: function(e) {
+      const xhrIo = e.target;
+      const safeGetHeader = apiclient.createSafeHeaderGetter_(
+          (header) => xhrIo.getResponseHeader(header),
+          xhrIo.getAllResponseHeaders ?
+              () => xhrIo.getAllResponseHeaders() :
+              null);
+      return handleResult(
+          xhrIo.getStatus(), safeGetHeader, xhrIo.getResponseText());
+    },
+    onResponse: handleResult,
+    onError: (error) => callback(undefined, String(error) || 'Transport error'),
+  };
 
   return request;
 };
@@ -1547,6 +1648,16 @@ apiclient.NetworkRequest_ = class {
     this.callback;
 
     /**
+     * @type {function(number, function(string): ?string, string): *}
+     */
+    this.onResponse;
+
+    /**
+     * @type {function(*)}
+     */
+    this.onError;
+
+    /**
      * @type {string}
      */
     this.method;
@@ -1560,6 +1671,12 @@ apiclient.NetworkRequest_ = class {
      * @type {!Object<string, string>}
      */
     this.headers;
+
+    /**
+     * @type {?function(!apiclient.TransportRequest):
+     *     !Promise<!apiclient.TransportResponse>}
+     */
+    this.asyncTransport;
   }
 };
 
@@ -1569,6 +1686,20 @@ apiclient.NetworkRequest_ = class {
  * @private {!Array<!apiclient.NetworkRequest_>}
  */
 apiclient.requestQueue_ = [];
+
+
+/**
+ * @private {?function(!apiclient.TransportRequest):
+ *     !Promise<!apiclient.TransportResponse>}
+ */
+apiclient.asyncTransport_ = null;
+
+
+/**
+ * @private {?function(!apiclient.TransportRequest):
+ *     !apiclient.TransportResponse}
+ */
+apiclient.syncTransport_ = null;
 
 
 /**
@@ -1586,9 +1717,27 @@ apiclient.REQUEST_THROTTLE_INTERVAL_MS_ = 350;
 apiclient.RequestThrottle_ = new Throttle(function() {
   const request = apiclient.requestQueue_.shift();
   if (request) {
-    XhrIo.send(
-        request.url, request.callback, request.method, request.content,
-        request.headers, apiclient.deadlineMs_);
+    if (request.asyncTransport) {
+      const transport = request.asyncTransport;
+      Promise.resolve()
+          .then(() => transport({
+            url: request.url,
+            method: request.method,
+            body: request.content,
+            headers: /** @type {!Object<string, string>} */ (
+                Object.assign({}, request.headers)),
+            timeoutMs: apiclient.deadlineMs_,
+          }))
+          .then((response) => apiclient.normalizeTransportResponse_(response))
+          .then(
+              (adapted) => request.onResponse(
+                  adapted.status, adapted.getHeader, adapted.body),
+              (error) => request.onError(error));
+    } else {
+      XhrIo.send(
+          request.url, request.callback, request.method, request.content,
+          request.headers, apiclient.deadlineMs_);
+    }
   }
   if (!array.isEmpty(apiclient.requestQueue_)) {
     apiclient.RequestThrottle_.fire();
@@ -1738,8 +1887,9 @@ apiclient.initialized_ = false;
 
 /**
  * The number of milliseconds to wait for each request before considering it
- * timed out. 0 means no limit. Note that this is not supported by browsers for
- * synchronous requests.
+ * timed out. 0 means no limit. Applied to asynchronous XHR requests and passed
+ * as timeoutMs to custom transports (not supported by browsers for native
+ * synchronous XHR requests).
  * @private {number}
  */
 apiclient.deadlineMs_ = 0;
@@ -1903,6 +2053,68 @@ apiclient.AuthResponse = class {
 };
 
 
+/**
+ * Request parameters passed to a custom network transport.
+ * @record @struct
+ */
+apiclient.TransportRequest = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.url;
+
+    /**
+     * @export {string}
+     */
+    this.method;
+
+    /**
+     * @export {?string}
+     */
+    this.body;
+
+    /**
+     * @export {!Object<string, string>}
+     */
+    this.headers;
+
+    /**
+     * @export {number}
+     */
+    this.timeoutMs;
+  }
+};
+
+
+/**
+ * Response returned by a custom network transport.
+ * @record @struct
+ */
+apiclient.TransportResponse = class {
+  constructor() {
+    /**
+     * HTTP status code.
+     * @export {number}
+     */
+    this.status;
+
+    /**
+     * Optional plain map of response header names to values. Header names are
+     * matched case-insensitively.
+     * @export {?Object<string, string>|undefined}
+     */
+    this.headers;
+
+    /**
+     * Response body text.
+     * @export {string}
+     */
+    this.body;
+  }
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                   Exports.                                 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -1932,6 +2144,8 @@ exports.makeRequest = apiclient.makeRequest_;
 exports.reset = apiclient.reset;
 exports.initialize = apiclient.initialize;
 exports.setDeadline = apiclient.setDeadline;
+exports.setAsyncTransport = apiclient.setAsyncTransport;
+exports.setSyncTransport = apiclient.setSyncTransport;
 exports.isInitialized = apiclient.isInitialized;
 
 exports.ensureAuthLibLoaded = apiclient.ensureAuthLibLoaded_;
@@ -1958,6 +2172,8 @@ exports.getTileBaseUrl = apiclient.getTileBaseUrl;
 
 exports.AuthArgs = apiclient.AuthArgs;
 exports.AuthResponse = apiclient.AuthResponse;
+exports.TransportRequest = apiclient.TransportRequest;
+exports.TransportResponse = apiclient.TransportResponse;
 
 exports.RequestThrottle = apiclient.RequestThrottle_;
 exports.calculateRetryWait = apiclient.calculateRetryWait_;
