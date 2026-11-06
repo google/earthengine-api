@@ -30,7 +30,7 @@ const BROWSER_FOOTER = [
  */
 const NODEJS_BANNER = [
   'const {google} = require(\'googleapis\');',
-  'const XMLHttpRequest = require(\'xmlhttprequest\').XMLHttpRequest;',
+  'const XMLHttpRequest = require(\'xmlhttprequest-ssl\').XMLHttpRequest;',
 ].join('\n') + '\n';
 const NODEJS_FOOTER = [
   'goog.Timer.defaultTimerObject = global;',

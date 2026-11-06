@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "googleapis": "^92.0.0",
-    "xmlhttprequest": "^1.8.0"
+    "xmlhttprequest-ssl": "^2.1.1"
   },
   "devDependencies": {
     "browserify": "^14.3.0",
