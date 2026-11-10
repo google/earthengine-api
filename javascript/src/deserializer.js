@@ -15,7 +15,6 @@ goog.require('ee.api');
 goog.require('ee.apiclient');
 goog.require('ee.rpc_node');
 goog.require('goog.array');
-goog.require('goog.object');
 
 
 
@@ -50,18 +49,20 @@ ee.Deserializer.decode = function(json) {
   if (('result' in json) && ('values' in json)) {
     return ee.Deserializer.decodeCloudApi(json);
   }
-  const namedValues = {};
+  const namedValues = new Map();
 
   // Incrementally decode scope entries if there are any.
   if (goog.isObject(json) && json['type'] === 'CompoundValue') {
     const scopes = json['scope'];
     for (let i = 0; i < scopes.length; i++) {
-      const key = scopes[i][0];
+      // Convert once: the key may be an object whose toString() returns
+      // different strings on different calls.
+      const key = String(scopes[i][0]);
       const value = scopes[i][1];
-      if (key in namedValues) {
+      if (namedValues.has(key)) {
         throw new Error(`Duplicate scope key "${key}" in scope #${i}.`);
       }
-      namedValues[key] = ee.Deserializer.decodeValue_(value, namedValues);
+      namedValues.set(key, ee.Deserializer.decodeValue_(value, namedValues));
     }
     json = json['value'];
   }
@@ -77,7 +78,8 @@ ee.Deserializer.decode = function(json) {
  * to be a CompoundValue.
  *
  * @param {*} json The serialized object to decode.
- * @param {!Object} namedValues The objects that can be referenced by ValueRefs.
+ * @param {!Map<string, *>} namedValues The objects that can be referenced by
+ *     ValueRefs.
  * @return {*} The decoded object.
  * @private
  */
@@ -103,12 +105,15 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
   // Check for explicitly typed values.
   const typeName = json['type'];
   switch (typeName) {
-    case 'ValueRef':
-      if (json['value'] in namedValues) {
-        return namedValues[json['value']];
-      } else {
-        throw new Error('Unknown ValueRef: ' + json);
+    case 'ValueRef': {
+      // Convert once: `value` may be an object whose toString() returns
+      // different strings on different calls.
+      const name = String(json['value']);
+      if (!namedValues.has(name)) {
+        throw new Error(`Unknown ValueRef: ${name}`);
       }
+      return namedValues.get(name);
+    }
     case 'ArgumentRef':
       const varName = json['value'];
       if (typeof varName !== 'string') {
@@ -132,12 +137,13 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       } else {
         func = ee.Deserializer.decodeValue_(json['function'], namedValues);
       }
-      const args = goog.object.map(json['arguments'], function(element) {
-        return ee.Deserializer.decodeValue_(element, namedValues);
-      });
+      const args = ee.Deserializer.mapObject_(
+          json['arguments'], function(element) {
+            return ee.Deserializer.decodeValue_(element, namedValues);
+          });
       return ee.Deserializer.invocation_(func, args);
     case 'Dictionary':
-      return goog.object.map(json['value'], function(element) {
+      return ee.Deserializer.mapObject_(json['value'], function(element) {
         return ee.Deserializer.decodeValue_(element, namedValues);
       });
     case 'Function':
@@ -168,6 +174,31 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
     default:
       throw new Error('Unknown encoded object type: ' + typeName);
   }
+};
+
+
+/**
+ * Like goog.object.map, but safe for untrusted input: only visits the
+ * object's own keys, and rejects the key "__proto__", which would replace
+ * the result's prototype instead of adding an entry.
+ *
+ * @param {?Object|undefined} obj
+ * @param {function(*): *} f
+ * @return {!Object<string, *>}
+ * @private
+ */
+ee.Deserializer.mapObject_ = function(obj, f) {
+  const result = {};
+  if (obj == null) {
+    return result;  // Same as goog.object.map for null/undefined.
+  }
+  for (const key of Object.keys(obj)) {
+    if (key === '__proto__') {
+      throw new Error('Invalid key "__proto__".');
+    }
+    result[key] = f(obj[key]);
+  }
+  return result;
 };
 
 
@@ -255,15 +286,18 @@ ee.Deserializer.fromCloudApiJSON = function(json) {
 ee.Deserializer.decodeCloudApi = function(json) {
   const expression = ee.apiclient.deserialize(ee.api.Expression, json);
 
-  const decoded = {};
+  const decoded = new Map();
   const lookup = (reference, kind) => {
-    if (!(reference in decoded)) {
-      if (!(reference in expression.values)) {
-        throw new Error(`Cannot find ${kind} ${reference}`);
+    // Convert once: the reference may be an object whose toString() returns
+    // different strings on different calls.
+    const name = String(reference);
+    if (!decoded.has(name)) {
+      if (!Object.prototype.hasOwnProperty.call(expression.values, name)) {
+        throw new Error(`Cannot find ${kind} ${name}`);
       }
-      decoded[reference] = decode(expression.values[reference]);
+      decoded.set(name, decode(expression.values[name]));
     }
-    return decoded[reference];
+    return decoded.get(name);
   };
 
   const decode = (node) => {
@@ -272,7 +306,7 @@ ee.Deserializer.decodeCloudApi = function(json) {
     } else if (node.arrayValue !== null) {
       return node.arrayValue.values.map(decode);
     } else if (node.dictionaryValue !== null) {
-      return goog.object.map(node.dictionaryValue.values, decode);
+      return ee.Deserializer.mapObject_(node.dictionaryValue.values, decode);
     } else if (node.argumentReference !== null) {
       return ee.CustomFunction.variable(Object, node.argumentReference);
     } else if (node.functionDefinitionValue !== null) {
@@ -304,7 +338,7 @@ ee.Deserializer.decodeCloudApi = function(json) {
     const func = invoked.functionReference ?
         lookup(invoked.functionReference, 'function') :
         ee.ApiFunction.lookup(invoked.functionName);
-    const args = goog.object.map(invoked.arguments, decode);
+    const args = ee.Deserializer.mapObject_(invoked.arguments, decode);
     return ee.Deserializer.invocation_(func, args);
   };
 
