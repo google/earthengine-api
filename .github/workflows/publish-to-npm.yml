@@ -21,7 +21,7 @@ jobs:
           token_format: "access_token"
       - uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version: 24
           registry-url: https://registry.npmjs.org/
       - run: |
           cd javascript/
@@ -35,16 +35,38 @@ jobs:
     if: "!github.event.release.prerelease"  # Only run if not a prerelease.
     needs: smoke-test
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version: 24
           registry-url: https://registry.npmjs.org/
+          package-manager-cache: false  # never use caching in release builds
       - run: |
           cd javascript/
           npm install
           npm run build
           npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}
+
+  stage-npm:
+    if: "github.event.release.prerelease"  # Only run on prerelease.
+    needs: smoke-test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org/
+          package-manager-cache: false  # never use caching in release builds
+      - run: |
+          cd javascript/
+          npm install
+          npm run build
+          npm stage publish
