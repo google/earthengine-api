@@ -3296,6 +3296,12 @@
       "argumentName": "id",
       "type": "String",
       "description": "The Classifier\u0027s Asset ID."
+    }, {
+      "argumentName": "version",
+      "type": "Long",
+      "description": "The version of the asset. -1 signifies the latest version.",
+      "optional": true,
+      "defaultValue": -1.0
     }]
   }, {
     "name": "algorithms/Classifier.mode",
