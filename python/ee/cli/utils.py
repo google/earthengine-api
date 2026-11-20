@@ -11,6 +11,7 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import tempfile
 import threading
 import time
@@ -146,7 +147,7 @@ class CommandLineConfig:
     config_path.write_text(json.dumps(config))
 
 
-def _split_gcs_path(path):
+def _split_gcs_path(path: str) -> tuple[str, str]:
   # This only catches some troubles. For complete details on naming, see:
   #   https://cloud.google.com/storage/docs/buckets
   #   https://cloud.google.com/storage/docs/objects#naming
@@ -154,10 +155,10 @@ def _split_gcs_path(path):
   if not m:
     raise ValueError(f"'{path}' is not a valid GCS path")
 
-  return m.groups()
+  return m.group(1), m.group(2)
 
 
-def _canonicalize_dir_path(path):
+def _canonicalize_dir_path(path: str) -> str:
   return path.strip().rstrip('/')
 
 
@@ -187,25 +188,65 @@ class GcsHelper:
   def download_dir_to_temp(self, path: str) -> str:
     """Downloads recursively the contents at a GCS path to a temp directory."""
     canonical_path = _canonicalize_dir_path(path)
+    _, prefix = _split_gcs_path(canonical_path)
+    expected_prefix = prefix + '/'
     blobs = self._get_blobs_under_path(canonical_path)
-    temp_dir = tempfile.mkdtemp()
+    temp_dir_path = pathlib.Path(tempfile.mkdtemp())
+    completed = False
+    try:
+      real_temp_dir = temp_dir_path.resolve()
+      for blob in blobs:
+        blob_name = _ensure_str(blob.name)
+        if not blob_name.startswith(expected_prefix):
+          raise ValueError(
+              f'Blob name {blob.name!r} does not start with expected prefix '
+              f'{expected_prefix!r}.'
+          )
+        if blob_name == expected_prefix:
+          continue
 
-    bucket, prefix = _split_gcs_path(canonical_path)
-    del bucket  # Unused
-    for blob in blobs:
-      stripped_name = blob.name[len(prefix):]
-      if stripped_name == '/':
-        continue
+        relative_name = blob_name[len(expected_prefix):]
+        if '\\' in relative_name:
+          raise ValueError(
+              f'Blob name {blob.name!r} contains invalid backslash separator.'
+          )
+        trimmed_name = (
+            relative_name[:-1] if relative_name.endswith('/') else relative_name
+        )
+        for part in trimmed_name.split('/'):
+          if part in ('', '.', '..'):
+            raise ValueError(
+                f'Blob name {blob.name!r} contains invalid path component '
+                f'{part!r}.'
+            )
+        win_drive = pathlib.PureWindowsPath(relative_name).drive
+        if win_drive:
+          raise ValueError(
+              f'Blob name {blob.name!r} contains invalid drive prefix '
+              f'{win_drive!r}.'
+          )
 
-      output_path = temp_dir + _ensure_str(stripped_name)
-      dir_path = os.path.dirname(output_path)
-      if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
+        output_path = temp_dir_path / relative_name
+        real_output_path = output_path.resolve()
+        if (
+            real_output_path == real_temp_dir
+            or not real_output_path.is_relative_to(real_temp_dir)
+        ):
+          raise ValueError(
+              f'Blob name {blob.name!r} resolves outside of temp directory.'
+          )
 
-      if not output_path.endswith('/'):
-        blob.download_to_filename(output_path)
+        if relative_name.endswith('/'):
+          output_path.mkdir(parents=True, exist_ok=True)
+          continue
 
-    return temp_dir
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        blob.download_to_filename(str(output_path))
+      completed = True
+      return str(temp_dir_path)
+    finally:
+      if not completed:
+        shutil.rmtree(temp_dir_path, ignore_errors=True)
 
   def upload_dir_to_bucket(self, source_path: str, dest_path: str) -> None:
     """Uploads a directory to cloud storage."""
