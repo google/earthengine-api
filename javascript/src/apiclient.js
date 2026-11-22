@@ -771,6 +771,31 @@ apiclient.setDeadline = function(milliseconds) {
 
 
 /**
+ * Sets a transport for asynchronous API requests. Passing null restores XHR.
+ * The transport receives {url, method, body, headers, timeoutMs} and returns
+ * a Promise of {status, headers, body}, where body is response text.
+ * Synchronous requests can be configured separately with setSyncTransport.
+ *
+ * @param {?function(!Object):!Promise<!Object>} transport
+ */
+apiclient.setAsyncTransport = function(transport) {
+  apiclient.asyncTransport_ = transport;
+};
+
+
+/**
+ * Sets a transport for synchronous API requests. Passing null restores XHR.
+ * The transport receives {url, method, body, headers, timeoutMs} and returns
+ * {status, headers, body} directly, where body is response text.
+ *
+ * @param {?function(!Object):!Object} transport
+ */
+apiclient.setSyncTransport = function(transport) {
+  apiclient.syncTransport_ = transport;
+};
+
+
+/**
  * Sets a function used to transform request parameters.
  *
  * @param {?function(!Uri.QueryData, string): !Uri.QueryData}
@@ -958,10 +983,32 @@ apiclient.send = function(
     const maxRetries =
         (retries != null) ? retries : apiclient.MAX_SYNC_RETRIES_;
     while (true) {
-      xmlHttp = XmlHttp();
-      xmlHttp.open(method, url, false);
-      googObject.forEach(headers, setRequestHeader, xmlHttp);
-      xmlHttp.send(requestData);
+      if (apiclient.syncTransport_) {
+        const response = apiclient.syncTransport_({
+          url: url,
+          method: method,
+          body: requestData,
+          headers: headers,
+          timeoutMs: apiclient.deadlineMs_
+        });
+        const responseHeaders = response.headers || {};
+        xmlHttp = {
+          status: response.status,
+          responseText: response.body,
+          getResponseHeader: (name) => {
+            const key = Object.keys(responseHeaders).find(
+                (key) => key.toLowerCase() === name.toLowerCase());
+            return key === undefined ? null : responseHeaders[key];
+          },
+          getAllResponseHeaders: () => Object.keys(responseHeaders)
+              .map((key) => key + ': ' + responseHeaders[key]).join('\r\n')
+        };
+      } else {
+        xmlHttp = XmlHttp();
+        xmlHttp.open(method, url, false);
+        googObject.forEach(headers, setRequestHeader, xmlHttp);
+        xmlHttp.send(requestData);
+      }
       if (xmlHttp.status != 429 || retryCount > maxRetries) {
         break;
       }
@@ -1037,6 +1084,7 @@ apiclient.buildAsyncRequest_ = function(
         profileHookAtCallTime, callback, url, method, detectPartialError);
   };
   request.callback = wrappedCallback;
+  request.onError = (error) => callback(undefined, String(error));
 
   return request;
 };
@@ -1547,6 +1595,11 @@ apiclient.NetworkRequest_ = class {
     this.callback;
 
     /**
+     * @type {function(*)}
+     */
+    this.onError;
+
+    /**
      * @type {string}
      */
     this.method;
@@ -1571,6 +1624,14 @@ apiclient.NetworkRequest_ = class {
 apiclient.requestQueue_ = [];
 
 
+/** @private {?function(!Object):!Promise<!Object>} */
+apiclient.asyncTransport_ = null;
+
+
+/** @private {?function(!Object):!Object} */
+apiclient.syncTransport_ = null;
+
+
 /**
  * The network request throttle interval in milliseconds. The server permits ~3
  * QPS https://developers.google.com/earth-engine/usage.
@@ -1586,9 +1647,34 @@ apiclient.REQUEST_THROTTLE_INTERVAL_MS_ = 350;
 apiclient.RequestThrottle_ = new Throttle(function() {
   const request = apiclient.requestQueue_.shift();
   if (request) {
-    XhrIo.send(
-        request.url, request.callback, request.method, request.content,
-        request.headers, apiclient.deadlineMs_);
+    if (apiclient.asyncTransport_) {
+      const transport = apiclient.asyncTransport_;
+      Promise.resolve().then(() => transport({
+        url: request.url,
+        method: request.method,
+        body: request.content,
+        headers: request.headers,
+        timeoutMs: apiclient.deadlineMs_
+      })).then((response) => {
+        const headers = response.headers || {};
+        const getHeader = (name) => {
+          const key = Object.keys(headers).find(
+              (key) => key.toLowerCase() === name.toLowerCase());
+          return key === undefined ? null : headers[key];
+        };
+        request.callback({target: {
+          getStatus: () => response.status,
+          getResponseHeader: getHeader,
+          getAllResponseHeaders: () => Object.keys(headers)
+              .map((key) => key + ': ' + headers[key]).join('\r\n'),
+          getResponseText: () => response.body
+        }});
+      }, (error) => request.onError(error));
+    } else {
+      XhrIo.send(
+          request.url, request.callback, request.method, request.content,
+          request.headers, apiclient.deadlineMs_);
+    }
   }
   if (!array.isEmpty(apiclient.requestQueue_)) {
     apiclient.RequestThrottle_.fire();
@@ -1932,6 +2018,8 @@ exports.makeRequest = apiclient.makeRequest_;
 exports.reset = apiclient.reset;
 exports.initialize = apiclient.initialize;
 exports.setDeadline = apiclient.setDeadline;
+exports.setAsyncTransport = apiclient.setAsyncTransport;
+exports.setSyncTransport = apiclient.setSyncTransport;
 exports.isInitialized = apiclient.isInitialized;
 
 exports.ensureAuthLibLoaded = apiclient.ensureAuthLibLoaded_;
