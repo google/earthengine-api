@@ -154,6 +154,12 @@ def _valid_credentials_exist(
 def is_valid_credentials(credentials: Any | None) -> bool:
   if credentials is None:
     return False
+  token = getattr(credentials, 'token', None)
+  if isinstance(token, str) and token and (
+      getattr(credentials, 'valid', True)
+      or not getattr(credentials, 'refresh_token', None)
+  ):
+    return True
   try:
     credentials.refresh(google.auth.transport.requests.Request())
   except google.auth.exceptions.RefreshError:
