@@ -43,7 +43,7 @@ ee.Number = function(number) {
     ee.Number.base(this, 'constructor', null, null);
     this.number_ = /** @type {number} */ (number);
   } else if (number instanceof ee.ComputedObject) {
-    ee.Number.base(this, 'constructor', number.func, number.args, number.varName);
+    ee.Number.base(this, 'constructor', number.func, number.args, number.varName, number.unbound);
     this.number_ = null;
   } else {
     throw Error('Invalid argument specified for ee.Number(): ' + number);
