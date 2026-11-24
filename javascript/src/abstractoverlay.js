@@ -97,7 +97,7 @@ earthengine_api.javascript.abstractoverlay.AbstractOverlay
 /** @return {number} The number of tiles which have failed. */
 earthengine_api.javascript.abstractoverlay.AbstractOverlay
     .prototype.getFailedTilesCount = function() {
-  return this.tilesFailed.getCount();
+  return this.tilesFailed.size;
 };
 
 

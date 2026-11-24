@@ -6,7 +6,6 @@ goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
-goog.require('goog.iter');
 goog.require('goog.net.EventType');
 goog.require('goog.structs.Set');
 goog.require('goog.style');
@@ -157,7 +156,7 @@ ee.MapLayerOverlay =
 
   /** @return {number} The number of tiles successfully loaded. */
   getLoadedTilesCount() {
-    return this.tiles_.getCount();
+    return this.tiles_.size;
   }
 
   /**
@@ -176,9 +175,9 @@ ee.MapLayerOverlay =
   releaseTile(tileDiv) {
     ee.MapTileManager.getInstance().abort(tileDiv.id);
     const tileImg = goog.dom.getFirstElementChild(tileDiv);
-    this.tiles_.remove(tileImg);
+    this.tiles_.delete(tileImg);
     if (tileDiv.id !== '') {  // Out-of-bounds tiles have no ID.
-      this.tilesFailed.remove(tileDiv.id);
+      this.tilesFailed.delete(tileDiv.id);
       if (this.profiler_) {
         this.profiler_.removeTile(tileDiv.id);
       }
@@ -191,10 +190,9 @@ ee.MapLayerOverlay =
    */
   setOpacity(opacity) {
     this.opacity_ = opacity;
-    const iter = this.tiles_.__iterator__();
-    goog.iter.forEach(iter, function(tile) {
+    for (const tile of this.tiles_.values()) {
       goog.style.setOpacity(tile, opacity);
-    });
+    }
   }
 
   /**

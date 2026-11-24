@@ -282,7 +282,7 @@ ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
     // Could be either case #1 or case #2 described in the JsDocs above.
     const seen = new goog.structs.Set(goog.object.getKeys(firstArg));
     const expected = new goog.structs.Set(paramNames);
-    const anyExpected = !expected.intersection(seen).isEmpty();
+    const anyExpected = (expected.intersection(seen).size !== 0);
     if (anyExpected) {
       // Case #1 above.
       const unexpected = seen.difference(expected);
